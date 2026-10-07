@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "master_lockpicks",
+  "name": "Мастерские отмычки",
+  "weight": 0.3,
+  "tags": [
+    "tool",
+    "lockpicks"
+  ],
+  "durability": 40,
+  "check_aids": [
+    {
+      "check_tag": "lockpicking",
+      "mode": "automatic"
+    }
+  ]
+}

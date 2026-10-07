@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "ruined_shrine",
+  "name": "Забытое святилище",
+  "text": "Среди обломков стоит алтарь. На камне видны древние письмена.",
+  "choices": [
+    {
+      "id": "pray",
+      "text": "Обратиться к древним богам",
+      "ability": "wisdom",
+      "difficulty": 13,
+      "success": [
+        {
+          "kind": "heal",
+          "amount": 3
+        },
+        {
+          "kind": "experience",
+          "amount": 10
+        }
+      ],
+      "failure": [
+        {
+          "kind": "condition",
+          "condition": "frightened",
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "id": "read",
+      "text": "Разобрать письмена",
+      "ability": "intelligence",
+      "difficulty": 12,
+      "advantage_tags": [
+        "scholar"
+      ],
+      "success": [
+        {
+          "kind": "experience",
+          "amount": 10
+        }
+      ],
+      "failure": []
+    }
+  ]
+}

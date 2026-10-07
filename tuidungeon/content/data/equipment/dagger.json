@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "dagger",
+  "name": "Кинжал",
+  "weight": 0.5,
+  "tags": [
+    "weapon",
+    "blade"
+  ],
+  "slot": "weapon",
+  "durability": 30,
+  "weapon_damage": "1d4",
+  "weapon_ability": "dexterity"
+}

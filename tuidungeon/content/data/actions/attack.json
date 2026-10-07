@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "attack",
+  "name": "Атака",
+  "kind": "attack",
+  "ability": "strength",
+  "description": "Атака экипированным оружием; без него — 1d4."
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "new_challenge",
+  "name": "Новый шаблон: Запертый сундук",
+  "text": "Перед вами сундук с ржавым замком. Как вы его откроете?",
+  "choices": [
+    {
+      "id": "pick_lock",
+      "text": "Вскрыть замок отмычками",
+      "ability": "dexterity",
+      "difficulty": 12,
+      "check_tag": "lockpicking",
+      "required_tags": [
+        "lockpicks"
+      ],
+      "success": [
+        {
+          "kind": "gold",
+          "amount": 10
+        },
+        {
+          "kind": "experience",
+          "amount": 15
+        }
+      ],
+      "failure": [
+        {
+          "kind": "damage",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "force",
+      "text": "Выломать замок силой",
+      "ability": "strength",
+      "difficulty": 14,
+      "success": [
+        {
+          "kind": "gold",
+          "amount": 10
+        },
+        {
+          "kind": "experience",
+          "amount": 15
+        }
+      ],
+      "failure": [
+        {
+          "kind": "damage",
+          "amount": 3
+        }
+      ]
+    },
+    {
+      "id": "use_key",
+      "text": "Открыть подходящим ключом",
+      "required_tags": [
+        "chest_key"
+      ],
+      "success": [
+        {
+          "kind": "gold",
+          "amount": 10
+        },
+        {
+          "kind": "experience",
+          "amount": 15
+        }
+      ]
+    }
+  ],
+  "repeatable": false
+}

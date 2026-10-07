@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "goblin",
+  "name": "Гоблин",
+  "description": "Проворный обитатель подземелий.",
+  "glyph": "g",
+  "foreground": 10,
+  "background": null,
+  "art": "base:goblin",
+  "stats": {
+    "strength": 8,
+    "dexterity": 14,
+    "constitution": 10,
+    "intelligence": 10,
+    "wisdom": 8,
+    "charisma": 8
+  },
+  "hit_points": 7,
+  "armor_class": 13,
+  "speed": 2,
+  "initiative_bonus": 1,
+  "actions": [
+    "base:attack",
+    "base:dodge",
+    "base:stealth",
+    "base:magic",
+    "base:influence"
+  ],
+  "special_actions": [
+    {
+      "id": "dirty_strike",
+      "name": "Подлый удар",
+      "kind": "attack",
+      "ability": "dexterity",
+      "bonus": 0,
+      "damage": "1d4",
+      "effects": [
+        {
+          "kind": "condition",
+          "amount": 0,
+          "dice": null,
+          "condition": "poisoned",
+          "duration": 2,
+          "params": {}
+        }
+      ],
+      "difficulty": 10,
+      "description": ""
+    }
+  ],
+  "inventory": [],
+  "spells": [],
+  "spell_slots": {},
+  "tags": [
+    "humanoid",
+    "goblin"
+  ]
+}

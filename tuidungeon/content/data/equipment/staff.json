@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "staff",
+  "name": "Посох",
+  "weight": 2,
+  "tags": [
+    "weapon",
+    "focus"
+  ],
+  "slot": "weapon",
+  "durability": 30,
+  "weapon_damage": "1d6"
+}

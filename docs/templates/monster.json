@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "new_monster",
+  "name": "Новый шаблон: Гоблин",
+  "stats": {
+    "strength": 8,
+    "dexterity": 14,
+    "constitution": 10,
+    "intelligence": 10,
+    "wisdom": 8,
+    "charisma": 8
+  },
+  "hit_points": 7,
+  "armor_class": 13,
+  "speed": 2,
+  "initiative_bonus": 1,
+  "actions": [
+    "attack",
+    "dodge",
+    "stealth",
+    "magic",
+    "influence"
+  ],
+  "special_actions": [
+    {
+      "id": "dirty_strike",
+      "name": "Подлый удар",
+      "kind": "attack",
+      "ability": "dexterity",
+      "damage": "1d4",
+      "effects": [
+        {
+          "kind": "condition",
+          "condition": "poisoned",
+          "duration": 2
+        }
+      ]
+    }
+  ],
+  "tags": [
+    "humanoid",
+    "goblin"
+  ],
+  "art": "goblin",
+  "description": "Проворный обитатель подземелий."
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "elf",
+  "name": "Эльф",
+  "order": 2,
+  "racial_spell": "detect_magic",
+  "racial_uses": 1,
+  "description": "Обнаружение магии: раз за отдых"
+}

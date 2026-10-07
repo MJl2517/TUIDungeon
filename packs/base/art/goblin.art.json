@@ -1,0 +1,699 @@
+{
+  "schema_version": 1,
+  "id": "goblin",
+  "name": "Goblin",
+  "description": "",
+  "width": 15,
+  "height": 9,
+  "layers": [
+    {
+      "id": "base",
+      "name": "Основной",
+      "visible": true,
+      "locked": false,
+      "cells": [
+        [
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          }
+        ],
+        [
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          null,
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          }
+        ],
+        [
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "└",
+            "foreground": 22,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "◆",
+            "foreground": 88,
+            "background": 22
+          },
+          {
+            "char": "◆",
+            "foreground": 88,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "┘",
+            "foreground": 22,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          }
+        ],
+        [
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          }
+        ],
+        [
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          null,
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          null,
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          }
+        ],
+        [
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 94,
+            "background": 94
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          }
+        ],
+        [
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": "█",
+            "foreground": 94,
+            "background": 94
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          }
+        ],
+        [
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "║",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 22,
+            "background": 22
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          }
+        ],
+        [
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "*",
+            "foreground": 0,
+            "background": 0
+          },
+          {
+            "char": "▄",
+            "foreground": 94,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 94,
+            "background": null
+          },
+          {
+            "char": "_",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "_",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 94,
+            "background": null
+          },
+          {
+            "char": "▄",
+            "foreground": 94,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": " ",
+            "foreground": 7,
+            "background": null
+          }
+        ]
+      ]
+    }
+  ]
+}

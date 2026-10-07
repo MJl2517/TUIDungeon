@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "id": "magic",
+  "name": "Магия",
+  "kind": "magic",
+  "ability": "intelligence"
+}

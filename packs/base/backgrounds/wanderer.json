@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "wanderer",
+  "name": "Странник",
+  "description": "Опыт путешествий и жизни за пределами городов.",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "ability_bonuses": {
+    "strength": 0,
+    "dexterity": 0,
+    "constitution": 0,
+    "intelligence": 0,
+    "wisdom": 0,
+    "charisma": 0
+  },
+  "starting_items": [],
+  "tags": [
+    "outdoors"
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "id": "new_object",
+  "name": "Новый объект",
+  "description": "",
+  "width": 16,
+  "height": 8,
+  "layers": [
+    {
+      "id": "base",
+      "name": "Основной",
+      "visible": true,
+      "locked": false,
+      "cells": [
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          {
+            "char": "▓",
+            "foreground": 94,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 15,
+            "background": null
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          {
+            "char": "▓",
+            "foreground": 94,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 94,
+            "background": null
+          },
+          null,
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          {
+            "char": "▓",
+            "foreground": 94,
+            "background": null
+          },
+          {
+            "char": "▓",
+            "foreground": 94,
+            "background": null
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "mail",
+  "name": "Кольчуга",
+  "description": "",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "weight": 20.0,
+  "tags": [
+    "armor",
+    "metal"
+  ],
+  "durability": 80,
+  "slot": "armor",
+  "properties": [
+    {
+      "kind": "armor_class",
+      "amount": 16,
+      "dice": null,
+      "condition": "",
+      "duration": 1,
+      "params": {}
+    }
+  ],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null
+}

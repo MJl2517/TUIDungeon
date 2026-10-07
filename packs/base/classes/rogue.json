@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "rogue",
+  "name": "Плут",
+  "description": "HP: 8 + модификатор телосложения",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "hit_points": 8,
+  "starting_items": [
+    "base:dagger",
+    "base:leather",
+    "base:thieves_tools"
+  ],
+  "spells": [],
+  "spell_slots": {},
+  "actions": [
+    "base:attack",
+    "base:dodge",
+    "base:stealth",
+    "base:magic",
+    "base:influence"
+  ],
+  "carry_per_strength": 5.0,
+  "order": 2
+}

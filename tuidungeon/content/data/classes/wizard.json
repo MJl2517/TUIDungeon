@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "wizard",
+  "name": "Волшебник",
+  "order": 1,
+  "hit_points": 6,
+  "starting_items": [
+    "staff",
+    "robe",
+    "spellbook"
+  ],
+  "actions": [
+    "attack",
+    "dodge",
+    "stealth",
+    "magic",
+    "influence"
+  ],
+  "spells": [
+    "magic_missile",
+    "detect_magic"
+  ],
+  "spell_slots": {
+    "1": 2
+  },
+  "description": "HP: 6 + мод. телосложения; две ячейки"
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "shrine",
+  "name": "Забытый алтарь",
+  "description": "На камне вырезаны древние руны.",
+  "glyph": "&",
+  "foreground": 14,
+  "background": null,
+  "art": null,
+  "challenge": "base:ruined_shrine"
+}

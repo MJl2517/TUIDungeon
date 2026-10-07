@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "wall",
+  "name": "Каменная стена",
+  "description": "",
+  "glyph": "#",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "walkable": false,
+  "blocks_sight": true
+}

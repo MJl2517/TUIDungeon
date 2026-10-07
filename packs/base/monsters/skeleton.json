@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "skeleton",
+  "name": "Скелет",
+  "description": "",
+  "glyph": "s",
+  "foreground": 7,
+  "background": null,
+  "art": "base:skeleton",
+  "stats": {
+    "strength": 12,
+    "dexterity": 10,
+    "constitution": 12,
+    "intelligence": 6,
+    "wisdom": 8,
+    "charisma": 5
+  },
+  "hit_points": 12,
+  "armor_class": 12,
+  "speed": 1,
+  "initiative_bonus": 0,
+  "actions": [
+    "base:attack",
+    "base:dodge",
+    "base:stealth",
+    "base:magic",
+    "base:influence"
+  ],
+  "special_actions": [
+    {
+      "id": "bone_strike",
+      "name": "Костяной удар",
+      "kind": "attack",
+      "ability": "strength",
+      "bonus": 0,
+      "damage": "1d6",
+      "effects": [],
+      "difficulty": 10,
+      "description": ""
+    }
+  ],
+  "inventory": [],
+  "spells": [],
+  "spell_slots": {},
+  "tags": [
+    "undead"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "dwarf",
+  "name": "Дварф",
+  "order": 1,
+  "hp_per_level": 1,
+  "description": "+1 к максимальному HP за уровень"
+}

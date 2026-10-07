@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "new_armor",
+  "name": "Новый шаблон: Кольчуга",
+  "weight": 20,
+  "tags": [
+    "armor",
+    "metal"
+  ],
+  "slot": "armor",
+  "durability": 80,
+  "properties": [
+    {
+      "kind": "armor_class",
+      "amount": 16
+    }
+  ]
+}

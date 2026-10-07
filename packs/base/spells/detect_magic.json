@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "detect_magic",
+  "name": "Обнаружение магии",
+  "description": "Персонаж получает свойство обнаружения магии на 10 ходов.",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 1,
+  "effects": [
+    {
+      "kind": "condition",
+      "amount": 0,
+      "dice": null,
+      "condition": "detect_magic",
+      "duration": 10,
+      "params": {}
+    }
+  ],
+  "target": "self"
+}

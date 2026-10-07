@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "warrior",
+  "name": "Воин",
+  "description": "HP: 10 + модификатор телосложения",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "hit_points": 10,
+  "starting_items": [
+    "base:sword",
+    "base:mail",
+    "base:shield"
+  ],
+  "spells": [],
+  "spell_slots": {},
+  "actions": [
+    "base:attack",
+    "base:dodge",
+    "base:stealth",
+    "base:magic",
+    "base:influence"
+  ],
+  "carry_per_strength": 5.0,
+  "order": 0
+}

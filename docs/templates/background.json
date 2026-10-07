@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "new_background",
+  "name": "Новый шаблон: Учёный",
+  "tags": [
+    "scholar",
+    "lore"
+  ],
+  "starting_items": [
+    "spellbook"
+  ],
+  "description": "Знаток книг и забытых знаний."
+}

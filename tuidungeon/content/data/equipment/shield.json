@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "shield",
+  "name": "Щит",
+  "weight": 3,
+  "tags": [
+    "shield"
+  ],
+  "slot": "off_hand",
+  "durability": 40,
+  "properties": [
+    {
+      "kind": "armor_bonus",
+      "amount": 2
+    }
+  ]
+}

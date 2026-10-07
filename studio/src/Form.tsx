@@ -1,0 +1,415 @@
+import { Doc, Entry, defaultFor, color } from "./model";
+const labels: Record<string, string> = {
+  id: "Идентификатор",
+  name: "Название",
+  description: "Описание",
+  glyph: "Символ на карте",
+  foreground: "Цвет символа",
+  background: "Цвет фона",
+  art: "Рисунок",
+  stats: "Характеристики",
+  strength: "Сила",
+  dexterity: "Ловкость",
+  constitution: "Телосложение",
+  intelligence: "Интеллект",
+  wisdom: "Мудрость",
+  charisma: "Харизма",
+  hit_points: "Хиты",
+  armor_class: "Класс доспеха",
+  speed: "Скорость",
+  initiative_bonus: "Бонус инициативы",
+  actions: "Действия",
+  special_actions: "Особые действия",
+  inventory: "Инвентарь",
+  spells: "Заклинания",
+  spell_slots: "Ячейки заклинаний",
+  tags: "Теги",
+  kind: "Механика",
+  ability: "Характеристика",
+  bonus: "Бонус",
+  damage: "Кубики урона",
+  effects: "Эффекты",
+  difficulty: "Сложность",
+  weight: "Вес, кг",
+  durability: "Стойкость",
+  slot: "Слот снаряжения",
+  properties: "Свойства",
+  check_aids: "Помощь в проверках",
+  weapon_damage: "Кубики оружия",
+  weapon_ability: "Характеристика оружия",
+  charges: "Применения",
+  level: "Уровень",
+  target: "Цель",
+  ability_bonuses: "Бонусы характеристик",
+  hp_per_level: "Хиты за уровень",
+  racial_spell: "Расовое заклинание",
+  racial_uses: "Расовые применения",
+  order: "Порядок",
+  starting_items: "Стартовые предметы",
+  carry_per_strength: "Нагрузка на единицу силы",
+  text: "Текст",
+  choices: "Варианты выбора",
+  repeatable: "Повторяемое",
+  check_tag: "Тег проверки",
+  required_tags: "Обязательные теги",
+  advantage_tags: "Теги преимущества",
+  automatic_tags: "Теги автоматического успеха",
+  success: "Последствия успеха",
+  failure: "Последствия провала",
+  minutes: "Минуты",
+  hidden: "Скрытая",
+  trigger: "Условие активации",
+  challenge: "Испытание",
+  walkable: "Проходимый",
+  blocks_sight: "Преграждает обзор",
+  amount: "Количество",
+  dice: "Кубики",
+  condition: "Состояние",
+  duration: "Длительность",
+  mode: "Режим",
+  params: "Параметры",
+};
+function resolve(s: Doc, root: Doc): Doc {
+  return s.$ref ? resolve(root.$defs[s.$ref.split("/").pop()!], root) : s;
+}
+type Props = {
+  schema: Doc;
+  root: Doc;
+  value: any;
+  onChange: (v: any) => void;
+  entries: Entry[];
+  mechanics: Doc[];
+  label?: string;
+  refCategory?: string;
+  lockedId?: boolean;
+  path?: string;
+};
+export function FieldForm({
+  schema,
+  root,
+  value,
+  onChange,
+  entries,
+  mechanics,
+  label = "",
+  refCategory,
+  lockedId = false,
+  path = "",
+}: Props) {
+  const original = resolve(schema, root);
+  let s = original;
+  const nullable = s.anyOf?.some((x: Doc) => x.type === "null");
+  if (s.anyOf)
+    s = resolve(
+      s.anyOf.find((x: Doc) => x.type !== "null"),
+      root,
+    );
+  const title = label ? (labels[label] ?? original.title ?? label) : "";
+  const category = refCategory ?? original.ref_category ?? s.ref_category;
+  if (nullable && value == null)
+    return (
+      <div className="field">
+        <label>{title}</label>
+        <button
+          className="subtle"
+          onClick={() => onChange(defaultFor(s, root))}
+        >
+          + Задать
+        </button>
+      </div>
+    );
+  const clear = nullable ? (
+    <button
+      className="mini"
+      title="Сбросить значение"
+      onClick={() => onChange(null)}
+    >
+      ×
+    </button>
+  ) : null;
+  if (s.type === "object") {
+    if (
+      value?.kind &&
+      mechanics.some((m) => m.id === value.kind) &&
+      s.properties?.params
+    ) {
+      const m = mechanics.find((m) => m.id === value.kind)!;
+      const params = m.builtin ? value : value.params;
+      return (
+        <fieldset>
+          <legend>{title || "Эффект"}</legend>
+          <div className="field">
+            <label>Механика</label>
+            <select
+              value={value.kind}
+              onChange={(e) => {
+                const next = mechanics.find((m) => m.id === e.target.value)!;
+                onChange({
+                  kind: next.id,
+                  amount: 0,
+                  dice: null,
+                  condition: "",
+                  duration: 1,
+                  params: next.builtin
+                    ? {}
+                    : defaultFor(next.schema, next.schema),
+                });
+              }}
+            >
+              {mechanics.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="hint">{m.description}</p>
+          <FieldForm
+            schema={m.schema}
+            root={m.schema}
+            value={params}
+            onChange={(v) =>
+              onChange(m.builtin ? { ...value, ...v } : { ...value, params: v })
+            }
+            entries={entries}
+            mechanics={[]}
+            path={path}
+          />
+        </fieldset>
+      );
+    }
+    if (!s.properties) {
+      const obj = value ?? {};
+      return (
+        <fieldset>
+          <legend>{title}</legend>
+          {Object.entries(obj).map(([k, v]) => (
+            <div className="slot-row" key={k}>
+              <span>Уровень {k}</span>
+              <input
+                aria-label={`Ячейки уровня ${k}`}
+                type="number"
+                min="0"
+                value={v as number}
+                onChange={(e) =>
+                  onChange({ ...obj, [k]: Number(e.target.value) })
+                }
+              />
+              <button
+                className="mini"
+                onClick={() => {
+                  const n = { ...obj };
+                  delete n[k];
+                  onChange(n);
+                }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          <button
+            className="subtle"
+            onClick={() => {
+              const k = Array.from({ length: 9 }, (_, i) => String(i + 1)).find(
+                (k) => !(k in obj),
+              );
+              if (k) onChange({ ...obj, [k]: 1 });
+            }}
+          >
+            + Уровень
+          </button>
+        </fieldset>
+      );
+    }
+    const children = Object.entries(s.properties).filter(
+      ([key]) => key !== "schema_version",
+    );
+    return (
+      <fieldset
+        className={
+          label === "stats" || label === "ability_bonuses" ? "scores" : ""
+        }
+      >
+        <legend>{title}</legend>
+        {children.map(([key, child]) => (
+          <FieldForm
+            key={key}
+            schema={child as Doc}
+            root={root}
+            value={value?.[key]}
+            onChange={(v) => onChange({ ...value, [key]: v })}
+            entries={entries}
+            mechanics={mechanics}
+            label={key}
+            refCategory={category}
+            lockedId={lockedId && key === "id" && path === ""}
+            path={path ? `${path}.${key}` : key}
+          />
+        ))}
+        {clear}
+      </fieldset>
+    );
+  }
+  if (s.type === "array") {
+    const items = value ?? [];
+    return (
+      <fieldset>
+        <legend>
+          {title} <span className="count">{items.length}</span>
+        </legend>
+        {items.map((v: any, i: number) => (
+          <div className="array-row" key={i}>
+            <FieldForm
+              schema={s.items}
+              root={root}
+              value={v}
+              onChange={(n) =>
+                onChange(items.map((x: any, j: number) => (j === i ? n : x)))
+              }
+              entries={entries}
+              mechanics={mechanics}
+              label={String(i + 1)}
+              refCategory={category}
+              path={`${path}[${i}]`}
+            />
+            <button
+              className="mini"
+              title="Удалить элемент"
+              onClick={() =>
+                onChange(items.filter((_: any, j: number) => i !== j))
+              }
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <button
+          className="subtle"
+          onClick={() =>
+            onChange([
+              ...items,
+              category
+                ? (entries.find((e) => e.category === category)?.ref ?? "")
+                : defaultFor(s.items, root),
+            ])
+          }
+        >
+          + Добавить
+        </button>
+      </fieldset>
+    );
+  }
+  let input;
+  if (category)
+    input = (
+      <select
+        aria-label={title}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">Выберите объект</option>
+        {entries
+          .filter((e) => e.category === category)
+          .map((e) => (
+            <option key={e.ref} value={e.ref}>
+              {e.name} · {e.ref}
+            </option>
+          ))}
+      </select>
+    );
+  else if (s.enum)
+    input = (
+      <select
+        aria-label={title}
+        value={value ?? s.enum[0]}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {s.enum.map((v: string) => (
+          <option key={v} value={v}>
+            {(
+              {
+                strength: "Сила",
+                dexterity: "Ловкость",
+                constitution: "Телосложение",
+                intelligence: "Интеллект",
+                wisdom: "Мудрость",
+                charisma: "Харизма",
+                attack: "Атака",
+                dodge: "Уклонение",
+                stealth: "Скрытность",
+                magic: "Магия",
+                influence: "Влияние",
+                special: "Особое действие",
+                self: "На себя",
+                other: "На другого",
+                any: "Любая цель",
+                advantage: "Преимущество",
+                automatic: "Автоматический успех",
+                enter: "Вход на клетку",
+              } as Record<string, string>
+            )[v] ?? v}
+          </option>
+        ))}
+      </select>
+    );
+  else if (s.type === "boolean")
+    input = (
+      <input
+        aria-label={title}
+        type="checkbox"
+        checked={value ?? false}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+    );
+  else if (s.type === "integer" || s.type === "number")
+    input = (
+      <div className="number-field">
+        {(label === "foreground" || label === "background") && (
+          <i style={{ background: color(value) }} />
+        )}
+        <input
+          aria-label={title}
+          type="number"
+          min={s.minimum}
+          max={s.maximum}
+          step={s.type === "number" ? "0.1" : "1"}
+          value={value ?? 0}
+          onChange={(e) => onChange(Number(e.target.value))}
+        />
+        {path.startsWith("stats.") && (
+          <span className="hint">
+            {Math.floor((value - 10) / 2) >= 0 ? "+" : ""}
+            {Math.floor((value - 10) / 2)}
+          </span>
+        )}
+      </div>
+    );
+  else if (["description", "text"].includes(label))
+    input = (
+      <textarea
+        aria-label={title}
+        rows={3}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  else
+    input = (
+      <input
+        aria-label={title}
+        disabled={lockedId}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  return (
+    <div className="field">
+      <label>{title}</label>
+      <div className="field-input">
+        {input}
+        {clear}
+      </div>
+      {s.description && <small>{s.description}</small>}
+    </div>
+  );
+}

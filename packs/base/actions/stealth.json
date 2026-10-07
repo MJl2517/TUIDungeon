@@ -1,0 +1,12 @@
+{
+  "id": "stealth",
+  "name": "Скрытность",
+  "kind": "stealth",
+  "ability": "dexterity",
+  "bonus": 0,
+  "damage": null,
+  "effects": [],
+  "difficulty": 10,
+  "description": "",
+  "schema_version": 1
+}

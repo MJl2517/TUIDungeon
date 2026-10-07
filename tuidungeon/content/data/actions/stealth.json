@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "stealth",
+  "name": "Скрытность",
+  "kind": "stealth",
+  "ability": "dexterity",
+  "difficulty": 10
+}

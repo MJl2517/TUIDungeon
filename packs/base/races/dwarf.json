@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "dwarf",
+  "name": "Дварф",
+  "description": "+1 к максимальному HP за уровень",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "ability_bonuses": {
+    "strength": 0,
+    "dexterity": 0,
+    "constitution": 0,
+    "intelligence": 0,
+    "wisdom": 0,
+    "charisma": 0
+  },
+  "hp_per_level": 1,
+  "racial_spell": null,
+  "racial_uses": 0,
+  "speed": 1,
+  "order": 1
+}

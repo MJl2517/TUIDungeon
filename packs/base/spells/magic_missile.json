@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "magic_missile",
+  "name": "Волшебная стрела",
+  "description": "Магические снаряды поражают выбранную цель.",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 1,
+  "effects": [
+    {
+      "kind": "damage",
+      "amount": 0,
+      "dice": "3d4+3",
+      "condition": "",
+      "duration": 1,
+      "params": {}
+    }
+  ],
+  "target": "other"
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "sword",
+  "name": "Меч",
+  "weight": 1.5,
+  "tags": [
+    "weapon",
+    "blade"
+  ],
+  "slot": "weapon",
+  "durability": 50,
+  "weapon_damage": "1d8"
+}

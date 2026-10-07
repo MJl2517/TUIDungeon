@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "wizard",
+  "name": "Волшебник",
+  "description": "HP: 6 + мод. телосложения; две ячейки",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "hit_points": 6,
+  "starting_items": [
+    "base:staff",
+    "base:robe",
+    "base:spellbook"
+  ],
+  "spells": [
+    "base:magic_missile",
+    "base:detect_magic"
+  ],
+  "spell_slots": {
+    "1": 2
+  },
+  "actions": [
+    "base:attack",
+    "base:dodge",
+    "base:stealth",
+    "base:magic",
+    "base:influence"
+  ],
+  "carry_per_strength": 5.0,
+  "order": 1
+}

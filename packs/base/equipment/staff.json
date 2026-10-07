@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "staff",
+  "name": "Посох",
+  "description": "",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "weight": 2.0,
+  "tags": [
+    "weapon",
+    "focus"
+  ],
+  "durability": 30,
+  "slot": "weapon",
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": "1d6",
+  "weapon_ability": "strength",
+  "charges": null
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "robe",
+  "name": "Мантия",
+  "description": "",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "weight": 1.0,
+  "tags": [
+    "clothing"
+  ],
+  "durability": null,
+  "slot": "armor",
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null
+}

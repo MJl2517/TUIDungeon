@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "scholar",
+  "name": "Учёный",
+  "tags": [
+    "scholar",
+    "lore"
+  ],
+  "starting_items": [
+    "spellbook"
+  ],
+  "description": "Знаток книг и забытых знаний."
+}

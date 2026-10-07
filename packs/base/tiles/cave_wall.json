@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "cave_wall",
+  "name": "Стена пещены",
+  "description": "",
+  "glyph": "█",
+  "foreground": 8,
+  "background": 0,
+  "art": null,
+  "walkable": false,
+  "blocks_sight": true
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "thieves_tools",
+  "name": "Воровские инструменты",
+  "weight": 0.5,
+  "tags": [
+    "tool",
+    "lockpicks"
+  ],
+  "durability": 20,
+  "check_aids": [
+    {
+      "check_tag": "lockpicking",
+      "mode": "advantage"
+    }
+  ]
+}

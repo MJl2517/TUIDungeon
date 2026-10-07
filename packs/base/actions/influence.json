@@ -1,0 +1,21 @@
+{
+  "id": "influence",
+  "name": "Влияние",
+  "kind": "influence",
+  "ability": "charisma",
+  "bonus": 0,
+  "damage": null,
+  "effects": [
+    {
+      "kind": "condition",
+      "amount": 0,
+      "dice": null,
+      "condition": "persuaded",
+      "duration": 2,
+      "params": {}
+    }
+  ],
+  "difficulty": 10,
+  "description": "",
+  "schema_version": 1
+}

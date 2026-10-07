@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "new_action",
+  "name": "Новый шаблон: Атака",
+  "kind": "attack",
+  "ability": "strength",
+  "description": "Атака экипированным оружием; без него — 1d4."
+}

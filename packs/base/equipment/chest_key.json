@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "chest_key",
+  "name": "Ключ от сундука",
+  "description": "",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "weight": 0.1,
+  "tags": [
+    "key",
+    "chest_key"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null
+}

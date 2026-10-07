@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "spellbook",
+  "name": "Книга заклинаний",
+  "description": "",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "weight": 3.0,
+  "tags": [
+    "book",
+    "arcane"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null
+}

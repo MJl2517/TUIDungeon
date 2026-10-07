@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "healing_potion",
+  "name": "Зелье лечения",
+  "description": "",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "weight": 0.2,
+  "tags": [
+    "potion",
+    "consumable"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [
+    {
+      "kind": "heal",
+      "amount": 0,
+      "dice": "2d4+2",
+      "condition": "",
+      "duration": 1,
+      "params": {}
+    }
+  ],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": 1
+}

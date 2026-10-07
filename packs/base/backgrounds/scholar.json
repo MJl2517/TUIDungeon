@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "scholar",
+  "name": "Учёный",
+  "description": "Знаток книг и забытых знаний.",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "ability_bonuses": {
+    "strength": 0,
+    "dexterity": 0,
+    "constitution": 0,
+    "intelligence": 0,
+    "wisdom": 0,
+    "charisma": 0
+  },
+  "starting_items": [
+    "base:spellbook"
+  ],
+  "tags": [
+    "scholar",
+    "lore"
+  ]
+}

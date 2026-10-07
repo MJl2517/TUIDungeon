@@ -1,0 +1,12 @@
+{
+  "id": "dodge",
+  "name": "Уклонение",
+  "kind": "dodge",
+  "ability": "strength",
+  "bonus": 0,
+  "damage": null,
+  "effects": [],
+  "difficulty": 10,
+  "description": "Входящие атаки получают помеху до следующего хода.",
+  "schema_version": 1
+}

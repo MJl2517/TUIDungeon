@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "leather",
+  "name": "Кожаный доспех",
+  "description": "",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "weight": 5.0,
+  "tags": [
+    "armor",
+    "leather"
+  ],
+  "durability": 40,
+  "slot": "armor",
+  "properties": [
+    {
+      "kind": "armor_class",
+      "amount": 12,
+      "dice": null,
+      "condition": "",
+      "duration": 1,
+      "params": {}
+    }
+  ],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null
+}

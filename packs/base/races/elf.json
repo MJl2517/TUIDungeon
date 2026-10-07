@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "elf",
+  "name": "Эльф",
+  "description": "Обнаружение магии: раз за отдых",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "ability_bonuses": {
+    "strength": 0,
+    "dexterity": 0,
+    "constitution": 0,
+    "intelligence": 0,
+    "wisdom": 0,
+    "charisma": 0
+  },
+  "hp_per_level": 0,
+  "racial_spell": "base:detect_magic",
+  "racial_uses": 1,
+  "speed": 1,
+  "order": 2
+}

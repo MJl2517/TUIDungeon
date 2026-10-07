@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "new_healing_item",
+  "name": "Новый шаблон: Зелье лечения",
+  "weight": 0.2,
+  "tags": [
+    "potion",
+    "consumable"
+  ],
+  "charges": 1,
+  "properties": [
+    {
+      "kind": "heal",
+      "dice": "2d4+2"
+    }
+  ]
+}

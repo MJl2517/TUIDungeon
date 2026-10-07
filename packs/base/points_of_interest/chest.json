@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "chest",
+  "name": "Запертый сундук",
+  "description": "Старый сундук. Возможно, внутри осталось золото.",
+  "glyph": "$",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "challenge": "base:locked_chest"
+}

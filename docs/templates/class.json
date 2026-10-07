@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "new_class",
+  "name": "Новый шаблон: Плут",
+  "order": 2,
+  "hit_points": 8,
+  "starting_items": [
+    "dagger",
+    "leather",
+    "thieves_tools"
+  ],
+  "actions": [
+    "attack",
+    "dodge",
+    "stealth",
+    "magic",
+    "influence"
+  ],
+  "description": "HP: 8 + модификатор телосложения"
+}

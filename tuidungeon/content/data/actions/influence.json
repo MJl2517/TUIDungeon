@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "influence",
+  "name": "Влияние",
+  "kind": "influence",
+  "ability": "charisma",
+  "difficulty": 10,
+  "effects": [
+    {
+      "kind": "condition",
+      "condition": "persuaded",
+      "duration": 2
+    }
+  ]
+}

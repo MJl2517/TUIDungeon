@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "floor",
+  "name": "Каменный пол",
+  "description": "",
+  "glyph": ".",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "walkable": true,
+  "blocks_sight": false
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "robe",
+  "name": "Мантия",
+  "weight": 1,
+  "tags": [
+    "clothing"
+  ],
+  "slot": "armor"
+}

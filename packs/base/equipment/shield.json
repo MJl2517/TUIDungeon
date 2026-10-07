@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "shield",
+  "name": "Щит",
+  "description": "",
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "weight": 3.0,
+  "tags": [
+    "shield"
+  ],
+  "durability": 40,
+  "slot": "off_hand",
+  "properties": [
+    {
+      "kind": "armor_bonus",
+      "amount": 2,
+      "dice": null,
+      "condition": "",
+      "duration": 1,
+      "params": {}
+    }
+  ],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null
+}
