@@ -14,6 +14,7 @@ from ..content.schemas import MODELS, Scores
 from ..domain.mechanics import mechanics
 from ..presentation.art import import_txt, export_txt
 from .sessions import TestSession
+from .launcher import open_test_map
 
 
 class RequestModel(BaseModel):
@@ -42,6 +43,11 @@ class SessionRequest(RequestModel):
     background: str | None = None
     viewport_width: int | None = Field(default=None, ge=1, le=256)
     viewport_height: int | None = Field(default=None, ge=1, le=256)
+
+
+class GameRequest(RequestModel):
+    map_ref: str
+    seed: int = 42
 
 
 class CommandRequest(RequestModel):
@@ -318,6 +324,16 @@ def create_app(root=None, dist=None):
     @app.get("/api/art/{ref}/export")
     def export_art(ref):
         return {"text": export_txt(store.get("art", ref))}
+
+    @app.post("/api/game")
+    def launch_game(request: GameRequest):
+        store.reload()
+        store.get("maps", request.map_ref)
+        try:
+            open_test_map(store.root, request.map_ref, request.seed)
+        except OSError as error:
+            raise HTTPException(503, f"Не удалось открыть игровое окно: {error}") from error
+        return {"started": True, "map_ref": request.map_ref}
 
     @app.post("/api/sessions")
     def create_session(request: SessionRequest):

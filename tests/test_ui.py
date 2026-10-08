@@ -172,7 +172,8 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(controller.engine.state.position, Position(3, 3))
         self.assertEqual(controller.engine.state.turns, 6)
         self.assertEqual(controller.engine.state.clock.elapsed_minutes, 965)
-        controller.handle("alt+4")
+        controller.handle("m")
+        controller.handle("4")
         controller.handle("2")
         self.assertFalse(controller.running)
 

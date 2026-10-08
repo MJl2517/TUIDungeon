@@ -19,7 +19,7 @@ def main() -> int:
     parser.add_argument(
         "--symbols",
         choices=("ascii", "unicode"),
-        default="ascii",
+        default=None,
         help="Набор символов карты и рамок",
     )
     parser.add_argument(
@@ -32,6 +32,9 @@ def main() -> int:
     )
     parser.add_argument(
         "--studio", action="store_true", help="Запустить локальную студию"
+    )
+    parser.add_argument(
+        "--terminal", action="store_true", help="Запустить curses вместо окна tcod"
     )
     parser.add_argument("--map", default="base:dungeon", help="Карта pack_id:local_id")
     parser.add_argument(
@@ -50,11 +53,10 @@ def main() -> int:
         "--no-browser", action="store_true", help="Не открывать браузер автоматически"
     )
     args = parser.parse_args()
+    args.symbols = args.symbols or ("ascii" if args.terminal else "unicode")
     if args.test_map is not None:
         if args.studio:
-            parser.error(
-                "--test-map запускает терминальную игру и несовместим с --studio"
-            )
+            parser.error("--test-map запускает игру и несовместим с --studio")
         if args.test_map:
             args.map = args.test_map
     if not 1 <= args.port <= 65535:
@@ -131,9 +133,32 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
+    if not args.terminal:
+        try:
+            from .presentation.window import run as run_window
+
+            run_window(
+                args.seed,
+                args.symbols,
+                catalog,
+                args.map if store else None,
+                store,
+                args.test_map is not None,
+                args.save_file,
+            )
+            return 0
+        except (ImportError, OSError, RuntimeError) as error:
+            print(
+                f"Не удалось открыть игровое окно: {error}. "
+                f"Установка: {setup_command}; терминальный режим: {run_command} --terminal",
+                file=sys.stderr,
+            )
+            return 1
+        except KeyboardInterrupt:
+            return 0
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         print(
-            f"Запустите игру в интерактивном терминале: {run_command}",
+            f"Запустите игру в интерактивном терминале: {run_command} --terminal",
             file=sys.stderr,
         )
         return 1

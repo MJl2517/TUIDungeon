@@ -34,7 +34,7 @@ def action_lines(controller, menu=None):
             "1) Сохранить | 2) Загрузить",
             "3) Справка | 4) Выход",
             "5) Настройки",
-            "Alt+цифра | M/Backspace: действия",
+            "M/Esc: закрыть меню",
             controller.message,
         ]
     if menu is ActionMenu.EXIT:
@@ -51,7 +51,7 @@ def action_lines(controller, menu=None):
             f"1) Красться: {mode}",
             "2) Магия",
             "3) Ждать минуту",
-            "Backspace: действия | Alt/M: мета",
+            "Backspace: действия | M: меню",
             controller.message,
         ]
     if menu is ActionMenu.REST:
@@ -59,14 +59,14 @@ def action_lines(controller, menu=None):
             "1) Короткий отдых: 1 час",
             "2) Долгий отдых: 8 часов",
             "Короткий: до 1/2 HP; долгий: HP и магия.",
-            "Backspace: действия | Alt/M: мета",
+            "Backspace: действия | M: меню",
             controller.message,
         ]
     if menu in (ActionMenu.MAGIC, ActionMenu.TARGET):
         return [
             "1-6) Заклинание" if menu is ActionMenu.MAGIC else "1-6) Живая цель",
             "PgUp/PgDn: страницы",
-            "Backspace: назад | Alt/M: мета",
+            "Backspace: назад | M: меню",
             "Успешное применение расходует ход и минуту.",
             controller.message,
         ]
@@ -79,6 +79,6 @@ def action_lines(controller, menu=None):
         "1) Осмотр" + hint,
         "2) Персонаж",
         "3) Действия | 4) Отдых",
-        "WASD: шаг | ↑↓/Enter/F: вещи | Alt/M: мета",
+        "WASD: шаг | ↑↓/Enter/F: вещи | M: меню",
         controller.message,
     ]

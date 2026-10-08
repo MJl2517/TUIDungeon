@@ -223,6 +223,7 @@ class TerminalSession(unittest.TestCase):
         self.process = subprocess.Popen(
             [
                 str(Path(__file__).resolve().parents[1] / "run.sh"),
+                "--terminal",
                 "--packs-dir",
                 str(pack_root),
                 "--seed",
@@ -506,9 +507,12 @@ class TestMapTerminalTests(TerminalSession):
         self.assertIn("Руки заняты: 2/2", "\n".join(self.screen.lines()))
         self.key(b"d", "d")
         self.assertIn("Свет: 58м", "\n".join(self.screen.lines()))
-        self.key(b"\x1b1", "alt+1")
+        self.key(b"m", "m")
+        self.key(b"1", "1")
+        self.key(b"\x1b", "escape")
         self.key(b"d", "d")
-        self.key(b"\x1b2", "alt+2")
+        self.key(b"m", "m")
+        self.key(b"2", "2")
         self.assertIn("Свет: 58м", "\n".join(self.screen.lines()))
         self.resize(100, 30)
         self.expect_frame()
@@ -574,7 +578,7 @@ class TestMapTerminalTests(TerminalSession):
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
 
-    def test_look_blinks_sheet_is_bold_and_alt_save_load_rest_work(self):
+    def test_look_blinks_sheet_is_bold_and_menu_save_load_rest_work(self):
         from tuidungeon.ui import Layout
         from tuidungeon.presentation.tui import camera
 
@@ -604,15 +608,19 @@ class TestMapTerminalTests(TerminalSession):
         self.key(b"\x7f", "backspace")
         self.key(b"\x1b[57443;3u", "alt_press")
         self.key(b"\x1b[57443;1:3u", "alt_release")
-        self.key(b"\x1b1", "alt+1")
+        self.key(b"m", "m")
+        self.key(b"1", "1")
+        self.key(b"\x1b", "escape")
         self.assertTrue(self.save_path.exists())
         self.key(b"d", "d")
-        self.key(b"\x1b2", "alt+2")
+        self.key(b"m", "m")
+        self.key(b"2", "2")
         self.assertEqual(self.controller.engine.state.turns, 0)
         self.key(b"4", "4")
         self.key(b"1", "1")
         self.assertEqual(self.controller.engine.state.clock.elapsed_minutes, 540)
-        self.key(b"\x1b4", "alt+4")
+        self.key(b"m", "m")
+        self.key(b"4", "4")
         self.key(b"1", "1")
         self.key(b"2", "2")
         self.assertEqual(self.controller.engine.state.clock.elapsed_minutes, 480)

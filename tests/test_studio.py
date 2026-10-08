@@ -7,6 +7,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+from unittest.mock import patch
 from pydantic import ValidationError, Field
 from fastapi.testclient import TestClient
 from tuidungeon.content.packs import (
@@ -350,6 +351,37 @@ class ApiTests(PackFixture):
     def setUp(self):
         super().setUp()
         self.client = TestClient(create_app(self.root), base_url="http://127.0.0.1")
+
+    def test_game_map_launch_validation_origin_and_errors(self):
+        with patch("tuidungeon.tooling.server.open_test_map") as launch:
+            for body in (
+                {"map_ref": "base:missing"},
+                {"map_ref": "base:crypt & calc"},
+                {"map_ref": "base:crypt", "seed": "42"},
+                {"map_ref": "base:crypt", "command": "calc"},
+            ):
+                response = self.client.post("/api/game", json=body)
+                self.assertEqual(response.status_code, 422, response.text)
+            response = self.client.post(
+                "/api/game",
+                json={"map_ref": "base:crypt"},
+                headers={"origin": "https://example.org"},
+            )
+            self.assertEqual(response.status_code, 403)
+            launch.assert_not_called()
+            response = self.client.post(
+                "/api/game",
+                json={"map_ref": "base:crypt", "seed": 7},
+            )
+            self.assertEqual(response.status_code, 200, response.text)
+            self.assertEqual(
+                response.json(), {"started": True, "map_ref": "base:crypt"}
+            )
+            launch.assert_called_once_with(self.root.resolve(), "base:crypt", 7)
+            launch.side_effect = OSError("window unavailable")
+            response = self.client.post("/api/game", json={"map_ref": "base:crypt"})
+            self.assertEqual(response.status_code, 503)
+            self.assertIn("window unavailable", response.json()["detail"])
 
     def test_full_authoring_api_schemas_save_usages_and_conflicts(self):
         lib = self.client.get("/api/library")

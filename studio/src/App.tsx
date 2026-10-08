@@ -51,6 +51,7 @@ export default function App() {
     [source, setSource] = useState(false),
     [sourceText, setSourceText] = useState(""),
     [saving, setSaving] = useState(false),
+    [launchingGame, setLaunchingGame] = useState(false),
     [sandbox, setSandbox] = useState<Doc | null>(null),
     [action, setAction] = useState(""),
     [seed, setSeed] = useState(42);
@@ -234,6 +235,25 @@ export default function App() {
       setError(String(e));
     } finally {
       setSaving(false);
+    }
+  }
+  async function launchGame() {
+    if (
+      !active ||
+      active.category !== "maps" ||
+      !active.version ||
+      dirty ||
+      launchingGame
+    )
+      return;
+    setLaunchingGame(true);
+    try {
+      await api("/game", { map_ref: active.ref });
+      notify("Карта запущена в игровом окне: " + active.ref);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setLaunchingGame(false);
     }
   }
   async function validate() {
@@ -636,14 +656,30 @@ export default function App() {
                     Удалить
                   </button>
                   {active.category === "maps" && (
-                    <button
-                      className="test-button"
-                      disabled={!active.version || !!dirty}
-                      title={dirty ? "Сначала сохраните карту" : ""}
-                      onClick={() => setPlay(active.ref)}
-                    >
-                      ▶ Тестировать карту
-                    </button>
+                    <>
+                      <button
+                        className="test-button"
+                        disabled={!active.version || !!dirty}
+                        title={dirty ? "Сначала сохраните карту" : ""}
+                        onClick={() => setPlay(active.ref)}
+                      >
+                        ▶ Тестировать карту
+                      </button>
+                      <button
+                        className="test-button"
+                        disabled={
+                          !active.version || !!dirty || saving || launchingGame
+                        }
+                        title={
+                          dirty
+                            ? "Сначала сохраните карту"
+                            : "Открыть карту с готовым героем"
+                        }
+                        onClick={() => void launchGame()}
+                      >
+                        {launchingGame ? "Открытие…" : "▶ В игровом окне"}
+                      </button>
+                    </>
                   )}
                 </div>
                 {source ? (
