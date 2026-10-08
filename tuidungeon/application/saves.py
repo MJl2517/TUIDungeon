@@ -17,7 +17,7 @@ from ..domain.equipment import Equipment
 from ..domain.stats import Stats
 from ..world.clock import GameClock
 from ..world.maps import DungeonMap, Position
-from ..world.state import GameState, MonsterPlacement
+from ..world.state import GameState, MonsterPlacement, ItemPlacement
 
 
 DEFAULT_SAVE = Path(__file__).resolve().parents[2] / "saves" / "quicksave.json"
@@ -33,6 +33,8 @@ class ItemRecord(Record):
     durability: int | None = Field(default=None, ge=0)
     charges: int | None = Field(default=None, ge=0)
     equipped: bool
+    fuel_minutes: int | None = Field(default=None, ge=0)
+    lit: bool = False
 
 
 class ActorRecord(Record):
@@ -57,6 +59,13 @@ class MonsterRecord(Record):
     actor: ActorRecord
 
 
+class GroundItemRecord(Record):
+    id: str
+    ref: str
+    position: tuple[int, int]
+    item: ItemRecord
+
+
 class LevelRecord(Record):
     ref: str | None
     # Full authored definition detects maps edited since the save.
@@ -67,6 +76,8 @@ class LevelRecord(Record):
     traps: dict[str, bool]
     points: dict[str, bool]
     items: dict[str, ItemRecord]
+    # None identifies saves made before runtime ground placements were supported.
+    ground_items: list[GroundItemRecord] | None = None
 
 
 class SaveRecord(Record):
@@ -90,6 +101,8 @@ def item_record(item):
         durability=item.durability,
         charges=item.charges,
         equipped=item.equipped,
+        fuel_minutes=item.fuel_minutes,
+        lit=item.lit,
     )
 
 
@@ -121,6 +134,16 @@ def restore_item(record, catalog):
             raise ValueError("Ресурс предмета не соответствует шаблону")
         setattr(item, name, value)
     item.equipped, item.instance_id = record.equipped, record.instance_id
+    if record.fuel_minutes is not None:
+        maximum = item.definition.light.burn_minutes if item.definition.light else 0
+        if record.fuel_minutes > maximum or (
+            record.lit and (not record.fuel_minutes or item.broken)
+        ):
+            raise ValueError("Недопустимый запас топлива или состояние света")
+        item.fuel_minutes = record.fuel_minutes
+    if record.lit and not item.definition.light:
+        raise ValueError("Предмет не является источником света")
+    item.lit = record.lit
     return item
 
 
@@ -151,6 +174,17 @@ def restore_actor(actor, record, catalog):
     if isinstance(actor, Hero):
         actor.level = record.level
     actor.inventory = [restore_item(i, catalog) for i in record.inventory]
+    slots = [
+        i.definition.slot
+        for i in actor.inventory
+        if i.equipped and i.definition.slot != "hand"
+    ]
+    if (
+        actor.hands_used > 2
+        or len(slots) != len(set(slots))
+        or any(i.lit and not i.equipped for i in actor.inventory)
+    ):
+        raise ValueError("Недопустимое снаряжение в руках")
     return actor
 
 
@@ -186,9 +220,16 @@ class SaveRepository:
                     points={p.placement.id: p.challenge.completed for p in level.points}
                     if level
                     else {},
-                    items={p.id: item_record(i) for p, i in level.items}
-                    if level
-                    else {},
+                    items={},
+                    ground_items=[
+                        GroundItemRecord(
+                            id=p.id,
+                            ref=p.ref,
+                            position=(p.x, p.y),
+                            item=item_record(item),
+                        )
+                        for p, item in entry.items
+                    ],
                 )
             )
         record = SaveRecord(
@@ -242,7 +283,11 @@ class SaveRepository:
 
                     store = PackStore()
                 state = SessionFactory(store).state(saved.ref, hero)
-                if state.level.definition.model_dump(mode="json") != saved.definition:
+                from ..content.schemas import MapDocument
+
+                if state.level.definition != MapDocument.model_validate(
+                    saved.definition
+                ):
                     raise ValueError("Карта изменена после сохранения")
             else:
                 state = GameState(
@@ -277,11 +322,31 @@ class SaveRepository:
                     p.triggered = saved.traps[p.placement.id]
                 for p in level.points:
                     p.challenge.completed = saved.points[p.placement.id]
-                placements = {p.id: p for p, _ in level.items}
-                level.items = [
-                    (placements[key], restore_item(item, catalog))
-                    for key, item in saved.items.items()
-                ]
+                if saved.ground_items is None:
+                    placements = {p.id: p for p, _ in level.items}
+                    level.items = [
+                        (placements[key], restore_item(item, catalog))
+                        for key, item in saved.items.items()
+                    ]
+            if saved.ground_items is not None:
+                restored = []
+                placement_ids = set()
+                for entry in saved.ground_items:
+                    position = Position(*entry.position)
+                    if (
+                        not state.dungeon.walkable(position)
+                        or entry.id in placement_ids
+                    ):
+                        raise ValueError("Недопустимое размещение предмета")
+                    item = restore_item(entry.item, catalog)
+                    expected = item.id if ":" in item.id else "base:" + item.id
+                    if entry.ref != expected:
+                        raise ValueError("Ссылка предмета не соответствует шаблону")
+                    placement_ids.add(entry.id)
+                    restored.append(
+                        (ItemPlacement(entry.id, entry.ref, *entry.position), item)
+                    )
+                state.items[:] = restored
             occupied = {state.position}
             for placement in state.monsters:
                 if not state.dungeon.walkable(placement.position):
@@ -292,6 +357,17 @@ class SaveRepository:
                     occupied.add(placement.position)
             states.append(state)
 
+        item_ids = [item.instance_id for item in hero.inventory]
+        item_ids += [item.instance_id for state in states for _, item in state.items]
+        item_ids += [
+            item.instance_id
+            for state in states
+            for placement in state.monsters
+            for item in placement.monster.inventory
+        ]
+        if len(item_ids) != len(set(item_ids)):
+            raise ValueError("Предмет присутствует в нескольких местах")
+
         def tuples(value):
             return tuple(tuples(v) for v in value) if isinstance(value, list) else value
 
@@ -299,6 +375,7 @@ class SaveRepository:
         rng.setstate(tuples(record.rng))
         engine = Engine(states[record.current], rng)
         engine.levels = {s.level.ref: s for s in states if s.level}
+        engine.discard_consumed_lights()
         for key, completed in record.challenges.items():
             challenge = TextChallenge(catalog.challenges[key], engine.actions.effects)
             challenge.completed = completed

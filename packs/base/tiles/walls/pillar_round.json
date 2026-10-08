@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "pillar_round",
+  "name": "Круглая колонна",
+  "description": "Стены и архитектура. Круглая колонна. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "○",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

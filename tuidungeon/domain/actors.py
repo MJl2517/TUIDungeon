@@ -18,6 +18,7 @@ from .effects import EffectRegistry
 from .equipment import Equipment
 from .rules import Ability, CharacterClass, Dice, Race
 from .stats import Stats
+from .collections import TrackedList
 
 if TYPE_CHECKING:
     from ..content.catalog import ContentCatalog
@@ -47,6 +48,19 @@ class Character(ABC):
     conditions: dict[str, int] = field(default_factory=dict)
     sneaking: bool = False
     instance_id: str = field(default_factory=lambda: str(uuid4()), compare=False)
+
+    def __setattr__(self, name, value):
+        if name == "inventory" and not isinstance(value, TrackedList):
+            value = TrackedList(value)
+        super().__setattr__(name, value)
+
+    @property
+    def light_items(self):
+        key = (id(self.inventory), self.inventory.version)
+        if getattr(self, "_lights_key", None) != key:
+            self._light_items = tuple(i for i in self.inventory if i.definition.light)
+            self._lights_key = key
+        return self._light_items
 
     @property
     @abstractmethod
@@ -154,16 +168,39 @@ class Character(ABC):
             name: turns - 1 for name, turns in self.conditions.items() if turns > 1
         }
 
-    def equip(self, item: Equipment) -> bool:
+    @property
+    def hands_used(self) -> int:
+        return sum(item.hands for item in self.inventory if item.equipped)
+
+    def can_equip(self, item: Equipment) -> bool:
         if (
             not any(owned is item for owned in self.inventory)
             or not item.usable
             or item.definition.slot is None
         ):
             return False
+        occupied = sum(
+            owned.hands
+            for owned in self.inventory
+            if owned.equipped
+            and owned is not item
+            and not (
+                item.definition.slot != "hand"
+                and owned.definition.slot == item.definition.slot
+            )
+        )
+        return occupied + item.hands <= 2
+
+    def equip(self, item: Equipment) -> bool:
+        if not self.can_equip(item):
+            return False
         for owned in self.inventory:
-            if owned.definition.slot == item.definition.slot:
+            if (
+                item.definition.slot != "hand"
+                and owned.definition.slot == item.definition.slot
+            ):
                 owned.equipped = False
+                owned.lit = False
         item.equipped = True
         return True
 
@@ -171,6 +208,7 @@ class Character(ABC):
         if not any(owned is item for owned in self.inventory):
             return False
         item.equipped = False
+        item.lit = False
         return True
 
     def use_item(
@@ -273,6 +311,12 @@ class Hero(Character):
             character_class = catalog.classes[character_class]
         if isinstance(background, str):
             background = catalog.backgrounds[background]
+        if (
+            background
+            and background.classes
+            and character_class.id not in background.classes
+        ):
+            raise ValueError("Предыстория недоступна выбранному классу")
         stats = base_stats.with_bonuses(race.ability_bonuses)
         if background:
             stats = stats.with_bonuses(background.ability_bonuses)
@@ -313,7 +357,7 @@ class Hero(Character):
             innate_tags=background.tags if background else frozenset(),
         )
         for item in hero.inventory:
-            if item.definition.slot:
+            if item.definition.slot and not item.definition.light:
                 hero.equip(item)
         return hero
 
@@ -366,7 +410,7 @@ class Monster(Character):
             spell_slots=slots.copy(),
         )
         for item in monster.inventory:
-            if item.definition.slot:
+            if item.definition.slot and not item.definition.light:
                 monster.equip(item)
         return monster
 

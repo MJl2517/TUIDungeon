@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_note",
+  "name": "Записка",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "P",
+  "foreground": 3,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_note"
+}

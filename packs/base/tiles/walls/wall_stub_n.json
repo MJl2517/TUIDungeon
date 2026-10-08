@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wall_stub_n",
+  "name": "Короткий участок стены сверху",
+  "description": "Стены и архитектура. Короткий участок стены сверху. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "╷",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

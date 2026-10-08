@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "ink",
+  "name": "Чернила и перо",
+  "weight": 0.1,
+  "category": "tools",
+  "tags": [
+    "writing"
+  ],
+  "description": "Набор для записей и копирования письмен.",
+  "glyph": "!",
+  "foreground": 7
+}

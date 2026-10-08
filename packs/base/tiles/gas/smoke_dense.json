@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "smoke_dense",
+  "name": "Густой дым",
+  "description": "Газ, дым и туман. Густой дым. Проходимая клетка. Закрывает обзор и свет. Урон и отравление задаются отдельно; непрозрачные облака закрывают обзор маской.",
+  "glyph": "▒",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "group": "Газ, дым и туман",
+  "tags": [
+    "gas",
+    "walkable",
+    "opaque"
+  ],
+  "walkable": true,
+  "blocks_sight": true
+}

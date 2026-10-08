@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "soldier",
+  "name": "Солдат",
+  "classes": [
+    "warrior"
+  ],
+  "starting_items": [
+    "rations",
+    "bedroll"
+  ],
+  "skills": [
+    "Атлетика",
+    "Запугивание"
+  ],
+  "tags": [
+    "soldier"
+  ],
+  "description": "Военная служба научила вас дисциплине, походному быту и распознаванию военных знаков."
+}

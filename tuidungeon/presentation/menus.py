@@ -13,7 +13,17 @@ class ActionMenu(Enum):
     EXIT = auto()
 
 
-SHEET_SECTIONS = ("Характеристики", "Снаряжение", "Заклинания")
+class SidebarTab(Enum):
+    INVENTORY = "Инвентарь"
+    SPELLS = "Заклинания"
+    CONDITIONS = "Состояния"
+
+    def next(self, direction=1):
+        tabs = tuple(type(self))
+        return tabs[(tabs.index(self) + direction) % len(tabs)]
+
+
+SHEET_SECTIONS = ("Лист персонажа", "Снаряжение", "Заклинания")
 PAGE_SIZE = 6
 
 
@@ -60,11 +70,15 @@ def action_lines(controller, menu=None):
             "Успешное применение расходует ход и минуту.",
             controller.message,
         ]
-    hint = " | Enter: взаимодействие" if controller.engine.nearby_points() else ""
+    hint = (
+        " | Enter: взаимодействие"
+        if controller.engine.nearby_points() and not controller.inventory_focus
+        else ""
+    )
     return [
         "1) Осмотр" + hint,
         "2) Персонаж",
         "3) Действия | 4) Отдых",
-        "WASD: шаг | Alt+цифра / M: мета",
+        "WASD: шаг | ↑↓/Enter/F: вещи | Alt/M: мета",
         controller.message,
     ]

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "mushroom_glowing",
+  "name": "Светящийся гриб",
+  "description": "Светящийся гриб. Источник света: радиус 3 клеток.",
+  "glyph": "*",
+  "foreground": 5,
+  "background": null,
+  "art": null,
+  "group": "Грибы",
+  "tags": [
+    "fungi",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": {
+      "radius": 3,
+      "bright_radius": 1
+    },
+    "transition": false
+  }
+}

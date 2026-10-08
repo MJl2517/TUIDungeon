@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "slope_down",
+  "name": "Спуск вниз",
+  "description": "Пропасти и рельеф. Спуск вниз. Проходимая клетка. Пропускает обзор и свет. Высота и падение не рассчитываются; разрешённые склоны — обычные проходимые клетки.",
+  "glyph": "V",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "group": "Пропасти и рельеф",
+  "tags": [
+    "height",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

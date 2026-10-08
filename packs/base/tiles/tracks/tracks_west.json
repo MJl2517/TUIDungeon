@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "tracks_west",
+  "name": "Следы влево",
+  "description": "Следы. Следы влево. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": "«",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "group": "Следы",
+  "tags": [
+    "tracks",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

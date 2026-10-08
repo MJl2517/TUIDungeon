@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "terrain_decor_oil",
+  "name": "Масло",
+  "description": "Одна порция масла: 60 минут света. Расходуется автоматически при экипировке пустой лампы.",
+  "glyph": "~",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "category": "consumables",
+  "weight": 0.5,
+  "tags": [
+    "lamp_oil",
+    "consumable"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": 1,
+  "hands": 0,
+  "light": null
+}

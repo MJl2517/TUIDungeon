@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wall_branch_w",
+  "name": "Стена с ответвлением влево",
+  "description": "Стены и архитектура. Стена с ответвлением влево. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "┤",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

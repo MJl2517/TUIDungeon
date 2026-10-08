@@ -67,7 +67,8 @@ def decode_sequence(sequence):
 class TerminalKeyboard:
     def __init__(self, screen, curses):
         self.screen, self.curses = screen, curses
-        self.enhanced = bool(
+        # Native Windows uses PDCurses console input, not Kitty escape sequences.
+        self.enhanced = sys.platform != "win32" and bool(
             os.environ.get("KITTY_WINDOW_ID")
             or os.environ.get("WEZTERM_PANE")
             or os.environ.get("TERM") == "xterm-kitty"
@@ -82,6 +83,15 @@ class TerminalKeyboard:
             curses.KEY_PPAGE: "pageup",
             curses.KEY_NPAGE: "pagedown",
         }
+        if sys.platform == "win32":
+            # PDCurses ALT_0..ALT_9; CPython may not export these constants.
+            # https://github.com/wmcbrine/PDCurses/blob/master/curses.h
+            self.special.update(
+                {
+                    getattr(curses, f"ALT_{digit}", 0x197 + digit): f"alt+{digit}"
+                    for digit in range(10)
+                }
+            )
 
     def __enter__(self):
         self.screen.timeout(100)
@@ -102,6 +112,7 @@ class TerminalKeyboard:
         if isinstance(key, int):
             return self.special.get(key, "")
         return {
+            "\x03": "ctrl_c",
             "\x08": "backspace",
             "\x7f": "backspace",
             "\t": "tab",

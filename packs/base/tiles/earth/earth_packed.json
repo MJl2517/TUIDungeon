@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "earth_packed",
+  "name": "Утоптанная земля",
+  "description": "Земля и пещеры. Утоптанная земля. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": ".",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Земля и пещеры",
+  "tags": [
+    "earth",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

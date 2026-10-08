@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "earth",
+  "name": "Земля",
+  "description": "Земля и пещеры. Земля. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": ",",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Земля и пещеры",
+  "tags": [
+    "earth",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

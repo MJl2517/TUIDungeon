@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "terrain_decor_mace",
+  "name": "Булава",
+  "description": "Предмет из каталога окружения. Его можно подобрать, осмотреть и носить.",
+  "glyph": "J",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "category": "weapons",
+  "weight": 2.0,
+  "tags": [
+    "weapon",
+    "decor_mace"
+  ],
+  "durability": null,
+  "slot": "weapon",
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": "1d6",
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 1,
+  "light": null
+}

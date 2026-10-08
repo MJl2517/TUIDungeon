@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "oil",
+  "name": "Масло для лампы",
+  "description": "Одна порция масла: 60 минут света. Расходуется автоматически при экипировке пустой лампы.",
+  "weight": 0.5,
+  "category": "consumables",
+  "charges": 1,
+  "tags": [
+    "lamp_oil",
+    "consumable"
+  ],
+  "glyph": "o",
+  "foreground": 11
+}

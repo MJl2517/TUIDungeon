@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "statue_small",
+  "name": "Маленькая статуя",
+  "description": "Статуи. Маленькая статуя. Преграда движению. Пропускает обзор и свет.",
+  "glyph": "s",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Статуи",
+  "tags": [
+    "statues",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "pit_debris",
+  "name": "Яма с чем-то внутри",
+  "description": "Пропасти и рельеф. Яма с чем-то внутри. Преграда движению. Пропускает обзор и свет. Высота и падение не рассчитываются; разрешённые склоны — обычные проходимые клетки.",
+  "glyph": "⊙",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "group": "Пропасти и рельеф",
+  "tags": [
+    "height",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

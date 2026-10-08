@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_temple_symbol",
+  "name": "Храмовый символ",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "✝",
+  "foreground": 229,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_temple_symbol"
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "map_drawing",
+  "name": "Карта",
+  "description": "Карта. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "M",
+  "foreground": 3,
+  "background": null,
+  "art": null,
+  "group": "Книги и документы",
+  "tags": [
+    "books",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_map_drawing",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

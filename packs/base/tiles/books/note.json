@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "note",
+  "name": "Записка",
+  "description": "Записка. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "P",
+  "foreground": 3,
+  "background": null,
+  "art": null,
+  "group": "Книги и документы",
+  "tags": [
+    "books",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_note",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

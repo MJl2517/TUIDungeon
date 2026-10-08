@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_altar_sun",
+  "name": "Солнечный алтарь",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "☼",
+  "foreground": 229,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_altar_sun"
+}

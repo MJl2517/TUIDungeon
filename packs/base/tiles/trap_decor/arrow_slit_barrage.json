@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "arrow_slit_barrage",
+  "name": "Серия стрел",
+  "description": "Серия стрел. При входе: проверка СЛ 12; при провале 1d4 + 1 урона. Одноразовая ловушка.",
+  "glyph": "»",
+  "foreground": 9,
+  "background": null,
+  "art": null,
+  "group": "Ловушки: рисунки",
+  "tags": [
+    "trap_decor",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": "base:terrain_arrow_slit_barrage",
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

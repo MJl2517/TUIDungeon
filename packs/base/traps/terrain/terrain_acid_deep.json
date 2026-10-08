@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "terrain_acid_deep",
+  "name": "Глубокая кислота",
+  "description": "Проверка при входе; провал причиняет 1d4 + 1 урона. Отравление отображается как состояние.",
+  "glyph": "≈",
+  "foreground": 46,
+  "background": null,
+  "art": null,
+  "hidden": false,
+  "ability": "constitution",
+  "difficulty": 12,
+  "success": [],
+  "failure": [
+    {
+      "kind": "damage",
+      "amount": 1,
+      "dice": "1d4",
+      "condition": "",
+      "duration": 1,
+      "params": {}
+    },
+    {
+      "kind": "condition",
+      "amount": 0,
+      "dice": null,
+      "condition": "poisoned",
+      "duration": 10,
+      "params": {}
+    }
+  ],
+  "repeatable": true,
+  "trigger": "enter"
+}

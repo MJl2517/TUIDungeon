@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_treasure_copper",
+  "name": "Медь",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "c",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_treasure_copper"
+}

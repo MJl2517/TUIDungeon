@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "web_sticky",
+  "name": "Липкая паутина",
+  "description": "Паутина и слизь. Липкая паутина. Проходимая клетка. Пропускает обзор и свет. Замедление, урон и прочие последствия задаются отдельными событиями.",
+  "glyph": "*",
+  "foreground": 2,
+  "background": null,
+  "art": null,
+  "group": "Паутина и слизь",
+  "tags": [
+    "webs",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

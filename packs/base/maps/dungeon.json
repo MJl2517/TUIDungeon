@@ -5228,5 +5228,6 @@
     "x": 3,
     "y": 3
   },
-  "transitions": []
+  "transitions": [],
+  "ambient_light": "dark"
 }

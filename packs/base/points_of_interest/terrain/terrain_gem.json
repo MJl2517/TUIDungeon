@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_gem",
+  "name": "Драгоценный камень",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "♦",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_gem"
+}

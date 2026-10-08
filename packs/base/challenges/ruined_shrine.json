@@ -67,6 +67,57 @@
       ],
       "failure": [],
       "minutes": 1
+    },
+    {
+      "id": "thief_knowledge",
+      "text": "Вор: найти следы тайника в алтаре",
+      "ability": "dexterity",
+      "difficulty": 10,
+      "visible_tags": [
+        "thief"
+      ],
+      "success": [
+        {
+          "kind": "experience",
+          "amount": 10
+        }
+      ],
+      "failure": [],
+      "minutes": 1
+    },
+    {
+      "id": "sage_knowledge",
+      "text": "Мудрец: опознать культ по письменам",
+      "ability": "intelligence",
+      "difficulty": 10,
+      "visible_tags": [
+        "sage"
+      ],
+      "success": [
+        {
+          "kind": "experience",
+          "amount": 10
+        }
+      ],
+      "failure": [],
+      "minutes": 1
+    },
+    {
+      "id": "soldier_knowledge",
+      "text": "Солдат: распознать военные знаки",
+      "ability": "wisdom",
+      "difficulty": 10,
+      "visible_tags": [
+        "soldier"
+      ],
+      "success": [
+        {
+          "kind": "experience",
+          "amount": 10
+        }
+      ],
+      "failure": [],
+      "minutes": 1
     }
   ],
   "repeatable": false

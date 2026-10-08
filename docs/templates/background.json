@@ -2,6 +2,8 @@
   "schema_version": 1,
   "id": "new_background",
   "name": "Новый шаблон: Учёный",
+  "classes": ["wizard"],
+  "skills": ["Магия", "История"],
   "tags": [
     "scholar",
     "lore"

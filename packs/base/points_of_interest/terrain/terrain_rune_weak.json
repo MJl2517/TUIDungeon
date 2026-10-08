@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_rune_weak",
+  "name": "Слабая руна",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "✧",
+  "foreground": 13,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_rune_weak"
+}

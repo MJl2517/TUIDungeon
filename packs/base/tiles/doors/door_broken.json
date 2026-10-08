@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "door_broken",
+  "name": "Разрушенная дверь",
+  "description": "Двери и проходы. Разрушенная дверь. Проходимая клетка. Пропускает обзор и свет. Закрытые двери неподвижны; открывание и смена состояния требуют отдельной механики.",
+  "glyph": "%",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Двери и проходы",
+  "tags": [
+    "doors",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

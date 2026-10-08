@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "grate_vertical",
+  "name": "Вертикальная решётка",
+  "description": "Решётки и ограды. Вертикальная решётка. Преграда движению. Пропускает обзор и свет.",
+  "glyph": "|",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Решётки и ограды",
+  "tags": [
+    "fences",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

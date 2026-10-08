@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "magic_unstable",
+  "name": "Нестабильная магия",
+  "description": "Магические зоны. Нестабильная магия. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": "~",
+  "foreground": 5,
+  "background": null,
+  "art": null,
+  "group": "Магические зоны",
+  "tags": [
+    "magic",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

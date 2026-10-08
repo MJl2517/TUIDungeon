@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "terrain_decor_bottle",
+  "name": "Бутылка",
+  "description": "Предмет из каталога окружения. Его можно подобрать, осмотреть и носить.",
+  "glyph": "o",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "category": "tools",
+  "weight": 0.5,
+  "tags": [
+    "decor_bottle"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 0,
+  "light": null
+}

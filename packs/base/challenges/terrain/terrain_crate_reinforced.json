@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "terrain_crate_reinforced",
+  "name": "Укреплённый ящик",
+  "description": "",
+  "text": "Укреплённый ящик. Замок закрыт: выберите способ открытия.",
+  "choices": [
+    {
+      "id": "pick_lock",
+      "text": "Вскрыть замок отмычками",
+      "ability": "dexterity",
+      "difficulty": 12,
+      "check_tag": "lockpicking",
+      "required_tags": [
+        "lockpicks"
+      ],
+      "visible_tags": [],
+      "advantage_tags": [],
+      "automatic_tags": [],
+      "success": [
+        {
+          "kind": "gold",
+          "amount": 10,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        },
+        {
+          "kind": "experience",
+          "amount": 15,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        }
+      ],
+      "failure": [
+        {
+          "kind": "damage",
+          "amount": 2,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        }
+      ],
+      "minutes": 1
+    },
+    {
+      "id": "force",
+      "text": "Выломать замок силой",
+      "ability": "strength",
+      "difficulty": 14,
+      "check_tag": "",
+      "required_tags": [],
+      "visible_tags": [],
+      "advantage_tags": [],
+      "automatic_tags": [],
+      "success": [
+        {
+          "kind": "gold",
+          "amount": 10,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        },
+        {
+          "kind": "experience",
+          "amount": 15,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        }
+      ],
+      "failure": [
+        {
+          "kind": "damage",
+          "amount": 3,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        }
+      ],
+      "minutes": 1
+    },
+    {
+      "id": "use_key",
+      "text": "Открыть подходящим ключом",
+      "ability": null,
+      "difficulty": 10,
+      "check_tag": "",
+      "required_tags": [
+        "chest_key"
+      ],
+      "visible_tags": [],
+      "advantage_tags": [],
+      "automatic_tags": [],
+      "success": [
+        {
+          "kind": "gold",
+          "amount": 10,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        },
+        {
+          "kind": "experience",
+          "amount": 15,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        }
+      ],
+      "failure": [],
+      "minutes": 1
+    }
+  ],
+  "repeatable": false
+}

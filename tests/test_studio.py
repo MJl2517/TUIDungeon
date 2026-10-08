@@ -1,5 +1,6 @@
 """Authoring contracts, pack transactions and browser/TUI engine parity."""
 
+from scripts.testing import install_test_maps
 from copy import deepcopy
 import json
 from pathlib import Path
@@ -31,6 +32,7 @@ class PackFixture(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name) / "packs"
         shutil.copytree(DEFAULT_PACKS, self.root)
+        install_test_maps(self.root)
         self.store = PackStore(self.root)
 
 
@@ -289,7 +291,7 @@ class SessionTests(PackFixture):
             42, catalog=factory.catalog, map_ref="base:crypt", store=self.store
         )
         controller.handle("enter")
-        for key in "1121234561":
+        for key in "11121234561":
             controller.handle(key)
         before = controller.engine.state.clock.elapsed_minutes
         for key in ["2", "d", "backspace", "right", "left", "tab"]:
@@ -391,7 +393,7 @@ class ApiTests(PackFixture):
             99, catalog=factory.catalog, map_ref="base:crypt", store=self.store
         )
         controller.handle("enter")
-        for key in "1121234561":
+        for key in "11121234561":
             controller.handle(key)
         hero = controller.engine.state.hero
         base_scores = [score - 1 for score in hero.stats.values]

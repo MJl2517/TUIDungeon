@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "torch",
+  "name": "Факел",
+  "description": "Горит 60 игровых минут. Занимает одну руку. Снятие гасит огонь, оставшееся время сохраняется. Сгоревший факел исчезает и освобождает руку.",
+  "weight": 0.5,
+  "category": "tools",
+  "slot": "hand",
+  "hands": 1,
+  "tags": [
+    "light_source"
+  ],
+  "light": {
+    "radius": 6,
+    "bright_radius": 3,
+    "burn_minutes": 60
+  },
+  "glyph": "!",
+  "foreground": 11
+}

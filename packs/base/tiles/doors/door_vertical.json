@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "door_vertical",
+  "name": "Вертикальная дверь",
+  "description": "Двери и проходы. Вертикальная дверь. Преграда движению. Закрывает обзор и свет. Закрытые двери неподвижны; открывание и смена состояния требуют отдельной механики.",
+  "glyph": "|",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Двери и проходы",
+  "tags": [
+    "doors",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "thief",
+  "name": "Вор",
+  "classes": [
+    "rogue"
+  ],
+  "starting_items": [
+    "crowbar",
+    "rope"
+  ],
+  "skills": [
+    "Ловкость рук",
+    "Скрытность"
+  ],
+  "tags": [
+    "thief"
+  ],
+  "description": "Вы жили ремеслом вора, знаете уловки и привычки преступного мира."
+}

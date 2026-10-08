@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "terrain_decor_food",
+  "name": "Еда",
+  "description": "Запас еды на день. Механика голода пока не добавлена.",
+  "glyph": "%",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "category": "consumables",
+  "weight": 1.0,
+  "tags": [
+    "food"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 0,
+  "light": null
+}

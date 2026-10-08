@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "tracks_faint",
+  "name": "Слабые следы",
+  "description": "Следы. Слабые следы. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": ".",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "group": "Следы",
+  "tags": [
+    "tracks",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

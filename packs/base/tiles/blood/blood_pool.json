@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "blood_pool",
+  "name": "Лужа крови",
+  "description": "Кровь. Лужа крови. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": "~",
+  "foreground": 88,
+  "background": null,
+  "art": null,
+  "group": "Кровь",
+  "tags": [
+    "blood",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

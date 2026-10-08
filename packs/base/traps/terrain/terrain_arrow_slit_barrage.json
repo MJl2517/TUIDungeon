@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "terrain_arrow_slit_barrage",
+  "name": "Серия стрел",
+  "description": "Проверка при входе; провал причиняет 1d4 + 1 урона.",
+  "glyph": "»",
+  "foreground": 9,
+  "background": null,
+  "art": null,
+  "hidden": false,
+  "ability": "dexterity",
+  "difficulty": 12,
+  "success": [],
+  "failure": [
+    {
+      "kind": "damage",
+      "amount": 1,
+      "dice": "1d4",
+      "condition": "",
+      "duration": 1,
+      "params": {}
+    }
+  ],
+  "repeatable": false,
+  "trigger": "enter"
+}

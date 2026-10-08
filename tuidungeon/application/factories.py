@@ -11,7 +11,6 @@ from ..domain.effects import EffectRegistry
 from ..world.level import Level, TrapInstance, PointInstance
 from ..world.maps import DungeonMap, Position
 from ..world.state import GameState, MonsterPlacement
-from ..presentation.art import map_cells
 
 
 def create_test_hero(catalog: ContentCatalog | None = None) -> Hero:
@@ -28,8 +27,8 @@ def create_test_hero(catalog: ContentCatalog | None = None) -> Hero:
 
 class SessionFactory:
     def __init__(self, store):
-        self.store = store
-        self.catalog = store.runtime_catalog()
+        self.store = store.snapshot()
+        self.catalog = self.store.runtime_catalog()
 
     def hero(
         self,
@@ -59,9 +58,7 @@ class SessionFactory:
         state = GameState(
             hero, DungeonMap(rows), Position(definition.spawn.x, definition.spawn.y)
         )
-        level = Level(
-            map_ref, definition, self.store, map_cells(self.store, definition)
-        )
+        level = Level(map_ref, definition, self.store)
         effects = EffectRegistry.default()
         for p in definition.traps:
             level.traps.append(TrapInstance(p, self.store.get("traps", p.ref)))

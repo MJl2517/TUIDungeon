@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "lever_lowered",
+  "name": "Опущенный рычаг",
+  "description": "Механизмы. Опущенный рычаг. Проходимая клетка. Пропускает обзор и свет. Чтобы переключатель действовал, добавьте точку интереса с испытанием.",
+  "glyph": "l",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Механизмы",
+  "tags": [
+    "mechanisms",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

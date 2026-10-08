@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_altar",
+  "name": "Алтарь",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "A",
+  "foreground": 229,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_altar"
+}

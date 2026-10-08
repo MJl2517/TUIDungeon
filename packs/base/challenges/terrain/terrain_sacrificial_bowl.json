@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "terrain_sacrificial_bowl",
+  "name": "Жертвенная чаша",
+  "description": "",
+  "text": "Тихое святилище хранит исцеляющую силу.",
+  "choices": [
+    {
+      "id": "examine",
+      "text": "Принять благословение (восстановить до 6 HP)",
+      "ability": null,
+      "difficulty": 10,
+      "check_tag": "",
+      "required_tags": [],
+      "visible_tags": [],
+      "advantage_tags": [],
+      "automatic_tags": [],
+      "success": [
+        {
+          "kind": "heal",
+          "amount": 6,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        }
+      ],
+      "failure": [],
+      "minutes": 1
+    }
+  ],
+  "repeatable": false
+}

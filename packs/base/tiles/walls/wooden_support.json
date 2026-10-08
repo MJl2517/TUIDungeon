@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wooden_support",
+  "name": "Деревянные подпорки",
+  "description": "Стены и архитектура. Деревянные подпорки. Преграда движению. Пропускает обзор и свет.",
+  "glyph": "X",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

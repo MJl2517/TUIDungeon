@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "frost",
+  "name": "Иней",
+  "description": "Лёд и снег. Иней. Проходимая клетка. Пропускает обзор и свет. Скольжение и замедление не добавляются рисунком.",
+  "glyph": "*",
+  "foreground": 117,
+  "background": null,
+  "art": null,
+  "group": "Лёд и снег",
+  "tags": [
+    "ice",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

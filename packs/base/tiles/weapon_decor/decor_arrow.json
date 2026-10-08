@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "decor_arrow",
+  "name": "Стрела",
+  "description": "Стрела. Подбираемый предмет с весом и свойствами снаряжения.",
+  "glyph": ">",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "group": "Декорации: оружие",
+  "tags": [
+    "weapon_decor",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": "base:terrain_decor_arrow",
+    "light": null,
+    "transition": false
+  }
+}

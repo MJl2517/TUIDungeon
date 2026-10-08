@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "terrain_key_important",
+  "name": "Важный ключ",
+  "description": "Предмет из каталога окружения. Его можно подобрать, осмотреть и носить.",
+  "glyph": "K",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "category": "tools",
+  "weight": 0.5,
+  "tags": [
+    "key_important"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 0,
+  "light": null
+}

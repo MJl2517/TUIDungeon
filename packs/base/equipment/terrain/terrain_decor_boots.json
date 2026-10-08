@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "terrain_decor_boots",
+  "name": "Сапоги",
+  "description": "Предмет из каталога окружения. Его можно подобрать, осмотреть и носить.",
+  "glyph": "u",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "category": "armor",
+  "weight": 3.0,
+  "tags": [
+    "decor_boots"
+  ],
+  "durability": null,
+  "slot": "feet",
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 0,
+  "light": null
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "mushroom_large",
+  "name": "Большой гриб",
+  "description": "Грибы. Большой гриб. Преграда движению. Закрывает обзор и свет. Свечение и особые эффекты настраиваются отдельно через источники света и события.",
+  "glyph": "♠",
+  "foreground": 5,
+  "background": null,
+  "art": null,
+  "group": "Грибы",
+  "tags": [
+    "fungi",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

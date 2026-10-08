@@ -6,7 +6,7 @@ type Props = {
   grid?: boolean;
   overlays?: { cells: boolean[][]; color: string }[];
   selection?: Point[];
-  onDown?: (p: Point) => void;
+  onDown?: (p: Point, modifiers?: { altKey: boolean }) => void;
   onDrag?: (p: Point) => void;
   onUp?: (p: Point) => void;
   onHover?: (p: Point) => void;
@@ -95,19 +95,22 @@ export function Grid({
       ref={ref}
       style={{ width: w * cw, height: h * ch, touchAction: "none" }}
       onPointerDown={(e) => {
+        if (e.button !== 0) return;
         e.currentTarget.setPointerCapture(e.pointerId);
         drag.current = true;
-        onDown?.(point(e));
+        onDown?.(point(e), { altKey: e.altKey });
       }}
       onPointerMove={(e) => {
         onHover?.(point(e));
         if (drag.current) onDrag?.(point(e));
       }}
       onPointerUp={(e) => {
+        if (!drag.current) return;
         drag.current = false;
         onUp?.(point(e));
       }}
       onPointerCancel={(e) => {
+        if (!drag.current) return;
         drag.current = false;
         onUp?.(point(e));
       }}

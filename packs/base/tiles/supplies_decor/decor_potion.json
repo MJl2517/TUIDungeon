@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "decor_potion",
+  "name": "Зелье",
+  "description": "Зелье. Подбираемый предмет с весом и свойствами снаряжения.",
+  "glyph": "!",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "group": "Декорации: припасы",
+  "tags": [
+    "supplies_decor",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": "base:terrain_decor_potion",
+    "light": null,
+    "transition": false
+  }
+}

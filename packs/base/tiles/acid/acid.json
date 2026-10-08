@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "acid",
+  "name": "Кислота",
+  "description": "Кислота. При входе: проверка СЛ 12; при провале 1d4 + 1 урона. Повторяется при каждом входе.",
+  "glyph": "~",
+  "foreground": 46,
+  "background": null,
+  "art": null,
+  "group": "Кислота и яд",
+  "tags": [
+    "acid",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": "base:terrain_acid",
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

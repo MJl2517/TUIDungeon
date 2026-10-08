@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wall_double_cross",
+  "name": "Толстое пересечение",
+  "description": "Стены и архитектура. Толстое пересечение. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "╬",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

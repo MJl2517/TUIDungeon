@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_chest_treasure",
+  "name": "Сундук с сокровищами",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "$",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_chest_treasure"
+}

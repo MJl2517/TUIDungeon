@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "pit_deep",
+  "name": "Глубокая яма",
+  "description": "Пропасти и рельеф. Глубокая яма. Преграда движению. Пропускает обзор и свет. Высота и падение не рассчитываются; разрешённые склоны — обычные проходимые клетки.",
+  "glyph": "●",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "group": "Пропасти и рельеф",
+  "tags": [
+    "height",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "shelf",
+  "name": "Полка",
+  "description": "Мебель. Полка. Преграда движению. Пропускает обзор и свет.",
+  "glyph": "k",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Мебель",
+  "tags": [
+    "furniture",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

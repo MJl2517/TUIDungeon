@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_chest_locked",
+  "name": "Запертый сундук",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "¤",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_chest_locked"
+}

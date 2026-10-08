@@ -12,7 +12,27 @@ export type Entry = {
   name: string;
   version: string;
   glyph?: string;
+  classes?: string[];
+  group?: string | null;
+  tags?: string[];
 };
+
+export function matchesEntry(entry: Entry, query: string): boolean {
+  const text = [
+    entry.name,
+    entry.ref,
+    entry.glyph ?? "",
+    entry.group ?? "",
+    ...(entry.tags ?? []),
+  ]
+    .join(" ")
+    .toLocaleLowerCase("ru");
+  return query
+    .trim()
+    .toLocaleLowerCase("ru")
+    .split(/\s+/)
+    .every((word) => text.includes(word));
+}
 export const clone = <T>(value: T): T => structuredClone(value);
 export function color(n: number): string {
   const base = [
@@ -168,7 +188,9 @@ export function resizeMap(doc: Doc, width: number, height: number): Doc {
       ),
     );
   for (const key of placements)
-    next[key] = next[key].filter((p: Point) => p.x < width && p.y < height);
+    next[key] = (next[key] ?? []).filter(
+      (p: Point) => p.x < width && p.y < height,
+    );
   next.spawn = {
     x: Math.min(doc.spawn.x, width - 1),
     y: Math.min(doc.spawn.y, height - 1),
@@ -182,6 +204,7 @@ export const placements = [
   "monsters",
   "equipment",
   "transitions",
+  "lights",
 ];
 export function mapGrid(
   doc: Doc,
@@ -210,7 +233,14 @@ export function mapGrid(
           );
       } else if (key === "transitions")
         grid[p.y][p.x] = { char: ">", foreground: 14, background: null };
-      else {
+      else if (key === "lights") {
+        if (doc.tiles[p.y]?.[p.x]) continue;
+        grid[p.y][p.x] = {
+          char: "*",
+          foreground: p.enabled ? 11 : 8,
+          background: null,
+        };
+      } else {
         const d = assets[key + "/" + p.ref];
         if (d)
           grid[p.y][p.x] = {

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "transition_next",
+  "name": "Переход на следующий уровень",
+  "description": "Переход на следующий уровень. При входе переносит на старт выбранной карты. Карту назначения задайте в палитре.",
+  "glyph": "≫",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "group": "Лестницы и переходы",
+  "tags": [
+    "stairs",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": true
+  }
+}

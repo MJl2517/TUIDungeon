@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "sack_large",
+  "name": "Большой мешок",
+  "description": "Большой мешок. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "S",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "group": "Контейнеры",
+  "tags": [
+    "containers",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_sack_large",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

@@ -8,11 +8,44 @@ import {
   resizeArt,
   resizeMap,
   mapGrid,
+  matchesEntry,
 } from "./model";
 const cell = (char: string, bg: number | null = null) => ({
   char,
   foreground: 7,
   background: bg,
+});
+describe("content search", () => {
+  const tile = {
+    category: "tiles",
+    ref: "base:door_grate",
+    id: "door_grate",
+    name: "Решётчатая дверь",
+    version: "v1",
+    glyph: "╫",
+    group: "Двери и проходы",
+    tags: ["doors", "obstacle", "transparent"],
+  };
+  it("combines words across Russian names, groups and technical tags", () => {
+    expect(matchesEntry(tile, "  ДВЕРИ transparent  ")).toBe(true);
+    expect(matchesEntry(tile, "╫ base:door_grate")).toBe(true);
+    expect(matchesEntry(tile, "дверь opaque")).toBe(false);
+    expect(matchesEntry(tile, "")).toBe(true);
+  });
+  it("keeps old documents searchable without tile metadata", () => {
+    expect(
+      matchesEntry(
+        {
+          category: "tiles",
+          ref: "base:wall",
+          id: "wall",
+          name: "Каменная стена",
+          version: "v1",
+        },
+        "СТЕНА",
+      ),
+    ).toBe(true);
+  });
 });
 describe("document editing", () => {
   it("undo/redo returns entire layered documents and clears redo on a branch", () => {
@@ -96,10 +129,15 @@ describe("document editing", () => {
       monsters: [],
       equipment: [],
       transitions: [],
+      lights: [
+        { id: "lamp", x: 1, y: 1, radius: 4, bright_radius: 2, enabled: true },
+      ],
     };
     const n = resizeMap(d, 1, 1);
     expect(n.spawn).toEqual({ x: 0, y: 0 });
     expect(n.traps).toHaveLength(0);
+    expect(n.lights).toHaveLength(0);
+    expect(d.lights[0].radius).toBe(4);
     expect(d.traps).toHaveLength(1);
   });
   it("renders art without deriving walkability from visual characters", () => {

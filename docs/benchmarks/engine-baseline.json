@@ -1,0 +1,130 @@
+{
+  "python": "3.13.5",
+  "platform": "Linux-6.12.74+deb13+1-amd64-x86_64-with-glibc2.41",
+  "repeat": 3,
+  "documents": 718,
+  "pack_reload_warm_filesystem_ms": 179.878,
+  "runtime_catalog_ms": 16.061,
+  "scenarios": [
+    {
+      "size": 32,
+      "items": 0,
+      "lights": 0,
+      "ambient": "bright",
+      "map_json_bytes": 25076,
+      "snapshot_json_bytes": 58329,
+      "light_calculations_per_snapshot": 3,
+      "median_ms": {
+        "json_decode": 0.173,
+        "schema_validation": 0.226,
+        "session_from_prebuilt_catalog": 7.699,
+        "wait_command_only": 0.056,
+        "move_pair_command_only": 0.095,
+        "lighting": 5.496,
+        "render_cells": 5.459,
+        "browser_snapshot": 17.172,
+        "snapshot_json_encode": 0.693
+      }
+    },
+    {
+      "size": 100,
+      "items": 0,
+      "lights": 0,
+      "ambient": "bright",
+      "map_json_bytes": 240910,
+      "snapshot_json_bytes": 552283,
+      "light_calculations_per_snapshot": 3,
+      "median_ms": {
+        "json_decode": 1.163,
+        "schema_validation": 1.35,
+        "session_from_prebuilt_catalog": 79.817,
+        "wait_command_only": 0.054,
+        "move_pair_command_only": 0.095,
+        "lighting": 138.401,
+        "render_cells": 138.814,
+        "browser_snapshot": 437.157,
+        "snapshot_json_encode": 6.181
+      }
+    },
+    {
+      "size": 256,
+      "items": 0,
+      "lights": 0,
+      "ambient": "bright",
+      "map_json_bytes": 1574712,
+      "snapshot_json_bytes": 3607389,
+      "light_calculations_per_snapshot": 3,
+      "median_ms": {
+        "json_decode": 7.578,
+        "schema_validation": 7.86,
+        "session_from_prebuilt_catalog": 515.772,
+        "wait_command_only": 0.082,
+        "move_pair_command_only": 0.105,
+        "lighting": 2222.316,
+        "render_cells": 2240.196,
+        "browser_snapshot": 6997.606,
+        "snapshot_json_encode": 39.907
+      }
+    },
+    {
+      "size": 100,
+      "items": 1000,
+      "lights": 0,
+      "ambient": "bright",
+      "map_json_bytes": 299699,
+      "snapshot_json_bytes": 674071,
+      "light_calculations_per_snapshot": 3,
+      "median_ms": {
+        "json_decode": 1.923,
+        "schema_validation": 3.382,
+        "session_from_prebuilt_catalog": 87.291,
+        "wait_command_only": 0.494,
+        "move_pair_command_only": 0.896,
+        "lighting": 134.407,
+        "render_cells": 143.615,
+        "browser_snapshot": 431.558,
+        "snapshot_json_encode": 6.928
+      }
+    },
+    {
+      "size": 100,
+      "items": 0,
+      "lights": 100,
+      "ambient": "dark",
+      "map_json_bytes": 248477,
+      "snapshot_json_bytes": 549526,
+      "light_calculations_per_snapshot": 3,
+      "median_ms": {
+        "json_decode": 1.244,
+        "schema_validation": 1.63,
+        "session_from_prebuilt_catalog": 77.42,
+        "wait_command_only": 0.05,
+        "move_pair_command_only": 0.089,
+        "lighting": 150.917,
+        "render_cells": 166.684,
+        "browser_snapshot": 477.218,
+        "snapshot_json_encode": 6.101
+      }
+    },
+    {
+      "size": 100,
+      "items": 0,
+      "lights": 0,
+      "ambient": "dark",
+      "map_json_bytes": 240908,
+      "snapshot_json_bytes": 522298,
+      "light_calculations_per_snapshot": 3,
+      "median_ms": {
+        "json_decode": 1.208,
+        "schema_validation": 1.351,
+        "session_from_prebuilt_catalog": 76.171,
+        "wait_command_only": 0.051,
+        "move_pair_command_only": 0.09,
+        "lighting": 0.385,
+        "render_cells": 25.03,
+        "browser_snapshot": 41.163,
+        "snapshot_json_encode": 6.282
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "treasure_coins",
+  "name": "Монеты",
+  "description": "Монеты. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "¢",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "group": "Сокровища",
+  "tags": [
+    "treasure",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_treasure_coins",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "bedroll",
+  "name": "Спальный мешок",
+  "weight": 3.0,
+  "category": "tools",
+  "tags": [
+    "camping"
+  ],
+  "description": "Снаряжение для ночлега в походе."
+}

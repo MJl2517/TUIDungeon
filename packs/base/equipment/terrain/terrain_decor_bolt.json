@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "terrain_decor_bolt",
+  "name": "Болт",
+  "description": "Предмет из каталога окружения. Его можно подобрать, осмотреть и носить.",
+  "glyph": "»",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "category": "consumables",
+  "weight": 0.05,
+  "tags": [
+    "ammunition",
+    "decor_bolt"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": 1,
+  "hands": 0,
+  "light": null
+}

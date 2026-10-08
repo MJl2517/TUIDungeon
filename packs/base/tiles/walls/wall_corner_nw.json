@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wall_corner_nw",
+  "name": "Угол стены, верх-лево",
+  "description": "Стены и архитектура. Угол стены, верх-лево. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "┌",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

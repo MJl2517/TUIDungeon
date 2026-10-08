@@ -114,6 +114,7 @@ class ContentTests(unittest.TestCase):
         controller.handle("1")
         self.assertIn("4) Следопыт", "\n".join(render(controller, 80, 24)))
         controller.handle("4")
+        controller.handle("1")
         controller.handle("2")
         for key in "1234561":
             controller.handle(key)
@@ -200,14 +201,18 @@ class SymbolTests(unittest.TestCase):
     def test_unicode_rendering_keeps_sizes_and_game_rules(self):
         controller = Controller(42, symbols="unicode")
         controller.handle("enter")
-        for key in "1121234561":
+        for key in "11121234561":
             controller.handle(key)
+        hero = controller.engine.state.hero
+        hero.unequip(next(i for i in hero.inventory if i.id == "shield"))
+        torch = next(i for i in hero.inventory if i.id == "torch")
+        controller.engine.manage_equipment(torch, True)
         rows = render(controller, 80, 24)
         self.assertTrue(all(len(row) == 80 for row in rows))
         self.assertEqual(rows[0][0], "┌")
         self.assertIn("█", "\n".join(rows))
         controller.handle("d")
-        self.assertEqual(controller.engine.state.turns, 1)
+        self.assertEqual(controller.engine.state.turns, 2)
 
 
 if __name__ == "__main__":

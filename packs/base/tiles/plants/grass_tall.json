@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "grass_tall",
+  "name": "Высокая трава",
+  "description": "Растительность. Высокая трава. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": "\"",
+  "foreground": 2,
+  "background": null,
+  "art": null,
+  "group": "Растительность",
+  "tags": [
+    "plants",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

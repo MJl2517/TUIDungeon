@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "terrain_decor_armor",
+  "name": "Броня",
+  "description": "Предмет из каталога окружения. Его можно подобрать, осмотреть и носить.",
+  "glyph": "A",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "category": "armor",
+  "weight": 3.0,
+  "tags": [
+    "decor_armor"
+  ],
+  "durability": null,
+  "slot": "armor",
+  "properties": [
+    {
+      "kind": "armor_class",
+      "amount": 12,
+      "dice": null,
+      "condition": "",
+      "duration": 1,
+      "params": {}
+    }
+  ],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 0,
+  "light": null
+}

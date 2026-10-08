@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "button_round",
+  "name": "Круглая кнопка",
+  "description": "Механизмы. Круглая кнопка. Проходимая клетка. Пропускает обзор и свет. Чтобы переключатель действовал, добавьте точку интереса с испытанием.",
+  "glyph": "○",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Механизмы",
+  "tags": [
+    "mechanisms",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

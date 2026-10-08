@@ -20,6 +20,13 @@ class ChallengeResult:
 
 
 class Challenge(ABC):
+    def available_choices(self, actor: Character) -> tuple[ChallengeChoice, ...]:
+        return tuple(
+            choice
+            for choice in self.choices
+            if choice.visible_tags.issubset(actor.tags)
+        )
+
     @property
     @abstractmethod
     def text(self) -> str:
@@ -59,6 +66,10 @@ class TextChallenge(Challenge):
         choice = next((entry for entry in self.choices if entry.id == choice_id), None)
         if choice is None:
             return ChallengeResult(False, False, 0, "Неизвестный вариант действия.")
+        if not choice.visible_tags.issubset(actor.tags):
+            return ChallengeResult(
+                False, False, 0, "Этот вариант недоступен персонажу."
+            )
         if not choice.required_tags.issubset(actor.tags):
             return ChallengeResult(
                 False, False, 0, "Не хватает необходимых инструментов или свойств."

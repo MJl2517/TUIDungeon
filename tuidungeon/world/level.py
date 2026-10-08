@@ -1,22 +1,33 @@
 """Session-owned placements; authored documents never contain runtime state."""
 
+from __future__ import annotations
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 from uuid import uuid4
 from ..domain.challenges import TextChallenge
+from .terrain import Terrain
+from .spatial import CellIndex
+from ..domain.collections import TrackedList
+from ..domain.equipment import Equipment
+from ..content.schemas import MapDocument, Placement, TrapDocument, PointDocument
+
+if TYPE_CHECKING:
+    from ..content.compiler import ContentSnapshot
+    from .state import ItemPlacement
 
 
 @dataclass
 class TrapInstance:
-    placement: object
-    definition: object
+    placement: Placement
+    definition: TrapDocument
     instance_id: str = field(default_factory=lambda: str(uuid4()))
     triggered: bool = False
 
 
 @dataclass
 class PointInstance:
-    placement: object
-    definition: object
+    placement: Placement
+    definition: PointDocument
     challenge: TextChallenge
     instance_id: str = field(default_factory=lambda: str(uuid4()))
 
@@ -24,43 +35,87 @@ class PointInstance:
 @dataclass
 class Level:
     ref: str
-    definition: object
-    store: object
-    cells: list
+    definition: MapDocument
+    store: ContentSnapshot
     traps: list[TrapInstance] = field(default_factory=list)
     points: list[PointInstance] = field(default_factory=list)
-    items: list = field(default_factory=list)
+    items: list[tuple[Placement | ItemPlacement, Equipment]] = field(
+        default_factory=list
+    )
+
+    def __setattr__(self, name, value):
+        if name in ("traps", "points", "items") and not isinstance(value, TrackedList):
+            value = TrackedList(value)
+        super().__setattr__(name, value)
+
+    def index(self, name):
+        indexes = self.__dict__.setdefault("_indexes", {})
+        if name not in indexes:
+            indexes[name] = CellIndex(lambda p: (p.placement.x, p.placement.y))
+        return indexes[name].synchronize(getattr(self, name))
+
+    @property
+    def terrain(self):
+        if getattr(self, "_terrain_definition", None) is not self.definition:
+            self._terrain = (
+                self.store.terrain(self.ref)
+                if self.store.get("maps", self.ref) is self.definition
+                else Terrain.compile(self.store, self.definition)
+            )
+            self._terrain_definition = self.definition
+        return self._terrain
+
+    @property
+    def cells(self):
+        return self.terrain.cells
 
     def nearby(self, position):
-        return [
+        index = self.index("points")
+        points = [
             p
-            for p in self.points
-            if abs(position.x - p.placement.x) + abs(position.y - p.placement.y) <= 1
+            for dx, dy in ((0, 0), (0, -1), (0, 1), (-1, 0), (1, 0))
+            for p in index.at(position.x + dx, position.y + dy)
         ]
+        # Preserve authored ordering for numbered interaction menus.
+        return sorted(points, key=lambda p: self._point_order[p.placement.id])
 
-    def render_cells(self, state):
-        from ..content.schemas import Cell
+    @property
+    def _point_order(self):
+        key = (id(self.points), self.points.version)
+        if getattr(self, "_order_key", None) != key:
+            self._order = {p.placement.id: i for i, p in enumerate(self.points)}
+            self._order_key = key
+        return self._order
 
-        cells = [list(row) for row in self.cells]
+    def render_cells(self, state, viewport=None):
+        from .graphics import glyph_cell
+
+        x, y, width, height = viewport or (
+            0,
+            0,
+            state.dungeon.width,
+            state.dungeon.height,
+        )
+        cells = [list(row[x : x + width]) for row in self.cells[y : y + height]]
 
         def draw(definition, p):
-            cells[p.y][p.x] = Cell(
-                char=definition.glyph,
-                foreground=definition.foreground,
-                background=definition.background,
+            cells[p.y - y][p.x - x] = glyph_cell(
+                definition.glyph, definition.foreground, definition.background
             )
 
-        for trap in self.traps:
+        for trap in self.index("traps").region(x, y, width, height):
             if not trap.definition.hidden or trap.triggered:
                 draw(trap.definition, trap.placement)
-        for point in self.points:
+        for point in self.index("points").region(x, y, width, height):
             draw(point.definition, point.placement)
-        for placement, item in self.items:
+        for placement, item in state.item_index.region(x, y, width, height):
             draw(self.store.get("equipment", placement.ref), placement)
-        for monster in state.monsters:
+        for monster in state.actor_index.region(x, y, width, height):
             if monster.monster.hp > 0:
                 ref = getattr(monster.monster, "definition_ref", None)
                 if ref:
                     draw(self.store.get("monsters", ref), monster.position)
-        cells[state.position.y][state.position.x] = Cell(char="@", foreground=15)
+        p = state.position
+        if x <= p.x < x + width and y <= p.y < y + height:
+            cells[p.y - y][p.x - x] = glyph_cell("@", 15)
         return cells

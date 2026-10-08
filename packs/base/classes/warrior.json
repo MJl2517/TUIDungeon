@@ -11,7 +11,10 @@
   "starting_items": [
     "base:sword",
     "base:mail",
-    "base:shield"
+    "base:shield",
+    "base:torch",
+    "base:lamp",
+    "base:oil"
   ],
   "spells": [],
   "spell_slots": {},

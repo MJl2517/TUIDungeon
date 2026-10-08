@@ -17,6 +17,7 @@ from ..domain.definitions import (
     DiceExpression,
     EffectSpec,
     EquipmentDefinition,
+    LightDefinition,
     MonsterDefinition,
     RaceDefinition,
     Spell,
@@ -275,7 +276,7 @@ class ContentCatalog:
         for key in ("tags",):
             if key in data:
                 data[key] = frozenset(names(data[key], key))
-        for key in ("starting_items", "inventory", "spells", "actions"):
+        for key in ("starting_items", "inventory", "spells", "actions", "classes"):
             if key in data:
                 data[key] = names(data[key], key)
                 if key in ("spells", "actions") and len(set(data[key])) != len(
@@ -287,6 +288,24 @@ class ContentCatalog:
         if "spell_slots" in data:
             data["spell_slots"] = slots(data["spell_slots"])
         if category == "equipment":
+            data["hands"] = integer(data.get("hands", 0), "hands", 0, 2)
+            if data.get("light") is not None:
+                from .schemas import LightSource
+
+                source = LightSource.model_validate(data["light"])
+                if data.get("slot") != "hand" or data["hands"] != 1:
+                    raise ContentError("Переносной свет требует slot=hand и hands=1")
+                data["light"] = LightDefinition(**source.model_dump())
+            if data.get("category") not in (
+                None,
+                "weapons",
+                "armor",
+                "consumables",
+                "tools",
+            ):
+                raise ContentError(
+                    "category: нужно weapons, armor, consumables или tools"
+                )
             data["weight"] = number(data.get("weight", 0), "weight")
             for key in ("durability", "charges"):
                 if data.get(key) is not None:
@@ -330,6 +349,11 @@ class ContentCatalog:
             data["hit_points"] = integer(data.get("hit_points"), "hit_points", 1)
             data["carry_per_strength"] = number(
                 data.get("carry_per_strength", 5), "carry_per_strength", 0.01
+            )
+        elif category == "backgrounds":
+            data["skills"] = tuple(
+                text(name, "skills")
+                for name in sequence(data.get("skills", []), "skills")
             )
         elif category == "monsters":
             raw_stats = data.get("stats")
@@ -388,7 +412,12 @@ class ContentCatalog:
                 choice["minutes"] = integer(choice.get("minutes", 1), "minutes", 0)
                 if "check_tag" in choice:
                     choice["check_tag"] = identifier(choice["check_tag"], "check_tag")
-                for key in ("required_tags", "advantage_tags", "automatic_tags"):
+                for key in (
+                    "required_tags",
+                    "advantage_tags",
+                    "automatic_tags",
+                    "visible_tags",
+                ):
                     choice[key] = frozenset(names(choice.get(key, []), key))
                 for key in ("success", "failure"):
                     choice[key] = tuple(
@@ -419,6 +448,8 @@ class ContentCatalog:
                     require("spells", spell_id, category, definition.id, "spells")
                 for action_id in getattr(definition, "actions", ()):
                     require("actions", action_id, category, definition.id, "actions")
+                for class_id in getattr(definition, "classes", ()):
+                    require("classes", class_id, category, definition.id, "classes")
         for race in self.races.values():
             if race.racial_spell:
                 require("spells", race.racial_spell, "races", race.id, "racial_spell")

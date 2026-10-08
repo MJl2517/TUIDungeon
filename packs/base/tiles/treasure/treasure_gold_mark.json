@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "treasure_gold_mark",
+  "name": "Золото",
+  "description": "Золото. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "G",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "group": "Сокровища",
+  "tags": [
+    "treasure",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_treasure_gold_mark",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

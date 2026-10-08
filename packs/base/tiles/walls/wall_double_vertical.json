@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wall_double_vertical",
+  "name": "Толстая вертикальная стена",
+  "description": "Стены и архитектура. Толстая вертикальная стена. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "║",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

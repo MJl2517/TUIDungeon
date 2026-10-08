@@ -5,6 +5,7 @@ import re
 
 from .rules import Ability
 from .stats import Stats
+from .value_types import freeze
 
 
 @dataclass(frozen=True)
@@ -36,6 +37,9 @@ class EffectSpec:
     duration: int = 1
     params: dict = field(default_factory=dict)
 
+    def __post_init__(self):
+        object.__setattr__(self, "params", freeze(self.params))
+
 
 @dataclass(frozen=True)
 class ActionDefinition:
@@ -57,6 +61,14 @@ class CheckAid:
 
 
 @dataclass(frozen=True)
+class LightDefinition:
+    radius: int = 6
+    bright_radius: int = 3
+    burn_minutes: int = 60
+    fuel_tag: str | None = None
+
+
+@dataclass(frozen=True)
 class EquipmentDefinition:
     id: str
     name: str
@@ -70,6 +82,9 @@ class EquipmentDefinition:
     weapon_ability: Ability = Ability.STRENGTH
     charges: int | None = None
     description: str = ""
+    category: str | None = None
+    hands: int = 0
+    light: LightDefinition | None = None
 
 
 @dataclass(frozen=True)
@@ -125,6 +140,8 @@ class BackgroundDefinition:
     starting_items: tuple[str, ...] = ()
     tags: frozenset[str] = frozenset()
     description: str = ""
+    classes: tuple[str, ...] = ()
+    skills: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -159,6 +176,7 @@ class ChallengeChoice:
     success: tuple[EffectSpec, ...] = ()
     failure: tuple[EffectSpec, ...] = ()
     minutes: int = 1
+    visible_tags: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)

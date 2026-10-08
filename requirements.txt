@@ -3,3 +3,4 @@ pydantic==2.12.3
 fastapi==0.119.1
 uvicorn==0.38.0
 wcwidth==0.2.14
+windows-curses==2.4.2; sys_platform == "win32"

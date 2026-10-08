@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_jug",
+  "name": "Кувшин",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "0",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_jug"
+}

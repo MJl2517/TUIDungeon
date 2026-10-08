@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "rubble_blocked",
+  "name": "Завал прохода",
+  "description": "Руины и мусор. Завал прохода. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "#",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "group": "Руины и мусор",
+  "tags": [
+    "ruins",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

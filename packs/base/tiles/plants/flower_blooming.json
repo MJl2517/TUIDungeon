@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "flower_blooming",
+  "name": "Цветущее растение",
+  "description": "Растительность. Цветущее растение. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": "✿",
+  "foreground": 2,
+  "background": null,
+  "art": null,
+  "group": "Растительность",
+  "tags": [
+    "plants",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

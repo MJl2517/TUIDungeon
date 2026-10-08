@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "boulder",
+  "name": "Валун",
+  "description": "Земля и пещеры. Валун. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "△",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Земля и пещеры",
+  "tags": [
+    "earth",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

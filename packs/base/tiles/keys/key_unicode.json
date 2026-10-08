@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "key_unicode",
+  "name": "Ключ",
+  "description": "Ключ. Подбираемый предмет с весом и свойствами снаряжения.",
+  "glyph": "⚿",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "group": "Замки и ключи",
+  "tags": [
+    "keys",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": "base:terrain_key_unicode",
+    "light": null,
+    "transition": false
+  }
+}

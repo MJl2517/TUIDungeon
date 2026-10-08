@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "metal_bar",
+  "name": "Одиночный металлический прут",
+  "description": "Решётки и ограды. Одиночный металлический прут. Преграда движению. Пропускает обзор и свет.",
+  "glyph": "†",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Решётки и ограды",
+  "tags": [
+    "fences",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

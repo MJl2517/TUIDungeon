@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_vessel_large",
+  "name": "Большой сосуд",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "Q",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_vessel_large"
+}

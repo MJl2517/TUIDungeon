@@ -1,3 +1,6 @@
+from scripts.testing import install_test_maps
+import shutil
+
 """End-to-end curses test against a real Unix pseudo-terminal."""
 
 import codecs
@@ -13,7 +16,7 @@ import tempfile
 import unittest
 
 from tuidungeon.ui import Controller, render
-from tuidungeon.presentation.tui import menu_entries
+from tuidungeon.presentation.tui import menu_entries, View
 
 if os.name == "posix":
     import fcntl
@@ -207,6 +210,12 @@ class TerminalSession(unittest.TestCase):
         self.save_directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.save_directory.cleanup)
         self.save_path = Path(self.save_directory.name) / "quicksave.json"
+        from tuidungeon.content.packs import DEFAULT_PACKS, PackStore
+
+        pack_root = Path(self.save_directory.name) / "packs"
+        shutil.copytree(DEFAULT_PACKS, pack_root)
+        install_test_maps(pack_root)
+        store = PackStore(pack_root)
         env = os.environ.copy()
         env.pop("KITTY_WINDOW_ID", None)
         env.pop("WEZTERM_PANE", None)
@@ -214,6 +223,8 @@ class TerminalSession(unittest.TestCase):
         self.process = subprocess.Popen(
             [
                 str(Path(__file__).resolve().parents[1] / "run.sh"),
+                "--packs-dir",
+                str(pack_root),
                 "--seed",
                 "42",
                 "--symbols",
@@ -235,9 +246,7 @@ class TerminalSession(unittest.TestCase):
         )
         self.addCleanup(self.stop_process)
         if self.map_ref:
-            from tuidungeon.content.packs import PackStore
-
-            catalog = PackStore().runtime_catalog()
+            catalog = store.runtime_catalog()
         else:
             catalog = None
         self.controller = Controller(
@@ -247,6 +256,7 @@ class TerminalSession(unittest.TestCase):
             catalog=catalog,
             test_map=self.test_map,
             save_path=self.save_path,
+            store=store,
         )
         self.expect_frame()
 
@@ -291,6 +301,31 @@ class TerminalSession(unittest.TestCase):
 
 
 class TerminalTests(TerminalSession):
+    def test_wasd_creation_buttons_background_confirmation_and_bold_focus(self):
+        self.key(b"\r", "enter")
+        self.key(b"d", "d")
+        self.key(b"a", "a")
+        self.key(b"\r", "enter")
+        self.key(b"s", "s")
+        self.key(b"\r", "enter")
+        self.assertIn("Мудрец", "\n".join(self.screen.lines()))
+        self.key(b"h", "h")
+        self.key(b"\r", "enter")
+        self.key(b"\r", "enter")
+        for _ in range(6):
+            self.key(b"\r", "enter")
+        line = self.screen.lines()[18]
+        self.assertIn("[ Начать приключение ]", line)
+        self.assertTrue(self.screen.bold_cells.get((18, line.index("["))))
+        self.resize(100, 30)
+        self.expect_frame()
+        self.key(b"\r", "enter")
+        self.assertEqual(self.controller.engine.state.hero.background.id, "sage")
+        self.key(b"q", "q")
+        self.key(b"2", "2")
+        self.assertEqual(self.process.wait(timeout=3), 0)
+        self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
+
     def assert_menu_bold(self):
         for x, y, text, selected in menu_entries(
             self.controller, self.screen.width, self.screen.height
@@ -329,6 +364,7 @@ class TerminalTests(TerminalSession):
         self.key(b"\x7f", "backspace")
         self.key(b"3", "3")
         self.key(b"2", "2")
+        self.key(b"1", "1")
         self.key(b"2", "2")
         self.key(b"1", "1")
         self.key(b"\x08", "backspace")
@@ -388,14 +424,26 @@ class UnicodeTerminalTests(TerminalSession):
 
     def test_unicode_panels_movement_and_arrows(self):
         self.key(b"\r", "enter")
-        for key in b"1121234561":
+        for key in b"11121234561":
             self.key(bytes([key]), chr(key))
+        # Equip a light before checking wall glyphs in the dark dungeon.
+        for text in ("shield", "torch"):
+            self.key(b"f", "f")
+            if text == "torch":
+                for _ in "shield":
+                    self.key(b"\x7f", "backspace")
+            for key in text.encode():
+                self.key(bytes([key]), chr(key))
+            self.key(b"\r", "enter")
+            self.key(b"\r", "enter")
+            self.key(b"1", "1")
+            self.key(b"\x7f", "backspace")
         self.assertIn("█", "\n".join(self.screen.lines()))
         self.assertIn("┌", "\n".join(self.screen.lines()))
         self.key(b"d", "d")
         self.key(b"\x1bOC", "right")
         self.key(b"\x1bOD", "left")
-        self.assertEqual(self.controller.engine.state.turns, 1)
+        self.assertEqual(self.controller.engine.state.turns, 3)
         if self.controller.engine:
             self.key(b"q", "q")
             os.write(self.master, b"2")
@@ -410,7 +458,7 @@ class MapTerminalTests(TerminalSession):
 
     def test_authored_map_trap_context_choice_backspace_and_exit(self):
         self.key(b"\r", "enter")
-        for digit in b"1121234561":
+        for digit in b"11121234561":
             self.key(bytes([digit]), chr(digit))
         for _ in range(3):
             self.key(b"d", "d")
@@ -438,6 +486,94 @@ class TestMapTerminalTests(TerminalSession):
     map_ref = "base:crypt"
     test_map = True
 
+    def test_lamp_equipping_fuel_save_load_rest_and_resize(self):
+        for text in ("shield", "lamp"):
+            self.key(b"f", "f")
+            if text == "lamp":
+                for _ in "shield":
+                    self.key(b"\x7f", "backspace")
+            for key in text.encode():
+                self.key(bytes([key]), chr(key))
+            self.key(b"\r", "enter")
+            if text == "lamp":
+                # "lamp" also matches the oil's lamp_oil tag. Select the lamp row.
+                self.key(b"\x1bOB", "down")
+                self.key(b"\x1bOB", "down")
+            self.key(b"\r", "enter")
+            self.key(b"1", "1")
+            self.key(b"\x7f", "backspace")
+        self.assertIn("Свет: 59м", "\n".join(self.screen.lines()))
+        self.assertIn("Руки заняты: 2/2", "\n".join(self.screen.lines()))
+        self.key(b"d", "d")
+        self.assertIn("Свет: 58м", "\n".join(self.screen.lines()))
+        self.key(b"\x1b1", "alt+1")
+        self.key(b"d", "d")
+        self.key(b"\x1b2", "alt+2")
+        self.assertIn("Свет: 58м", "\n".join(self.screen.lines()))
+        self.resize(100, 30)
+        self.expect_frame()
+        self.key(b"4", "4")
+        self.key(b"1", "1")
+        lamp = next(
+            i for i in self.controller.engine.state.hero.inventory if i.id == "lamp"
+        )
+        self.assertEqual((lamp.fuel_minutes, lamp.lit), (0, False))
+        self.key(b"q", "q")
+        self.key(b"2", "2")
+        self.assertEqual(self.process.wait(timeout=3), 0)
+        self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
+
+    def test_conditions_tab_and_character_summary_survive_resize(self):
+        self.key(b"\x1bOC", "right")
+        self.key(b"\x1bOC", "right")
+        self.assertIn("Состояния", self.screen.lines()[0])
+        self.assertIn("Благословление: --", "\n".join(self.screen.lines()))
+        self.key(b"2", "2")
+        self.assertIn("Квесты", self.screen.lines()[0])
+        self.assertIn("Ослепление: --", "\n".join(self.screen.lines()))
+        self.resize(100, 30)
+        self.expect_frame()
+        self.key(b"\x7f", "backspace")
+        self.assertIn("Состояния", self.screen.lines()[0])
+        self.key(b"\t", "tab")
+        self.assertIn("Инвентарь", self.screen.lines()[0])
+        self.assertEqual(self.controller.engine.state.turns, 0)
+        self.key(b"q", "q")
+        self.key(b"2", "2")
+        self.assertEqual(self.process.wait(timeout=3), 0)
+        self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
+
+    def test_inventory_pages_search_overlay_throw_and_ground_pickup(self):
+        self.key(b"2", "2")
+        self.key(b"\x1bOC", "right")
+        self.assertIn("Квесты", self.screen.lines()[0])
+        self.key(b"f", "f")
+        for character in "меч":
+            self.key(character.encode("utf-8"), character)
+        self.key(b"\r", "enter")
+        self.key(b"\r", "enter")
+        self.key(b"2", "2")
+        self.assertIn("Осмотр предмета", self.screen.lines()[2])
+        self.key(b"\x1bOB", "down")
+        self.key(b"\x7f", "backspace")
+        self.key(b"3", "3")
+        self.key(b"\x1bOC", "right")
+        self.key(b"\r", "enter")
+        self.assertEqual(self.controller.view, View.CHARACTER)
+        self.assertEqual(self.controller.engine.state.turns, 1)
+        self.key(b"\x7f", "backspace")
+        self.key(b"d", "d")
+        self.key(b"g", "g")
+        self.assertEqual(self.controller.engine.state.turns, 3)
+        self.key(b"f", "f")
+        self.key(b"\x1b", "escape")
+        self.resize(100, 30)
+        self.expect_frame()
+        self.key(b"q", "q")
+        self.key(b"2", "2")
+        self.assertEqual(self.process.wait(timeout=3), 0)
+        self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
+
     def test_look_blinks_sheet_is_bold_and_alt_save_load_rest_work(self):
         from tuidungeon.ui import Layout
         from tuidungeon.presentation.tui import camera
@@ -463,7 +599,7 @@ class TestMapTerminalTests(TerminalSession):
         line = self.screen.lines()[1]
         self.assertTrue(self.screen.bold_cells.get((1, line.index("Раса:"))))
         self.key(b"]", "]")
-        self.key(b"1", "1")
+        self.key(b"\r", "enter")
         self.key(b"\x7f", "backspace")
         self.key(b"\x7f", "backspace")
         self.key(b"\x1b[57443;3u", "alt_press")

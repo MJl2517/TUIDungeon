@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_map_drawing",
+  "name": "Карта",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "M",
+  "foreground": 3,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_map_drawing"
+}

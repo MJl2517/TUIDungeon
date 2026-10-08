@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_sack",
+  "name": "Мешок",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "s",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_sack"
+}

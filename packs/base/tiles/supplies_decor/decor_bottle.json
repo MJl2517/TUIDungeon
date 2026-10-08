@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "decor_bottle",
+  "name": "Бутылка",
+  "description": "Бутылка. Подбираемый предмет с весом и свойствами снаряжения.",
+  "glyph": "o",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "group": "Декорации: припасы",
+  "tags": [
+    "supplies_decor",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": "base:terrain_decor_bottle",
+    "light": null,
+    "transition": false
+  }
+}

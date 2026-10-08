@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_urn",
+  "name": "Урна",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "U",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_urn"
+}

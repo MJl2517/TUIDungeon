@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wall_lattice",
+  "name": "Решётчатая кладка",
+  "description": "Стены и архитектура. Решётчатая кладка. Преграда движению. Пропускает обзор и свет.",
+  "glyph": "▦",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

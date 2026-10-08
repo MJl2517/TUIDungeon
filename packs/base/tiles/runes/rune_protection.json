@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "rune_protection",
+  "name": "Защитная руна",
+  "description": "Защитная руна. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "⊕",
+  "foreground": 13,
+  "background": null,
+  "art": null,
+  "group": "Руны",
+  "tags": [
+    "runes",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_rune_protection",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

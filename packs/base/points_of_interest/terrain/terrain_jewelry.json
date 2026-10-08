@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_jewelry",
+  "name": "Украшение",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "♀",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_jewelry"
+}

@@ -3,6 +3,7 @@
 from pathlib import Path
 from typing import Literal
 import threading
+import sys
 import webbrowser
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, FileResponse
@@ -39,6 +40,8 @@ class SessionRequest(RequestModel):
         default_factory=lambda: [14, 12, 13, 10, 10, 8], min_length=6, max_length=6
     )
     background: str | None = None
+    viewport_width: int | None = Field(default=None, ge=1, le=256)
+    viewport_height: int | None = Field(default=None, ge=1, le=256)
 
 
 class CommandRequest(RequestModel):
@@ -120,8 +123,23 @@ def template(store, category):
                 }
             ],
         )
+    if category == "tiles":
+        raw.update(
+            glyph=".",
+            foreground=7,
+            background=None,
+            art=None,
+            description="",
+            group="Прочее",
+            tags=[],
+            walkable=True,
+            blocks_sight=False,
+            brush={},
+        )
     if category == "maps":
         raw.update(
+            lights=[],
+            ambient_light="bright",
             width=20,
             height=12,
             tiles=[[None] * 20 for _ in range(12)],
@@ -199,6 +217,9 @@ def create_app(root=None, dist=None):
                     "name": d.name,
                     "version": store.versions[(c, r)],
                     "glyph": getattr(d, "glyph", None),
+                    "classes": getattr(d, "classes", []),
+                    "group": getattr(d, "group", None),
+                    "tags": getattr(d, "tags", []),
                 }
                 for (c, r), d in store.documents.items()
             ],
@@ -214,6 +235,7 @@ def create_app(root=None, dist=None):
             "monsters",
             "equipment",
             "actions",
+            "challenges",
         }
         with store.lock:
             store.reload()
@@ -402,7 +424,8 @@ def serve(port=8765, open_browser=True, root=None):
         not (PROJECT_ROOT / "studio/dist/index.html").is_file()
         or not (PROJECT_ROOT / "studio/dist/assets").is_dir()
     ):
-        raise ValueError("Интерфейс не собран. Выполните ./setup.sh")
+        setup = ".\\setup.bat" if sys.platform == "win32" else "./setup.sh"
+        raise ValueError(f"Интерфейс не собран. Выполните {setup}")
     if open_browser:
         timer = threading.Timer(
             1.0, webbrowser.open, args=(f"http://127.0.0.1:{port}",)

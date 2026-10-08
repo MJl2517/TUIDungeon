@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_marker_interest",
+  "name": "Интересный объект",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "*",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_marker_interest"
+}

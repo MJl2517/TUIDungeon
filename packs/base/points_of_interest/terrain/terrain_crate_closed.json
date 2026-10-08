@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_crate_closed",
+  "name": "Закрытый ящик",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "■",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_crate_closed"
+}

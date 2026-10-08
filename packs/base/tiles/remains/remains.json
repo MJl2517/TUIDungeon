@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "remains",
+  "name": "Останки",
+  "description": "Кости и останки. Останки. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": "%",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "group": "Кости и останки",
+  "tags": [
+    "remains",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

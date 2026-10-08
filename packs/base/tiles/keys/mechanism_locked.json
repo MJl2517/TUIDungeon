@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "mechanism_locked",
+  "name": "Запертый механизм",
+  "description": "Замки и ключи. Запертый механизм. Проходимая клетка. Пропускает обзор и свет. Это рисунок. Для подбираемого ключа разместите экземпляр снаряжения.",
+  "glyph": "#",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "group": "Замки и ключи",
+  "tags": [
+    "keys",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

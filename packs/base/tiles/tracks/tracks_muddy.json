@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "tracks_muddy",
+  "name": "Грязные следы",
+  "description": "Следы. Грязные следы. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": ";",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "group": "Следы",
+  "tags": [
+    "tracks",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

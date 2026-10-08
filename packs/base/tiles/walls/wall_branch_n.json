@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wall_branch_n",
+  "name": "Стена с ответвлением вверх",
+  "description": "Стены и архитектура. Стена с ответвлением вверх. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "┴",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

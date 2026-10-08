@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "slime",
+  "name": "Слизь",
+  "description": "Паутина и слизь. Слизь. Проходимая клетка. Пропускает обзор и свет. Замедление, урон и прочие последствия задаются отдельными событиями.",
+  "glyph": "~",
+  "foreground": 46,
+  "background": null,
+  "art": null,
+  "group": "Паутина и слизь",
+  "tags": [
+    "webs",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "trap_small",
+  "name": "Небольшая ловушка",
+  "description": "Небольшая ловушка. При входе: проверка СЛ 12; при провале 1d4 + 1 урона. Одноразовая ловушка.",
+  "glyph": "x",
+  "foreground": 9,
+  "background": null,
+  "art": null,
+  "group": "Ловушки: рисунки",
+  "tags": [
+    "trap_decor",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": "base:terrain_trap_small",
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

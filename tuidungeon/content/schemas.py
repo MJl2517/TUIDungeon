@@ -4,6 +4,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from wcwidth import wcwidth
 from ..domain.definitions import DiceExpression
+from ..domain.value_types import freeze
 
 LocalId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*$")]
 Ref = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$")]
@@ -25,6 +26,15 @@ class StrictModel(BaseModel):
     model_config = ConfigDict(
         extra="forbid", strict=True, frozen=True, validate_default=True
     )
+
+    def model_post_init(self, context):
+        for name in type(self).model_fields:
+            object.__setattr__(self, name, freeze(getattr(self, name)))
+
+    def model_copy(self, *, update=None, deep=False):
+        result = super().model_copy(update=update, deep=deep)
+        result.model_post_init(None)
+        return result
 
 
 def title_text(value):
@@ -148,7 +158,21 @@ class Aid(StrictModel):
     mode: Literal["advantage", "automatic"] = "advantage"
 
 
+class LightSource(StrictModel):
+    radius: Annotated[int, Field(ge=1, le=32)] = 6
+    bright_radius: Annotated[int, Field(ge=0, le=32)] = 3
+    burn_minutes: Positive = 60
+    fuel_tag: LocalId | None = None
+
+    @model_validator(mode="after")
+    def radii(self):
+        if self.bright_radius > self.radius:
+            raise ValueError("Яркий радиус не может превышать общий радиус света")
+        return self
+
+
 class EquipmentDocument(Visual):
+    category: Literal["weapons", "armor", "consumables", "tools"] | None = None
     weight: Annotated[float, Field(ge=0, allow_inf_nan=False)] = 0
     tags: list[LocalId] = Field(default_factory=list)
     durability: Positive | None = None
@@ -158,7 +182,15 @@ class EquipmentDocument(Visual):
     weapon_damage: str | None = None
     weapon_ability: AbilityName = "strength"
     charges: Positive | None = None
+    hands: Annotated[int, Field(ge=0, le=2)] = 0
+    light: LightSource | None = None
     _dice = field_validator("weapon_damage")(ActionFields.damage_valid.__func__)
+
+    @model_validator(mode="after")
+    def light_hand(self):
+        if self.light and (self.slot != "hand" or self.hands != 1):
+            raise ValueError("Переносной свет должен иметь slot=hand и hands=1")
+        return self
 
 
 class SpellDocument(Visual):
@@ -211,6 +243,16 @@ class ClassDocument(Visual):
 
 
 class BackgroundDocument(Visual):
+    classes: list[Ref] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "classes"}
+    )
+    skills: list[str] = Field(default_factory=list)
+
+    @field_validator("skills")
+    @classmethod
+    def skill_names(cls, value):
+        return [title_text(name) for name in value]
+
     ability_bonuses: Bonuses = Field(default_factory=Bonuses)
     starting_items: list[Ref] = Field(
         default_factory=list, json_schema_extra={"ref_category": "equipment"}
@@ -261,6 +303,7 @@ class Choice(StrictModel):
     difficulty: Nonnegative = 10
     check_tag: LocalId | Literal[""] = ""
     required_tags: list[LocalId] = Field(default_factory=list)
+    visible_tags: list[LocalId] = Field(default_factory=list)
     advantage_tags: list[LocalId] = Field(default_factory=list)
     automatic_tags: list[LocalId] = Field(default_factory=list)
     success: list[Effect] = Field(default_factory=list)
@@ -298,9 +341,57 @@ class PointDocument(Visual):
     challenge: Ref = Field(json_schema_extra={"ref_category": "challenges"})
 
 
+class TileLight(StrictModel):
+    radius: Annotated[int, Field(ge=1, le=32)] = 6
+    bright_radius: Annotated[int, Field(ge=0, le=32)] = 3
+
+    @model_validator(mode="after")
+    def radii(self):
+        if self.bright_radius > self.radius:
+            raise ValueError("Яркий радиус не может превышать общий радиус света")
+        return self
+
+
+class TileBrush(StrictModel):
+    """Authoring recipe: painting creates ordinary, independent map placements."""
+
+    underlay: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "tiles"}
+    )
+
+    trap: Ref | None = Field(default=None, json_schema_extra={"ref_category": "traps"})
+    interaction: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "points_of_interest"}
+    )
+    item: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "equipment"}
+    )
+    light: TileLight | None = None
+    transition: bool = False
+
+
 class TileDocument(Visual):
+    group: str = "Прочее"
+    tags: list[LocalId] = Field(default_factory=list)
     walkable: bool = True
     blocks_sight: bool = False
+    brush: TileBrush = Field(default_factory=TileBrush)
+    _group = field_validator("group")(title_text)
+
+    @model_validator(mode="after")
+    def reachable_objects(self):
+        if not self.walkable and any(
+            (
+                self.brush.trap,
+                self.brush.interaction,
+                self.brush.item,
+                self.brush.transition,
+            )
+        ):
+            raise ValueError(
+                "Кисть с игровым объектом или переходом должна быть проходимой"
+            )
+        return self
 
 
 class Cell(StrictModel):
@@ -352,7 +443,22 @@ class Transition(Coordinate):
     target: Ref = Field(json_schema_extra={"ref_category": "maps"})
 
 
+class MapLight(Coordinate):
+    id: LocalId
+    radius: Annotated[int, Field(ge=1, le=32)] = 6
+    bright_radius: Annotated[int, Field(ge=0, le=32)] = 3
+    enabled: bool = True
+
+    @model_validator(mode="after")
+    def radii(self):
+        if self.bright_radius > self.radius:
+            raise ValueError("Яркий радиус не может превышать общий радиус света")
+        return self
+
+
 class MapDocument(Document):
+    ambient_light: Literal["dark", "dim", "bright"] = "bright"
+    lights: list[MapLight] = Field(default_factory=list)
     width: Annotated[int, Field(ge=1, le=256)] = 20
     height: Annotated[int, Field(ge=1, le=256)] = 12
     tiles: list[list[Ref | None]]
@@ -397,6 +503,7 @@ class MapDocument(Document):
             "monsters",
             "equipment",
             "transitions",
+            "lights",
         ):
             for entry in getattr(self, category):
                 if entry.id in ids:
@@ -404,7 +511,10 @@ class MapDocument(Document):
                 ids.add(entry.id)
                 if entry.x >= self.width or entry.y >= self.height:
                     raise ValueError(f"{entry.id}: за пределами карты")
-                if category != "decorations" and not self.walkability[entry.y][entry.x]:
+                if (
+                    category not in ("decorations", "lights")
+                    and not self.walkability[entry.y][entry.x]
+                ):
                     raise ValueError(f"{entry.id}: непроходимая клетка")
                 if category == "monsters":
                     if (entry.x, entry.y) in occupied:

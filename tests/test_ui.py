@@ -1,4 +1,7 @@
+from scripts.testing import fixture_store
 import unittest
+from pathlib import Path
+import tempfile
 
 from tuidungeon.models import Position
 from tuidungeon.ui import Controller, Layout, View, render
@@ -8,7 +11,7 @@ def created_controller(seed=42):
     controller = Controller(seed)
     controller.handle("enter")
     # Human warrior; accept rolls, distribute in order, confirm.
-    for key in ("1", "1", "2", "1", "2", "3", "4", "5", "6", "1"):
+    for key in ("1", "1", "1", "2", "1", "2", "3", "4", "5", "6", "1"):
         controller.handle(key)
     return controller
 
@@ -46,9 +49,7 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(hero.racial_uses, 1)
 
     def test_test_map_loads_selected_level_and_restarts_its_instances(self):
-        from tuidungeon.content.packs import PackStore
-
-        store = PackStore()
+        store = fixture_store()
         catalog = store.runtime_catalog()
 
         def start():
@@ -72,7 +73,9 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(second.engine.state.hero.hp, result_hp)
 
     def test_main_menu_navigation_wraps_and_opens_selected_screen(self):
-        controller = Controller(42)
+        saves = tempfile.TemporaryDirectory()
+        self.addCleanup(saves.cleanup)
+        controller = Controller(42, save_path=Path(saves.name) / "quicksave.json")
         self.assertEqual(controller.view, View.MAIN_MENU)
         self.assertIsNone(controller.engine)
         controller.handle("up")
@@ -118,10 +121,12 @@ class ControllerTests(unittest.TestCase):
         self.assertFalse(controller.running)
 
     def test_menu_navigation_does_not_consume_random_rolls(self):
-        controller = Controller(42)
+        saves = tempfile.TemporaryDirectory()
+        self.addCleanup(saves.cleanup)
+        controller = Controller(42, save_path=Path(saves.name) / "quicksave.json")
         for key in ("3", "2", "backspace", "4", "escape", "2", "backspace", "1"):
             controller.handle(key)
-        for key in "1121234561":
+        for key in "11121234561":
             controller.handle(key)
         self.assertEqual(
             controller.engine.state.hero, created_controller().engine.state.hero
@@ -152,7 +157,9 @@ class ControllerTests(unittest.TestCase):
             controller.handle(key)
         self.assertTrue(controller.running)
         self.assertEqual(controller.view, View.EXPLORE)
-        self.assertFalse(controller.spells_tab)
+        self.assertTrue(
+            controller.spells_tab
+        )  # Character navigation keeps the sidebar tab.
         self.assertEqual(
             (state.clock.elapsed_minutes, state.turns, state.position),
             (480, 0, original_position),
@@ -170,28 +177,69 @@ class ControllerTests(unittest.TestCase):
         self.assertFalse(controller.running)
 
     def test_arrows_select_tabs_without_moving_or_spending_time(self):
+        from tuidungeon.presentation.menus import SidebarTab
+
         controller = created_controller()
         state = controller.engine.state
-        for key, spells_tab in (
-            ("right", True),
-            ("down", True),
-            ("left", False),
-            ("up", False),
+        for key, tab in (
+            ("right", SidebarTab.SPELLS),
+            ("right", SidebarTab.CONDITIONS),
+            ("up", SidebarTab.CONDITIONS),
+            ("down", SidebarTab.CONDITIONS),
+            ("tab", SidebarTab.INVENTORY),
+            ("left", SidebarTab.CONDITIONS),
+            ("left", SidebarTab.SPELLS),
+            ("left", SidebarTab.INVENTORY),
         ):
-            for _ in range(2):
-                controller.handle(key)
-                self.assertEqual(controller.spells_tab, spells_tab)
-                self.assertEqual(
-                    (state.position, state.turns, state.clock.elapsed_minutes),
-                    (Position(3, 3), 0, 480),
-                )
+            controller.handle(key)
+            self.assertEqual(controller.sidebar_tab, tab)
+            self.assertEqual(
+                (state.position, state.turns, state.clock.elapsed_minutes),
+                (Position(3, 3), 0, 480),
+            )
         controller.handle("2")
         controller.handle("right")
-        self.assertTrue(controller.spells_tab)
+        self.assertEqual(controller.sheet_section, 1)
+        self.assertFalse(controller.spells_tab)
         self.assertEqual(controller.view, View.CHARACTER)
         controller.handle("up")
         self.assertFalse(controller.spells_tab)
         self.assertEqual(state.turns, 0)
+
+    def test_conditions_are_visible_in_sheet_and_sidebar_without_changing_actor(self):
+        from tuidungeon.presentation.menus import SidebarTab
+
+        controller = created_controller()
+        state = controller.engine.state
+        state.hero.conditions = {"poisoned": 4}
+        rng = controller.engine.dice.rng.getstate()
+        for width, height in ((80, 24), (100, 30)):
+            controller.sidebar_tab = SidebarTab.CONDITIONS
+            sidebar = "\n".join(
+                row[width - 27 :] for row in render(controller, width, height)
+            )
+            controller.handle("2")
+            sheet = "\n".join(
+                row[: width - 28] for row in render(controller, width, height)
+            )
+            for label in (
+                "Ослепление",
+                "Истощение",
+                "Жажда",
+                "Голод",
+                "Отравление",
+                "Благословление",
+            ):
+                self.assertIn(label + ": --", sidebar)
+                self.assertIn(label + ": --", sheet)
+            self.assertIn("Квесты", render(controller, width, height)[0])
+            self.assertIn("Сила", sheet)
+            self.assertIn("Телосложение", sheet)
+            controller.handle("backspace")
+            self.assertEqual(controller.sidebar_tab, SidebarTab.CONDITIONS)
+        self.assertEqual(state.hero.conditions, {"poisoned": 4})
+        self.assertEqual(controller.engine.dice.rng.getstate(), rng)
+        self.assertEqual((state.turns, state.clock.elapsed_minutes), (0, 480))
 
     def test_backspace_revises_creation_and_q_opens_exit_submenu(self):
         controller = Controller(42)
@@ -200,6 +248,7 @@ class ControllerTests(unittest.TestCase):
         controller.handle("backspace")
         controller.handle("2")
         controller.handle("2")
+        controller.handle("1")
         controller.handle("2")
         for key in "123456":
             controller.handle(key)
@@ -240,14 +289,15 @@ class RenderingTests(unittest.TestCase):
     def test_all_creation_screens_fit_at_minimum_size(self):
         controller = Controller(42)
         controller.handle("enter")
-        for key in (None, "3", "2", "2", "1", "2", "3", "4", "5", "6"):
+        for key in (None, "3", "2", "1", "2", "1", "2", "3", "4", "5", "6"):
             if key:
                 controller.handle(key)
             rows = render(controller, 80, 24)
             self.assertEqual(len(rows), 24)
             self.assertTrue(all(len(row) == 80 for row in rows))
             self.assert_borders(rows)
-        self.assertIn("Бонусы расы уже учтены", "\n".join(rows))
+        self.assertIn("Подтверждение", "\n".join(rows))
+        self.assertIn("Бонусы уже учтены", "\n".join(rows))
 
     def test_game_four_panels_and_spells_and_character(self):
         controller = created_controller()
@@ -273,7 +323,7 @@ class RenderingTests(unittest.TestCase):
     def test_elf_wizard_displays_both_magic_pools_without_truncation(self):
         controller = Controller(42)
         controller.handle("enter")
-        for key in ("3", "2", "2", "1", "2", "3", "4", "5", "6", "1", "tab"):
+        for key in ("3", "2", "1", "2", "1", "2", "3", "4", "5", "6", "1", "tab"):
             controller.handle(key)
         text = "\n".join(render(controller, 80, 24))
         for label in (

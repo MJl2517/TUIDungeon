@@ -1,0 +1,148 @@
+{
+  "python": "3.13.5",
+  "platform": "Linux-6.12.74+deb13+1-amd64-x86_64-with-glibc2.41",
+  "repeat": 5,
+  "documents": 718,
+  "pack_reload_warm_filesystem_ms": 74.425,
+  "runtime_catalog_ms": 0.185,
+  "scenarios": [
+    {
+      "size": 32,
+      "items": 0,
+      "lights": 0,
+      "ambient": "bright",
+      "map_json_bytes": 25076,
+      "snapshot_json_bytes": 58386,
+      "light_calculations_per_snapshot": 1,
+      "median_ms": {
+        "json_decode": 0.185,
+        "schema_validation": 1.194,
+        "session_from_prebuilt_catalog": 0.385,
+        "wait_command_only": 0.061,
+        "move_pair_command_only": 0.112,
+        "lighting": 0.032,
+        "render_cells": 0.04,
+        "browser_snapshot": 0.437,
+        "move_and_lighting": 0.413,
+        "move_and_snapshot": 1.314,
+        "move_and_viewport": 0.824,
+        "snapshot_json_encode": 0.906
+      }
+    },
+    {
+      "size": 100,
+      "items": 0,
+      "lights": 0,
+      "ambient": "bright",
+      "map_json_bytes": 240910,
+      "snapshot_json_bytes": 552342,
+      "light_calculations_per_snapshot": 1,
+      "median_ms": {
+        "json_decode": 1.173,
+        "schema_validation": 8.481,
+        "session_from_prebuilt_catalog": 1.126,
+        "wait_command_only": 0.058,
+        "move_pair_command_only": 0.106,
+        "lighting": 0.03,
+        "render_cells": 0.038,
+        "browser_snapshot": 3.203,
+        "move_and_lighting": 2.889,
+        "move_and_snapshot": 17.854,
+        "move_and_viewport": 5.384,
+        "snapshot_json_encode": 7.768
+      }
+    },
+    {
+      "size": 256,
+      "items": 0,
+      "lights": 0,
+      "ambient": "bright",
+      "map_json_bytes": 1574712,
+      "snapshot_json_bytes": 3607448,
+      "light_calculations_per_snapshot": 1,
+      "median_ms": {
+        "json_decode": 7.892,
+        "schema_validation": 55.444,
+        "session_from_prebuilt_catalog": 5.917,
+        "wait_command_only": 0.059,
+        "move_pair_command_only": 0.108,
+        "lighting": 0.019,
+        "render_cells": 0.027,
+        "browser_snapshot": 22.368,
+        "move_and_lighting": 17.9,
+        "move_and_snapshot": 117.044,
+        "move_and_viewport": 20.328,
+        "snapshot_json_encode": 54.5
+      }
+    },
+    {
+      "size": 100,
+      "items": 1000,
+      "lights": 0,
+      "ambient": "bright",
+      "map_json_bytes": 299699,
+      "snapshot_json_bytes": 674130,
+      "light_calculations_per_snapshot": 1,
+      "median_ms": {
+        "json_decode": 1.826,
+        "schema_validation": 14.398,
+        "session_from_prebuilt_catalog": 8.252,
+        "wait_command_only": 0.057,
+        "move_pair_command_only": 0.105,
+        "lighting": 0.031,
+        "render_cells": 0.039,
+        "browser_snapshot": 3.539,
+        "move_and_lighting": 2.844,
+        "move_and_snapshot": 18.628,
+        "move_and_viewport": 5.619,
+        "snapshot_json_encode": 9.298
+      }
+    },
+    {
+      "size": 100,
+      "items": 0,
+      "lights": 100,
+      "ambient": "dark",
+      "map_json_bytes": 248477,
+      "snapshot_json_bytes": 549585,
+      "light_calculations_per_snapshot": 1,
+      "median_ms": {
+        "json_decode": 1.346,
+        "schema_validation": 9.592,
+        "session_from_prebuilt_catalog": 1.202,
+        "wait_command_only": 0.058,
+        "move_pair_command_only": 0.112,
+        "lighting": 0.03,
+        "render_cells": 0.038,
+        "browser_snapshot": 7.182,
+        "move_and_lighting": 3.02,
+        "move_and_snapshot": 17.008,
+        "move_and_viewport": 4.215,
+        "snapshot_json_encode": 8.041
+      }
+    },
+    {
+      "size": 100,
+      "items": 0,
+      "lights": 0,
+      "ambient": "dark",
+      "map_json_bytes": 240908,
+      "snapshot_json_bytes": 522357,
+      "light_calculations_per_snapshot": 1,
+      "median_ms": {
+        "json_decode": 1.198,
+        "schema_validation": 8.949,
+        "session_from_prebuilt_catalog": 1.188,
+        "wait_command_only": 0.061,
+        "move_pair_command_only": 0.108,
+        "lighting": 0.03,
+        "render_cells": 0.039,
+        "browser_snapshot": 3.434,
+        "move_and_lighting": 4.007,
+        "move_and_snapshot": 19.556,
+        "move_and_viewport": 5.186,
+        "snapshot_json_encode": 8.473
+      }
+    }
+  ]
+}

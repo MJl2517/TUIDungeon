@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wall_double_branch_e",
+  "name": "Толстое ответвление вправо",
+  "description": "Стены и архитектура. Толстое ответвление вправо. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "╠",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Стены и архитектура",
+  "tags": [
+    "walls",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

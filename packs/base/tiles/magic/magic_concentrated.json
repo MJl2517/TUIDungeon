@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "magic_concentrated",
+  "name": "Концентрированная магия",
+  "description": "Концентрированная магия. Источник света: радиус 6 клеток.",
+  "glyph": "✦",
+  "foreground": 5,
+  "background": null,
+  "art": null,
+  "group": "Магические зоны",
+  "tags": [
+    "magic",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": {
+      "radius": 6,
+      "bright_radius": 3
+    },
+    "transition": false
+  }
+}

@@ -13,12 +13,54 @@ class Equipment:
     charges: int | None
     equipped: bool = False
     instance_id: str = field(default_factory=lambda: str(uuid4()), compare=False)
+    fuel_minutes: int = 0
+    lit: bool = False
 
     @classmethod
     def create(
         cls, definition: EquipmentDefinition, *, equipped: bool = False
     ) -> "Equipment":
-        return cls(definition, definition.durability, definition.charges, equipped)
+        item = cls(definition, definition.durability, definition.charges, equipped)
+        if definition.light and definition.light.fuel_tag is None:
+            item.fuel_minutes = definition.light.burn_minutes
+        return item
+
+    @property
+    def hands(self) -> int:
+        if self.definition.hands:
+            return self.definition.hands
+        if "two_handed" in self.definition.tags:
+            return 2
+        return int(self.definition.slot in {"weapon", "main_hand", "off_hand", "hand"})
+
+    @property
+    def shining(self) -> bool:
+        return bool(
+            self.definition.light
+            and self.lit
+            and self.fuel_minutes > 0
+            and not self.broken
+        )
+
+    @property
+    def consumed(self) -> bool:
+        return bool(
+            self.definition.light
+            and self.definition.light.fuel_tag is None
+            and self.fuel_minutes == 0
+        )
+
+    def burn(self, minutes: int) -> bool:
+        """Consume game minutes, reporting the moment a flame expires."""
+        if minutes < 0:
+            raise ValueError("Время не может идти назад")
+        if not self.lit:
+            return False
+        self.fuel_minutes = max(0, self.fuel_minutes - minutes)
+        if not self.fuel_minutes or self.broken:
+            self.lit = False
+            return True
+        return False
 
     @property
     def id(self) -> str:
@@ -31,6 +73,23 @@ class Equipment:
     @property
     def weight(self) -> float:
         return self.definition.weight
+
+    @property
+    def category(self) -> str:
+        """Explicit author category, with a fallback for older content packs."""
+        definition = self.definition
+        if definition.category:
+            return definition.category
+        if definition.weapon_damage or "weapon" in definition.tags:
+            return "weapons"
+        if definition.slot in ("armor", "shield") or any(
+            effect.kind in ("armor_class", "armor_bonus")
+            for effect in definition.properties
+        ):
+            return "armor"
+        if definition.charges is not None or definition.tags & {"consumable", "potion"}:
+            return "consumables"
+        return "tools"
 
     @property
     def broken(self) -> bool:

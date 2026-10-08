@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_scroll",
+  "name": "Свиток",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "?",
+  "foreground": 3,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_scroll"
+}

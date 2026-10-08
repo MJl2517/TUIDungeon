@@ -63,7 +63,7 @@ class ExtensionTests(unittest.TestCase):
     def test_weight_armor_equipping_breakage_and_repair(self):
         hero = self.hero()
         self.assertEqual(hero.armor_class, 18)
-        self.assertEqual(hero.carried_weight, 24.5)
+        self.assertEqual(hero.carried_weight, 26.5)
         self.assertEqual(hero.max_carry_weight, 65)
         armor = next(item for item in hero.inventory if item.id == "mail")
         armor.wear(100)
@@ -180,8 +180,8 @@ class ExtensionTests(unittest.TestCase):
         hero = self.hero("wizard", background="scholar")
         self.assertEqual(hero.background.id, "scholar")
         self.assertIn("scholar", hero.tags)
-        self.assertEqual(len(hero.inventory), 4)
-        self.assertEqual(len(self.hero("wizard").inventory), 3)
+        self.assertEqual(len(hero.inventory), 7)
+        self.assertEqual(len(self.hero("wizard").inventory), 6)
 
     def test_challenge_missing_tools_has_no_cost_or_consequences(self):
         hero = self.hero()
@@ -298,6 +298,7 @@ class ExtensionTests(unittest.TestCase):
         creation = CharacterCreation(Dice(random.Random(42)), catalog)
         creation.select(4)
         creation.select(4)
+        creation.select(1)
         creation.select(2)
         for number in range(1, 7):
             creation.select(number)
@@ -318,6 +319,8 @@ class ExtensionTests(unittest.TestCase):
         self.assertEqual(creation.selection_page, 0)
         creation.select(9)
         selected = creation.visible_options[0].id
+        creation.select(1)
+        self.assertEqual(creation.step, CreationStep.BACKGROUND)
         creation.select(1)
         self.assertEqual(creation.step, CreationStep.ROLL)
         self.assertEqual(creation.character_class.id, selected)

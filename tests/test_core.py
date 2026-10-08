@@ -64,7 +64,7 @@ class HeroTests(unittest.TestCase):
                     expected_hp = hit_dice[character_class] + modifier(expected_stats[2]) + int(race is Race.DWARF)
                     self.assertEqual((hero.hp, hero.max_hp, hero.level), (expected_hp, expected_hp, 1))
                     self.assertEqual((hero.gold, hero.experience), (0, 0))
-                    self.assertEqual(len(hero.inventory), 3)
+                    self.assertEqual(len(hero.inventory), 6)
                     self.assertEqual(hero.spell_slots, {1: 2} if character_class is CharacterClass.WIZARD else {})
                     self.assertEqual(hero.racial_spell, DETECT_MAGIC if race is Race.ELF else None)
                     self.assertEqual(hero.racial_uses, int(race is Race.ELF))
@@ -75,7 +75,7 @@ class HeroTests(unittest.TestCase):
         second = Hero.create(Race.ELF, CharacterClass.WIZARD, Stats((1,) * 6))
         self.assertEqual(first.max_hp, 1)
         first.inventory.clear()
-        self.assertEqual(len(second.inventory), 3)
+        self.assertEqual(len(second.inventory), 6)
 
     def test_elf_wizard_uses_independent_pools_without_duplicate_knowledge(self):
         hero = Hero.create(Race.ELF, CharacterClass.WIZARD, Stats((10,) * 6))
@@ -113,6 +113,7 @@ class CreationTests(unittest.TestCase):
         creation = CharacterCreation(Dice(random.Random(42)))
         creation.select(3)
         creation.select(2)
+        creation.select(1)
         creation.select(2)
         return creation
 
@@ -157,6 +158,8 @@ class CreationTests(unittest.TestCase):
         self.assertEqual(creation.assignments, [])
         creation.back()
         self.assertEqual(creation.step, CreationStep.ROLL)
+        creation.back()
+        self.assertEqual(creation.step, CreationStep.BACKGROUND)
         creation.back()
         self.assertEqual(creation.step, CreationStep.CLASS)
         creation.back()

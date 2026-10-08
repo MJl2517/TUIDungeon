@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "rune_active",
+  "name": "Активная руна",
+  "description": "Активная руна. Источник света: радиус 6 клеток. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "◉",
+  "foreground": 13,
+  "background": null,
+  "art": null,
+  "group": "Руны",
+  "tags": [
+    "runes",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_rune_active",
+    "item": null,
+    "light": {
+      "radius": 6,
+      "bright_radius": 3
+    },
+    "transition": false
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "terrain_chest_treasure",
+  "name": "Сундук с сокровищами",
+  "description": "",
+  "text": "Здесь могут остаться ценности. Что вы сделаете?",
+  "choices": [
+    {
+      "id": "examine",
+      "text": "Забрать ценности",
+      "ability": null,
+      "difficulty": 10,
+      "check_tag": "",
+      "required_tags": [],
+      "visible_tags": [],
+      "advantage_tags": [],
+      "automatic_tags": [],
+      "success": [
+        {
+          "kind": "gold",
+          "amount": 0,
+          "dice": "1d6",
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        }
+      ],
+      "failure": [],
+      "minutes": 1
+    }
+  ],
+  "repeatable": false
+}

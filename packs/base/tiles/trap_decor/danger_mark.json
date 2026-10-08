@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "danger_mark",
+  "name": "Обнаруженная опасность",
+  "description": "Ловушки: рисунки. Обнаруженная опасность. Проходимая клетка. Пропускает обзор и свет. Это видимая декорация. Скрытость, срабатывание и урон задайте размещением ловушки.",
+  "glyph": "!",
+  "foreground": 9,
+  "background": null,
+  "art": null,
+  "group": "Ловушки: рисунки",
+  "tags": [
+    "trap_decor",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "temple_symbol",
+  "name": "Храмовый символ",
+  "description": "Храмовый символ. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "✝",
+  "foreground": 229,
+  "background": null,
+  "art": null,
+  "group": "Алтари и святыни",
+  "tags": [
+    "shrines",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_temple_symbol",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

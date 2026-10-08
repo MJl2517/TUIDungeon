@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "earth_gravel",
+  "name": "Гравий",
+  "description": "Земля и пещеры. Гравий. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": ":",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Земля и пещеры",
+  "tags": [
+    "earth",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

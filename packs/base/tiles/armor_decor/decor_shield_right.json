@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "decor_shield_right",
+  "name": "Щит",
+  "description": "Щит. Подбираемый предмет с весом и свойствами снаряжения.",
+  "glyph": "]",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "group": "Декорации: снаряжение",
+  "tags": [
+    "armor_decor",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": "base:terrain_decor_shield_right",
+    "light": null,
+    "transition": false
+  }
+}

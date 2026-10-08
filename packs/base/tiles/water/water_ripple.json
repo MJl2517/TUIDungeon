@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "water_ripple",
+  "name": "Мелкая вода",
+  "description": "Вода. Мелкая вода. Проходимая клетка. Пропускает обзор и свет. Плавание и перемещение течением не рассчитываются рисунком.",
+  "glyph": "∼",
+  "foreground": 4,
+  "background": null,
+  "art": null,
+  "group": "Вода",
+  "tags": [
+    "water",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

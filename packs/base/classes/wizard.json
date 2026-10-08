@@ -11,7 +11,10 @@
   "starting_items": [
     "base:staff",
     "base:robe",
-    "base:spellbook"
+    "base:spellbook",
+    "base:torch",
+    "base:lamp",
+    "base:oil"
   ],
   "spells": [
     "base:magic_missile",

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "artifact_legendary",
+  "name": "Легендарный предмет",
+  "description": "Легендарный предмет. Подбираемый предмет с весом и свойствами снаряжения.",
+  "glyph": "★",
+  "foreground": 13,
+  "background": null,
+  "art": null,
+  "group": "Артефакты",
+  "tags": [
+    "artifacts",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": "base:terrain_artifact_legendary",
+    "light": null,
+    "transition": false
+  }
+}

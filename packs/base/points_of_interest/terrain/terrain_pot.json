@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_pot",
+  "name": "Горшок",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "u",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_pot"
+}

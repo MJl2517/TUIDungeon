@@ -1,5 +1,7 @@
 """Exploration commands, navigation, keyboard protocols and save round trips."""
 
+from scripts.testing import fixture_store
+
 import json
 from pathlib import Path
 import random
@@ -11,7 +13,6 @@ from types import SimpleNamespace
 from tuidungeon.application.engine import Action, Engine
 from tuidungeon.application.factories import SessionFactory
 from tuidungeon.application.saves import SaveRepository
-from tuidungeon.content.packs import PackStore
 from tuidungeon.domain.actions import SpellSource
 from tuidungeon.domain.rules import Ability, Dice
 from tuidungeon.presentation.keyboard import decode_sequence
@@ -22,7 +23,7 @@ from tuidungeon.world.maps import Position
 
 class ExplorationTests(unittest.TestCase):
     def setUp(self):
-        self.store = PackStore()
+        self.store = fixture_store()
         self.factory = SessionFactory(self.store)
         self.engine = self.factory.session(
             "base:crypt", race="base:elf", character_class="base:wizard", seed=42
@@ -93,6 +94,7 @@ class ExplorationTests(unittest.TestCase):
             self.engine.cast_spell("magic_missile", SpellSource.CLASS).performed
         )
         self.assertEqual(self.engine.state.turns, before)
+        self.engine.state.position = self.engine.state.monsters[0].position
         monster = self.engine.state.monsters[0].monster
         previous = monster.hp
         self.assertTrue(
@@ -106,6 +108,7 @@ class ExplorationTests(unittest.TestCase):
     def test_inspection_does_not_reveal_hidden_traps_or_change_time(self):
         trap = self.engine.state.level.traps[0]
         position = Position(trap.placement.x, trap.placement.y)
+        self.engine.state.position = position
         text = "\n".join(self.engine.inspect_cell(position))
         if trap.definition.hidden:
             self.assertNotIn(trap.definition.name, text)
@@ -114,10 +117,12 @@ class ExplorationTests(unittest.TestCase):
             trap.definition.name, "\n".join(self.engine.inspect_cell(position))
         )
         monster = self.engine.state.monsters[0]
+        self.engine.state.position = monster.position
         self.assertIn(
             monster.monster.name, "\n".join(self.engine.inspect_cell(monster.position))
         )
         point = self.engine.state.level.points[0]
+        self.engine.state.position = Position(point.placement.x, point.placement.y)
         self.assertIn(
             point.challenge.text,
             "\n".join(
@@ -134,7 +139,7 @@ class SaveTests(unittest.TestCase):
         self.addCleanup(self.directory.cleanup)
         self.path = Path(self.directory.name) / "slot.json"
         self.repository = SaveRepository(self.path)
-        self.store = PackStore()
+        self.store = fixture_store()
         self.factory = SessionFactory(self.store)
         self.engine = self.factory.session(
             "base:crypt", race="base:elf", character_class="base:wizard", seed=17
@@ -212,7 +217,7 @@ class NavigationTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
-        self.store = PackStore()
+        self.store = fixture_store()
         self.controller = Controller(
             42,
             catalog=self.store.runtime_catalog(),
@@ -275,7 +280,7 @@ class NavigationTests(unittest.TestCase):
         c.handle("2")
         c.handle("]")
         self.assertIn("Снаряжение", "\n".join(render(c, 80, 24)))
-        c.handle("1")
+        c.handle("enter")
         self.assertEqual(c.view, View.ITEM)
         before = c.selected_item.equipped
         c.handle("1")
@@ -315,6 +320,7 @@ class NavigationTests(unittest.TestCase):
         c.handle("2")
         c.handle("1")
         self.assertEqual(c.action_menu, ActionMenu.TARGET)
+        c.engine.state.position = c.engine.state.monsters[0].position
         hp = c.targets[0].hp
         c.handle("1")
         self.assertLess(c.engine.state.monsters[0].monster.hp, hp)
@@ -333,6 +339,62 @@ class NavigationTests(unittest.TestCase):
 
 
 class KeyboardTests(unittest.TestCase):
+    def test_windows_console_alt_digits_and_normal_keys(self):
+        from tuidungeon.presentation.keyboard import TerminalKeyboard
+
+        curses = SimpleNamespace(
+            KEY_UP=259,
+            KEY_DOWN=258,
+            KEY_LEFT=260,
+            KEY_RIGHT=261,
+            KEY_BACKSPACE=263,
+            KEY_ENTER=343,
+            KEY_PPAGE=339,
+            KEY_NPAGE=338,
+            KEY_RESIZE=546,
+            error=RuntimeError,
+        )
+        keys = [0x197 + digit for digit in range(10)] + [
+            "W",
+            curses.KEY_LEFT,
+            "\r",
+            "\x08",
+            "\t",
+            "\x03",
+            curses.KEY_RESIZE,
+        ]
+        screen = MagicMock()
+        screen.get_wch.side_effect = keys
+        with patch("sys.platform", "win32"):
+            keyboard = TerminalKeyboard(screen, curses)
+            self.assertEqual(
+                [keyboard.read().key for _ in keys],
+                [f"alt+{digit}" for digit in range(10)]
+                + ["w", "left", "enter", "backspace", "tab", "ctrl_c", "resize"],
+            )
+
+    def test_windows_console_does_not_write_kitty_sequences(self):
+        from tuidungeon.presentation.keyboard import TerminalKeyboard
+
+        curses = MagicMock()
+        screen = MagicMock()
+        with (
+            patch("sys.platform", "win32"),
+            patch.dict("os.environ", {"WEZTERM_PANE": "test"}, clear=True),
+            patch("sys.stdout") as output,
+        ):
+            with TerminalKeyboard(screen, curses) as keyboard:
+                self.assertFalse(keyboard.enhanced)
+            output.write.assert_not_called()
+        screen.timeout.assert_called_with(-1)
+
+    def test_pdcurses_codes_are_not_reinterpreted_on_posix(self):
+        from tuidungeon.presentation.keyboard import TerminalKeyboard
+
+        with patch("sys.platform", "linux"):
+            keyboard = TerminalKeyboard(MagicMock(), MagicMock())
+            self.assertEqual(keyboard.normalize(0x198), "")
+
     def test_kitty_modifier_press_release_alt_digits_arrows_and_control_c(self):
         self.assertTrue(decode_sequence("\x1b[57443;3u").alt)
         self.assertFalse(decode_sequence("\x1b[57443;1:3u").alt)
@@ -368,6 +430,7 @@ class KeyboardTests(unittest.TestCase):
             }
         )
         with (
+            patch("sys.platform", "linux"),
             patch.dict("os.environ", {"KITTY_WINDOW_ID": "test"}),
             patch("sys.stdout") as output,
         ):

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "tree_clover",
+  "name": "Дерево",
+  "description": "Растительность. Дерево. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "♣",
+  "foreground": 2,
+  "background": null,
+  "art": null,
+  "group": "Растительность",
+  "tags": [
+    "plants",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

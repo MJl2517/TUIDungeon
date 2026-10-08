@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "rope",
+  "name": "Верёвка",
+  "weight": 4.0,
+  "category": "tools",
+  "tags": [
+    "rope"
+  ],
+  "description": "Прочная верёвка для спуска и подъёма."
+}

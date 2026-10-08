@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "stone_chips",
+  "name": "Каменная крошка",
+  "description": "Руины и мусор. Каменная крошка. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": ":",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "group": "Руины и мусор",
+  "tags": [
+    "ruins",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

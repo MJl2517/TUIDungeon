@@ -36,6 +36,8 @@ export function Playtest({
           seed,
           scores,
           background: background || null,
+          viewport_width: 48,
+          viewport_height: 24,
         }),
       );
     } catch (e) {
@@ -65,6 +67,11 @@ export function Playtest({
     const handler = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).matches("input,textarea,select")) return;
       const key = e.key.toLowerCase();
+      if (key === "g") {
+        e.preventDefault();
+        void command("pickup");
+        return;
+      }
       if ("wasd".includes(key) && key.length === 1) {
         e.preventDefault();
         void command(key);
@@ -109,7 +116,16 @@ export function Playtest({
           <select
             aria-label="Тестовый класс"
             value={cls}
-            onChange={(e) => setCls(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value;
+              setCls(next);
+              const selected = entries.find(
+                (entry) =>
+                  entry.ref === background && entry.category === "backgrounds",
+              );
+              if (selected?.classes?.length && !selected.classes.includes(next))
+                setBackground("");
+            }}
           >
             {entries
               .filter((e) => e.category === "classes")
@@ -126,7 +142,11 @@ export function Playtest({
           >
             <option value="">Без предыстории</option>
             {entries
-              .filter((e) => e.category === "backgrounds")
+              .filter(
+                (e) =>
+                  e.category === "backgrounds" &&
+                  (!e.classes?.length || e.classes.includes(cls)),
+              )
               .map((e) => (
                 <option key={e.ref} value={e.ref}>
                   {e.name}
@@ -192,7 +212,24 @@ export function Playtest({
               <div className="canvas-scroll">
                 <Grid cells={session.cells} zoom={1.3} />
               </div>
+              <p className="muted">
+                Карта {session.width}×{session.height} · камера следует за
+                героем
+              </p>
               <div className="toolbar">
+                <button
+                  disabled={
+                    busy ||
+                    !(session.ground ?? []).some(
+                      (p: Doc) =>
+                        p.x === session.position.x &&
+                        p.y === session.position.y,
+                    )
+                  }
+                  onClick={() => void command("pickup")}
+                >
+                  G · Подобрать
+                </button>
                 <button disabled={busy} onClick={() => void command("w")}>
                   W ↑
                 </button>
@@ -275,6 +312,40 @@ export function Playtest({
                     </button>
                   ))}
                 </section>
+              ))}
+              <h3>Снаряжение и свет</h3>
+              <p className="hint">
+                Занято рук: {session.hero.hands_used}/2. Снимите оружие или щит,
+                чтобы взять источник света. Одна порция масла — час; отдых
+                расходует топливо.
+              </p>
+              {session.hero.inventory.map((item: Doc) => (
+                <div key={item.id}>
+                  <span>
+                    {item.equipped ? "[*] " : item.slot ? "[ ] " : ""}
+                    {item.name}
+                    {item.light &&
+                      ` · ${item.lit ? "горит" : "погашен"}, ${item.fuel_minutes} мин.`}
+                    {item.charges != null && ` · ${item.charges} примен.`}
+                  </span>
+                  {item.slot && (
+                    <button
+                      disabled={busy}
+                      onClick={() =>
+                        void command(
+                          item.equipped ? "unequip" : "equip",
+                          item.id,
+                        )
+                      }
+                    >
+                      {item.equipped
+                        ? "Снять"
+                        : item.light
+                          ? "Взять и зажечь"
+                          : "Надеть"}
+                    </button>
+                  )}
+                </div>
               ))}
               <h3>Броски и эффекты</h3>
               <div className="event-log">

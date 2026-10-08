@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "bush",
+  "name": "Куст",
+  "description": "Растительность. Куст. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": "ψ",
+  "foreground": 2,
+  "background": null,
+  "art": null,
+  "group": "Растительность",
+  "tags": [
+    "plants",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

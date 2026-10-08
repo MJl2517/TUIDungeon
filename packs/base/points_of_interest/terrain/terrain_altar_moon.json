@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_altar_moon",
+  "name": "Лунный алтарь",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "☾",
+  "foreground": 229,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_altar_moon"
+}

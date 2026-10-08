@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_treasure_silver",
+  "name": "Серебро",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "g",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_treasure_silver"
+}

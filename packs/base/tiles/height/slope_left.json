@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "slope_left",
+  "name": "Склон влево",
+  "description": "Пропасти и рельеф. Склон влево. Проходимая клетка. Пропускает обзор и свет. Высота и падение не рассчитываются; разрешённые склоны — обычные проходимые клетки.",
+  "glyph": "<",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "group": "Пропасти и рельеф",
+  "tags": [
+    "height",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

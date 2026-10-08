@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "parchment",
+  "name": "Пергамент",
+  "weight": 0.05,
+  "category": "tools",
+  "tags": [
+    "paper"
+  ],
+  "description": "Листы для заметок и зарисовок."
+}

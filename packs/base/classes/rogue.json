@@ -11,7 +11,10 @@
   "starting_items": [
     "base:dagger",
     "base:leather",
-    "base:thieves_tools"
+    "base:thieves_tools",
+    "base:torch",
+    "base:lamp",
+    "base:oil"
   ],
   "spells": [],
   "spell_slots": {},

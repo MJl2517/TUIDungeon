@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "nightstand",
+  "name": "Тумба",
+  "description": "Мебель. Тумба. Преграда движению. Пропускает обзор и свет.",
+  "glyph": "f",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Мебель",
+  "tags": [
+    "furniture",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

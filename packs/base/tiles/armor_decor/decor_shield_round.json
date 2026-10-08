@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "decor_shield_round",
+  "name": "Круглый щит",
+  "description": "Круглый щит. Подбираемый предмет с весом и свойствами снаряжения.",
+  "glyph": "O",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "group": "Декорации: снаряжение",
+  "tags": [
+    "armor_decor",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": "base:terrain_decor_shield_round",
+    "light": null,
+    "transition": false
+  }
+}

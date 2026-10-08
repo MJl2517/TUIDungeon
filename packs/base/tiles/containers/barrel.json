@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "barrel",
+  "name": "Бочка",
+  "description": "Бочка. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "B",
+  "foreground": 136,
+  "background": null,
+  "art": null,
+  "group": "Контейнеры",
+  "tags": [
+    "containers",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_barrel",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

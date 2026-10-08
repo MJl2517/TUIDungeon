@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "rations",
+  "name": "Дорожный паёк",
+  "weight": 1.0,
+  "category": "consumables",
+  "tags": [
+    "food"
+  ],
+  "description": "Запас еды на день. Механика голода пока не добавлена.",
+  "glyph": "r",
+  "foreground": 7
+}

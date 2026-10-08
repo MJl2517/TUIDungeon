@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "terrain_paper_scrap",
+  "name": "Клочок бумаги",
+  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "glyph": "p",
+  "foreground": 3,
+  "background": null,
+  "art": null,
+  "challenge": "base:terrain_paper_scrap"
+}

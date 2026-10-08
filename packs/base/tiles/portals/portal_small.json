@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "portal_small",
+  "name": "Малый портал",
+  "description": "Малый портал. При входе переносит на старт выбранной карты. Карту назначения задайте в палитре.",
+  "glyph": "0",
+  "foreground": 13,
+  "background": null,
+  "art": null,
+  "group": "Порталы",
+  "tags": [
+    "portals",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": true
+  }
+}

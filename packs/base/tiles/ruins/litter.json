@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "litter",
+  "name": "Мелкий мусор",
+  "description": "Руины и мусор. Мелкий мусор. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": ";",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "group": "Руины и мусор",
+  "tags": [
+    "ruins",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

@@ -1,6 +1,7 @@
 """Validated packs, references, optimistic concurrency and atomic document writes."""
 
 from hashlib import sha256
+from functools import lru_cache
 import json
 import os
 from pathlib import Path
@@ -8,21 +9,25 @@ import re
 import tempfile
 import threading
 from .schemas import MODELS, Manifest
-from .catalog import ContentCatalog, ContentError, ACTION_KINDS, no_duplicate_fields
-from ..domain.mechanics import mechanics
+from .catalog import ContentError, no_duplicate_fields
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PACKS = PROJECT_ROOT / "packs"
 REF_FIELDS = {
+    "underlay": "tiles",
     "art": "art",
     "racial_spell": "spells",
     "spells": "spells",
     "actions": "actions",
+    "classes": "classes",
     "starting_items": "equipment",
     "inventory": "equipment",
     "challenge": "challenges",
     "tiles": "tiles",
     "target": "maps",
+    "trap": "traps",
+    "interaction": "points_of_interest",
+    "item": "equipment",
 }
 
 
@@ -52,6 +57,8 @@ def references(raw, category):
     def visit(value, key="", path="", placement_category=None):
         if isinstance(value, dict):
             for k, v in value.items():
+                if k == "params":
+                    continue  # Plugin parameters are not untyped content references.
                 context = (
                     ("art" if k == "decorations" else k)
                     if category == "maps"
@@ -81,6 +88,7 @@ class PackStore:
     def __init__(self, root=DEFAULT_PACKS):
         self.root = Path(root).resolve()
         self.lock = threading.RLock()
+        self._file_cache = {}
         self.reload()
 
     def reload(self):
@@ -89,10 +97,37 @@ class PackStore:
             documents = {}
             paths = {}
             versions = {}
+            cache = {}
+
+            def load(file, model):
+                info = file.stat()
+                signature = (
+                    info.st_mtime_ns,
+                    info.st_ctime_ns,
+                    info.st_size,
+                    info.st_ino,
+                )
+                previous = self._file_cache.get(file)
+                if previous and previous[0] == signature:
+                    cache[file] = previous
+                    return previous[1], previous[2]
+                try:
+                    data = file.read_bytes()
+                    doc = model.model_validate(
+                        json.loads(
+                            data.decode("utf-8"), object_pairs_hook=no_duplicate_fields
+                        )
+                    )
+                except (ValueError, OSError) as error:
+                    raise ContentError(f"{file}: {error}") from error
+                version = sha256(data).hexdigest()
+                cache[file] = (signature, doc, version)
+                return doc, version
+
             for path in sorted(self.root.glob("*/manifest.json")):
                 if not path.resolve().is_relative_to(self.root):
                     raise ContentError("Пакет должен находиться внутри packs/")
-                manifest = Manifest.model_validate(self.read_json(path))
+                manifest, _ = load(path, Manifest)
                 if manifest.id != path.parent.name:
                     raise ContentError(f"{path}: id пакета не совпадает с папкой")
                 if manifest.id in manifests:
@@ -104,26 +139,28 @@ class PackStore:
                             raise ContentError(
                                 "Контент должен находиться внутри packs/"
                             )
-                        try:
-                            data = file.read_bytes()
-                            doc = model.model_validate(
-                                json.loads(
-                                    data.decode("utf-8"),
-                                    object_pairs_hook=no_duplicate_fields,
-                                )
-                            )
-                        except (ValueError, OSError) as error:
-                            raise ContentError(f"{file}: {error}") from error
+                        doc, version = load(file, model)
                         key = (category, f"{manifest.id}:{doc.id}")
                         if key in documents:
                             raise ContentError(f"{file}: повторный id {key[1]}")
                         documents[key] = doc
                         paths[key] = file
-                        versions[key] = sha256(data).hexdigest()
+                        versions[key] = version
             if not manifests:
                 raise ContentError("Нет пакетов контента")
+            if (
+                getattr(self, "versions", None) == versions
+                and getattr(self, "manifests", None) == manifests
+                and all(
+                    getattr(self, "documents", {}).get(k) is doc
+                    for k, doc in documents.items()
+                )
+            ):
+                self._file_cache = cache
+                return
             self.validate_dependencies(manifests)
             self.validate_references(documents, manifests)
+            self._file_cache = cache
             self.manifests, self.documents, self.paths, self.versions = (
                 manifests,
                 documents,
@@ -167,6 +204,7 @@ class PackStore:
 
     @staticmethod
     def validate_references(documents, manifests):
+        @lru_cache(maxsize=None)
         def allowed(pack):
             result = {pack}
             for dep in manifests[pack].dependencies:
@@ -215,12 +253,17 @@ class PackStore:
         }
 
     def usages(self, category, ref):
-        return [
-            {"category": c, "ref": r, "field": path}
-            for (c, r), doc in self.documents.items()
-            for dest, target, path in references(doc.model_dump(mode="json"), c)
-            if dest == category and target == ref
-        ]
+        key = tuple((k, id(v)) for k, v in self.documents.items())
+        if getattr(self, "_references_key", None) != key:
+            index = {}
+            for (c, r), doc in self.documents.items():
+                for dest, target, path in references(doc.model_dump(mode="json"), c):
+                    index.setdefault((dest, target), []).append(
+                        {"category": c, "ref": r, "field": path}
+                    )
+            self._references = index
+            self._references_key = key
+        return [dict(entry) for entry in self._references.get((category, ref), ())]
 
     def warnings(self, category, ref):
         if category != "maps":
@@ -331,45 +374,15 @@ class PackStore:
             if os.path.exists(temp):
                 os.unlink(temp)
 
+    def snapshot(self):
+        from .compiler import ContentSnapshot
+
+        with self.lock:
+            key = tuple((k, id(v)) for k, v in self.documents.items())
+            if getattr(self, "_snapshot_key", None) != key:
+                self._snapshot = ContentSnapshot.create(self.documents)
+                self._snapshot_key = key
+            return self._snapshot
+
     def runtime_catalog(self):
-        """Adapt validated authoring definitions to the existing pure domain objects."""
-        result = ContentCatalog()
-        sources = {}
-
-        def adapt(value):
-            if isinstance(value, list):
-                return [adapt(v) for v in value]
-            if isinstance(value, dict):
-                return {k: adapt(v) for k, v in value.items()}
-            if isinstance(value, str) and re.fullmatch(
-                r"[a-z][a-z0-9_]*:[a-z][a-z0-9_]*", value
-            ):
-                return runtime_key(value)
-            return value
-
-        for (category, ref), doc in self.documents.items():
-            if category not in result.__dataclass_fields__:
-                continue
-            raw = adapt(doc.model_dump(mode="json"))
-            raw.pop("schema_version", None)
-            raw["id"] = runtime_key(ref)
-            for key in ("glyph", "foreground", "background"):
-                raw.pop(key, None)
-            if category != "monsters":
-                raw.pop("art", None)
-            else:
-                raw["art"] = (
-                    None  # Portraits are rendered by the shared art compositor.
-                )
-            if category == "challenges":
-                raw.pop("description", None)
-                for choice in raw["choices"]:
-                    if not choice.get("check_tag"):
-                        choice.pop("check_tag", None)
-            definition = result._parse(
-                category, raw, ACTION_KINDS, frozenset(mechanics.entries)
-            )
-            getattr(result, category)[definition.id] = definition
-            sources[(category, definition.id)] = ref
-        result._validate_references(sources)
-        return result
+        return self.snapshot().runtime_catalog()

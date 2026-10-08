@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "book_large",
+  "name": "Большая книга",
+  "description": "Большая книга. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "≡",
+  "foreground": 3,
+  "background": null,
+  "art": null,
+  "group": "Книги и документы",
+  "tags": [
+    "books",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_book_large",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

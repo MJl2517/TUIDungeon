@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "crowbar",
+  "name": "Ломик",
+  "weight": 2.0,
+  "category": "tools",
+  "tags": [
+    "lever"
+  ],
+  "description": "Стальной рычаг для работы с тяжёлыми предметами."
+}

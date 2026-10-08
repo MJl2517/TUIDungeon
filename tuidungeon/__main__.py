@@ -5,6 +5,11 @@ import sys
 
 
 def main() -> int:
+    setup_command = ".\\setup.bat" if sys.platform == "win32" else "./setup.sh"
+    run_command = ".\\run.bat" if sys.platform == "win32" else "./run.sh"
+    if sys.version_info < (3, 11):
+        print("Нужен Python 3.11 или новее.", file=sys.stderr)
+        return 1
     parser = argparse.ArgumentParser(
         description="TUI Dungeon — пошаговое исследование ASCII-подземелья"
     )
@@ -61,11 +66,21 @@ def main() -> int:
             serve(args.port, not args.no_browser, args.packs_dir)
             return 0
         except (ValueError, OSError, ImportError) as error:
-            print(f"Ошибка студии: {error}. Установка: ./setup.sh", file=sys.stderr)
+            print(
+                f"Ошибка студии: {error}. Установка: {setup_command}",
+                file=sys.stderr,
+            )
             return 1
         except KeyboardInterrupt:
             return 0
-    from .content.catalog import ContentCatalog, ContentError
+    try:
+        from .content.catalog import ContentCatalog, ContentError
+    except ImportError as error:
+        print(
+            f"Не найдены зависимости: {error}. Выполните {setup_command}",
+            file=sys.stderr,
+        )
+        return 1
 
     try:
         store = None
@@ -118,7 +133,7 @@ def main() -> int:
         return 1
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         print(
-            "Запустите игру в интерактивном терминале: python3 -m tuidungeon",
+            f"Запустите игру в интерактивном терминале: {run_command}",
             file=sys.stderr,
         )
         return 1
@@ -126,7 +141,12 @@ def main() -> int:
         import curses
     except ImportError:
         print(
-            "Не найден curses. Используйте Python с curses в Linux/macOS.",
+            f"Не найден curses. Выполните {setup_command}; "
+            + (
+                "на Windows он установит windows-curses."
+                if sys.platform == "win32"
+                else "нужен Python с поддержкой curses."
+            ),
             file=sys.stderr,
         )
         return 1

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "terrain_decor_shield_large",
+  "name": "Большой щит",
+  "description": "Предмет из каталога окружения. Его можно подобрать, осмотреть и носить.",
+  "glyph": "D",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "category": "armor",
+  "weight": 3.0,
+  "tags": [
+    "decor_shield_large"
+  ],
+  "durability": null,
+  "slot": "shield",
+  "properties": [
+    {
+      "kind": "armor_bonus",
+      "amount": 2,
+      "dice": null,
+      "condition": "",
+      "duration": 1,
+      "params": {}
+    }
+  ],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 1,
+  "light": null
+}

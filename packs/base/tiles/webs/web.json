@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "web",
+  "name": "Паутина",
+  "description": "Паутина и слизь. Паутина. Проходимая клетка. Пропускает обзор и свет. Замедление, урон и прочие последствия задаются отдельными событиями.",
+  "glyph": "%",
+  "foreground": 2,
+  "background": null,
+  "art": null,
+  "group": "Паутина и слизь",
+  "tags": [
+    "webs",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

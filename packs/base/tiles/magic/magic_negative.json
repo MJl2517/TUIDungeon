@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "magic_negative",
+  "name": "Отрицательная энергия",
+  "description": "Отрицательная энергия. При входе: проверка СЛ 12; при провале 1d4 + 1 урона. Повторяется при каждом входе.",
+  "glyph": "-",
+  "foreground": 5,
+  "background": null,
+  "art": null,
+  "group": "Магические зоны",
+  "tags": [
+    "magic",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": "base:terrain_magic_negative",
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}

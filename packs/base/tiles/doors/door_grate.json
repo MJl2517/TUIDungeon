@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "door_grate",
+  "name": "Решётчатая дверь",
+  "description": "Двери и проходы. Решётчатая дверь. Преграда движению. Пропускает обзор и свет. Закрытые двери неподвижны; открывание и смена состояния требуют отдельной механики.",
+  "glyph": "╫",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Двери и проходы",
+  "tags": [
+    "doors",
+    "obstacle",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false
+}

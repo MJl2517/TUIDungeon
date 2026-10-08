@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "floor_pebbles",
+  "name": "Мелкие камни",
+  "description": "Полы. Мелкие камни. Проходимая клетка. Пропускает обзор и свет.",
+  "glyph": ";",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "group": "Полы",
+  "tags": [
+    "floors",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

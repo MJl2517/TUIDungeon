@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "terrain_rune_air",
+  "name": "Руна воздуха",
+  "description": "",
+  "text": "Знаки и подробности могут рассказать больше об этом месте.",
+  "choices": [
+    {
+      "id": "examine",
+      "text": "Изучить (3 опыта)",
+      "ability": null,
+      "difficulty": 10,
+      "check_tag": "",
+      "required_tags": [],
+      "visible_tags": [],
+      "advantage_tags": [],
+      "automatic_tags": [],
+      "success": [
+        {
+          "kind": "experience",
+          "amount": 3,
+          "dice": null,
+          "condition": "",
+          "duration": 1,
+          "params": {}
+        }
+      ],
+      "failure": [],
+      "minutes": 1
+    }
+  ],
+  "repeatable": false
+}

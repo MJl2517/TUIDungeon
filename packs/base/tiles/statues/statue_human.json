@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "statue_human",
+  "name": "Статуя человека",
+  "description": "Статуи. Статуя человека. Преграда движению. Закрывает обзор и свет.",
+  "glyph": "♙",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Статуи",
+  "tags": [
+    "statues",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true
+}

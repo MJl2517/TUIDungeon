@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "altar_sun",
+  "name": "Солнечный алтарь",
+  "description": "Солнечный алтарь. Взаимодействие по Enter с клетки или рядом; однократная награда.",
+  "glyph": "☼",
+  "foreground": 229,
+  "background": null,
+  "art": null,
+  "group": "Алтари и святыни",
+  "tags": [
+    "shrines",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "trap": null,
+    "interaction": "base:terrain_altar_sun",
+    "item": null,
+    "light": null,
+    "transition": false
+  }
+}
