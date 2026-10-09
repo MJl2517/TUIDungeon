@@ -38,6 +38,15 @@ class GameState:
     monsters: list[MonsterPlacement] = field(default_factory=list)
     level: "Level | None" = None
     ground_items: list[tuple[ItemPlacement, Equipment]] = field(default_factory=list)
+    # Session-owned surfaces; keys may include walls and other blocked cells.
+    oil: dict[Position, int] = field(default_factory=dict)
+
+    def walkable(self, position):
+        if not self.dungeon.walkable(position):
+            return False
+        if self.level:
+            return bool(self.level.terrain.walkability[position.y][position.x])
+        return True
 
     def __setattr__(self, name, value):
         if name in ("monsters", "ground_items") and not isinstance(value, TrackedList):
@@ -58,7 +67,7 @@ class GameState:
 
     def move_monster(self, placement, target):
         if (
-            not self.dungeon.walkable(target)
+            not self.walkable(target)
             or target == self.position
             or any(
                 p.monster.hp > 0 and p is not placement

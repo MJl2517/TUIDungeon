@@ -10,7 +10,9 @@
   "category": "tools",
   "weight": 0.5,
   "tags": [
-    "key_decor"
+    "key_decor",
+    "keys",
+    "transparent"
   ],
   "durability": null,
   "slot": null,
@@ -20,5 +22,14 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 0,
-  "light": null
+  "light": null,
+  "variants": [
+    {
+      "name": "Ключ",
+      "glyph": "⚿",
+      "foreground": 11,
+      "background": null
+    }
+  ],
+  "group": "Замки и ключи"
 }

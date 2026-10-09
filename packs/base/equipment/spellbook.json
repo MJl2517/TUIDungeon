@@ -7,10 +7,12 @@
   "foreground": 7,
   "background": null,
   "art": null,
+  "category": "tools",
   "weight": 3.0,
   "tags": [
     "book",
-    "arcane"
+    "arcane",
+    "flammable"
   ],
   "durability": null,
   "slot": null,
@@ -18,5 +20,8 @@
   "check_aids": [],
   "weapon_damage": null,
   "weapon_ability": "strength",
-  "charges": null
+  "charges": null,
+  "hands": 0,
+  "light": null,
+  "group": "Снаряжение"
 }

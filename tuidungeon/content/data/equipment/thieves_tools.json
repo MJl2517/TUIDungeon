@@ -7,11 +7,6 @@
     "tool",
     "lockpicks"
   ],
-  "durability": 20,
-  "check_aids": [
-    {
-      "check_tag": "lockpicking",
-      "mode": "advantage"
-    }
-  ]
+  "durability": 10,
+  "check_aids": []
 }

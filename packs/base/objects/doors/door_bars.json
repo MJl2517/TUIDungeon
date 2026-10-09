@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "door_bars",
+  "name": "Дверь из прутьев",
+  "description": "Поставьте дверь, нажмите V и выберите её: состояние, замок и хиты настраиваются для каждого экземпляра.",
+  "glyph": "+",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "group": "Двери",
+  "tags": [
+    "doors",
+    "transparent"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": {
+      "material": "bars",
+      "state": "closed",
+      "locked": false,
+      "lock_quality": "normal",
+      "lock_complexity": "simple",
+      "hit_points": null
+    }
+  }
+}

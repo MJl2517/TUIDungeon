@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "throne",
+  "name": "Трон",
+  "description": "Мебель. Трон. Преграда движению. Пропускает обзор и свет.",
+  "glyph": "H",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Мебель",
+  "tags": [
+    "furniture",
+    "obstacle",
+    "transparent",
+    "flammable",
+    "wooden"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  }
+}

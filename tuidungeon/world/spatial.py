@@ -12,10 +12,13 @@ class CellIndex:
             return self
         self.buckets = {}
         self.lights = []
+        self.instances = {}
         for entry in entries:
             self.buckets.setdefault(self.coordinates(entry), []).append(entry)
-            if isinstance(entry, tuple) and entry[1].definition.light:
-                self.lights.append(entry)
+            if isinstance(entry, tuple):
+                self.instances[entry[1].instance_id] = entry
+                if entry[1].definition.light:
+                    self.lights.append(entry)
         self._key = key
         return self
 

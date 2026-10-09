@@ -7,7 +7,8 @@
   "effects": [
     {
       "kind": "damage",
-      "dice": "3d4+3"
+      "dice": "3d4+3",
+      "damage_type": "force"
     }
   ],
   "description": "Магические снаряды поражают выбранную цель."

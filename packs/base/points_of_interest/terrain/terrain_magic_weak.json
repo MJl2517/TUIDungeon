@@ -7,5 +7,10 @@
   "foreground": 5,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_magic_weak"
+  "tags": [
+    "magic",
+    "transparent"
+  ],
+  "challenge": "base:terrain_magic_weak",
+  "group": "Магические зоны"
 }

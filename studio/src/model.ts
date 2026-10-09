@@ -15,15 +15,29 @@ export type Entry = {
   classes?: string[];
   group?: string | null;
   tags?: string[];
+  description?: string;
+  asset?: boolean;
 };
 
-export function matchesEntry(entry: Entry, query: string): boolean {
+export const materialTagLabels: Record<string, string> = {
+  flammable: "Горючий",
+  wooden: "Деревянный",
+};
+
+export function matchesEntry(
+  entry: Entry,
+  query: string,
+  assets: Record<string, Doc> = {},
+): boolean {
   const text = [
     entry.name,
     entry.ref,
     entry.glyph ?? "",
     entry.group ?? "",
+    entry.description ?? "",
+    JSON.stringify(assets[entry.category + "/" + entry.ref] ?? {}),
     ...(entry.tags ?? []),
+    ...(entry.tags ?? []).map((tag) => materialTagLabels[tag] ?? ""),
   ]
     .join(" ")
     .toLocaleLowerCase("ru");
@@ -33,7 +47,86 @@ export function matchesEntry(entry: Entry, query: string): boolean {
     .split(/\s+/)
     .every((word) => text.includes(word));
 }
+export function assetVersionsMatch(
+  entries: Entry[],
+  versions: Record<string, string>,
+): boolean {
+  const expected = entries.filter((e) => e.asset);
+  return (
+    expected.length === Object.keys(versions).length &&
+    expected.every((e) => versions[e.category + "/" + e.ref] === e.version)
+  );
+}
+export function libraryResults(
+  entries: Entry[],
+  query: string,
+  category: string,
+  pack: string,
+  assets: Record<string, Doc> = {},
+): Entry[] {
+  return entries.filter((e) =>
+    query.trim()
+      ? matchesEntry(e, query, assets)
+      : e.category === category &&
+        (pack === "all" || e.ref.startsWith(pack + ":")),
+  );
+}
 export const clone = <T>(value: T): T => structuredClone(value);
+// Instance documents inherit objects recursively; arrays and null replace.
+export function mergeProperties(base: Doc, patch: Doc = {}): Doc {
+  const result = clone(base);
+  for (const [key, value] of Object.entries(patch))
+    result[key] =
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      result[key] &&
+      typeof result[key] === "object" &&
+      !Array.isArray(result[key])
+        ? mergeProperties(result[key], value)
+        : clone(value);
+  return result;
+}
+export function diffProperties(base: Doc, value: Doc): Doc {
+  const patch: Doc = {};
+  for (const [key, next] of Object.entries(value)) {
+    if (JSON.stringify(base[key]) === JSON.stringify(next)) continue;
+    const nested =
+      next &&
+      typeof next === "object" &&
+      !Array.isArray(next) &&
+      base[key] &&
+      typeof base[key] === "object" &&
+      !Array.isArray(base[key]);
+    const change = nested ? diffProperties(base[key], next) : clone(next);
+    if (!nested || Object.keys(change).length) patch[key] = change;
+  }
+  return patch;
+}
+export function instanceDocument(base: Doc, placement: Doc): Doc {
+  const result = mergeProperties(base, placement.overrides);
+  const door = result.brush?.door;
+  if (door) {
+    if (door.material === "stone") {
+      door.state = "closed";
+      door.locked = false;
+    }
+    result.glyph =
+      door.material === "stone"
+        ? "#"
+        : door.state === "open"
+          ? "/"
+          : door.locked
+            ? "X"
+            : "+";
+    result.foreground = (
+      { wood: 130, stone: 244, bars: 250, steel: 117, adamantine: 201 } as Doc
+    )[door.material];
+    result.walkable = door.state === "open";
+    result.blocks_sight = !result.walkable && door.material !== "bars";
+  }
+  return result;
+}
 export function color(n: number): string {
   const base = [
     "#11151b",
@@ -198,7 +291,9 @@ export function resizeMap(doc: Doc, width: number, height: number): Doc {
   return next;
 }
 export const placements = [
+  "objects",
   "decorations",
+  "doors",
   "traps",
   "points_of_interest",
   "monsters",
@@ -206,6 +301,25 @@ export const placements = [
   "transitions",
   "lights",
 ];
+export function mapMasks(doc: Doc, assets: Record<string, Doc>) {
+  const walkability: boolean[][] = clone(doc.walkability);
+  const blocks_sight: boolean[][] = clone(doc.blocks_sight);
+  for (const p of doc.objects ?? []) {
+    const base = assets["objects/" + p.ref];
+    if (!base) continue;
+    const object = instanceDocument(base, p);
+    walkability[p.y][p.x] &&= object.walkable;
+    blocks_sight[p.y][p.x] ||= object.blocks_sight;
+  }
+  for (const p of doc.doors ?? []) {
+    const base = assets["objects/" + p.ref];
+    if (!base) continue;
+    const door = instanceDocument(base, p);
+    walkability[p.y][p.x] = door.walkable;
+    blocks_sight[p.y][p.x] = door.blocks_sight;
+  }
+  return { walkability, blocks_sight };
+}
 export function mapGrid(
   doc: Doc,
   assets: Record<string, Doc>,
@@ -223,7 +337,8 @@ export function mapGrid(
     if (visible[key] === false) continue;
     for (const p of doc[key] ?? []) {
       if (key === "decorations") {
-        const art = assets["art/" + p.ref];
+        const base = assets["art/" + p.ref];
+        const art = base ? instanceDocument(base, p) : null;
         if (art)
           compose(art).forEach((row, y) =>
             row.forEach((c, x) => {
@@ -231,9 +346,10 @@ export function mapGrid(
                 grid[p.y + y][p.x + x] = overlay(grid[p.y + y][p.x + x], c);
             }),
           );
-      } else if (key === "transitions")
-        grid[p.y][p.x] = { char: ">", foreground: 14, background: null };
-      else if (key === "lights") {
+      } else if (key === "transitions") {
+        if (!(doc.objects ?? []).some((o: Point) => o.x === p.x && o.y === p.y))
+          grid[p.y][p.x] = { char: ">", foreground: 14, background: null };
+      } else if (key === "lights") {
         if (doc.tiles[p.y]?.[p.x]) continue;
         grid[p.y][p.x] = {
           char: "*",
@@ -241,7 +357,8 @@ export function mapGrid(
           background: null,
         };
       } else {
-        const d = assets[key + "/" + p.ref];
+        const base = assets[(key === "doors" ? "objects" : key) + "/" + p.ref];
+        const d = base ? instanceDocument(base, p) : null;
         if (d)
           grid[p.y][p.x] = {
             char: d.glyph,

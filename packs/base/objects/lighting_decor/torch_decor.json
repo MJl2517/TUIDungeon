@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "torch_decor",
+  "name": "Стационарный факел",
+  "description": "Факел. Источник света: радиус 6 клеток.",
+  "variants": [],
+  "glyph": "!",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "group": "Источники света: рисунки",
+  "tags": [
+    "lighting_decor",
+    "transparent",
+    "walkable",
+    "flammable",
+    "wooden"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": {
+      "radius": 6,
+      "bright_radius": 3
+    },
+    "transition": false,
+    "door": null
+  }
+}

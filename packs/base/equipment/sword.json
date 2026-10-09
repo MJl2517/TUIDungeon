@@ -3,14 +3,19 @@
   "id": "sword",
   "name": "Меч",
   "description": "",
-  "glyph": "?",
-  "foreground": 7,
+  "variants": [],
+  "glyph": "/",
+  "foreground": 250,
   "background": null,
   "art": null,
+  "group": "Декорации: оружие",
+  "category": "weapons",
   "weight": 1.5,
   "tags": [
+    "blade",
+    "transparent",
     "weapon",
-    "blade"
+    "weapon_decor"
   ],
   "durability": 50,
   "slot": "weapon",
@@ -18,5 +23,8 @@
   "check_aids": [],
   "weapon_damage": "1d8",
   "weapon_ability": "strength",
-  "charges": null
+  "charges": null,
+  "hands": 1,
+  "light": null,
+  "damage_type": "slashing"
 }

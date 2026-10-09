@@ -3,9 +3,24 @@
   "id": "terrain_chest_treasure",
   "name": "Сундук с сокровищами",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "$",
   "foreground": 11,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_chest_treasure"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "flammable",
+    "storage",
+    "transparent",
+    "wooden"
+  ],
+  "challenge": "base:terrain_chest_treasure",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

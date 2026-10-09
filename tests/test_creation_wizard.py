@@ -43,6 +43,9 @@ class CreationWizardTests(unittest.TestCase):
                 creation.select(2)
                 for number in range(1, 7):
                     creation.select(number)
+                if creation.step is CreationStep.CANTRIPS:
+                    for number in (1, 2, 3, 7):
+                        creation.select(number)
                 hero = creation.select(1)
                 self.assertEqual(hero.background.name, name)
                 self.assertEqual(len(hero.inventory), 8)

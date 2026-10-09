@@ -13,6 +13,7 @@ from wcwidth import wcwidth
 from scripts.import_tileset import PROJECT_ROOT, curated_tiles, install
 from tuidungeon.content.packs import DEFAULT_PACKS, PackStore
 from tuidungeon.content.schemas import TileDocument
+from tuidungeon.content.migrations import door_alias, compatibility
 from tuidungeon.tooling.server import create_app
 
 SOURCE = PROJECT_ROOT / "docs/reference/tui_dungeon_tileset_colored.txt"
@@ -30,9 +31,14 @@ class TileLibraryTests(unittest.TestCase):
         self.assertEqual(len(Counter(d.group for d in added)), 38)
         for doc in added:
             with self.subTest(tile=doc.id):
-                loaded = self.store.get("tiles", f"base:{doc.id}")
-                self.assertEqual(loaded.id, doc.id)
-                self.assertEqual(loaded.group, doc.group)
+                if door_alias(f"base:{doc.id}"):
+                    target, _ = door_alias(f"base:{doc.id}")
+                    self.assertTrue(self.store.get("objects", target).brush.door)
+                    continue
+                ref = f"base:{doc.id}"
+                alias = compatibility()["tiles"].get(ref)
+                loaded = self.store.get(alias["category"], alias["ref"]) if alias else self.store.get("tiles", ref)
+                self.assertNotIn(("tiles", ref), self.store.documents) if alias else self.assertEqual(loaded.id, doc.id)
                 self.assertEqual(wcwidth(loaded.glyph), 1)
                 self.assertNotEqual(loaded.glyph, "@")
         self.assertEqual(self.store.get("tiles", "base:water_calm").glyph, "∿")
@@ -40,8 +46,8 @@ class TileLibraryTests(unittest.TestCase):
     def test_movement_and_sight_masks_have_independent_defaults(self):
         examples = {
             "wall_massive": (False, True),
-            "door_grate": (False, False),
-            "door_open": (True, False),
+            "door_bars": (False, False),
+            "door_wood": (False, True),
             "water_deep": (False, False),
             "chasm_deep": (False, False),
             "bookcase": (False, True),
@@ -54,8 +60,10 @@ class TileLibraryTests(unittest.TestCase):
         }
         for identifier, expected in examples.items():
             with self.subTest(tile=identifier):
-                doc = self.store.get("tiles", f"base:{identifier}")
-                self.assertEqual((doc.walkable, doc.blocks_sight), expected)
+                ref = f"base:{identifier}"
+                alias = compatibility()["tiles"].get(ref)
+                doc = self.store.get(alias["category"], alias["ref"]) if alias else self.store.get("tiles", ref)
+                self.assertEqual((getattr(doc, "walkable", True), getattr(doc, "blocks_sight", False)), expected)
 
     def test_library_exposes_group_and_search_tags_and_old_tiles_still_load(self):
         with TestClient(
@@ -66,10 +74,10 @@ class TileLibraryTests(unittest.TestCase):
         entries = {
             e["ref"]: e
             for e in response.json()["documents"]
-            if e["category"] == "tiles"
+            if e["category"] in ("tiles", "objects")
         }
-        self.assertEqual(entries["base:door_grate"]["group"], "Двери и проходы")
-        self.assertIn("transparent", entries["base:door_grate"]["tags"])
+        self.assertEqual(entries["base:door_bars"]["group"], "Двери")
+        self.assertIn("transparent", entries["base:door_bars"]["tags"])
         self.assertEqual(entries["base:wall"]["group"], "Прочее")
         self.assertEqual(self.store.get("tiles", "base:cave_wall").background, 0)
 

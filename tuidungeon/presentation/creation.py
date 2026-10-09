@@ -12,6 +12,7 @@ STEP_TITLES = {
     CreationStep.BACKGROUND: "Предыстория",
     CreationStep.ROLL: "Броски",
     CreationStep.DISTRIBUTE: "Характеристики",
+    CreationStep.CANTRIPS: "Заговоры",
     CreationStep.CONFIRM: "Подтверждение",
 }
 ABILITY_HINTS = {
@@ -112,6 +113,27 @@ def creation_help(creation):
         return ["Выберите роль героя.", "Назад: выбор расы."]
     if step is CreationStep.BACKGROUND:
         return background_lines(creation, option)
+    if step is CreationStep.CANTRIPS:
+        return (
+            [
+                option.description,
+                "",
+                "Режим: "
+                + ", ".join(
+                    "бой" if m == "combat" else "исследование" for m in option.modes
+                ),
+                f"Дальность: {option.range} кл.",
+                *["План: " + text for text in option.pending_effects],
+            ]
+            if option
+            else []
+        ) + [
+            "",
+            f"Выберите {creation.character_class.cantrips_known} разных заговора.",
+            "Каждый расходует один общий заряд.",
+            "Запас = значение заклинательской характеристики.",
+            "7: продолжить; повторный выбор снимает отметку.",
+        ]
     if step is CreationStep.ROLL:
         return [
             "Для каждого числа бросаем четыре шестигранных кубика.",
@@ -147,9 +169,11 @@ def creation_help(creation):
 
 def render_creation(canvas, layout, controller, hero_lines):
     creation = controller.creation
-    step_number = list(CreationStep).index(creation.step) + 1
+    step_number = creation.steps.index(creation.step) + 1
+    step_count = len(creation.steps)
     canvas.box(
-        layout.main, f"Создание героя | {step_number}/6 {STEP_TITLES[creation.step]}"
+        layout.main,
+        f"Создание героя | {step_number}/{step_count} {STEP_TITLES[creation.step]}",
     )
     canvas.box(layout.actions, "Выбор и подсказки")
     canvas.box(layout.sidebar, "Как это работает")
@@ -157,7 +181,7 @@ def render_creation(canvas, layout, controller, hero_lines):
     canvas.lines(
         layout.status,
         [
-            f"Шаг: {step_number}/6",
+            f"Шаг: {step_number}/{step_count}",
             "Уровень: 1",
             "Начало: день 1, 08:00",
             "Деньги/опыт: 0",
@@ -178,13 +202,25 @@ def render_creation(canvas, layout, controller, hero_lines):
         )
 
     step = creation.step
-    if step in (CreationStep.RACE, CreationStep.CLASS, CreationStep.BACKGROUND):
+    if step in (
+        CreationStep.RACE,
+        CreationStep.CLASS,
+        CreationStep.BACKGROUND,
+        CreationStep.CANTRIPS,
+    ):
         prompt = {
             CreationStep.RACE: "Выберите происхождение героя.",
             CreationStep.CLASS: "Выберите роль в приключении.",
             CreationStep.BACKGROUND: "Кем герой был до приключения?",
+            CreationStep.CANTRIPS: "Выберите заговоры, затем 7: продолжить.",
         }[step]
         canvas.line(layout.main, 0, prompt)
+        if step is CreationStep.CANTRIPS:
+            canvas.line(
+                layout.main,
+                1,
+                f"Выбрано: {len(creation.cantrips)}/{creation.character_class.cantrips_known}",
+            )
         if creation.character_class and step is CreationStep.BACKGROUND:
             canvas.line(layout.main, 1, "Класс: " + creation.character_class.name)
         if creation.page_count > 1:

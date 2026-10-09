@@ -128,7 +128,7 @@ class LightField:
         return lines
 
     @classmethod
-    def calculate(cls, state, *, sources=None, illumination=None):
+    def calculate(cls, state, *, sources=None, illumination=None, magic_sources=()):
         level = state.level
         ambient = level.definition.ambient_light if level else "dark"
         blocks = (
@@ -160,10 +160,20 @@ class LightField:
                         no_occluders or line_of_sight(position, Position(x, y), blocks)
                     ):
                         cells[y][x] = max(
-                            cells[y][x], 2 if distance <= bright_radius**2 else 1
+                            cells[y][x],
+                            2
+                            if bright_radius > 0 and distance <= bright_radius**2
+                            else 1,
                         )
 
         if illumination is None and level and value < 2:
+            for instance in level.doors:
+                if instance.door.burning:
+                    illuminate(
+                        Position(instance.placement.x, instance.placement.y), 4, 2
+                    )
+            for position, source in level.static_lights:
+                illuminate(position, source.radius, source.bright_radius)
             for source in level.definition.lights:
                 if source.enabled:
                     illuminate(
@@ -179,6 +189,9 @@ class LightField:
                     item.definition.light.radius,
                     item.definition.light.bright_radius,
                 )
+        if illumination is None:
+            for position, radius, bright_radius in magic_sources:
+                illuminate(position, radius, bright_radius)
         illumination = illumination if illumination is not None else freeze(cells)
         # These are navigation cues, not physical light. Inspection of a dark
         # adjacent cell (or the hero's own cell) must still report darkness.

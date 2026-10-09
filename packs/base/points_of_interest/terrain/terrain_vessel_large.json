@@ -3,9 +3,22 @@
   "id": "terrain_vessel_large",
   "name": "Большой сосуд",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "Q",
   "foreground": 136,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_vessel_large"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "storage",
+    "transparent"
+  ],
+  "challenge": "base:terrain_vessel_large",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

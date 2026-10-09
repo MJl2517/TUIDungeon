@@ -5,6 +5,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from wcwidth import wcwidth
 from ..domain.definitions import DiceExpression
 from ..domain.value_types import freeze
+from ..domain.doors import Material, LockQuality, LockComplexity, MATERIALS, door_glyph
+from ..domain.materials import TAGS_DESCRIPTION, TAG_LABELS
+from ..domain.damage import DamageType, DamageSelector
 
 LocalId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*$")]
 Ref = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$")]
@@ -84,12 +87,22 @@ class Bonuses(StrictModel):
     charisma: int = 0
 
 
+class DamageDefenses(StrictModel):
+    resistances: list[DamageSelector] = Field(default_factory=list)
+    vulnerabilities: list[DamageSelector] = Field(default_factory=list)
+    immunities: list[DamageSelector] = Field(default_factory=list)
+
+
 class Effect(StrictModel):
     kind: LocalId = "damage"
     amount: Nonnegative = 0
     dice: str | None = None
     condition: str = ""
     duration: Positive = 1
+    damage_type: DamageType | None = Field(
+        default=None,
+        description="Тип урона; пусто — совместимость со старыми эффектами без типа",
+    )
     params: dict = Field(
         default_factory=dict, description="Параметры зарегистрированной механики"
     )
@@ -124,6 +137,7 @@ class ActionFields(StrictModel):
     ability: AbilityName = "strength"
     bonus: int = 0
     damage: str | None = None
+    damage_type: DamageType = "bludgeoning"
     effects: list[Effect] = Field(default_factory=list)
     difficulty: Nonnegative = 10
     description: str = ""
@@ -145,7 +159,31 @@ class ActionDocument(ActionFields):
     schema_version: Literal[1] = 1
 
 
+class TileLight(StrictModel):
+    radius: Annotated[int, Field(ge=1, le=32)] = 6
+    bright_radius: Annotated[int, Field(ge=0, le=32)] = 3
+
+    @model_validator(mode="after")
+    def radii(self):
+        if self.bright_radius > self.radius:
+            raise ValueError("Яркий радиус не может превышать общий радиус света")
+        return self
+
+
+class VisualVariant(StrictModel):
+    name: str
+    glyph: str
+    foreground: Color = 7
+    background: Color | None = None
+    _name = field_validator("name")(title_text)
+    _glyph = field_validator("glyph")(valid_glyph)
+
+
 class Visual(Document):
+    variants: list[VisualVariant] = Field(
+        default_factory=list,
+        description="Варианты внешнего вида без копирования механик",
+    )
     glyph: str = "?"
     foreground: Color = 7
     background: Color | None = None
@@ -172,14 +210,21 @@ class LightSource(StrictModel):
 
 
 class EquipmentDocument(Visual):
+    group: str = "Снаряжение"
     category: Literal["weapons", "armor", "consumables", "tools"] | None = None
     weight: Annotated[float, Field(ge=0, allow_inf_nan=False)] = 0
-    tags: list[LocalId] = Field(default_factory=list)
+    tags: list[LocalId | Literal["поджог"]] = Field(
+        default_factory=list,
+        description=TAGS_DESCRIPTION,
+        json_schema_extra={"tag_labels": TAG_LABELS},
+    )
     durability: Positive | None = None
     slot: LocalId | None = None
     properties: list[Effect] = Field(default_factory=list)
     check_aids: list[Aid] = Field(default_factory=list)
     weapon_damage: str | None = None
+    damage_type: DamageType = "bludgeoning"
+    damage_profile: DamageDefenses = Field(default_factory=DamageDefenses)
     weapon_ability: AbilityName = "strength"
     charges: Positive | None = None
     hands: Annotated[int, Field(ge=0, le=2)] = 0
@@ -193,14 +238,76 @@ class EquipmentDocument(Visual):
         return self
 
 
+def world_effect_schema(schema):
+    from ..domain.spellcasting import world_spell_parameters
+
+    schema["world_schemas"] = world_spell_parameters.schemas()
+    schema["anyOf"][0]["enum"] = list(world_spell_parameters.models)
+
+
 class SpellDocument(Visual):
     _effects = field_validator("effects", check_fields=False)(active_effects)
     level: Annotated[int, Field(ge=0, le=9)] = 1
     effects: list[Effect] = Field(default_factory=list)
-    target: Literal["self", "other", "any"] = "self"
+    target: Literal["self", "other", "any", "item", "cell"] = "self"
+    school: Literal[
+        "abjuration",
+        "conjuration",
+        "divination",
+        "enchantment",
+        "evocation",
+        "illusion",
+        "necromancy",
+        "transmutation",
+    ] = "evocation"
+    modes: Annotated[list[Literal["combat", "exploration"]], Field(min_length=1)] = (
+        Field(default_factory=lambda: ["combat", "exploration"])
+    )
+    range: Annotated[int, Field(ge=0, le=32)] = 6
+    resolution: Literal["automatic", "attack", "save"] = "automatic"
+    save_ability: AbilityName | None = None
+    cantrip_scaling: bool = False
+    wounded_dice: str | None = None
+    max_targets: Annotated[int, Field(ge=1, le=32)] = 1
+    world_effect: LocalId | None = Field(
+        default=None, json_schema_extra=world_effect_schema
+    )
+    world_parameters: dict = Field(default_factory=dict)
+    concentration: bool = False
+    pending_effects: list[str] = Field(default_factory=list)
+    tags: list[LocalId] = Field(default_factory=list)
+    _wounded = field_validator("wounded_dice")(ActionFields.damage_valid.__func__)
+
+    @model_validator(mode="after")
+    def casting_contract(self):
+        from ..domain.spellcasting import world_spell_parameters
+
+        parameters = world_spell_parameters.validate(
+            self.world_effect, self.world_parameters
+        )
+        if self.world_effect == "projectile" and not any(
+            e.kind == "damage" and e.damage_type is not None for e in self.effects
+        ):
+            raise ValueError("Снаряд требует эффект урона с указанным типом")
+        if (
+            self.concentration
+            and self.world_effect
+            and not hasattr(parameters, "duration")
+        ):
+            raise ValueError("Концентрация требует длительного эффекта исследования")
+        if (self.resolution == "save") != (self.save_ability is not None):
+            raise ValueError(
+                "Спасбросок требует save_ability; у других бросков это поле пустое"
+            )
+        if self.cantrip_scaling and self.level != 0:
+            raise ValueError("cantrip_scaling допустимо только у заговора")
+        if len(self.modes) != len(set(self.modes)):
+            raise ValueError("Повторные режимы магии")
+        return self
 
 
 class RaceDocument(Visual):
+    damage_profile: DamageDefenses = Field(default_factory=DamageDefenses)
     ability_bonuses: Bonuses = Field(default_factory=Bonuses)
     hp_per_level: Nonnegative = 0
     racial_spell: Ref | None = Field(
@@ -218,6 +325,25 @@ class RaceDocument(Visual):
 
 
 class ClassDocument(Visual):
+    damage_profile: DamageDefenses = Field(default_factory=DamageDefenses)
+    spellcasting_ability: AbilityName = "intelligence"
+    cantrip_choices: list[Ref] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "spells"}
+    )
+    cantrips_known: Annotated[int, Field(ge=0, le=20)] = 0
+
+    @model_validator(mode="after")
+    def cantrip_selection(self):
+        if set(self.cantrip_choices) & set(self.spells):
+            raise ValueError(
+                "Выбор заговоров не должен повторять уже известные заклинания класса"
+            )
+        if len(set(self.cantrip_choices)) != len(
+            self.cantrip_choices
+        ) or self.cantrips_known > len(self.cantrip_choices):
+            raise ValueError("Неверный список или количество выбираемых заговоров")
+        return self
+
     @field_validator("spells", "actions", check_fields=False)
     @classmethod
     def unique_refs(cls, value):
@@ -261,6 +387,8 @@ class BackgroundDocument(Visual):
 
 
 class MonsterDocument(Visual):
+    damage_profile: DamageDefenses = Field(default_factory=DamageDefenses)
+    spellcasting_ability: AbilityName = "intelligence"
     _unique_refs = field_validator("spells", check_fields=False)(
         ClassDocument.unique_refs.__func__
     )
@@ -327,6 +455,13 @@ class ChallengeDocument(Document):
 
 
 class TrapDocument(Visual):
+    group: str = "Ловушки"
+    tags: list[LocalId] = Field(
+        default_factory=list,
+        description=TAGS_DESCRIPTION,
+        json_schema_extra={"tag_labels": TAG_LABELS},
+    )
+    map_light: TileLight | None = None
     _effects = field_validator("success", "failure", check_fields=False)(active_effects)
     hidden: bool = False
     ability: AbilityName = "dexterity"
@@ -337,18 +472,51 @@ class TrapDocument(Visual):
     trigger: Literal["enter"] = "enter"
 
 
+class StorageItem(StrictModel):
+    item: Ref = Field(json_schema_extra={"ref_category": "equipment"})
+    quantity: Annotated[int, Field(ge=1, le=999)] = 1
+
+
+class StorageSpec(StrictModel):
+    capacity: Annotated[float, Field(gt=0, le=1000000, allow_inf_nan=False)] = 1000
+    personal: bool = False
+    contents: list[StorageItem] = Field(default_factory=list, max_length=256)
+
+
+def configure_storage(document):
+    if "storage" in document.tags and document.storage is None:
+        object.__setattr__(document, "storage", StorageSpec())
+    elif document.storage is not None and "storage" not in document.tags:
+        object.__setattr__(document, "tags", freeze([*document.tags, "storage"]))
+    return document
+
+
 class PointDocument(Visual):
+    group: str = "События"
+    map_light: TileLight | None = None
+    tags: list[LocalId] = Field(
+        default_factory=list,
+        description=TAGS_DESCRIPTION,
+        json_schema_extra={"tag_labels": TAG_LABELS},
+    )
     challenge: Ref = Field(json_schema_extra={"ref_category": "challenges"})
+    storage: StorageSpec | None = None
+    _storage = model_validator(mode="after")(configure_storage)
 
 
-class TileLight(StrictModel):
-    radius: Annotated[int, Field(ge=1, le=32)] = 6
-    bright_radius: Annotated[int, Field(ge=0, le=32)] = 3
+class DoorSpec(StrictModel):
+    material: Material = "wood"
+    state: Literal["open", "closed"] = "closed"
+    locked: bool = False
+    lock_quality: LockQuality = "normal"
+    lock_complexity: LockComplexity = "simple"
+    hit_points: Positive | None = None
 
     @model_validator(mode="after")
-    def radii(self):
-        if self.bright_radius > self.radius:
-            raise ValueError("Яркий радиус не может превышать общий радиус света")
+    def stone_slab(self):
+        if self.material == "stone":
+            object.__setattr__(self, "state", "closed")
+            object.__setattr__(self, "locked", False)
         return self
 
 
@@ -368,11 +536,16 @@ class TileBrush(StrictModel):
     )
     light: TileLight | None = None
     transition: bool = False
+    door: DoorSpec | None = None
 
 
 class TileDocument(Visual):
     group: str = "Прочее"
-    tags: list[LocalId] = Field(default_factory=list)
+    tags: list[LocalId] = Field(
+        default_factory=list,
+        description=TAGS_DESCRIPTION,
+        json_schema_extra={"tag_labels": TAG_LABELS},
+    )
     walkable: bool = True
     blocks_sight: bool = False
     brush: TileBrush = Field(default_factory=TileBrush)
@@ -380,16 +553,47 @@ class TileDocument(Visual):
 
     @model_validator(mode="after")
     def reachable_objects(self):
-        if not self.walkable and any(
-            (
-                self.brush.trap,
-                self.brush.interaction,
-                self.brush.item,
-                self.brush.transition,
+        if self.brush.door:
+            spec = self.brush.door
+            object.__setattr__(
+                self,
+                "glyph",
+                door_glyph(spec.state == "open", spec.locked, material=spec.material),
+            )
+            object.__setattr__(self, "foreground", MATERIALS[spec.material].color)
+            object.__setattr__(self, "walkable", spec.state == "open")
+            object.__setattr__(
+                self, "blocks_sight", spec.state != "open" and spec.material != "bars"
+            )
+        if (
+            not self.brush.door
+            and not self.walkable
+            and any(
+                (
+                    self.brush.trap,
+                    self.brush.interaction,
+                    self.brush.item,
+                    self.brush.transition,
+                )
             )
         ):
             raise ValueError(
                 "Кисть с игровым объектом или переходом должна быть проходимой"
+            )
+        return self
+
+
+class WorldObjectDocument(TileDocument):
+    """One world object definition: furniture, a door, light or transition."""
+
+    storage: StorageSpec | None = None
+    _storage = model_validator(mode="after")(configure_storage)
+
+    @model_validator(mode="after")
+    def no_duplicate_mechanics(self):
+        if self.brush.item or self.brush.trap or self.brush.interaction:
+            raise ValueError(
+                "Предметы, ловушки и взаимодействия размещаются из собственных шаблонов"
             )
         return self
 
@@ -436,6 +640,13 @@ class Coordinate(StrictModel):
 class Placement(Coordinate):
     id: LocalId
     ref: Ref
+    overrides: dict = Field(
+        default_factory=dict,
+        description="Локальные свойства шаблона; вложенные объекты объединяются, списки заменяются.",
+    )
+    challenge_overrides: dict = Field(
+        default_factory=dict, description="Локальные свойства испытания точки интереса"
+    )
 
 
 class Transition(Coordinate):
@@ -457,6 +668,12 @@ class MapLight(Coordinate):
 
 
 class MapDocument(Document):
+    objects: list[Placement] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "objects"}
+    )
+    doors: list[Placement] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "objects"}
+    )
     ambient_light: Literal["dark", "dim", "bright"] = "bright"
     lights: list[MapLight] = Field(default_factory=list)
     width: Annotated[int, Field(ge=1, le=256)] = 20
@@ -498,6 +715,8 @@ class MapDocument(Document):
         occupied = {(self.spawn.x, self.spawn.y)}
         for category in (
             "decorations",
+            "doors",
+            "objects",
             "traps",
             "points_of_interest",
             "monsters",
@@ -512,7 +731,7 @@ class MapDocument(Document):
                 if entry.x >= self.width or entry.y >= self.height:
                     raise ValueError(f"{entry.id}: за пределами карты")
                 if (
-                    category not in ("decorations", "lights")
+                    category not in ("decorations", "lights", "doors", "objects")
                     and not self.walkability[entry.y][entry.x]
                 ):
                     raise ValueError(f"{entry.id}: непроходимая клетка")
@@ -526,6 +745,7 @@ class MapDocument(Document):
 MODELS = {
     "art": ArtDocument,
     "tiles": TileDocument,
+    "objects": WorldObjectDocument,
     "maps": MapDocument,
     "monsters": MonsterDocument,
     "equipment": EquipmentDocument,

@@ -9,11 +9,17 @@ from ..domain.actions import ActionContext, ActionOutcome, ActionRegistry
 from ..domain.challenges import Challenge, ChallengeResult, TextChallenge
 from ..domain.rules import Ability, Dice
 from ..domain.equipment import Equipment
+from ..domain.materials import material_details
 from ..world.maps import DungeonMap, Position
 from ..world.state import GameState, MonsterPlacement, ItemPlacement
 from ..world.lighting import LightField
 from ..domain.collections import EventLog
 from ..world.graphics import glyph_cell
+from .doors import DoorCommands
+from .surfaces import SurfaceCommands
+from .storage import StorageCommands
+from .magic import MagicCommands
+from ..world.doors import DoorInstance
 
 
 class Action(Enum):
@@ -56,7 +62,7 @@ def test_dungeon() -> DungeonMap:
     return DungeonMap(tuple("".join(row) for row in cells))
 
 
-class Engine:
+class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
     def __init__(
         self,
         state: GameState,
@@ -70,6 +76,9 @@ class Engine:
         self.actions = actions or ActionRegistry.default()
         self.challenges: dict[str, Challenge] = {}
         self.events: list[dict] = EventLog()
+        self.lockpick_attempt = None
+        self.magic_effects = []
+        self._glowing_items = {}
         level = getattr(state, "level", None)
         self.levels = {level.ref: state} if level else {}
         self.discard_consumed_lights()
@@ -90,23 +99,31 @@ class Engine:
             raise ValueError("Неизвестное игровое действие")
         if self.state.hero.hp <= 0:
             return ActionResult(False, 0, "Персонаж без сознания.")
+        if self.lockpick_attempt:
+            return ActionResult(
+                False, 0, "Взлом: Space — следующий ход, Backspace — отменить."
+            )
+        if action in (Action.REST, Action.SHORT_REST):
+            self.magic_effects.clear()
+            self.state.hero.concentration_id = None
         if action is Action.REST:
             self.state.hero.restore_after_rest()
             minutes = 8 * 60
             message = "Отдых завершён. Здоровье и магические ресурсы восстановлены."
         elif action is Action.SHORT_REST:
-            # Simplified recovery: no hit-dice pool yet; spell resources stay spent.
+            # Simplified HP recovery until hit dice exist.
             self.state.hero.heal(max(1, self.state.hero.max_hp // 2))
             self.state.hero.sneaking = False
+            self.state.hero.restore_cantrips_short()
             minutes = 60
-            message = "Короткий отдых: восстановлено до половины максимального HP."
+            message = "Короткий отдых: до половины HP и заговоры на модификатор магии."
         elif action is Action.WAIT:
             minutes = 1
             message = "Вы ждёте одну минуту."
         else:
             dx, dy = action.value
             target = Position(self.state.position.x + dx, self.state.position.y + dy)
-            if not self.state.dungeon.walkable(target):
+            if not self.state.walkable(target):
                 return ActionResult(False, 0, "Прохода нет.")
             if any(
                 placement.position == target and placement.monster.hp > 0
@@ -153,6 +170,10 @@ class Engine:
                     expired.append(message)
                     self.events.append({"kind": "light", "message": message})
         self.discard_consumed_lights()
+        expired.extend(self.advance_doors(states, minutes))
+        self.advance_surfaces(states)
+        self.advance_magic()
+        self.prune_magic_items()
         return expired
 
     def discard_consumed_lights(self) -> None:
@@ -179,19 +200,30 @@ class Engine:
     def lighting(self) -> LightField:
         state = self.state
         sources = state.light_sources()
+        magic_sources = self.magic_lights()
         geometry = state.level.terrain if state.level else state.dungeon
         key = (
             id(state),
             id(geometry),
             state.position,
-            tuple(
-                (
-                    p,
-                    i.instance_id,
-                    i.definition.light.radius,
-                    i.definition.light.bright_radius,
+            (
+                tuple(
+                    (
+                        p,
+                        i.instance_id,
+                        i.definition.light.radius,
+                        i.definition.light.bright_radius,
+                    )
+                    for p, i in sources
+                ),
+                magic_sources,
+                tuple(
+                    (d.placement.x, d.placement.y)
+                    for d in state.level.doors
+                    if d.door.burning
                 )
-                for p, i in sources
+                if state.level
+                else (),
             ),
         )
         if getattr(self, "_light_key", None) != key:
@@ -202,7 +234,10 @@ class Engine:
                 else None
             )
             self._light = LightField.calculate(
-                state, sources=sources, illumination=physical
+                state,
+                sources=sources,
+                illumination=physical,
+                magic_sources=magic_sources,
             )
             self._physical_key = physical_key
             self._light_key = key
@@ -221,6 +256,9 @@ class Engine:
             id(state),
             id(light),
             state.position,
+            state.hero.sneaking,
+            tuple((m.instance_id, m.position, m.turns) for m in self.magic_effects),
+            tuple(state.oil.items()),
             id(state.items),
             state.items.version,
             id(state.monsters),
@@ -228,6 +266,11 @@ class Engine:
             tuple(p.monster.hp > 0 for p in state.monsters),
             tuple(t.triggered for t in level.traps) if level else (),
             (id(level.points), level.points.version) if level else (),
+            tuple(
+                (d.placement.x, d.placement.y, d.door.visual_key) for d in level.doors
+            )
+            if level
+            else (),
         )
         if getattr(self, "_frame_key", None) != key:
             self._frames = {}
@@ -249,7 +292,34 @@ class Engine:
                     cells[p.position.y - y][p.position.x - x] = glyph_cell("g", 2)
             p = state.position
             if x <= p.x < x + w and y <= p.y < y + h:
-                cells[p.y - y][p.x - x] = glyph_cell("@", 15)
+                cells[p.y - y][p.x - x] = glyph_cell(
+                    "@", 244 if state.hero.sneaking else 15
+                )
+        for m in self.magic_effects:
+            p = m.position
+            if (
+                p
+                and m.map_ref == (level.ref if level else None)
+                and p != state.position
+                and not any(a.monster.hp > 0 for a in state.actor_index.at(p.x, p.y))
+                and x <= p.x < x + w
+                and y <= p.y < y + h
+            ):
+                char = {
+                    "hand": "&",
+                    "dancing_lights": "*",
+                    "illusion": "?",
+                    "tricks": "*",
+                    "elementalism": "*",
+                }.get(m.kind)
+                if char:
+                    cells[p.y - y][p.x - x] = glyph_cell(char, 13)
+        for p in state.oil:
+            if x <= p.x < x + w and y <= p.y < y + h:
+                c = cells[p.y - y][p.x - x]
+                cells[p.y - y][p.x - x] = glyph_cell(
+                    c.char if c else "~", c.foreground if c else 11, 94
+                )
         frame = light.shade(cells, (x, y))
         # Keep at most the full map and a small number of camera regions.
         if len(self._frames) >= 4:
@@ -259,13 +329,14 @@ class Engine:
 
     def add_monster(self, monster_id: str, position: Position) -> MonsterPlacement:
         if (
-            not self.state.dungeon.walkable(position)
+            not self.state.walkable(position)
             or position == self.state.position
             or self.state.actor_index.at(position.x, position.y)
         ):
             raise ValueError("Для монстра нужна свободная клетка пола")
         placement = MonsterPlacement(
-            Monster.create(monster_id.removeprefix("base:"), catalog=self.catalog), position
+            Monster.create(monster_id.removeprefix("base:"), catalog=self.catalog),
+            position,
         )
         placement.monster.definition_ref = (
             monster_id if ":" in monster_id else "base:" + monster_id
@@ -276,6 +347,11 @@ class Engine:
     def perform_character_action(
         self, action_id: str, context: ActionContext
     ) -> ActionOutcome:
+        if self.lockpick_attempt:
+            return ActionOutcome(False, False, "Сначала отмените взлом.")
+        from dataclasses import replace
+
+        context = replace(context, mode="exploration")
         result = self.state.hero.perform(action_id, context, self.actions)
         if result.performed:
             self._advance(
@@ -291,6 +367,26 @@ class Engine:
     def use_item(
         self, item: Equipment, target: Character | None = None
     ) -> ActionOutcome:
+        if self.lockpick_attempt:
+            return ActionOutcome(False, False, "Сначала отмените взлом.")
+        if "acid" in item.tags:
+            return ActionOutcome(
+                False,
+                False,
+                "Бросьте кислоту в дверь или выберите кислоту в меню двери.",
+            )
+        if "lamp_oil" in item.tags:
+            return ActionOutcome(
+                False,
+                False,
+                "Масло: заправьте лампу при экипировке или бросьте на клетку (5 ходов, поджог +5 урона).",
+            )
+        if item.ignition_source:
+            return ActionOutcome(
+                False,
+                False,
+                "Выберите «5 — Поджечь» в меню предмета, затем одну из 8 соседних клеток.",
+            )
         result = self.state.hero.use_item(item, self.dice, target, self.actions.effects)
         if result.performed:
             self._advance(
@@ -319,7 +415,14 @@ class Engine:
             return ActionResult(False, 0, "Положить предмет можно только под ноги.")
         if throwing and distance > self.throw_range:
             return ActionResult(False, 0, f"Дальность броска: {self.throw_range} кл.")
-        if not state.dungeon.walkable(target) or any(
+        if self.lockpick_attempt:
+            return ActionResult(False, 0, "Сначала отмените взлом.")
+        if throwing and "lamp_oil" in item.tags:
+            return self.throw_oil_at(item, target)
+        doors = state.level.index("doors").at(target.x, target.y) if state.level else ()
+        if throwing and doors and "acid" in item.tags:
+            return self.throw_acid_at(doors[0], item)
+        if not state.walkable(target) or any(
             p.monster.hp > 0 for p in state.actor_index.at(target.x, target.y)
         ):
             return ActionResult(False, 0, "Выберите клетку пола без существа.")
@@ -336,7 +439,7 @@ class Engine:
         verb = "Брошено" if throwing else "Положено на землю"
         return ActionResult(True, 1, f"{verb}: {item.name}.")
 
-    def _clear_throw_path(self, target):
+    def _clear_throw_path(self, target, *, allow_target_door=False):
         """Integer line trace, including corner walls to prevent diagonal clipping."""
         start = self.state.position
         x, y = start.x, start.y
@@ -356,17 +459,21 @@ class Engine:
                 nx != x
                 and ny != y
                 and (
-                    not self.state.dungeon.walkable(Position(nx, y))
-                    or not self.state.dungeon.walkable(Position(x, ny))
+                    not self.state.walkable(Position(nx, y))
+                    or not self.state.walkable(Position(x, ny))
                 )
             ):
                 return False
             x, y = nx, ny
-            if not self.state.dungeon.walkable(Position(x, y)):
+            if not self.state.walkable(Position(x, y)) and not (
+                allow_target_door and (x, y) == (target.x, target.y)
+            ):
                 return False
         return True
 
     def pickup_item(self) -> ActionResult:
+        if self.lockpick_attempt:
+            return ActionResult(False, 0, "Сначала отмените взлом.")
         state = self.state
         if state.hero.hp <= 0:
             return ActionResult(False, 0, "Персонаж без сознания.")
@@ -381,6 +488,8 @@ class Engine:
         return ActionResult(False, 0, "Под ногами нет предметов.")
 
     def toggle_sneaking(self) -> ActionResult:
+        if self.lockpick_attempt:
+            return ActionResult(False, 0, "Сначала отмените взлом.")
         if self.state.hero.hp <= 0:
             return ActionResult(False, 0, "Персонаж без сознания.")
         self.state.hero.sneaking = not self.state.hero.sneaking
@@ -393,6 +502,8 @@ class Engine:
         )
 
     def manage_equipment(self, item, equipped) -> ActionResult:
+        if self.lockpick_attempt:
+            return ActionResult(False, 0, "Сначала отмените взлом.")
         hero = self.state.hero
         if hero.hp <= 0:
             return ActionResult(False, 0, "Персонаж без сознания.")
@@ -448,10 +559,47 @@ class Engine:
             ),
         )
 
-    def cast_spell(self, spell_id, source, target=None) -> ActionOutcome:
+    def cast_spell(
+        self, spell_id, source, target=None, *, option=None
+    ) -> ActionOutcome:
         from ..domain.actions import SpellSource
 
         hero = self.state.hero
+        spell = self.known_spell(spell_id, source)
+        if spell is None:
+            return ActionOutcome(False, False, "Заклинание не известно персонажу.")
+        if spell.world_effect:
+            if (
+                spell.world_effect == "projectile"
+                and target is not None
+                and not isinstance(target, Position)
+            ):
+                target = next(
+                    (p.position for p in self.state.monsters if p.monster is target),
+                    target,
+                )
+            return self.cast_world_spell(spell, source, target, option)
+        if "exploration" not in spell.modes:
+            return ActionOutcome(
+                False,
+                False,
+                "Заклинание предназначено для будущего боя; доступно в песочнице.",
+            )
+        if isinstance(target, DoorInstance):
+            if (
+                spell_id.removeprefix("base:") != "daylight"
+                or source is not SpellSource.CLASS
+                or self._door(target.placement.id) is not target
+            ):
+                return ActionOutcome(
+                    False, False, "Это заклинание нельзя применить к двери."
+                )
+            result = self.interact_door(target.placement.id, "daylight")
+            return ActionOutcome(result.performed, result.performed, result.message)
+        if spell_id.removeprefix("base:") == "daylight":
+            return ActionOutcome(
+                False, False, "Выберите дверь через меню взаимодействия по Enter."
+            )
         if source not in (SpellSource.CLASS, SpellSource.RACIAL):
             return ActionOutcome(False, False, "Неизвестный источник магии.")
         if (
@@ -474,9 +622,22 @@ class Engine:
         magic = next((a for a in hero.available_actions if a.kind == "magic"), None)
         if magic is None:
             return ActionOutcome(False, False, "Магия недоступна классу.")
+        if target is not None and target is not hero:
+            position = next(
+                p.position for p in self.state.monsters if p.monster is target
+            )
+            error = self.spell_cell_error(position, spell.range)
+            if error:
+                return ActionOutcome(False, False, error)
         return self.perform_character_action(
             magic.id,
-            ActionContext(self.dice, target, spell_id=spell_id, spell_source=source),
+            ActionContext(
+                self.dice,
+                target,
+                spell_id=spell_id,
+                spell_source=source,
+                mode="exploration",
+            ),
         )
 
     def inspect_cell(self, position: Position) -> list[str]:
@@ -489,31 +650,66 @@ class Engine:
             return ["За пределами карты."]
         light = self.lighting
         lines = [f"Клетка ({position.x}, {position.y})", *light.inspection(position)]
+        self.sync_magic()
+        lines += [
+            f"Магический эффект: {m.kind}, {m.turns} ходов"
+            for m in self.magic_effects
+            if m.position == position
+            and m.map_ref == (state.level.ref if state.level else None)
+        ]
         if not light.at(position):
             return lines + ["Клетка не видна: темно или обзор закрыт."]
         details_start = len(lines)
+        if position in state.oil:
+            lines += [
+                f"Покрыто маслом: осталось {state.oil[position]} ход(ов).",
+                "Поджог или урон огнём: +5 урона огнём, масло исчезнет.",
+            ]
         if position == state.position:
             lines += [state.hero.name, f"HP: {state.hero.hp}/{state.hero.max_hp}"]
+            lines += [
+                f"{item.name}: {item.glow.description}"
+                for item in state.hero.inventory if item.glow
+            ]
         for p, item in state.items:
             if (p.x, p.y) == (position.x, position.y):
                 lines += [
                     item.name,
                     item.definition.description,
                     f"Вес: {item.weight:g} кг",
+                    *material_details(item.definition.tags),
+                    *([item.glow.description, "Тег: glowing (свечение)"] if item.glow else []),
                 ]
         for p in state.monsters:
             if p.position == position:
+                from ..domain.damage import profile_details
+
                 lines += [
                     p.monster.name,
                     p.monster.definition.description,
                     f"HP: {p.monster.hp}/{p.monster.max_hp} | КД: {p.monster.armor_class}",
+                    *profile_details(p.monster.damage_profile),
                 ]
         level = state.level
         if level:
+            for container in level.index("containers").at(position.x, position.y):
+                lines += [
+                    "Личный контейнер"
+                    if container.spec.personal
+                    else "Лутовый контейнер (только забирать)",
+                    f"Содержимое: {len(container.items)} шт.; вес {container.weight:g}/{container.spec.capacity:g} кг",
+                ]
+            for p in level.definition.objects:
+                if (p.x, p.y) == (position.x, position.y):
+                    obj = level.store.resolve("objects", p)
+                    lines += [obj.name, obj.description, *material_details(obj.tags)]
+            for instance in level.index("doors").at(position.x, position.y):
+                lines += instance.door.inspection()
             for p in level.points:
                 if (p.placement.x, p.placement.y) == (position.x, position.y):
                     lines += [
                         p.definition.name,
+                        *material_details(p.definition.tags),
                         p.challenge.text,
                         "Ситуация завершена."
                         if p.challenge.completed
@@ -539,7 +735,9 @@ class Engine:
                     for trap in level.traps
                 )
                 lines += (
-                    ["Пол."] if hidden_brush_trap else [tile.name, tile.description]
+                    ["Пол."]
+                    if hidden_brush_trap
+                    else [tile.name, tile.description, *material_details(tile.tags)]
                 )
         if len(lines) == details_start:
             lines.append("Пол." if state.dungeon.walkable(position) else "Стена.")
@@ -607,10 +805,7 @@ class Engine:
                     "advantage": check.advantage,
                     "total": check.total,
                     "success": check.success,
-                    "effects": [
-                        {"kind": e.kind, "amount": e.amount, "condition": e.condition}
-                        for e in outcomes
-                    ],
+                    "effects": [e.payload() for e in outcomes],
                 }
             )
         if self.state.hero.hp > 0:
@@ -647,15 +842,33 @@ class Engine:
         if not level:
             return []
         light = self.lighting
-        return [
+        points = [
             p
             for p in level.nearby(self.state.position)
+            + level.nearby_doors(self.state.position)
             if light.at(Position(p.placement.x, p.placement.y))
+            and (
+                not isinstance(p, DoorInstance) or p.available_choices(self.state.hero)
+            )
+        ]
+        present = {p.placement.id for p in points}
+        return points + [
+            c for c in self.nearby_containers() if c.placement.id not in present
         ]
 
     def interact(self, placement_id, choice_id):
+        if self._door(placement_id):
+            return self.interact_door(placement_id, choice_id)
+        if self.lockpick_attempt:
+            return ChallengeResult(False, False, 0, "Сначала отмените взлом.")
         for point in self.nearby_points():
             if point.placement.id == placement_id:
+                from ..world.storage import StorageInstance
+
+                if isinstance(point, StorageInstance):
+                    return ChallengeResult(
+                        False, False, 0, "Откройте содержимое контейнера."
+                    )
                 result = self.resolve_challenge(point.challenge, choice_id)
                 self.events.append(
                     {
@@ -665,14 +878,7 @@ class Engine:
                         "success": result.success,
                         "roll": result.check.roll if result.check else None,
                         "total": result.check.total if result.check else None,
-                        "effects": [
-                            {
-                                "kind": e.kind,
-                                "amount": e.amount,
-                                "condition": e.condition,
-                            }
-                            for e in result.effects
-                        ],
+                        "effects": [e.payload() for e in result.effects],
                     }
                 )
                 return result

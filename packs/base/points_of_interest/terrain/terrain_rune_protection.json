@@ -7,5 +7,10 @@
   "foreground": 13,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_rune_protection"
+  "tags": [
+    "runes",
+    "transparent"
+  ],
+  "challenge": "base:terrain_rune_protection",
+  "group": "Руны"
 }

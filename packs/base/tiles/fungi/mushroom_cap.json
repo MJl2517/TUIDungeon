@@ -11,7 +11,8 @@
   "tags": [
     "fungi",
     "obstacle",
-    "transparent"
+    "transparent",
+    "flammable"
   ],
   "walkable": false,
   "blocks_sight": false

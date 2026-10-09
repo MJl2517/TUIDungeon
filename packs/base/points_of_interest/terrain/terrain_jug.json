@@ -3,9 +3,22 @@
   "id": "terrain_jug",
   "name": "Кувшин",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "0",
   "foreground": 136,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_jug"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "storage",
+    "transparent"
+  ],
+  "challenge": "base:terrain_jug",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "mage_hand",
+  "name": "Волшебная рука",
+  "description": "Рука на 5 ходов, дальность 4 клетки, предметы до 2 кг. Действия → 4: принести предмет, открыть незапертую дверь, достать лёгкий предмет из контейнера или активировать ловушку. Не атакует и не взламывает. Стоимость: 1 общий заряд заговора.",
+  "variants": [],
+  "glyph": "E",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 0,
+  "effects": [],
+  "target": "cell",
+  "school": "conjuration",
+  "modes": [
+    "exploration"
+  ],
+  "range": 4,
+  "resolution": "automatic",
+  "save_ability": null,
+  "cantrip_scaling": false,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": "hand",
+  "world_parameters": {
+    "duration": 5,
+    "max_weight": 2
+  },
+  "concentration": false,
+  "pending_effects": [],
+  "tags": [
+    "interaction"
+  ]
+}

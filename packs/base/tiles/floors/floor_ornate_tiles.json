@@ -1,8 +1,9 @@
 {
   "schema_version": 1,
   "id": "floor_ornate_tiles",
-  "name": "Декоративная плитка",
+  "name": "Узорная плитка",
   "description": "Полы. Декоративная плитка. Проходимая клетка. Пропускает обзор и свет.",
+  "variants": [],
   "glyph": "▩",
   "foreground": 8,
   "background": null,
@@ -14,5 +15,14 @@
     "transparent"
   ],
   "walkable": true,
-  "blocks_sight": false
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  }
 }

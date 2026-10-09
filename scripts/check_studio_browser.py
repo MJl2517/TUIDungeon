@@ -225,7 +225,7 @@ def run():
                 ).click()
                 lamp_row.get_by_text(re.compile("горит, 59 мин")).wait_for()
                 page.locator(".playtest").get_by_text(
-                    re.compile("Масло для лампы.*0 примен")
+                    re.compile("Масло.*0 примен")
                 ).wait_for()
                 for _ in range(3):
                     button = page.get_by_role("button", name="D →", exact=True)
@@ -245,7 +245,7 @@ def run():
                 page.locator(".playtest").get_by_text("Ход 0", exact=False).wait_for()
                 lamp_row.get_by_text(re.compile("погашен, 0 мин")).wait_for()
                 page.locator(".playtest").get_by_text(
-                    re.compile("Масло для лампы.*1 примен")
+                    re.compile("Масло.*1 примен")
                 ).wait_for()
                 page.get_by_role("button", name="Закрыть", exact=True).click()
                 assert not errors, errors

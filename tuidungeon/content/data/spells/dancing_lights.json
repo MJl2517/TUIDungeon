@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "dancing_lights",
+  "name": "Пляшущие огоньки",
+  "description": "Тусклый свет вокруг выбранной клетки на 5 ходов, радиус 3. Нужна концентрация; новый концентрируемый эффект заменяет предыдущий. Потеря сознания или отдых гасят огоньки. Стоимость: 1 общий заряд заговора.",
+  "level": 0,
+  "effects": [],
+  "target": "cell",
+  "school": "evocation",
+  "modes": [
+    "exploration"
+  ],
+  "range": 6,
+  "resolution": "automatic",
+  "save_ability": null,
+  "cantrip_scaling": false,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": "dancing_lights",
+  "world_parameters": {
+    "duration": 5,
+    "radius": 3,
+    "bright_radius": 0
+  },
+  "concentration": true,
+  "pending_effects": [],
+  "tags": [
+    "light"
+  ]
+}

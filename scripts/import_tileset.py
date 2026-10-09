@@ -10,6 +10,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from tuidungeon.content.packs import PackStore
 from tuidungeon.content.schemas import TileDocument
+from tuidungeon.content.materials import curated_material_tags
 
 
 # Each list follows the bundled reference's order; explicit IDs stay readable.
@@ -541,7 +542,7 @@ def curated_tiles(source):
                 background=None,
                 walkable=walkable,
                 blocks_sight=blocks_sight,
-                tags=tags,
+                tags=tags + sorted(curated_material_tags(identifier, tags)),
                 description=description.strip(),
             )
             result.append((folder, doc))
@@ -563,6 +564,12 @@ def install(source, pack):
     }
     pending = []
     for folder, document in documents:
+        from tuidungeon.content.migrations import door_alias, compatibility
+
+        if pack.name == "base" and (pack / "objects").is_dir() and ("base:" + document.id in compatibility()["tiles"] or door_alias("base:" + document.id)):
+            continue  # Native objects must not be reintroduced as tile copies.
+        if door_alias("base:" + document.id) and "door_wood" in existing:
+            continue  # Consolidated libraries configure door instances on the map.
         if document.id in existing:
             continue
         target = pack / "tiles" / folder / f"{document.id}.json"

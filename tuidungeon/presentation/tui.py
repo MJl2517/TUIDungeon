@@ -14,6 +14,7 @@ from ..content.catalog import ContentCatalog
 from .symbols import GlyphTheme
 from .menus import ActionMenu, SidebarTab, SHEET_SECTIONS, PAGE_SIZE, action_lines
 from .inventory import InventoryBrowser, render_inventory, item_details
+from .storage import StorageBrowser, storage_layout, storage_click
 from .conditions import condition_lines
 from .creation import render_creation, creation_button_entries
 from ..domain.actions import SpellSource
@@ -40,6 +41,10 @@ class View(Enum):
     ITEM = auto()
     ITEM_INSPECT = auto()
     THROW = auto()
+    IGNITE = auto()
+    STORAGE = auto()
+    SPELL_TARGET = auto()
+    HAND_TARGET = auto()
 
 
 class Controller:
@@ -53,6 +58,8 @@ class Controller:
         store=None,
         test_map: bool = False,
         save_path=None,
+        test_profile: str | None = None,
+        test_class: str | None = None,
     ):
         self.map_ref, self.store = map_ref, store
         self.catalog = catalog
@@ -72,10 +79,12 @@ class Controller:
         self.item_return_view = View.EXPLORE
         self.spell_index = 0
         self.selected_spell = None
+        self.spell_option = None
         self.saves = (
             SaveRepository(save_path) if save_path is not None else SaveRepository()
         )
         self.point_id = None
+        self.storage = StorageBrowser()
         self.rng = random.Random(seed)
         self.game_rng = random.Random(seed)
         self.theme = GlyphTheme.named(symbols)
@@ -89,10 +98,14 @@ class Controller:
         self.sidebar_tab = SidebarTab.INVENTORY
         self.running = True
         self.message = "Добро пожаловать в TUI Dungeon!"
-        if test_map:
-            from ..application.factories import create_test_hero
+        if test_map or test_profile == "wizard":
+            from ..application.factories import create_test_hero, create_test_wizard
 
-            hero = create_test_hero(self.creation.catalog)
+            hero = (
+                create_test_wizard(self.creation.catalog)
+                if test_profile == "wizard"
+                else create_test_hero(self.creation.catalog, test_class)
+            )
             self.engine = Engine.new_game(hero, self.game_rng, self.map_ref, self.store)
             self.view = View.EXPLORE
             self.message = "Тест карты. ↑↓/Enter: вещи | F: поиск."
@@ -104,6 +117,9 @@ class Controller:
             self.view = View.INTERACTION
             self.page = 0
             self.action_menu = ActionMenu.ROOT
+            if self.point_id and self.engine.storage_at(self.point_id):
+                self.storage.open(self.point_id)
+                self.view = View.STORAGE
 
     @property
     def spells_tab(self):
@@ -135,21 +151,56 @@ class Controller:
         self.action_menu = ActionMenu.MAGIC
         self.page = 0
 
+    @property
+    def spell_items(self):
+        if not self.selected_spell:
+            return []
+        return self.engine.spell_item_targets(self.selected_spell[0])
+
     def choose_spell(self, index):
         options = self.spell_options
         if not 0 <= index < len(options):
             return
         self.selected_spell = options[index]
-        if self.selected_spell[0].target == "other":
+        spell = self.selected_spell[0]
+        self.spell_option = None
+        self.view = View.EXPLORE
+        if "exploration" not in spell.modes:
+            self.message = "Этот заговор доступен в песочнице будущего боя."
+        elif spell.target == "item":
+            self.action_menu = ActionMenu.SPELL_ITEM
+            self.page = 0
+        elif spell.world_effect in ("tricks", "elementalism", "illusion"):
+            self.action_menu = ActionMenu.SPELL_OPTION
+        elif spell.target == "cell":
+            self.open_spell_target()
+        elif spell.target == "other":
             self.action_menu = ActionMenu.TARGET
-            self.view = View.EXPLORE
             self.page = 0
         else:
             self.cast_selected()
 
+    @property
+    def spell_variants(self):
+        if self.selected_spell and self.selected_spell[0].world_effect == "illusion":
+            return (("mark", "Неподвижная иллюзия"), ("noise", "Звук"))
+        return (
+            ("ignite", "Поджечь"),
+            ("extinguish", "Погасить"),
+            ("mark", "Метка"),
+            ("noise", "Звук"),
+        )
+
+    def open_spell_target(self):
+        self.look_position = self.engine.state.position
+        self.action_menu = ActionMenu.ROOT
+        self.view = View.SPELL_TARGET
+
     def cast_selected(self, target=None):
         spell, source = self.selected_spell
-        result = self.engine.cast_spell(spell.id, source, target)
+        result = self.engine.cast_spell(
+            spell.id, source, target, option=self.spell_option
+        )
         self.message = result.message
         if result.performed:
             self.view = View.EXPLORE
@@ -212,6 +263,18 @@ class Controller:
     def _handle(self, key: str) -> None:
         if key == "ctrl_c":
             self.running = False
+            return
+        if self.view is View.STORAGE:
+            self.storage.handle(self, key)
+            return
+        if self.engine and self.engine.lockpick_attempt:
+            if key in (" ", "space"):
+                self.message = self.engine.advance_lockpick().message
+            elif key in ("backspace", "escape"):
+                self.message = self.engine.cancel_lockpick().message
+            self.view = View.EXPLORE
+            self.action_menu = ActionMenu.ROOT
+            self.point_id = None
             return
         if self.inventory.editing:
             self.inventory.search_key(key)
@@ -325,13 +388,38 @@ class Controller:
             elif key in ("backspace", "escape"):
                 self.action_menu = self.exit_return
             return
-        if self.view in (View.LOOK, View.THROW):
+        if self.view in (
+            View.LOOK,
+            View.THROW,
+            View.IGNITE,
+            View.SPELL_TARGET,
+            View.HAND_TARGET,
+        ):
             if key in ("backspace", "escape"):
-                self.view = View.ITEM if self.view is View.THROW else View.EXPLORE
+                if self.view in (View.SPELL_TARGET, View.HAND_TARGET):
+                    self.action_menu = (
+                        ActionMenu.MAGIC
+                        if self.view is View.SPELL_TARGET
+                        else ActionMenu.ROOT
+                    )
+                    self.view = View.EXPLORE
+                else:
+                    self.view = View.EXPLORE if self.view is View.LOOK else View.ITEM
             elif key == "enter":
-                if self.view is View.THROW:
-                    result = self.engine.place_item(
-                        self.selected_item, self.look_position, throwing=True
+                if self.view is View.SPELL_TARGET:
+                    self.cast_selected(self.look_position)
+                elif self.view is View.HAND_TARGET:
+                    result = self.engine.use_magic_hand(self.look_position)
+                    self.message = result.message
+                    if result.performed:
+                        self.view = View.EXPLORE
+                elif self.view in (View.THROW, View.IGNITE):
+                    result = (
+                        self.engine.ignite_cell(self.selected_item, self.look_position)
+                        if self.view is View.IGNITE
+                        else self.engine.place_item(
+                            self.selected_item, self.look_position, throwing=True
+                        )
                     )
                     self.message = result.message
                     if result.performed:
@@ -361,6 +449,27 @@ class Controller:
                         + abs(p.y - self.engine.state.position.y)
                         <= self.engine.throw_range
                     )
+                    if self.view in (View.SPELL_TARGET, View.HAND_TARGET):
+                        reach = (
+                            self.selected_spell[0].range
+                            if self.view is View.SPELL_TARGET
+                            else self.engine.magic_hand_range
+                        )
+                        in_range = (
+                            max(
+                                abs(p.x - self.engine.state.position.x),
+                                abs(p.y - self.engine.state.position.y),
+                            )
+                            <= reach
+                        )
+                    if self.view is View.IGNITE:
+                        in_range = (
+                            max(
+                                abs(p.x - self.engine.state.position.x),
+                                abs(p.y - self.engine.state.position.y),
+                            )
+                            <= 1
+                        )
                     if (
                         0 <= p.x < dungeon.width
                         and 0 <= p.y < dungeon.height
@@ -385,6 +494,9 @@ class Controller:
                 if self.point_id is None:
                     if index < len(points):
                         self.point_id = points[index].placement.id
+                        if self.engine.storage_at(self.point_id):
+                            self.storage.open(self.point_id)
+                            self.view = View.STORAGE
                     self.page = 0
                 else:
                     point = next(
@@ -431,6 +543,9 @@ class Controller:
                 if result.performed:
                     self.view = self.item_return_view
                     self.selected_item = None
+            elif key == "5" and self.selected_item.ignition_source:
+                self.look_position = self.engine.state.position
+                self.view = View.IGNITE
             return
         if self.view is View.ITEM_INSPECT:
             if key in ("backspace", "escape", "enter"):
@@ -484,6 +599,9 @@ class Controller:
                     self.choose_spell(index)
             return
         if self.view is View.EXPLORE and self.action_menu is ActionMenu.ROOT:
+            if key == "z":
+                self.message = self.engine.toggle_sneaking().message
+                return
             if key in ("left", "right", "tab"):
                 self.sidebar_tab = self.sidebar_tab.next(-1 if key == "left" else 1)
                 self.inventory_focus = False
@@ -497,6 +615,28 @@ class Controller:
             if key == "g":
                 self.message = self.engine.pickup_item().message
                 return
+        if self.action_menu in (ActionMenu.SPELL_ITEM, ActionMenu.SPELL_OPTION):
+            if key in ("backspace", "escape"):
+                self.action_menu = ActionMenu.MAGIC
+                self.page = 0
+            elif (
+                key in ("pageup", "pagedown")
+                and self.action_menu is ActionMenu.SPELL_ITEM
+            ):
+                self.change_page(key, len(self.spell_items))
+            elif key in "123456" and len(key) == 1:
+                index = int(key) - 1
+                if self.action_menu is ActionMenu.SPELL_OPTION and index < len(
+                    self.spell_variants
+                ):
+                    self.spell_option = self.spell_variants[index][0]
+                    self.open_spell_target()
+                elif self.action_menu is ActionMenu.SPELL_ITEM:
+                    items = self.spell_items
+                    index += self.page * PAGE_SIZE
+                    if index < len(items):
+                        self.cast_selected(items[index])
+            return
         if self.action_menu in (ActionMenu.MAGIC, ActionMenu.TARGET):
             options = (
                 self.spell_options
@@ -523,12 +663,16 @@ class Controller:
             self.action_menu = ActionMenu.ROOT
             return
         if self.action_menu is ActionMenu.ACTIONS:
-            if key == "1":
+            if key in ("1", "z"):
                 self.message = self.engine.toggle_sneaking().message
             elif key == "2":
                 self.open_magic()
             elif key == "3":
                 self.message = self.engine.apply(Action.WAIT).message
+            elif key == "4" and self.engine.active_hand:
+                self.look_position = self.engine.state.position
+                self.view = View.HAND_TARGET
+                self.action_menu = ActionMenu.ROOT
             return
         if self.action_menu is ActionMenu.REST:
             if key in ("1", "2"):
@@ -539,9 +683,10 @@ class Controller:
             return
         if key == "enter":
             self.open_interaction()
-        elif key == "1":
+        elif key in ("1", "e"):
             self.look_position = self.engine.state.position
             self.view = View.LOOK
+            self.inventory_focus = False
         elif key == "2":
             self.sheet_section, self.page = 0, 0
             self.view = View.CHARACTER
@@ -732,7 +877,14 @@ def render_sidebar(
             lines.append(f"Ячейки ур. {level}: {hero.spell_slots[level]}/{capacity}")
     else:
         lines.extend(["Нет.", "Классовых ячеек нет."])
-    lines.extend(["", "Расовое заклинание:"])
+    lines.extend(
+        [
+            f"Заговоры: {hero.cantrip_uses}/{hero.max_cantrip_uses}",
+            "Концентрация: " + ("да" if hero.concentration_id else "нет"),
+            "",
+            "Расовое заклинание:",
+        ]
+    )
     if hero.racial_spell:
         lines.extend(
             [
@@ -793,7 +945,8 @@ def render_start_screen(canvas: Canvas, controller: Controller) -> None:
             "Свет: факел/лампа через инвентарь → Enter → 1",
             "WASD: перемещение персонажа",
             "←/→ / Tab: вкладки | ↑↓/Enter: выбор вещей",
-            "1: осмотр | 2: персонаж | 3: действия | 4: отдых",
+            "1/E: осмотр | 2: персонаж | 3: действия | 4: отдых",
+            "Z: скрытность; серый герой — крадётся",
             "Enter рядом с точкой интереса: взаимодействовать",
             "M: сохранение, загрузка, справка и выход",
             "←/→: страницы персонажа | F: поиск | G: подобрать",
@@ -813,7 +966,8 @@ def camera(controller, rect):
     state = controller.engine.state
     focus = (
         controller.look_position
-        if background_view(controller) in (View.LOOK, View.THROW)
+        if background_view(controller)
+        in (View.LOOK, View.THROW, View.IGNITE, View.SPELL_TARGET, View.HAND_TARGET)
         else state.position
     )
     vw, vh = rect.width - 2, rect.height - 3
@@ -849,8 +1003,15 @@ def spell_lines(controller):
             else hero.spell_slots.get(spell.level, 0)
         )
         label = "раса" if source is SpellSource.RACIAL else "класс"
-        resource = "без ячейки" if spell.level == 0 else f"{uses} прим."
-        lines.append(f"{index % PAGE_SIZE + 1}) {spell.name} ({label}, {resource})")
+        resource = (
+            f"{hero.cantrip_uses}/{hero.max_cantrip_uses} заряд."
+            if spell.level == 0
+            else f"{uses} прим."
+        )
+        lines.append(
+            f"{index % PAGE_SIZE + 1}) {spell.name} ({label}, {resource})"
+            + (" [бой]" if "exploration" not in spell.modes else "")
+        )
     return lines
 
 
@@ -916,17 +1077,23 @@ def background_view(controller):
         and controller.return_view is not View.MAIN_MENU
     ):
         view = controller.return_view
-    if view in (View.ITEM, View.ITEM_INSPECT, View.THROW):
-        return controller.item_return_view if view is not View.THROW else view
+    if view in (View.ITEM, View.ITEM_INSPECT, View.THROW, View.IGNITE):
+        return (
+            view if view in (View.THROW, View.IGNITE) else controller.item_return_view
+        )
     if view is View.INSPECT:
         return View.LOOK
-    return View.EXPLORE if view is View.INTERACTION else view
+    return View.EXPLORE if view in (View.INTERACTION, View.STORAGE) else view
 
 
 def popup_content(controller):
+    if controller.engine and controller.engine.lockpick_attempt:
+        return "", [], []
     """The same choices drive keyboard navigation, mouse clicks and both renderers."""
     if not controller.engine or controller.view in (View.MAIN_MENU, View.CREATION):
         return "", [], []
+    if controller.view is View.STORAGE:
+        return "Контейнер", [], []
     view, menu = controller.view, controller.action_menu
     if view in (View.HELP, View.SETTINGS) and controller.return_view is View.MAIN_MENU:
         return "", [], []
@@ -934,7 +1101,8 @@ def popup_content(controller):
         return (
             "Справка",
             [
-                "WASD: шаг | 1: осмотр | 2: персонаж",
+                "WASD: шаг | 1/E: осмотр | 2: персонаж",
+                "Z: включить / выключить скрытность (серый герой)",
                 "3: действия | 4: отдых | M: игровое меню",
                 "Enter рядом с объектом: взаимодействовать",
                 "I / ↑↓: инвентарь | Enter / щелчок: предмет",
@@ -984,7 +1152,8 @@ def popup_content(controller):
                 f"Вес: {item.weight:g} кг | Надето: {'да' if item.equipped else 'нет'}",
                 controller.message,
             ],
-            [use, "Осмотреть", "Бросить", "Положить на землю"],
+            [use, "Осмотреть", "Бросить", "Положить на землю"]
+            + (["Поджечь соседнюю клетку"] if item.ignition_source else []),
         )
     if view is View.ITEM_INSPECT and controller.selected_item:
         return "Осмотр предмета", item_details(controller.selected_item), []
@@ -996,7 +1165,7 @@ def popup_content(controller):
         if point:
             return (
                 point.definition.name,
-                [point.challenge.text],
+                point.challenge.text.splitlines(),
                 [
                     choice.text
                     for choice in point.challenge.available_choices(
@@ -1005,6 +1174,35 @@ def popup_content(controller):
                 ],
             )
         return "Взаимодействие", [], [p.definition.name for p in points[:9]]
+    if menu is ActionMenu.SPELL_ITEM:
+        spell = controller.selected_spell[0]
+        items = controller.spell_items[
+            controller.page * PAGE_SIZE : (controller.page + 1) * PAGE_SIZE
+        ]
+        return (
+            spell.name,
+            [
+                spell.description,
+                "Выбор предмета бесплатный. PgUp/PgDn: страницы",
+                (
+                    "Нет повреждённых предметов с прочностью в инвентаре."
+                    if spell.world_effect == "repair"
+                    else "Нет подходящих предметов в инвентаре."
+                ) if not items else "",
+                controller.message,
+            ],
+            [
+                f"{i.name} ({i.durability}/{i.definition.durability})"
+                if i.durability is not None else i.name
+                for i in items
+            ],
+        )
+    if menu is ActionMenu.SPELL_OPTION:
+        return (
+            controller.selected_spell[0].name,
+            ["Выберите эффект, затем клетку. AI на звук пока не реагирует."],
+            [label for _, label in controller.spell_variants],
+        )
     if menu in (ActionMenu.MAGIC, ActionMenu.TARGET):
         options = (
             spell_lines(controller)
@@ -1029,9 +1227,13 @@ def popup_content(controller):
         )
     if menu in (ActionMenu.ACTIONS, ActionMenu.REST):
         lines = action_lines(controller)
-        count = 3 if menu is ActionMenu.ACTIONS else 2
+        count = (
+            (4 if controller.engine.active_hand else 3)
+            if menu is ActionMenu.ACTIONS
+            else 2
+        )
         return (
-            "Действия" if count == 3 else "Отдых",
+            "Действия" if menu is ActionMenu.ACTIONS else "Отдых",
             [controller.message],
             [line.partition(") ")[2] for line in lines[:count]],
         )
@@ -1044,6 +1246,9 @@ def item_overlay_rect(width, height):
 
 
 def popup_layout(controller, width, height):
+    if controller.view is View.STORAGE and width >= MIN_WIDTH and height >= MIN_HEIGHT:
+        title, rect, rows, _ = storage_layout(controller, width, height)
+        return title, rect, rows, []
     title, body, options = popup_content(controller)
     if not title or width < MIN_WIDTH or height < MIN_HEIGHT:
         return None
@@ -1112,6 +1317,8 @@ def handle_click(controller, x, y, width, height):
         or height < MIN_HEIGHT
     ):
         return False
+    if controller.view is View.STORAGE:
+        return storage_click(controller, x, y, width, height)
     popup = popup_layout(controller, width, height)
     if popup:
         _, rect, _, hits = popup
@@ -1192,7 +1399,9 @@ def render(controller: Controller, width: int, height: int) -> list[str]:
     else:
         canvas.box(
             layout.main,
-            f"Подземелье | HP {state.hero.hp}/{state.hero.max_hp} | Ход {state.turns} | "
+            "Подземелье | "
+            + ("Скрытность | " if state.hero.sneaking else "")
+            + f"HP {state.hero.hp}/{state.hero.max_hp} | Ход {state.turns} | "
             + (
                 "Свет: "
                 + ", ".join(
@@ -1201,6 +1410,8 @@ def render(controller: Controller, width: int, height: int) -> list[str]:
                     if i.equipped and i.shining
                 )
                 if any(i.equipped and i.shining for i in state.hero.inventory)
+                else "Свет: магия"
+                if controller.engine.magic_lights()
                 else "Свет: нет"
             ),
         )
@@ -1220,7 +1431,17 @@ def render(controller: Controller, width: int, height: int) -> list[str]:
                 hero_x = state.position.x - camera_x
                 if 0 <= hero_x < len(text):
                     text = text[:hero_x] + controller.theme.hero + text[hero_x + 1 :]
-            if view in (View.LOOK, View.THROW) and map_y == controller.look_position.y:
+            if (
+                view
+                in (
+                    View.LOOK,
+                    View.THROW,
+                    View.IGNITE,
+                    View.SPELL_TARGET,
+                    View.HAND_TARGET,
+                )
+                and map_y == controller.look_position.y
+            ):
                 cursor_x = controller.look_position.x - camera_x
                 if 0 <= cursor_x < len(text):
                     text = text[:cursor_x] + "X" + text[cursor_x + 1 :]
@@ -1228,21 +1449,47 @@ def render(controller: Controller, width: int, height: int) -> list[str]:
         canvas.line(
             layout.main,
             viewport_height,
-            "WASD/стрелки: цель | Enter: бросить"
+            "WASD: цель | Enter: применить"
+            if view in (View.SPELL_TARGET, View.HAND_TARGET)
+            else "WASD/стрелки: цель | Enter: бросить"
             if view is View.THROW
+            else "WASD/стрелки: цель | Enter: поджечь"
+            if view is View.IGNITE
             else "WASD: курсор | Enter: осмотреть"
-            if view in (View.LOOK, View.THROW)
+            if view
+            in (View.LOOK, View.THROW, View.IGNITE, View.SPELL_TARGET, View.HAND_TARGET)
             else "WASD: шаг | ↑↓/Enter: вещи | G: подобрать",
         )
-    canvas.box(layout.actions, "Действия | M: меню")
+    canvas.box(
+        layout.actions,
+        "Взлом замка" if controller.engine.lockpick_attempt else "Действия | M: меню",
+    )
     if popup_content(controller)[0]:
         actions = action_lines(controller, ActionMenu.ROOT)
+    elif controller.view in (View.SPELL_TARGET, View.HAND_TARGET):
+        actions = [
+            "Выберите видимую клетку в пределах дальности.",
+            "WASD / стрелки: цель | Enter: применить",
+            "Backspace: отменить; выбор бесплатный.",
+            "Действие руки: ход, без нового заряда."
+            if controller.view is View.HAND_TARGET
+            else "Применение: один ход и заряд заговора.",
+            controller.message,
+        ]
+    elif controller.view is View.IGNITE:
+        actions = [
+            "Поджог: одна из 8 соседних клеток.",
+            "WASD / стрелки: цель | Enter: поджечь",
+            "Backspace: отменить; выбор цели бесплатный.",
+            "Дерево: 5 HP/мин. Масло: +5 урона сразу.",
+            controller.message,
+        ]
     elif controller.view is View.THROW:
         actions = [
             f"Дальность: {controller.engine.throw_range} кл. (СИЛ мод. + 1)",
             "WASD / стрелки: клетка | Enter: бросить",
             "Backspace: отменить",
-            "Бросок перемещает вещь; урона нет.",
+            "Масло: покрытие 5 ходов. Кислота: 2d6.",
             controller.message,
         ]
     elif controller.inventory.editing:
@@ -1299,6 +1546,8 @@ def run(
     store=None,
     test_map: bool = False,
     save_path=None,
+    test_profile: str | None = None,
+    test_class: str | None = None,
 ) -> None:
     import curses
 
@@ -1315,6 +1564,8 @@ def run(
         store=store,
         test_map=test_map,
         save_path=save_path,
+        test_profile=test_profile,
+        test_class=test_class,
     )
     colors = TerminalColors(curses)
     from .keyboard import TerminalKeyboard
@@ -1336,7 +1587,17 @@ def run(
                 draw_emphasis(screen, controller, width, height, rows, curses, colors)
                 screen.refresh()
                 dirty, last_size = False, (width, height)
-            elif controller.view in (View.LOOK, View.THROW) and blink != last_blink:
+            elif (
+                controller.view
+                in (
+                    View.LOOK,
+                    View.THROW,
+                    View.IGNITE,
+                    View.SPELL_TARGET,
+                    View.HAND_TARGET,
+                )
+                and blink != last_blink
+            ):
                 # Cursor animation updates terminal attributes, not the game frame.
                 draw_emphasis(screen, controller, width, height, rows, curses, colors)
                 screen.refresh()
@@ -1420,7 +1681,13 @@ def draw_emphasis(screen, controller, width, height, rows, curses, colors=None):
                         screen.addnstr(y, rect.x + 1, text, len(text), curses.A_BOLD)
                     except curses.error:
                         pass
-    if controller.view in (View.LOOK, View.THROW):
+    if controller.view in (
+        View.LOOK,
+        View.THROW,
+        View.IGNITE,
+        View.SPELL_TARGET,
+        View.HAND_TARGET,
+    ):
         rect = Layout.for_size(width, height).main
         cx, cy = camera(controller, rect)
         x, y = (
@@ -1439,6 +1706,8 @@ def draw_emphasis(screen, controller, width, height, rows, curses, colors=None):
     if popup:
         _, rect, _, hits = popup
         normal = colors.attribute(0, 250) if colors else 0
+        if controller.view is View.STORAGE:
+            normal = colors.attribute(15, 4) if colors else 0
         selected = colors.attribute(15, 60) if colors else curses.A_REVERSE
         shadow = colors.attribute(0, 0) if colors else 0
         for y in range(rect.y + 1, rect.y + rect.height + 1):
@@ -1446,6 +1715,7 @@ def draw_emphasis(screen, controller, width, height, rows, curses, colors=None):
                 screen.addnstr(y, rect.x + 1, " " * rect.width, rect.width, shadow)
             except curses.error:
                 pass
+
         selected_rows = set()
         for i, start in hits:
             if i == controller.dialog_index:
@@ -1462,6 +1732,22 @@ def draw_emphasis(screen, controller, width, height, rows, curses, colors=None):
                 )
             except curses.error:
                 pass
+
+        if controller.view is View.STORAGE:
+            _, _, body, offsets = storage_layout(controller, width, height)
+            column = (rect.width - 5) // 2
+            side = controller.storage.side
+            row = 2 + controller.storage.selected[side] - offsets[side]
+            if 2 <= row < rect.height - 9:
+                x = rect.x + 2 + side * (column + 3)
+                text = body[row][side * (column + 3) : side * (column + 3) + column]
+                attribute = (
+                    colors.attribute(0, 11) if colors else curses.A_REVERSE
+                ) | curses.A_BOLD
+                try:
+                    screen.addnstr(rect.y + row + 1, x, text, column, attribute)
+                except curses.error:
+                    pass
 
 
 class TerminalColors:
@@ -1510,7 +1796,8 @@ class TerminalColors:
 def draw_colors(screen, controller, width, height, colors):
     if (
         not controller.engine
-        or background_view(controller) not in (View.EXPLORE, View.LOOK, View.THROW)
+        or background_view(controller)
+        not in (View.EXPLORE, View.LOOK, View.THROW, View.IGNITE)
         or width < MIN_WIDTH
         or height < MIN_HEIGHT
     ):
@@ -1527,7 +1814,14 @@ def draw_colors(screen, controller, width, height, colors):
             if cell:
                 char = (
                     "X"
-                    if background_view(controller) in (View.LOOK, View.THROW)
+                    if background_view(controller)
+                    in (
+                        View.LOOK,
+                        View.THROW,
+                        View.IGNITE,
+                        View.SPELL_TARGET,
+                        View.HAND_TARGET,
+                    )
                     and (cx + x, cy + y)
                     == (controller.look_position.x, controller.look_position.y)
                     else cell.char

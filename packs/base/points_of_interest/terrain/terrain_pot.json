@@ -3,9 +3,22 @@
   "id": "terrain_pot",
   "name": "Горшок",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "u",
   "foreground": 136,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_pot"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "storage",
+    "transparent"
+  ],
+  "challenge": "base:terrain_pot",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

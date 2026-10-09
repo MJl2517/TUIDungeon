@@ -1,8 +1,9 @@
 {
   "schema_version": 1,
   "id": "height_stairs_up",
-  "name": "Лестница вверх",
+  "name": "Ступени вверх (рельеф)",
   "description": "Пропасти и рельеф. Лестница вверх. Проходимая клетка. Пропускает обзор и свет. Высота и падение не рассчитываются; разрешённые склоны — обычные проходимые клетки.",
+  "variants": [],
   "glyph": "↑",
   "foreground": 8,
   "background": null,
@@ -14,5 +15,14 @@
     "transparent"
   ],
   "walkable": true,
-  "blocks_sight": false
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  }
 }

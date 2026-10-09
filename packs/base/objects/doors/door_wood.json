@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "door_wood",
+  "name": "Деревянная дверь",
+  "description": "Поставьте дверь, нажмите V и выберите её: состояние, замок и хиты настраиваются для каждого экземпляра.",
+  "glyph": "+",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Двери",
+  "tags": [
+    "doors",
+    "opaque",
+    "flammable",
+    "wooden"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": {
+      "material": "wood",
+      "state": "closed",
+      "locked": false,
+      "lock_quality": "normal",
+      "lock_complexity": "simple",
+      "hit_points": null
+    }
+  }
+}

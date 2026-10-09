@@ -11,7 +11,9 @@
   "tags": [
     "walls",
     "obstacle",
-    "transparent"
+    "transparent",
+    "flammable",
+    "wooden"
   ],
   "walkable": false,
   "blocks_sight": false

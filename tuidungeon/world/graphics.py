@@ -81,8 +81,16 @@ def map_cells(store, definition, tiles=None):
                         background=tile.background,
                     )
                 cells[y][x] = palette[ref]
+    for placement in definition.objects:
+        obj = store.resolve("objects", placement)
+        cells[placement.y][placement.x] = overlay(
+            cells[placement.y][placement.x],
+            glyph_cell(obj.glyph, obj.foreground, obj.background),
+        )
     for placement in definition.decorations:
-        art = compose(store.get("art", placement.ref))
+        from ..content.placements import resolve_placement
+
+        art = compose(resolve_placement(store.documents, "art", placement))
         for y, row in enumerate(art):
             for x, cell in enumerate(row):
                 if (

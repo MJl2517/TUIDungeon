@@ -3,9 +3,22 @@
   "id": "terrain_urn",
   "name": "Урна",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "U",
   "foreground": 136,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_urn"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "storage",
+    "transparent"
+  ],
+  "challenge": "base:terrain_urn",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

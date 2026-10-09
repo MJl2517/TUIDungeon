@@ -55,7 +55,9 @@ class ContentTests(unittest.TestCase):
             (
                 "equipment",
                 "thieves_tools",
-                lambda obj: obj["check_aids"][0].update(mode="instant"),
+                lambda obj: obj.update(
+                    check_aids=[{"check_tag": "lockpicking", "mode": "instant"}]
+                ),
             ),
             (
                 "classes",

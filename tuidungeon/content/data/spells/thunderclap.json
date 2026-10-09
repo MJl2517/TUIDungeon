@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "thunderclap",
+  "name": "Раскат грома",
+  "description": "В боевом адаптере: спасбросок Телосложения каждой цели, провал — 1d6 громом. В исследовании создаёт событие шума, без урона и реакции ещё отсутствующего AI. Стоимость: 1 общий заряд заговора.",
+  "level": 0,
+  "effects": [
+    {
+      "kind": "damage",
+      "amount": 0,
+      "dice": "1d6",
+      "condition": "",
+      "duration": 1,
+      "damage_type": "thunder",
+      "params": {}
+    }
+  ],
+  "target": "other",
+  "school": "evocation",
+  "modes": [
+    "combat",
+    "exploration"
+  ],
+  "range": 1,
+  "resolution": "save",
+  "save_ability": "constitution",
+  "cantrip_scaling": true,
+  "wounded_dice": null,
+  "max_targets": 32,
+  "world_effect": "noise",
+  "world_parameters": {},
+  "concentration": false,
+  "pending_effects": [
+    "передний фланг JRPG-боя",
+    "реакции патрулей на шум"
+  ],
+  "tags": [
+    "noise",
+    "aoe"
+  ]
+}

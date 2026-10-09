@@ -191,12 +191,12 @@ class ExtensionTests(unittest.TestCase):
         self.assertFalse(challenge.completed)
         self.assertFalse(challenge.resolve("missing", hero, Dice(FixedRng())).performed)
 
-    def test_tool_advantage_rewards_and_no_repeated_rewards(self):
+    def test_thieves_tools_allow_normal_roll_rewards_and_no_repeated_rewards(self):
         hero = self.hero("rogue")
         challenge = TextChallenge(self.catalog.challenges["locked_chest"])
-        result = challenge.resolve("pick_lock", hero, Dice(FixedRng(1, 20)))
+        result = challenge.resolve("pick_lock", hero, Dice(FixedRng(20)))
         self.assertTrue(result.success)
-        self.assertTrue(result.check.advantage)
+        self.assertFalse(result.check.advantage)
         self.assertEqual((hero.gold, hero.experience), (10, 15))
         self.assertFalse(challenge.resolve("pick_lock", hero, Dice(FixedRng())).performed)
         self.assertEqual((hero.gold, hero.experience), (10, 15))

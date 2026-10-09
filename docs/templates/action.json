@@ -3,6 +3,7 @@
   "id": "new_action",
   "name": "Новый шаблон: Атака",
   "kind": "attack",
+  "damage_type": "bludgeoning",
   "ability": "strength",
   "description": "Атака экипированным оружием; без него — 1d4."
 }

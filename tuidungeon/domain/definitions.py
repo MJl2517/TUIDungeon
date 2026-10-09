@@ -6,6 +6,7 @@ import re
 from .rules import Ability
 from .stats import Stats
 from .value_types import freeze
+from .damage import DamageProfile, DamageType, validate_damage
 
 
 @dataclass(frozen=True)
@@ -36,8 +37,12 @@ class EffectSpec:
     condition: str = ""
     duration: int = 1
     params: dict = field(default_factory=dict)
+    damage_type: DamageType | None = None
 
     def __post_init__(self):
+        validate_damage(0, self.damage_type)
+        if self.kind != "damage" and self.damage_type is not None:
+            raise ValueError("damage_type допустимо только для damage")
         object.__setattr__(self, "params", freeze(self.params))
 
 
@@ -52,6 +57,7 @@ class ActionDefinition:
     effects: tuple[EffectSpec, ...] = ()
     difficulty: int = 10
     description: str = ""
+    damage_type: DamageType = "bludgeoning"
 
 
 @dataclass(frozen=True)
@@ -85,6 +91,8 @@ class EquipmentDefinition:
     category: str | None = None
     hands: int = 0
     light: LightDefinition | None = None
+    damage_type: DamageType = "bludgeoning"
+    damage_profile: DamageProfile = DamageProfile()
 
 
 @dataclass(frozen=True)
@@ -95,6 +103,22 @@ class Spell:
     effects: tuple[EffectSpec, ...] = ()
     target: str = "self"
     description: str = ""
+    school: str = "evocation"
+    modes: tuple[str, ...] = ("combat", "exploration")
+    range: int = 6
+    resolution: str = "automatic"
+    save_ability: Ability | None = None
+    cantrip_scaling: bool = False
+    wounded_dice: DiceExpression | None = None
+    max_targets: int = 1
+    world_effect: str | None = None
+    world_parameters: dict = field(default_factory=dict)
+    concentration: bool = False
+    pending_effects: tuple[str, ...] = ()
+    tags: frozenset[str] = frozenset()
+
+    def __post_init__(self):
+        object.__setattr__(self, "world_parameters", freeze(self.world_parameters))
 
 
 @dataclass(frozen=True)
@@ -108,6 +132,7 @@ class RaceDefinition:
     speed: int = 1
     order: int = 0
     description: str = ""
+    damage_profile: DamageProfile = DamageProfile()
 
     @property
     def value(self) -> str:
@@ -126,6 +151,10 @@ class ClassDefinition:
     carry_per_strength: float = 5
     order: int = 0
     description: str = ""
+    damage_profile: DamageProfile = DamageProfile()
+    spellcasting_ability: Ability = Ability.INTELLIGENCE
+    cantrip_choices: tuple[str, ...] = ()
+    cantrips_known: int = 0
 
     @property
     def value(self) -> str:
@@ -161,6 +190,8 @@ class MonsterDefinition:
     tags: frozenset[str] = frozenset()
     art: str | None = None
     description: str = ""
+    damage_profile: DamageProfile = DamageProfile()
+    spellcasting_ability: Ability = Ability.INTELLIGENCE
 
 
 @dataclass(frozen=True)

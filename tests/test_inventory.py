@@ -206,6 +206,37 @@ class InventoryNavigationTests(InventoryFixture):
             test_map=True,
         )
 
+    def test_remaining_durability_is_visible_in_sidebar_and_sheet_even_for_long_names(
+        self,
+    ):
+        c = self.controller
+        definition = replace(
+            self.factory.catalog.equipment["thieves_tools"],
+            name="Очень длинное название воровских инструментов",
+            slot="hand",
+            hands=1,
+        )
+        tools = Equipment.create(definition)
+        tools.wear(4)
+        c.engine.state.hero.inventory.append(tools)
+        for item in c.engine.state.hero.inventory:
+            if item.hands:
+                c.engine.state.hero.unequip(item)
+        self.assertTrue(c.engine.state.hero.equip(tools))
+        c.inventory.query = "воровских"
+        for width in (80, 100):
+            for sheet in (False, True):
+                c.view = View.CHARACTER if sheet else View.EXPLORE
+                c.sheet_section = 1
+                layout = Layout.for_size(width, 28)
+                rect = layout.main if sheet else layout.sidebar
+                rows = render(c, width, 28)
+                text = "\n".join(row[rect.x : rect.x + rect.width] for row in rows)
+                self.assertIn("(6/10)", text)
+                self.assertIn("[*]", text)
+        tools.wear(6)
+        self.assertIn("(0/10)", "\n".join(render(c, 80, 28)))
+
     def test_categories_and_explicit_schema_category_support_old_packs(self):
         for item_id, category in (
             ("sword", "weapons"),

@@ -11,7 +11,11 @@
   "weight": 0.05,
   "tags": [
     "ammunition",
-    "decor_bolt"
+    "decor_bolt",
+    "flammable",
+    "transparent",
+    "weapon_decor",
+    "wooden"
   ],
   "durability": null,
   "slot": null,
@@ -21,5 +25,6 @@
   "weapon_ability": "strength",
   "charges": 1,
   "hands": 0,
-  "light": null
+  "light": null,
+  "group": "Декорации: оружие"
 }

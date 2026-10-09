@@ -7,9 +7,11 @@
   "foreground": 7,
   "background": null,
   "art": null,
+  "category": "armor",
   "weight": 1.0,
   "tags": [
-    "clothing"
+    "clothing",
+    "flammable"
   ],
   "durability": null,
   "slot": "armor",
@@ -17,5 +19,8 @@
   "check_aids": [],
   "weapon_damage": null,
   "weapon_ability": "strength",
-  "charges": null
+  "charges": null,
+  "hands": 0,
+  "light": null,
+  "group": "Снаряжение"
 }

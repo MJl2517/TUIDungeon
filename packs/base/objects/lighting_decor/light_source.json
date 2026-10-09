@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "light_source",
+  "name": "Источник света",
+  "description": "Источник света. Источник света: радиус 6 клеток.",
+  "glyph": "*",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "group": "Источники света: рисунки",
+  "tags": [
+    "lighting_decor",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": {
+      "radius": 6,
+      "bright_radius": 3
+    },
+    "transition": false,
+    "door": null
+  }
+}

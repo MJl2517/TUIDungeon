@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "mending",
+  "name": "Починка",
+  "description": "Починка переносимого предмета: инструмент +1 стойкости, оружие или доспех +1d4. Можно починить сохранённый сломанный предмет (0 стойкости), но не вернуть уничтоженный. Стоимость: 1 общий заряд заговора.",
+  "variants": [],
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 0,
+  "effects": [],
+  "target": "item",
+  "school": "transmutation",
+  "modes": [
+    "exploration"
+  ],
+  "range": 1,
+  "resolution": "automatic",
+  "save_ability": null,
+  "cantrip_scaling": false,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": "repair",
+  "world_parameters": {
+    "tool_amount": 1,
+    "equipment_dice": "1d4"
+  },
+  "concentration": false,
+  "pending_effects": [],
+  "tags": [
+    "repair"
+  ]
+}

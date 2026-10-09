@@ -15,6 +15,18 @@
   --color-7: #c8ccd4;
   --color-15: #f5f1e6;
 }
+.lockpick-panel {
+  margin: 12px 0;
+  padding: 14px;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+.lockpick-panel pre {
+  color: var(--accent);
+  font-size: 18px;
+  overflow-x: auto;
+}
 * {
   box-sizing: border-box;
 }
@@ -372,11 +384,23 @@ small {
 }
 .document-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   align-items: center;
   padding: 11px 20px;
   border-bottom: 1px solid var(--border);
   background: #18212c;
+}
+.game-class-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+.game-class-picker select {
+  width: 190px;
+  max-width: 100%;
+  font-size: inherit;
 }
 .document-tabs > span {
   flex: 1;
@@ -1398,4 +1422,145 @@ kbd {
   .map-editor .coordinate {
     display: none;
   }
+}
+
+.instance-inspector {
+  border-bottom: 1px solid var(--border, #303744);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+.instance-inspector .field-input {
+  min-width: 0;
+}
+.instance-inspector .field-input > input[type="checkbox"] {
+  width: auto;
+}
+.instance-inspector input,
+.instance-inspector select,
+.instance-inspector textarea {
+  max-width: 100%;
+}
+.instance-field,
+.instance-challenge {
+  border-top: 1px solid var(--border, #303744);
+  padding: 8px 0;
+}
+.instance-field summary,
+.instance-challenge > summary {
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.instance-field summary small {
+  color: #9bce81;
+}
+.instance-properties fieldset {
+  min-width: 0;
+  margin-inline: 0;
+}
+.storage-backdrop {
+  z-index: 120;
+}
+.storage-dialog {
+  width: min(1100px, 95vw);
+  max-height: 94vh;
+  overflow: auto;
+  background: #101b59;
+  color: #e4e9ff;
+  border: 2px solid #b5c5ef;
+  padding: 16px;
+  font-family: "DejaVu Sans Mono", Consolas, monospace;
+  box-shadow: 8px 8px 0 #0008;
+}
+.storage-dialog > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.storage-dialog h2 {
+  margin: 0;
+  color: #ffe18a;
+}
+.storage-dialog > p,
+.storage-dialog > footer {
+  font-size: 13px;
+}
+.storage-dialog button {
+  background: #182978;
+  color: #e4e9ff;
+  border-color: #657cbe;
+}
+.storage-panes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+.storage-pane {
+  min-width: 0;
+  border: 1px solid #778fd0;
+}
+.storage-pane.active {
+  border-color: #ffe18a;
+}
+.storage-heading {
+  width: 100%;
+  border-radius: 0;
+  font-weight: bold;
+}
+.storage-list {
+  height: min(40vh, 390px);
+  overflow: auto;
+  padding: 3px;
+}
+.storage-dialog .storage-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 0;
+  padding: 7px;
+}
+.storage-row span {
+  overflow-wrap: anywhere;
+}
+.storage-row small {
+  white-space: nowrap;
+  color: inherit;
+}
+.storage-dialog .storage-pane.active .storage-row.selected {
+  background: #ffe18a;
+  color: #11152b;
+}
+.storage-pane > footer {
+  padding: 8px;
+  border-top: 1px solid #778fd0;
+  font-size: 13px;
+}
+.storage-quantity {
+  border: 1px solid #ffe18a;
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.storage-quantity label {
+  flex: 1 1 220px;
+  white-space: nowrap;
+}
+.storage-quantity input {
+  display: block;
+  width: auto;
+  min-width: 100px;
+  flex: 1;
+  accent-color: #ffe18a;
+}
+.storage-quantity small {
+  width: 100%;
+}
+.storage-message {
+  min-height: 1.5em;
+  color: #ffe18a;
 }

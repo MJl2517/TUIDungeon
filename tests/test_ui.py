@@ -17,6 +17,35 @@ def created_controller(seed=42):
 
 
 class ControllerTests(unittest.TestCase):
+    def test_inspect_and_sneaking_shortcuts_are_scoped_to_exploration(self):
+        c = Controller(42, test_map=True)
+        state = c.engine.state
+        position, minutes = state.position, state.clock.elapsed_minutes
+        c.handle("z")
+        self.assertTrue(state.hero.sneaking)
+        self.assertIn("Скрытность", "\n".join(render(c, 80, 24)))
+        c.handle("e")
+        self.assertEqual(c.view, View.LOOK)
+        self.assertEqual(c.look_position, position)
+        c.handle("z")
+        self.assertTrue(state.hero.sneaking)
+        c.handle("enter")
+        self.assertEqual(c.view, View.INSPECT)
+        c.handle("backspace")
+        c.handle("backspace")
+        c.handle("z")
+        self.assertFalse(state.hero.sneaking)
+        self.assertEqual(
+            (state.position, state.clock.elapsed_minutes, state.turns),
+            (position, minutes, 0),
+        )
+        c.handle("f")
+        c.handle("e")
+        c.handle("z")
+        self.assertEqual(c.inventory.query, "ez")
+        self.assertFalse(state.hero.sneaking)
+        self.assertEqual(c.view, View.EXPLORE)
+
     def test_test_map_starts_exploration_with_fixed_hero_without_creation(self):
         controller = Controller(42, test_map=True)
         self.assertEqual(controller.view, View.EXPLORE)
@@ -255,6 +284,8 @@ class ControllerTests(unittest.TestCase):
             controller.handle(key)
         controller.handle("backspace")
         controller.handle("6")
+        for key in "1237":
+            controller.handle(key)
         controller.handle("1")
         self.assertEqual(controller.engine.state.hero.race.value, "Дварф")
         controller.handle("2")
@@ -290,7 +321,7 @@ class RenderingTests(unittest.TestCase):
     def test_all_creation_screens_fit_at_minimum_size(self):
         controller = Controller(42)
         controller.handle("enter")
-        for key in (None, "3", "2", "1", "2", "1", "2", "3", "4", "5", "6"):
+        for key in (None, "3", "2", "1", "2", "1", "2", "3", "4", "5", "6", "1", "2", "3", "7"):
             if key:
                 controller.handle(key)
             rows = render(controller, 80, 24)
@@ -324,7 +355,7 @@ class RenderingTests(unittest.TestCase):
     def test_elf_wizard_displays_both_magic_pools_without_truncation(self):
         controller = Controller(42)
         controller.handle("enter")
-        for key in ("3", "2", "1", "2", "1", "2", "3", "4", "5", "6", "1", "tab"):
+        for key in ("3", "2", "1", "2", "1", "2", "3", "4", "5", "6", "1", "2", "3", "7", "1", "tab"):
             controller.handle(key)
         text = "\n".join(render(controller, 80, 24))
         for label in (

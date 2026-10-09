@@ -20,10 +20,10 @@ def probe():
     store = PackStore()
     raw = synthetic_map(8).model_dump()
     raw["spawn"] = {"x": 1, "y": 1}
-    raw["tiles"][1][2] = "base:decor_dagger"
-    tile = store.get("tiles", "base:decor_dagger")
+    raw["tiles"][1][2] = "base:floor"
+    tile = store.get("equipment", "base:dagger")
     raw["equipment"] = [
-        {"id": "tile_equipment_2_1", "x": 2, "y": 1, "ref": tile.brush.item}
+        {"id": "tile_equipment_2_1", "x": 2, "y": 1, "ref": "base:dagger"}
     ]
     store.documents["maps", "base:benchmark"] = MapDocument.model_validate(raw)
     engine = SessionFactory(store).session("base:benchmark")

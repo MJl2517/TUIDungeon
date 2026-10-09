@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "toll_the_dead",
+  "name": "Погребальный звон",
+  "description": "Спасбросок Мудрости: при провале 1d8 некротического урона, либо 1d12 по раненой цели. Успех полностью избегает урона. Стоимость: 1 общий заряд заговора.",
+  "level": 0,
+  "effects": [
+    {
+      "kind": "damage",
+      "amount": 0,
+      "dice": "1d8",
+      "condition": "",
+      "duration": 1,
+      "damage_type": "necrotic",
+      "params": {}
+    }
+  ],
+  "target": "other",
+  "school": "necromancy",
+  "modes": [
+    "combat"
+  ],
+  "range": 6,
+  "resolution": "save",
+  "save_ability": "wisdom",
+  "cantrip_scaling": true,
+  "wounded_dice": "1d12",
+  "max_targets": 1,
+  "world_effect": null,
+  "world_parameters": {},
+  "concentration": false,
+  "pending_effects": [],
+  "tags": []
+}

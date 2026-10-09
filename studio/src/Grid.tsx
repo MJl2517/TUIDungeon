@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Cell, Point, color } from "./model";
 type Props = {
   cells: Cell[][];
@@ -28,13 +28,15 @@ export function Grid({
     ch = 20 * zoom,
     w = cells[0]?.length ?? 1,
     h = cells.length;
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = ref.current!,
       ctx = canvas.getContext("2d")!;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = w * cw * dpr;
-    canvas.height = h * ch * dpr;
-    ctx.scale(dpr, dpr);
+    const width = Math.round(w * cw * dpr),
+      height = Math.round(h * ch * dpr);
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = "#11151b";
     ctx.fillRect(0, 0, w * cw, h * ch);
     ctx.font = `${16 * zoom}px "DejaVu Sans Mono",Consolas,monospace`;

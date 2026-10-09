@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "blade_ward",
+  "name": "Защитный клинок",
+  "description": "Задел для будущего боя: сопротивление дробящему, колющему и рубящему урону до следующего боевого хода. Пока применение недоступно и заряд не тратится. Стоимость: 1 общий заряд заговора.",
+  "level": 0,
+  "effects": [],
+  "target": "self",
+  "school": "abjuration",
+  "modes": [
+    "combat"
+  ],
+  "range": 6,
+  "resolution": "automatic",
+  "save_ability": null,
+  "cantrip_scaling": false,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": null,
+  "world_parameters": {},
+  "concentration": false,
+  "pending_effects": [
+    "временное сопротивление физическому урону до следующего хода боя"
+  ],
+  "tags": []
+}

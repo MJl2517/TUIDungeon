@@ -1,7 +1,7 @@
 """Common abstract character and concrete player/monster implementations."""
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
@@ -19,6 +19,7 @@ from .equipment import Equipment
 from .rules import Ability, CharacterClass, Dice, Race
 from .stats import Stats
 from .collections import TrackedList
+from .damage import DamageProfile
 
 if TYPE_CHECKING:
     from ..content.catalog import ContentCatalog
@@ -47,6 +48,10 @@ class Character(ABC):
     innate_tags: frozenset[str] = frozenset()
     conditions: dict[str, int] = field(default_factory=dict)
     sneaking: bool = False
+    innate_damage_profile: DamageProfile = DamageProfile()
+    spellcasting_ability: Ability = Ability.INTELLIGENCE
+    cantrip_uses: int = 0
+    concentration_id: str | None = None
     instance_id: str = field(default_factory=lambda: str(uuid4()), compare=False)
 
     def __setattr__(self, name, value):
@@ -130,13 +135,15 @@ class Character(ABC):
         if spell is None:
             return False
         if spell.level == 0:
-            return True
+            return self.consume_cantrip()
         if self.spell_slots.get(spell.level, 0) < 1:
             return False
         self.spell_slots[spell.level] -= 1
         return True
 
     def consume_racial_spell(self) -> bool:
+        if self.racial_spell and self.racial_spell.level == 0:
+            return self.consume_cantrip()
         if self.racial_spell is None or self.racial_uses < 1:
             return False
         self.racial_uses -= 1
@@ -148,13 +155,71 @@ class Character(ABC):
         self.racial_uses = self.max_racial_uses
         self.conditions.clear()
         self.sneaking = False
+        self.cantrip_uses = self.max_cantrip_uses
+        self.concentration_id = None
 
-    def take_damage(self, amount: int) -> int:
-        if amount < 0:
-            raise ValueError("Урон должен быть неотрицательным")
-        actual = min(self.hp, amount)
+    @property
+    def max_cantrip_uses(self):
+        return (
+            self.stats.score(self.spellcasting_ability)
+            if any(s.level == 0 for s in self.known_spells)
+            else 0
+        )
+
+    @property
+    def proficiency_bonus(self):
+        return 2 + (max(1, getattr(self, "level", 1)) - 1) // 4
+
+    @property
+    def spell_attack_bonus(self):
+        return self.stats.modifier(self.spellcasting_ability) + self.proficiency_bonus
+
+    @property
+    def spell_save_dc(self):
+        return 8 + self.spell_attack_bonus
+
+    def consume_cantrip(self):
+        if self.cantrip_uses < 1:
+            return False
+        self.cantrip_uses -= 1
+        return True
+
+    def restore_cantrips_short(self):
+        before = self.cantrip_uses
+        self.cantrip_uses = min(
+            self.max_cantrip_uses,
+            before + max(0, self.stats.modifier(self.spellcasting_ability)),
+        )
+        return self.cantrip_uses - before
+
+    @property
+    def damage_profile(self) -> DamageProfile:
+        return self.innate_damage_profile.merge(
+            *(
+                item.definition.damage_profile
+                for item in self.inventory
+                if item.equipped and item.usable
+            )
+        )
+
+    def receive_damage(self, amount: int, damage_type=None):
+        result = self.damage_profile.resolve(amount, damage_type)
+        actual = min(self.hp, result.resolved_amount)
         self.hp -= actual
-        return actual
+        if self.hp == 0:
+            self.concentration_id = None
+        return replace(result, applied_amount=actual)
+
+    def check_concentration(self, damage, dice):
+        if not self.concentration_id or damage <= 0:
+            return None
+        check = dice.check(self.stats.score(Ability.CONSTITUTION), max(10, damage // 2))
+        if not check.success:
+            self.concentration_id = None
+        return check
+
+    def take_damage(self, amount: int, damage_type=None) -> int:
+        return self.receive_damage(amount, damage_type).applied_amount
 
     def heal(self, amount: int) -> int:
         if amount < 0:
@@ -287,6 +352,7 @@ class Hero(Character):
     catalog: "ContentCatalog" = field(repr=False, compare=False)
     level: int = 1
     background: BackgroundDefinition | None = None
+    test_profile: str | None = None
 
     @classmethod
     def create(
@@ -297,6 +363,7 @@ class Hero(Character):
         *,
         catalog: "ContentCatalog | None" = None,
         background: BackgroundDefinition | str | None = None,
+        cantrips: tuple[str, ...] | None = None,
     ) -> "Hero":
         from ..content.catalog import default_catalog
 
@@ -328,6 +395,17 @@ class Hero(Character):
         )
         racial_spell = catalog.spells[race.racial_spell] if race.racial_spell else None
         slots = dict(character_class.spell_slots)
+        selected = (
+            tuple(character_class.cantrip_choices[: character_class.cantrips_known])
+            if cantrips is None
+            else tuple(cantrips)
+        )
+        if (
+            len(selected) != character_class.cantrips_known
+            or len(set(selected)) != len(selected)
+            or any(s not in character_class.cantrip_choices for s in selected)
+        ):
+            raise ValueError("Выберите нужное количество различных заговоров класса")
         item_ids = character_class.starting_items + (
             background.starting_items if background else ()
         )
@@ -347,7 +425,8 @@ class Hero(Character):
                 Equipment.create(catalog.equipment[item_id]) for item_id in item_ids
             ],
             class_spells=tuple(
-                catalog.spells[spell_id] for spell_id in character_class.spells
+                catalog.spells[spell_id]
+                for spell_id in dict.fromkeys(character_class.spells + selected)
             ),
             racial_spell=racial_spell,
             max_spell_slots=slots.copy(),
@@ -355,7 +434,12 @@ class Hero(Character):
             max_racial_uses=race.racial_uses,
             racial_uses=race.racial_uses,
             innate_tags=background.tags if background else frozenset(),
+            innate_damage_profile=race.damage_profile.merge(
+                character_class.damage_profile
+            ),
+            spellcasting_ability=character_class.spellcasting_ability,
         )
+        hero.cantrip_uses = hero.max_cantrip_uses
         for item in hero.inventory:
             if item.definition.slot and not item.definition.light:
                 hero.equip(item)
@@ -372,17 +456,22 @@ class Hero(Character):
 @dataclass(kw_only=True)
 class Monster(Character):
     definition_ref: str | None = None
+    template: dict | None = field(default=None, repr=False, compare=False)
     definition: MonsterDefinition
     catalog: "ContentCatalog" = field(repr=False, compare=False)
 
     @classmethod
     def create(
-        cls, monster_id: str, *, catalog: "ContentCatalog | None" = None
+        cls,
+        monster_id: str,
+        *,
+        catalog: "ContentCatalog | None" = None,
+        definition: MonsterDefinition | None = None,
     ) -> "Monster":
         from ..content.catalog import default_catalog
 
         catalog = catalog or default_catalog()
-        definition = catalog.monsters[monster_id]
+        definition = definition or catalog.monsters[monster_id]
         slots = dict(definition.spell_slots)
         monster = cls(
             id=definition.id,
@@ -399,6 +488,8 @@ class Monster(Character):
             speed=definition.speed,
             initiative_bonus=definition.initiative_bonus,
             innate_tags=definition.tags,
+            innate_damage_profile=definition.damage_profile,
+            spellcasting_ability=definition.spellcasting_ability,
             inventory=[
                 Equipment.create(catalog.equipment[item_id])
                 for item_id in definition.inventory
@@ -409,6 +500,7 @@ class Monster(Character):
             max_spell_slots=slots.copy(),
             spell_slots=slots.copy(),
         )
+        monster.cantrip_uses = monster.max_cantrip_uses
         for item in monster.inventory:
             if item.definition.slot and not item.definition.light:
                 monster.equip(item)

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "light",
+  "name": "Свет",
+  "description": "Предмет в инвентаре получает временный тег glowing и свойство «Свечение» на 10 ходов: яркий радиус 3, общий 6 клеток. Рука и топливо не нужны. Тег, оставшееся время и радиусы видны при осмотре предмета. Свет следует за предметом; новый Свет заменяет предыдущий. Стоимость: 1 общий заряд заговора.",
+  "variants": [],
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 0,
+  "effects": [],
+  "target": "item",
+  "school": "evocation",
+  "modes": [
+    "exploration"
+  ],
+  "range": 1,
+  "resolution": "automatic",
+  "save_ability": null,
+  "cantrip_scaling": false,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": "light",
+  "world_parameters": {
+    "duration": 10,
+    "radius": 6,
+    "bright_radius": 3
+  },
+  "concentration": false,
+  "pending_effects": [],
+  "tags": [
+    "light"
+  ]
+}

@@ -18,9 +18,15 @@
       "dice": "1d4",
       "condition": "",
       "duration": 1,
-      "params": {}
+      "params": {},
+      "damage_type": "necrotic"
     }
   ],
   "repeatable": true,
-  "trigger": "enter"
+  "trigger": "enter",
+  "group": "Магические зоны",
+  "tags": [
+    "magic",
+    "transparent"
+  ]
 }

@@ -315,7 +315,8 @@ class NavigationTests(unittest.TestCase):
         c.handle("]")
         c.handle("]")
         c.handle("pagedown")
-        c.handle("4")  # Racial spell is index 9.
+        c.handle("pagedown")
+        c.handle("1")  # Racial spell follows 5 class spells and 7 test spells.
         self.assertEqual(hero.racial_uses, 0)
         self.assertEqual(hero.spell_slots[1], 1)
         c.handle("3")

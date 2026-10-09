@@ -2,19 +2,32 @@
   "schema_version": 1,
   "id": "torch",
   "name": "Факел",
-  "description": "Горит 60 игровых минут. Занимает одну руку. Снятие гасит огонь, оставшееся время сохраняется. Сгоревший факел исчезает и освобождает руку.",
-  "weight": 0.5,
+  "description": "Горит 60 игровых минут. Занимает одну руку. Снятие гасит огонь, оставшееся время сохраняется. Сгоревший факел исчезает и освобождает руку. Горящим факелом в руке можно поджечь одну из 8 соседних клеток (действие 5 в меню предмета).",
+  "glyph": "!",
+  "foreground": 11,
+  "background": null,
+  "art": null,
   "category": "tools",
-  "slot": "hand",
-  "hands": 1,
+  "weight": 0.5,
   "tags": [
-    "light_source"
+    "light_source",
+    "поджог",
+    "flammable",
+    "wooden"
   ],
+  "durability": null,
+  "slot": "hand",
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 1,
   "light": {
     "radius": 6,
     "bright_radius": 3,
-    "burn_minutes": 60
+    "burn_minutes": 60,
+    "fuel_tag": null
   },
-  "glyph": "!",
-  "foreground": 11
+  "group": "Снаряжение"
 }

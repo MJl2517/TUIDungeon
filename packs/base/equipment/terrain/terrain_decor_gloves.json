@@ -10,7 +10,10 @@
   "category": "armor",
   "weight": 3.0,
   "tags": [
-    "decor_gloves"
+    "armor_decor",
+    "decor_gloves",
+    "flammable",
+    "transparent"
   ],
   "durability": null,
   "slot": "hands",
@@ -20,5 +23,6 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 0,
-  "light": null
+  "light": null,
+  "group": "Декорации: снаряжение"
 }

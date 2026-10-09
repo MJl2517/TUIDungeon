@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "acid_splash",
+  "name": "Кислотная сфера",
+  "description": "Спасбросок Ловкости каждой цели: при провале 1d6 кислотой. До двух соседних целей; размещение боевых целей подключит будущий JRPG-режим. Стоимость: 1 общий заряд заговора.",
+  "variants": [],
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 0,
+  "effects": [
+    {
+      "kind": "damage",
+      "amount": 0,
+      "dice": "1d6",
+      "condition": "",
+      "duration": 1,
+      "damage_type": "acid",
+      "params": {}
+    }
+  ],
+  "target": "other",
+  "school": "evocation",
+  "modes": [
+    "combat"
+  ],
+  "range": 6,
+  "resolution": "save",
+  "save_ability": "dexterity",
+  "cantrip_scaling": true,
+  "wounded_dice": null,
+  "max_targets": 2,
+  "world_effect": null,
+  "world_parameters": {},
+  "concentration": false,
+  "pending_effects": [],
+  "tags": [
+    "aoe"
+  ]
+}

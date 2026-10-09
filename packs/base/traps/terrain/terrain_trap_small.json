@@ -22,5 +22,10 @@
     }
   ],
   "repeatable": false,
-  "trigger": "enter"
+  "trigger": "enter",
+  "group": "Ловушки: рисунки",
+  "tags": [
+    "transparent",
+    "trap_decor"
+  ]
 }

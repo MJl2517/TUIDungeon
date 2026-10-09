@@ -10,7 +10,9 @@
   "category": "armor",
   "weight": 3.0,
   "tags": [
-    "decor_helmet"
+    "armor_decor",
+    "decor_helmet",
+    "transparent"
   ],
   "durability": null,
   "slot": "head",
@@ -20,5 +22,6 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 0,
-  "light": null
+  "light": null,
+  "group": "Декорации: снаряжение"
 }

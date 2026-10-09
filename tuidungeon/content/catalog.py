@@ -131,7 +131,9 @@ def expression(value) -> DiceExpression | None:
 
 def effect(value, kinds) -> EffectSpec:
     fields(
-        value, {"kind", "amount", "dice", "condition", "duration", "params"}, {"kind"}
+        value,
+        {"kind", "amount", "dice", "condition", "duration", "params", "damage_type"},
+        {"kind"},
     )
     kind = identifier(value["kind"], "effect.kind")
     if kind not in kinds:
@@ -144,6 +146,11 @@ def effect(value, kinds) -> EffectSpec:
     dice = expression(value.get("dice"))
     if dice is not None and kind not in {"damage", "heal", "gold", "experience"}:
         raise ContentError(f"Эффект {kind} не поддерживает dice")
+    from ..domain.damage import validate_damage
+
+    validate_damage(0, value.get("damage_type"))
+    if kind != "damage" and value.get("damage_type") is not None:
+        raise ContentError("damage_type допустимо только для damage")
     return EffectSpec(
         kind,
         integer(value.get("amount", 0), "amount", 0),
@@ -151,6 +158,7 @@ def effect(value, kinds) -> EffectSpec:
         condition,
         integer(value.get("duration", 1), "duration", 1),
         value.get("params", {}),
+        value.get("damage_type"),
     )
 
 
@@ -164,6 +172,7 @@ def action(value, action_kinds, effect_kinds) -> ActionDefinition:
             "ability",
             "bonus",
             "damage",
+            "damage_type",
             "effects",
             "difficulty",
             "description",
@@ -171,6 +180,9 @@ def action(value, action_kinds, effect_kinds) -> ActionDefinition:
         {"id", "name", "kind"},
     )
     kind = identifier(value["kind"], "action.kind")
+    from ..domain.damage import validate_damage
+
+    validate_damage(0, value.get("damage_type", "bludgeoning"), allow_untyped=False)
     if kind not in action_kinds:
         raise ContentError(f"Неизвестная механика действия: {kind}")
     return ActionDefinition(
@@ -186,6 +198,7 @@ def action(value, action_kinds, effect_kinds) -> ActionDefinition:
         ),
         integer(value.get("difficulty", 10), "difficulty", 0),
         text(value.get("description", ""), "description", empty=True, multiline=True),
+        value.get("damage_type", "bludgeoning"),
     )
 
 
@@ -265,6 +278,17 @@ class ContentCatalog:
         }[category]
         fields(value, definition_type.__dataclass_fields__, {"id", "name"})
         data = dict(value)
+        if category in ("classes", "monsters"):
+            data["spellcasting_ability"] = ability(
+                data.get("spellcasting_ability", "intelligence")
+            )
+        if "damage_profile" in data:
+            from .schemas import DamageDefenses
+            from ..domain.damage import DamageProfile
+
+            data["damage_profile"] = DamageProfile(
+                **DamageDefenses.model_validate(data["damage_profile"]).model_dump()
+            )
         data["id"] = identifier(data["id"])
         data["name"] = text(data["name"], "name")
         if "description" in data:
@@ -275,7 +299,10 @@ class ContentCatalog:
             data["order"] = integer(data["order"], "order", 0)
         for key in ("tags",):
             if key in data:
-                data[key] = frozenset(names(data[key], key))
+                data[key] = frozenset(
+                    entry if entry == "поджог" else identifier(entry, key)
+                    for entry in sequence(data[key], key)
+                )
         for key in ("starting_items", "inventory", "spells", "actions", "classes"):
             if key in data:
                 data[key] = names(data[key], key)
@@ -288,6 +315,11 @@ class ContentCatalog:
         if "spell_slots" in data:
             data["spell_slots"] = slots(data["spell_slots"])
         if category == "equipment":
+            from ..domain.damage import validate_damage
+
+            validate_damage(
+                0, data.get("damage_type", "bludgeoning"), allow_untyped=False
+            )
             data["hands"] = integer(data.get("hands", 0), "hands", 0, 2)
             if data.get("light") is not None:
                 from .schemas import LightSource
@@ -329,12 +361,29 @@ class ContentCatalog:
             data["check_aids"] = tuple(aids)
         elif category == "spells":
             data["level"] = integer(data.get("level"), "level", 0, 9)
-            if data.get("target", "self") not in ("self", "other", "any"):
+            if data.get("target", "self") not in (
+                "self",
+                "other",
+                "any",
+                "item",
+                "cell",
+            ):
                 raise ContentError("target: нужно self, other или any")
             data["effects"] = tuple(
                 effect(entry, effect_kinds)
                 for entry in sequence(data.get("effects", []), "effects")
             )
+            from .schemas import SpellDocument
+
+            # The legacy catalog also enforces the common spell contract.
+            check = {k: v for k, v in value.items() if k != "id"}
+            SpellDocument.model_validate({"id": "validated_spell", **check})
+            data["modes"] = tuple(data.get("modes", ("combat", "exploration")))
+            data["save_ability"] = (
+                ability(data["save_ability"]) if data.get("save_ability") else None
+            )
+            data["wounded_dice"] = expression(data.get("wounded_dice"))
+            data["pending_effects"] = tuple(data.get("pending_effects", ()))
         elif category == "races":
             for key in ("hp_per_level", "racial_uses", "speed"):
                 if key in data:
@@ -346,6 +395,16 @@ class ContentCatalog:
                     "racial_spell и положительное racial_uses должны задаваться вместе"
                 )
         elif category == "classes":
+            data["cantrip_choices"] = names(
+                data.get("cantrip_choices", []), "cantrip_choices"
+            )
+            data["cantrips_known"] = integer(
+                data.get("cantrips_known", 0), "cantrips_known", 0, 20
+            )
+            if len(set(data["cantrip_choices"])) != len(
+                data["cantrip_choices"]
+            ) or data["cantrips_known"] > len(data["cantrip_choices"]):
+                raise ContentError("Неверный выбор заговоров")
             data["hit_points"] = integer(data.get("hit_points"), "hit_points", 1)
             data["carry_per_strength"] = number(
                 data.get("carry_per_strength", 5), "carry_per_strength", 0.01
@@ -446,6 +505,14 @@ class ContentCatalog:
                     require("equipment", item_id, category, definition.id, "inventory")
                 for spell_id in getattr(definition, "spells", ()):
                     require("spells", spell_id, category, definition.id, "spells")
+                for spell_id in getattr(definition, "cantrip_choices", ()):
+                    require(
+                        "spells", spell_id, category, definition.id, "cantrip_choices"
+                    )
+                    if self.spells[spell_id].level != 0:
+                        raise ContentError(
+                            "В cantrip_choices допустимы только заговоры"
+                        )
                 for action_id in getattr(definition, "actions", ()):
                     require("actions", action_id, category, definition.id, "actions")
                 for class_id in getattr(definition, "classes", ()):
@@ -469,4 +536,8 @@ class ContentCatalog:
 
 @lru_cache(maxsize=1)
 def default_catalog() -> ContentCatalog:
-    return ContentCatalog.load()
+    # All normal entry points share the same pack definitions as Studio.
+    # DEFAULT_ROOT is retained only for explicit legacy imports and migration.
+    from .packs import PackStore
+
+    return PackStore().runtime_catalog()

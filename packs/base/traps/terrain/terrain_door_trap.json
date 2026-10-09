@@ -22,5 +22,12 @@
     }
   ],
   "repeatable": false,
-  "trigger": "enter"
+  "trigger": "enter",
+  "group": "Ловушки: рисунки",
+  "tags": [
+    "flammable",
+    "transparent",
+    "trap_decor",
+    "wooden"
+  ]
 }

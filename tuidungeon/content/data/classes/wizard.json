@@ -26,5 +26,26 @@
   "spell_slots": {
     "1": 2
   },
-  "description": "HP: 6 + мод. телосложения; две ячейки"
+  "description": "HP: 6 + мод. телосложения; две ячейки",
+  "cantrip_choices": [
+    "light",
+    "fire_bolt",
+    "mending",
+    "toll_the_dead",
+    "acid_splash",
+    "ray_of_frost",
+    "shocking_grasp",
+    "mage_hand",
+    "minor_illusion",
+    "prestidigitation",
+    "poison_spray",
+    "chill_touch",
+    "thunderclap",
+    "blade_ward",
+    "dancing_lights",
+    "elementalism",
+    "true_strike"
+  ],
+  "cantrips_known": 3,
+  "spellcasting_ability": "intelligence"
 }

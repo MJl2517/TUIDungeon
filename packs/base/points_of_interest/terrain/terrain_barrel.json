@@ -3,9 +3,24 @@
   "id": "terrain_barrel",
   "name": "Бочка",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "B",
   "foreground": 136,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_barrel"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "flammable",
+    "storage",
+    "transparent",
+    "wooden"
+  ],
+  "challenge": "base:terrain_barrel",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

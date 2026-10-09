@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "prestidigitation",
+  "name": "Фокусы",
+  "description": "Выберите эффект: поджечь деревянную дверь/масло, погасить горящую дверь, оставить метку на 5 ходов или создать звук. AI на звук пока не реагирует. Стоимость: 1 общий заряд заговора.",
+  "variants": [],
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 0,
+  "effects": [],
+  "target": "cell",
+  "school": "transmutation",
+  "modes": [
+    "exploration"
+  ],
+  "range": 6,
+  "resolution": "automatic",
+  "save_ability": null,
+  "cantrip_scaling": false,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": "tricks",
+  "world_parameters": {
+    "duration": 5
+  },
+  "concentration": false,
+  "pending_effects": [],
+  "tags": [
+    "ignite",
+    "utility"
+  ]
+}

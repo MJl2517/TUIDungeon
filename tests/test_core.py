@@ -79,7 +79,8 @@ class HeroTests(unittest.TestCase):
 
     def test_elf_wizard_uses_independent_pools_without_duplicate_knowledge(self):
         hero = Hero.create(Race.ELF, CharacterClass.WIZARD, Stats((10,) * 6))
-        self.assertEqual(hero.known_spells, (MAGIC_MISSILE, DETECT_MAGIC))
+        self.assertEqual(tuple(s for s in hero.known_spells if s.level > 0), (MAGIC_MISSILE, DETECT_MAGIC))
+        self.assertEqual(len([s for s in hero.known_spells if s.level == 0]), 3)
         self.assertTrue(hero.consume_racial_spell())
         self.assertFalse(hero.consume_racial_spell())
         self.assertEqual(hero.spell_slots, {1: 2})
@@ -121,6 +122,9 @@ class CreationTests(unittest.TestCase):
         creation = self.prepare()
         order = (6, 1, 4, 2, 5, 3)
         for number in order:
+            creation.select(number)
+        self.assertEqual(creation.step, CreationStep.CANTRIPS)
+        for number in (1, 2, 3, 7):
             creation.select(number)
         self.assertEqual(creation.step, CreationStep.CONFIRM)
         hero = creation.select(1)
@@ -171,6 +175,8 @@ class CreationTests(unittest.TestCase):
         creation = self.prepare()
         old_rolls = creation.rolls
         for number in range(1, 7):
+            creation.select(number)
+        for number in (1, 2, 3, 7):
             creation.select(number)
         creation.select(2)
         self.assertEqual(creation.step, CreationStep.ROLL)

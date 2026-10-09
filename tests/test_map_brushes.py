@@ -9,6 +9,7 @@ import unittest
 from pydantic import ValidationError
 from tuidungeon.content.packs import DEFAULT_PACKS, ContentError, PackStore
 from tuidungeon.content.schemas import TileDocument
+from tuidungeon.content.migrations import compatibility
 from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.tooling.server import template
 
@@ -44,7 +45,7 @@ class BrushContractTests(unittest.TestCase):
         store = PackStore()
         self.assertTrue(
             any(
-                u["category"] == "tiles"
+                u["category"] == "maps"
                 for u in store.usages("traps", "base:terrain_pressure_plate")
             )
         )
@@ -89,7 +90,7 @@ class FunctionalBrushTests(unittest.TestCase):
             (5, "portal"),
             (7, "torch_wall"),
         ]:
-            tile = self.store.get("tiles", "base:" + ref)
+            tile = TileDocument.model_validate(compatibility()["tiles"]["base:" + ref]["legacy"])
             raw["tiles"][1][x] = "base:" + ref
             raw["walkability"][1][x] = tile.walkable
             raw["blocks_sight"][1][x] = tile.blocks_sight
@@ -160,7 +161,7 @@ class FunctionalBrushTests(unittest.TestCase):
         self.assertEqual(session.engine.state.level.definition.lights[0].radius, 6)
         self.assertEqual(
             PackStore(self.root).get("maps", "base:brush_test").equipment[0].ref,
-            "base:terrain_decor_dagger",
+            "base:dagger",
         )
 
     def test_hidden_brush_trap_is_not_disclosed_by_the_underlying_tile_name(self):
@@ -176,7 +177,7 @@ class FunctionalBrushTests(unittest.TestCase):
             self.store.versions[("maps", "base:brush_test")],
         )
         session = TestSession(self.store, self.options)
-        name = self.store.get("tiles", "base:spikes_hidden").name
+        name = self.store.get("traps", "base:terrain_spikes_hidden").name
         self.assertNotIn(name, " ".join(session.engine.inspect_cell(Position(2, 1))))
         session.command("d")
         self.assertIn(name, " ".join(session.engine.inspect_cell(Position(2, 1))))

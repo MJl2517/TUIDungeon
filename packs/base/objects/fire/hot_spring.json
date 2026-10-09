@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "hot_spring",
+  "name": "Горячий источник",
+  "description": "Горячий источник. Источник света: радиус 6 клеток.",
+  "glyph": "♨",
+  "foreground": 9,
+  "background": null,
+  "art": null,
+  "group": "Лава и огонь",
+  "tags": [
+    "fire",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": {
+      "radius": 6,
+      "bright_radius": 3
+    },
+    "transition": false,
+    "door": null
+  }
+}

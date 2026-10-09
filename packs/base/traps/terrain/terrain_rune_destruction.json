@@ -22,5 +22,10 @@
     }
   ],
   "repeatable": true,
-  "trigger": "enter"
+  "trigger": "enter",
+  "group": "Руны",
+  "tags": [
+    "runes",
+    "transparent"
+  ]
 }

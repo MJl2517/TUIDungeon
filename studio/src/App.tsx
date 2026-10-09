@@ -7,7 +7,8 @@ import {
   clone,
   compose,
   color,
-  matchesEntry,
+  assetVersionsMatch,
+  libraryResults,
 } from "./model";
 import { FieldForm } from "./Form";
 import { ArtEditor } from "./ArtEditor";
@@ -16,6 +17,7 @@ import { Playtest } from "./Playtest";
 import { Grid } from "./Grid";
 import { Home } from "./Home";
 import { sections } from "./catalog";
+import { effectText } from "./damage";
 const icons = Object.fromEntries(
   Object.entries(sections).map(([key, value]) => [key, value.icon]),
 );
@@ -52,6 +54,7 @@ export default function App() {
     [sourceText, setSourceText] = useState(""),
     [saving, setSaving] = useState(false),
     [launchingGame, setLaunchingGame] = useState(false),
+    [gameClass, setGameClass] = useState("base:warrior"),
     [sandbox, setSandbox] = useState<Doc | null>(null),
     [action, setAction] = useState(""),
     [seed, setSeed] = useState(42);
@@ -68,6 +71,10 @@ export default function App() {
   const history = useRef<History<Doc> | null>(null);
   const draft = history.current?.present;
   const entries: Entry[] = library?.documents ?? [];
+  const gameClasses = entries.filter((entry) => entry.category === "classes");
+  const selectedGameClass = gameClasses.some((entry) => entry.ref === gameClass)
+    ? gameClass
+    : (gameClasses[0]?.ref ?? "");
   const dirty = active && draft && JSON.stringify(draft) !== active.baseline;
   const notify = (s: string) => {
     setMessage(s);
@@ -75,39 +82,25 @@ export default function App() {
   };
   async function refresh() {
     const next = await api("/library");
-    setLibrary(next);
-    const assetEntries = next.documents.filter((e: Entry) =>
-      [
-        "art",
-        "tiles",
-        "traps",
-        "points_of_interest",
-        "monsters",
-        "equipment",
-        "actions",
-        "challenges",
-      ].includes(e.category),
+    setLibrary((previous) =>
+      JSON.stringify(previous) === JSON.stringify(next) ? previous : next,
     );
-    if (
-      assetEntries.length !== Object.keys(assetVersions.current).length ||
-      assetEntries.some(
-        (e: Entry) =>
-          assetVersions.current[e.category + "/" + e.ref] !== e.version,
-      )
-    )
+    if (!assetVersionsMatch(next.documents, assetVersions.current))
       await loadAssets();
     return next;
   }
   async function loadAssets() {
     const sequence = ++assetSequence.current;
-    setLoadingAssets(true);
+    const initial = !Object.keys(assetVersions.current).length;
+    if (initial) setLoadingAssets(true);
     try {
       const result = await api("/assets");
       if (sequence !== assetSequence.current) return;
       setAssets(result.documents);
       assetVersions.current = result.versions;
     } finally {
-      if (sequence === assetSequence.current) setLoadingAssets(false);
+      if (initial && sequence === assetSequence.current)
+        setLoadingAssets(false);
     }
   }
   async function open(c: string, ref: string) {
@@ -224,8 +217,7 @@ export default function App() {
             : current,
         );
       }
-      const lib = await refresh();
-      await loadAssets();
+      await refresh();
       notify(
         "Сохранено в packs/" +
           active.ref.replace(":", "/" + active.category + "/") +
@@ -243,12 +235,16 @@ export default function App() {
       active.category !== "maps" ||
       !active.version ||
       dirty ||
-      launchingGame
+      launchingGame ||
+      !selectedGameClass
     )
       return;
     setLaunchingGame(true);
     try {
-      await api("/game", { map_ref: active.ref });
+      await api("/game", {
+        map_ref: active.ref,
+        character_class: selectedGameClass,
+      });
       notify("Карта запущена в игровом окне: " + active.ref);
     } catch (e) {
       setError(String(e));
@@ -347,12 +343,7 @@ export default function App() {
     active?.version &&
     entries.find((e) => e.category === active.category && e.ref === active.ref)
       ?.version !== active.version;
-  const filtered = entries.filter(
-    (e) =>
-      e.category === category &&
-      (pack === "all" || e.ref.startsWith(pack + ":")) &&
-      matchesEntry(e, query),
-  );
+  const filtered = libraryResults(entries, query, category, pack, assets);
   const art = draft?.art ? assets["art/" + draft.art] : null;
   const availableActions =
     draft && active?.category === "monsters"
@@ -516,10 +507,17 @@ export default function App() {
             </select>
             <input
               className="search"
+              aria-label="Поиск по всей библиотеке"
               placeholder="Имя, ID, символ, группа или тег"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
+            {query.trim() && (
+              <p className="hint">
+                Поиск по всем категориям и пакетам; фильтры временно не
+                применяются.
+              </p>
+            )}
             <div className="library-list">
               {filtered.map((e) => (
                 <button
@@ -529,7 +527,7 @@ export default function App() {
                       ? "selected"
                       : "")
                   }
-                  key={e.ref}
+                  key={e.category + "/" + e.ref}
                   onClick={() => void open(e.category, e.ref)}
                 >
                   <span className="entry-glyph">
@@ -537,7 +535,9 @@ export default function App() {
                   </span>
                   <span>
                     <strong>{e.name}</strong>
-                    <small>{e.ref}</small>
+                    <small>
+                      {e.ref} · {sections[e.category]?.name ?? e.category}
+                    </small>
                   </span>
                 </button>
               ))}
@@ -665,10 +665,30 @@ export default function App() {
                       >
                         ▶ Тестировать карту
                       </button>
+                      <label className="game-class-picker">
+                        Класс
+                        <select
+                          aria-label="Класс для запуска игры"
+                          value={selectedGameClass}
+                          onChange={(e) => setGameClass(e.target.value)}
+                          disabled={launchingGame || !gameClasses.length}
+                          title="Волшебник знает все заклинания и заговоры подключённых пакетов"
+                        >
+                          {gameClasses.map((entry) => (
+                            <option key={entry.ref} value={entry.ref}>
+                              {entry.name} ({entry.ref})
+                            </option>
+                          ))}
+                        </select>
+                      </label>
                       <button
                         className="test-button"
                         disabled={
-                          !active.version || !!dirty || saving || launchingGame
+                          !active.version ||
+                          !!dirty ||
+                          saving ||
+                          launchingGame ||
+                          !selectedGameClass
                         }
                         title={
                           dirty
@@ -723,6 +743,8 @@ export default function App() {
                     onChange={change}
                     entries={entries}
                     assets={assets}
+                    schemas={meta.schemas}
+                    mechanics={meta.mechanics}
                     warnings={active.warnings}
                     notify={notify}
                     shortcutsEnabled={
@@ -893,9 +915,7 @@ export default function App() {
                                   .join(", ") || "нет"}
                               </p>
                               {sandbox.effects.map((e: Doc, i: number) => (
-                                <p key={i}>
-                                  {e.kind}: {e.condition || e.amount}
-                                </p>
+                                <p key={i}>{effectText(e)}</p>
                               ))}
                             </div>
                           )}

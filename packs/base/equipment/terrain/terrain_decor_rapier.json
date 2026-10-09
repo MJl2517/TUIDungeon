@@ -10,10 +10,12 @@
   "category": "weapons",
   "weight": 2.0,
   "tags": [
+    "decor_rapier",
+    "transparent",
     "weapon",
-    "decor_rapier"
+    "weapon_decor"
   ],
-  "durability": null,
+  "durability": 30,
   "slot": "weapon",
   "properties": [],
   "check_aids": [],
@@ -21,5 +23,7 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 1,
-  "light": null
+  "light": null,
+  "group": "Декорации: оружие",
+  "damage_type": "piercing"
 }

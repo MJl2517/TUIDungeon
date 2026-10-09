@@ -7,5 +7,10 @@
   "foreground": 229,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_sacrificial_bowl"
+  "tags": [
+    "shrines",
+    "transparent"
+  ],
+  "challenge": "base:terrain_sacrificial_bowl",
+  "group": "Алтари и святыни"
 }

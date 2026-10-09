@@ -20,6 +20,7 @@ from tuidungeon.presentation.menus import ActionMenu
 from tuidungeon.world.maps import Position
 from tuidungeon.presentation.window import (
     draw,
+    draw_map_hint,
     render_map,
     map_area,
     map_zoom,
@@ -33,6 +34,52 @@ from tuidungeon.__main__ import main
 
 
 class WindowTests(unittest.TestCase):
+    def test_sneaking_shortcut_recolors_cached_hero_without_spending_a_turn(self):
+        store = fixture_store()
+        c = Controller(
+            42,
+            store=store,
+            catalog=store.runtime_catalog(),
+            map_ref="base:crypt",
+            test_map=True,
+        )
+        p = c.engine.state.position
+        before = c.engine.render_cells((p.x, p.y, 1, 1))
+        self.assertEqual(before[0][0].foreground, 15)
+        event = events.KeyDown(
+            sym=ord("я"), scancode=events.Scancode.Z, mod=events.Modifier.NONE
+        )
+        handle_event(c, event)
+        after = c.engine.render_cells((p.x, p.y, 1, 1))
+        self.assertEqual(after[0][0].foreground, 244)
+        console, _ = render_map(c, 100, 28, 36)
+        self.assertEqual(
+            tuple(console.fg[console.height // 2, console.width // 2]), PALETTE[244]
+        )
+        handle_event(c, event)
+        self.assertEqual(c.engine.render_cells((p.x, p.y, 1, 1))[0][0].foreground, 15)
+        self.assertEqual(c.engine.state.turns, 0)
+
+    def test_zoom_hint_replaces_old_text_and_stays_complete_at_minimum_width(self):
+        c = Controller(42, test_map=True)
+        for width in (80, 100, 140):
+            for view in (View.EXPLORE, View.LOOK, View.THROW):
+                c.view = view
+                console = tcod.console.Console(width, 28)
+                area = map_area(width, 28)
+                console.ch[area.y + area.height, area.x : area.x + area.width] = ord(
+                    "ь"
+                )
+                draw_map_hint(console, c)
+                text = "".join(
+                    map(
+                        chr,
+                        console.ch[area.y + area.height, area.x : area.x + area.width],
+                    )
+                ).rstrip()
+                self.assertTrue(text.endswith("+/-: масштаб"), text)
+                self.assertNotIn("масштабь", text)
+
     def test_fonts_and_real_map_lighting_reach_rgb_cells(self):
         store = fixture_store()
         font = load_tileset()
@@ -251,6 +298,8 @@ class WindowTests(unittest.TestCase):
         c.handle("escape")
         state.position = Position(6, 3)
         c.open_interaction()
+        self.assertEqual(c.view, View.STORAGE)
+        c.handle("f4")
         self.assertEqual(c.view, View.INTERACTION)
         from dataclasses import replace
 

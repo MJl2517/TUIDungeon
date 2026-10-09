@@ -9,7 +9,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from .engine import Engine
-from .factories import SessionFactory
+from .factories import SessionFactory, prepare_test_wizard
 from ..content.catalog import default_catalog
 from ..domain.actors import Hero, Monster
 from ..domain.challenges import TextChallenge
@@ -18,6 +18,16 @@ from ..domain.stats import Stats
 from ..world.clock import GameClock
 from ..world.maps import DungeonMap, Position
 from ..world.state import GameState, MonsterPlacement, ItemPlacement
+from ..domain.doors import Door, LockpickAttempt, Material, MATERIALS
+from ..content.compiler import compile_definition
+from ..content.schemas import (
+    EquipmentDocument,
+    MonsterDocument,
+    StorageSpec,
+    DamageDefenses,
+)
+from ..domain.damage import DamageProfile
+from ..content.migrations import migrate_map, equipment_alias, legacy_item_template
 
 
 DEFAULT_SAVE = Path(__file__).resolve().parents[2] / "saves" / "quicksave.json"
@@ -28,6 +38,7 @@ class Record(BaseModel):
 
 
 class ItemRecord(Record):
+    template: dict | None = None
     definition: str
     instance_id: str
     durability: int | None = Field(default=None, ge=0)
@@ -51,9 +62,14 @@ class ActorRecord(Record):
     conditions: dict[str, int]
     sneaking: bool
     inventory: list[ItemRecord]
+    damage_profile: DamageDefenses | None = None
+    cantrips: list[str] | None = None
+    cantrip_uses: int | None = Field(default=None, ge=0)
+    concentration_id: str | None = None
 
 
 class MonsterRecord(Record):
+    template: dict | None = None
     definition: str
     position: tuple[int, int]
     actor: ActorRecord
@@ -66,7 +82,41 @@ class GroundItemRecord(Record):
     item: ItemRecord
 
 
+class DoorRecord(Record):
+    instance_id: str
+    material: Material
+    opened: bool
+    locked: bool
+    max_hp: int = Field(ge=1)
+    hp: int = Field(ge=0)
+    bent: bool = False
+    burning: bool = False
+    corroding: bool = False
+    burn_turns: int = Field(default=0, ge=0)
+
+
+class LockpickRecord(Record):
+    door_id: str
+    progress: int = Field(ge=0, le=9)
+    total: Literal[10] = 10
+
+
+class OilRecord(Record):
+    position: tuple[int, int]
+    turns: int = Field(ge=1, le=5)
+
+
+class ContainerRecord(Record):
+    instance_id: str
+    items: list[ItemRecord]
+    personal: bool
+    capacity: float = Field(gt=0, le=1000000, allow_inf_nan=False)
+
+
 class LevelRecord(Record):
+    containers: dict[str, ContainerRecord] | None = None
+    oil: list[OilRecord] = Field(default_factory=list)
+    doors: dict[str, DoorRecord] | None = None
     ref: str | None
     # Full authored definition detects maps edited since the save.
     definition: dict | None
@@ -80,7 +130,22 @@ class LevelRecord(Record):
     ground_items: list[GroundItemRecord] | None = None
 
 
+class MagicRecord(Record):
+    spell_id: str
+    instance_id: str
+    kind: str
+    turns: int = Field(ge=1, le=1001)
+    map_ref: str | None = None
+    position: tuple[int, int] | None = None
+    item_id: str | None = None
+    concentration: bool = False
+    params: dict = Field(default_factory=dict)
+
+
 class SaveRecord(Record):
+    test_profile: Literal["wizard"] | None = None
+    magic_effects: list[MagicRecord] = Field(default_factory=list)
+    lockpick: LockpickRecord | None = None
     version: Literal[1] = 1
     race: str
     character_class: str
@@ -96,6 +161,7 @@ class SaveRecord(Record):
 
 def item_record(item):
     return ItemRecord(
+        template=item.template,
         definition=item.id,
         instance_id=item.instance_id,
         durability=item.durability,
@@ -121,13 +187,54 @@ def actor_record(actor):
         conditions=actor.conditions,
         sneaking=actor.sneaking,
         inventory=[item_record(i) for i in actor.inventory],
+        cantrips=[s.id for s in actor.class_spells if s.level == 0],
+        cantrip_uses=actor.cantrip_uses,
+        concentration_id=actor.concentration_id,
+        damage_profile=DamageDefenses(
+            **{
+                name: sorted(getattr(actor.innate_damage_profile, name))
+                for name in ("resistances", "vulnerabilities", "immunities")
+            }
+        ),
     )
 
 
 def restore_item(record, catalog):
-    item = Equipment.create(catalog.equipment[record.definition])
+    record = record.model_copy(deep=True)
+    record.template = legacy_item_template(record.definition, record.template)
+    record.definition = equipment_alias(record.definition)
+    definition = catalog.equipment[record.definition]
+    if record.template is not None:
+        doc = EquipmentDocument.model_validate(record.template)
+        if doc.id != record.definition.split(":")[-1]:
+            raise ValueError("Шаблон предмета не соответствует ссылке")
+        definition = compile_definition("equipment", record.definition, doc)
+    item = Equipment.create(definition)
+    item.template = record.template
     for name in ("durability", "charges"):
         value, maximum = getattr(record, name), getattr(item.definition, name)
+        if (
+            name == "durability"
+            and value is None
+            and maximum is not None
+            and item.definition.weapon_damage
+        ):
+            value = maximum  # Earlier scenery weapons had no durability.
+        if (
+            name == "durability"
+            and record.definition == "crowbar"
+            and value is None
+            and maximum == 5
+        ):
+            value = maximum  # Saves from before crowbars had durability.
+        if (
+            name == "durability"
+            and record.definition in ("thieves_tools", "base:thieves_tools")
+            and maximum == 10
+            and value is not None
+            and 10 < value <= 20
+        ):
+            value = maximum  # Original thieves' tools had a maximum of 20.
         if (value is None) != (maximum is None) or (
             value is not None and value > maximum
         ):
@@ -147,7 +254,47 @@ def restore_item(record, catalog):
     return item
 
 
+def restore_monster(record, catalog):
+    definition = catalog.monsters[record.definition]
+    if record.template is not None:
+        doc = MonsterDocument.model_validate(record.template)
+        if doc.id != record.definition.split(":")[-1]:
+            raise ValueError("Шаблон существа не соответствует ссылке")
+        definition = compile_definition("monsters", record.definition, doc)
+    monster = Monster.create(record.definition, catalog=catalog, definition=definition)
+    monster.template = record.template
+    return monster
+
+
 def restore_actor(actor, record, catalog):
+    if record.cantrips is not None:
+        if len(record.cantrips) != len(set(record.cantrips)) or any(
+            s not in catalog.spells or catalog.spells[s].level != 0
+            for s in record.cantrips
+        ):
+            raise ValueError("Недопустимые сохранённые заговоры")
+        if isinstance(actor, Hero) and actor.test_profile == "wizard":
+            expected = {s.id for s in catalog.spells.values() if s.level == 0}
+            if set(record.cantrips) != expected:
+                raise ValueError("Неполный набор заговоров тестового волшебника")
+        elif isinstance(actor, Hero):
+            fixed = {
+                s for s in actor.character_class.spells if catalog.spells[s].level == 0
+            }
+            chosen = set(record.cantrips) - fixed
+            if (
+                not fixed.issubset(record.cantrips)
+                or len(chosen) != actor.character_class.cantrips_known
+                or any(s not in actor.character_class.cantrip_choices for s in chosen)
+            ):
+                raise ValueError("Выбор заговоров не соответствует классу")
+        actor.class_spells = tuple(
+            s for s in actor.class_spells if s.level != 0
+        ) + tuple(catalog.spells[s] for s in record.cantrips)
+    if record.damage_profile is not None:
+        actor.innate_damage_profile = DamageProfile(
+            **record.damage_profile.model_dump()
+        )
     if record.hp > record.max_hp or record.racial_uses > actor.max_racial_uses:
         raise ValueError("Недопустимое здоровье или расовый ресурс")
     if set(record.spell_slots) != set(actor.max_spell_slots) or any(
@@ -158,6 +305,12 @@ def restore_actor(actor, record, catalog):
     if any(value <= 0 for value in record.conditions.values()):
         raise ValueError("Недопустимая длительность состояния")
     actor.stats = Stats(record.stats)
+    actor.cantrip_uses = (
+        actor.max_cantrip_uses if record.cantrip_uses is None else record.cantrip_uses
+    )
+    if actor.cantrip_uses > actor.max_cantrip_uses:
+        raise ValueError("Недопустимый запас заговоров")
+    actor.concentration_id = record.concentration_id
     for name in (
         "instance_id",
         "name",
@@ -193,6 +346,8 @@ class SaveRepository:
         self.path = Path(path)
 
     def save(self, engine):
+        engine.sync_magic()
+        engine.prune_magic_items()
         state, hero = engine.state, engine.state.hero
         states = list(engine.levels.values()) if engine.levels else [state]
         levels = []
@@ -200,6 +355,21 @@ class SaveRepository:
             level = entry.level
             levels.append(
                 LevelRecord(
+                    containers={
+                        c.placement.id: ContainerRecord(
+                            instance_id=c.instance_id,
+                            items=[item_record(i) for i in c.items],
+                            personal=c.spec.personal,
+                            capacity=c.spec.capacity,
+                        )
+                        for c in level.containers
+                    }
+                    if level
+                    else {},
+                    oil=[
+                        OilRecord(position=(p.x, p.y), turns=t)
+                        for p, t in entry.oil.items()
+                    ],
                     ref=level.ref if level else None,
                     definition=level.definition.model_dump(mode="json")
                     if level
@@ -208,6 +378,7 @@ class SaveRepository:
                     position=(entry.position.x, entry.position.y),
                     monsters=[
                         MonsterRecord(
+                            template=p.monster.template,
                             definition=p.monster.id,
                             position=(p.position.x, p.position.y),
                             actor=actor_record(p.monster),
@@ -218,6 +389,19 @@ class SaveRepository:
                     if level
                     else {},
                     points={p.placement.id: p.challenge.completed for p in level.points}
+                    if level
+                    else {},
+                    doors={
+                        p.placement.id: DoorRecord(
+                            instance_id=p.instance_id,
+                            **{
+                                name: getattr(p.door, name)
+                                for name in DoorRecord.model_fields
+                                if name != "instance_id"
+                            },
+                        )
+                        for p in level.doors
+                    }
                     if level
                     else {},
                     items={},
@@ -233,6 +417,21 @@ class SaveRepository:
                 )
             )
         record = SaveRecord(
+            test_profile=hero.test_profile,
+            magic_effects=[
+                MagicRecord(
+                    **{
+                        **vars(m),
+                        "position": (m.position.x, m.position.y)
+                        if m.position
+                        else None,
+                    }
+                )
+                for m in engine.magic_effects
+            ],
+            lockpick=LockpickRecord(**vars(engine.lockpick_attempt))
+            if engine.lockpick_attempt
+            else None,
             race=hero.race.id,
             character_class=hero.character_class.id,
             background=hero.background.id if hero.background else None,
@@ -273,6 +472,8 @@ class SaveRepository:
             catalog=catalog,
             background=record.background,
         )
+        if record.test_profile == "wizard":
+            prepare_test_wizard(hero)
         restore_actor(hero, record.hero, catalog)
         clock = GameClock(record.elapsed_minutes)
         states = []
@@ -285,8 +486,13 @@ class SaveRepository:
                 state = SessionFactory(store).state(saved.ref, hero)
                 from ..content.schemas import MapDocument
 
-                if state.level.definition != MapDocument.model_validate(
-                    saved.definition
+                from ..content.placements import normalized_map
+
+                if normalized_map(
+                    state.level.definition, store.documents
+                ) != normalized_map(
+                    MapDocument.model_validate(migrate_map(saved.definition)),
+                    store.documents,
                 ):
                     raise ValueError("Карта изменена после сохранения")
             else:
@@ -294,22 +500,90 @@ class SaveRepository:
                     hero, DungeonMap(saved.rows), Position(*saved.position)
                 )
             state.position = Position(*saved.position)
-            if state.dungeon.rows != saved.rows or not state.dungeon.walkable(
+            if state.level and saved.doors is not None:
+                if set(saved.doors) != {d.placement.id for d in state.level.doors}:
+                    raise ValueError("Размещения дверей изменились")
+                for instance in state.level.doors:
+                    data = saved.doors[instance.placement.id]
+                    original = instance.door
+                    transformed = (
+                        original.material == "adamantine" and data.material == "stone"
+                    )
+                    if (
+                        data.material != original.material
+                        and not transformed
+                        or data.max_hp
+                        != (
+                            MATERIALS["stone"].hit_points
+                            if transformed
+                            else original.max_hp
+                        )
+                        or data.hp > data.max_hp
+                        or data.bent
+                        and data.material != "bars"
+                        or data.burning
+                        and (data.material != "wood" or data.hp == 0)
+                        or data.corroding
+                        and (data.material not in ("steel", "bars") or data.hp == 0)
+                    ):
+                        raise ValueError("Недопустимое состояние двери")
+                    instance.door = Door(
+                        **data.model_dump(exclude={"instance_id"}),
+                        lock_quality=original.lock_quality,
+                        lock_complexity=original.lock_complexity,
+                    )
+                    if instance.door.material == "stone":
+                        instance.door.opened = instance.door.locked = False
+                    instance.instance_id = data.instance_id
+            saved_rows = saved.rows
+            if state.level and saved.doors is None:
+                rows = [list(row) for row in saved_rows]
+                for instance in state.level.doors:
+                    p = instance.placement
+                    rows[p.y][p.x] = "."
+                saved_rows = tuple("".join(row) for row in rows)
+            if state.dungeon.rows != saved_rows or not state.dungeon.walkable(
                 state.position
             ):
                 raise ValueError("Недопустимая карта или позиция героя")
             state.clock, state.turns = clock, record.turns
+            for coating in saved.oil:
+                p = Position(*coating.position)
+                if (
+                    not 0 <= p.x < state.dungeon.width
+                    or not 0 <= p.y < state.dungeon.height
+                    or p in state.oil
+                ):
+                    raise ValueError("Недопустимое покрытие маслом")
+                state.oil[p] = coating.turns
             state.monsters = [
                 MonsterPlacement(
-                    restore_actor(
-                        Monster.create(p.definition, catalog=catalog), p.actor, catalog
-                    ),
+                    restore_actor(restore_monster(p, catalog), p.actor, catalog),
                     Position(*p.position),
                 )
                 for p in saved.monsters
             ]
             level = state.level
             if level:
+                if saved.containers is not None:
+                    if set(saved.containers) != {
+                        c.placement.id for c in level.containers
+                    }:
+                        raise ValueError("Размещения контейнеров изменились")
+                    for container in level.containers:
+                        data = saved.containers[container.placement.id]
+                        container.spec = StorageSpec(
+                            personal=data.personal, capacity=data.capacity
+                        )
+                        items = [restore_item(i, catalog) for i in data.items]
+                        if (
+                            any(i.equipped or i.lit for i in items)
+                            or sum(i.weight for i in items)
+                            > container.spec.capacity + 1e-9
+                        ):
+                            raise ValueError("Недопустимое содержимое контейнера")
+                        container.items[:] = items
+                        container.instance_id = data.instance_id
                 for p in state.monsters:
                     p.monster.definition_ref = (
                         p.monster.id if ":" in p.monster.id else "base:" + p.monster.id
@@ -340,11 +614,11 @@ class SaveRepository:
                         raise ValueError("Недопустимое размещение предмета")
                     item = restore_item(entry.item, catalog)
                     expected = item.id if ":" in item.id else "base:" + item.id
-                    if entry.ref != expected:
+                    if equipment_alias(entry.ref) != expected:
                         raise ValueError("Ссылка предмета не соответствует шаблону")
                     placement_ids.add(entry.id)
                     restored.append(
-                        (ItemPlacement(entry.id, entry.ref, *entry.position), item)
+                        (ItemPlacement(entry.id, expected, *entry.position), item)
                     )
                 state.items[:] = restored
             occupied = {state.position}
@@ -365,6 +639,13 @@ class SaveRepository:
             for placement in state.monsters
             for item in placement.monster.inventory
         ]
+        item_ids += [
+            item.instance_id
+            for state in states
+            if state.level
+            for container in state.level.containers
+            for item in container.items
+        ]
         if len(item_ids) != len(set(item_ids)):
             raise ValueError("Предмет присутствует в нескольких местах")
 
@@ -375,6 +656,75 @@ class SaveRepository:
         rng.setstate(tuples(record.rng))
         engine = Engine(states[record.current], rng)
         engine.levels = {s.level.ref: s for s in states if s.level}
+        from ..world.magic import MagicPlacement
+        from ..domain.spellcasting import world_spell_parameters
+        from .magic import world_spells
+
+        magic_ids = set()
+        for saved in record.magic_effects:
+            params = world_spell_parameters.validate(saved.kind, saved.params)
+            handler = world_spells.handlers.get(saved.kind)
+            spell = next((s for s in hero.known_spells if s.id == saved.spell_id), None)
+            if (
+                not handler
+                or not handler.persistent
+                or saved.instance_id in magic_ids
+                or saved.turns > params.duration
+                or spell is None
+                or spell.world_effect != saved.kind
+            ):
+                raise ValueError("Недопустимый временный магический эффект")
+            if saved.kind == "light":
+                if saved.item_id not in item_ids or saved.position is not None:
+                    raise ValueError("У света нет предмета")
+            else:
+                level_state = (
+                    engine.levels.get(saved.map_ref)
+                    if saved.map_ref
+                    else next((s for s in states if not s.level), None)
+                )
+                if (
+                    level_state is None
+                    or saved.position is None
+                    or saved.item_id is not None
+                    or not (
+                        0 <= saved.position[0] < level_state.dungeon.width
+                        and 0 <= saved.position[1] < level_state.dungeon.height
+                    )
+                ):
+                    raise ValueError("Магический эффект находится за пределами карты")
+            if saved.concentration != spell.concentration:
+                raise ValueError("Неправильный тип концентрации")
+            magic_ids.add(saved.instance_id)
+            engine.magic_effects.append(
+                MagicPlacement(
+                    **{
+                        **saved.model_dump(),
+                        "position": Position(*saved.position)
+                        if saved.position
+                        else None,
+                    }
+                )
+            )
+        if hero.concentration_id and not any(
+            m.instance_id == hero.concentration_id and m.concentration
+            for m in engine.magic_effects
+        ):
+            raise ValueError("Концентрация не соответствует эффекту")
+        engine.sync_magic()
+        if not engine.state.walkable(engine.state.position):
+            raise ValueError("Герой находится в закрытой двери")
+        if record.lockpick:
+            attempt = LockpickAttempt(**record.lockpick.model_dump())
+            instance = engine._door(attempt.door_id)
+            if (
+                not engine._door_available(instance)
+                or not instance.door.locked
+                or instance.door.passable
+                or instance.door.lock_turns != attempt.total
+            ):
+                raise ValueError("Недопустимый процесс взлома")
+            engine.lockpick_attempt = attempt
         engine.discard_consumed_lights()
         for key, completed in record.challenges.items():
             challenge = TextChallenge(catalog.challenges[key], engine.actions.effects)

@@ -7,5 +7,18 @@
   "foreground": 11,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_treasure_gold"
+  "tags": [
+    "transparent",
+    "treasure"
+  ],
+  "challenge": "base:terrain_treasure_gold",
+  "variants": [
+    {
+      "name": "Золото",
+      "glyph": "G",
+      "foreground": 11,
+      "background": null
+    }
+  ],
+  "group": "Сокровища"
 }

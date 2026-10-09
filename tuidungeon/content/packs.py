@@ -8,8 +8,10 @@ from pathlib import Path
 import re
 import tempfile
 import threading
-from .schemas import MODELS, Manifest
+from .schemas import MODELS, Manifest, MapDocument
+from .migrations import migrate_map, migrate_document
 from .catalog import ContentError, no_duplicate_fields
+from .placements import PLACEMENT_CATEGORIES, resolve_placement, resolve_challenge
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PACKS = PROJECT_ROOT / "packs"
@@ -18,6 +20,7 @@ REF_FIELDS = {
     "art": "art",
     "racial_spell": "spells",
     "spells": "spells",
+    "cantrip_choices": "spells",
     "actions": "actions",
     "classes": "classes",
     "starting_items": "equipment",
@@ -60,11 +63,13 @@ def references(raw, category):
                 if k == "params":
                     continue  # Plugin parameters are not untyped content references.
                 context = (
-                    ("art" if k == "decorations" else k)
+                    ("art" if k == "decorations" else "objects" if k == "doors" else k)
                     if category == "maps"
                     and k
                     in (
                         "decorations",
+                        "doors",
+                        "objects",
                         "traps",
                         "points_of_interest",
                         "monsters",
@@ -82,6 +87,22 @@ def references(raw, category):
                 yield destination, value, path
 
     yield from visit(raw)
+
+
+def validate_storage(document, documents):
+    spec = getattr(document, "storage", None)
+    if spec is None:
+        return
+    if sum(entry.quantity for entry in spec.contents) > 10000:
+        raise ContentError(
+            "Начальное содержимое контейнера ограничено 10000 предметами"
+        )
+    weight = sum(
+        documents["equipment", entry.item].weight * entry.quantity
+        for entry in spec.contents
+    )
+    if weight > spec.capacity + 1e-9:
+        raise ContentError("Начальное содержимое превышает вместимость контейнера")
 
 
 class PackStore:
@@ -113,9 +134,17 @@ class PackStore:
                     return previous[1], previous[2]
                 try:
                     data = file.read_bytes()
+                    raw = json.loads(
+                        data.decode("utf-8"), object_pairs_hook=no_duplicate_fields
+                    )
                     doc = model.model_validate(
-                        json.loads(
-                            data.decode("utf-8"), object_pairs_hook=no_duplicate_fields
+                        migrate_map(raw)
+                        if model is MapDocument
+                        else migrate_document(
+                            raw,
+                            next(
+                                (c for c, m in MODELS.items() if m is model), "manifest"
+                            ),
                         )
                     )
                 except (ValueError, OSError) as error:
@@ -224,9 +253,77 @@ class PackStore:
                     raise ContentError(
                         f"{ref}: пакет ссылки {target} не указан в зависимостях"
                     )
+            validate_storage(doc, documents)
+            if category == "classes" and any(
+                documents[("spells", ref)].level != 0 for ref in doc.cantrip_choices
+            ):
+                raise ContentError(
+                    "Выбор заговоров класса должен содержать только заклинания уровня 0"
+                )
             if category == "maps":
+                for layer, destination in PLACEMENT_CATEGORIES.items():
+                    for entry in getattr(doc, layer):
+                        try:
+                            resolved = resolve_placement(documents, destination, entry)
+                            effective = [(destination, resolved)]
+                            if destination == "points_of_interest":
+                                effective.append(
+                                    (
+                                        "challenges",
+                                        resolve_challenge(documents, resolved, entry),
+                                    )
+                                )
+                            for effective_category, definition in effective:
+                                for target_category, target, path in references(
+                                    definition.model_dump(mode="json"),
+                                    effective_category,
+                                ):
+                                    if (target_category, target) not in documents:
+                                        raise ContentError(
+                                            f"Неизвестная ссылка {target_category}/{target}"
+                                        )
+                                    if split_ref(target)[0] not in allowed(pack):
+                                        raise ContentError(
+                                            f"Пакет ссылки {target} не указан в зависимостях карты"
+                                        )
+                                validate_storage(definition, documents)
+                        except (ValueError, KeyError) as error:
+                            raise ContentError(
+                                f"{ref}.{layer}.{entry.id}: {error}"
+                            ) from error
+                blocked_objects = set()
+                for entry in doc.objects:
+                    obj = resolve_placement(documents, "objects", entry)
+                    if obj.brush.door:
+                        raise ContentError(
+                            f"{ref}: дверь должна находиться в слое doors"
+                        )
+                    if not obj.walkable:
+                        blocked_objects.add((entry.x, entry.y))
+                if (doc.spawn.x, doc.spawn.y) in blocked_objects:
+                    raise ContentError(f"{ref}: старт героя закрыт объектом")
+                if any((p.x, p.y) in blocked_objects for p in doc.monsters):
+                    raise ContentError(
+                        f"{ref}: существо размещено внутри непроходимого объекта"
+                    )
+                occupied_doors = set()
+                for entry in doc.doors:
+                    resolved = resolve_placement(documents, "objects", entry)
+                    if not resolved.brush.door:
+                        raise ContentError(
+                            f"{ref}: ссылка двери должна вести на объект с door"
+                        )
+                    spec = resolved.brush.door
+                    if (entry.x, entry.y) == (
+                        doc.spawn.x,
+                        doc.spawn.y,
+                    ) and spec.state != "open":
+                        raise ContentError(f"{ref}: старт героя закрыт дверью")
+                    if (entry.x, entry.y) in occupied_doors:
+                        raise ContentError(f"{ref}: две двери занимают одну клетку")
+                    occupied_doors.add((entry.x, entry.y))
                 for entry in doc.decorations:
-                    art = documents[("art", entry.ref)]
+                    art = resolve_placement(documents, "art", entry)
                     if (
                         entry.x + art.width > doc.width
                         or entry.y + art.height > doc.height
@@ -299,6 +396,11 @@ class PackStore:
             pack, identifier = split_ref(ref)
             if category not in MODELS or pack not in self.manifests:
                 raise ContentError("Неизвестная категория или пакет")
+            raw = (
+                migrate_map(raw)
+                if category == "maps"
+                else migrate_document(raw, category)
+            )
             document = MODELS[category].model_validate(raw)
             if document.id != identifier:
                 raise ContentError("id зафиксирован; используйте дублирование")

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "teleport_large",
+  "name": "Большой телепорт",
+  "description": "Большой телепорт. При входе переносит на старт выбранной карты. Карту назначения задайте в палитре.",
+  "glyph": "O",
+  "foreground": 14,
+  "background": null,
+  "art": null,
+  "group": "Телепорты",
+  "tags": [
+    "teleports",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": true,
+    "door": null
+  }
+}

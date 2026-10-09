@@ -10,7 +10,9 @@
   "category": "tools",
   "weight": 0.5,
   "tags": [
-    "artifact_legendary"
+    "artifact_legendary",
+    "artifacts",
+    "transparent"
   ],
   "durability": null,
   "slot": null,
@@ -20,5 +22,6 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 0,
-  "light": null
+  "light": null,
+  "group": "Артефакты"
 }

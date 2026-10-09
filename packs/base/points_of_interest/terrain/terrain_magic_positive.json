@@ -7,5 +7,10 @@
   "foreground": 5,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_magic_positive"
+  "tags": [
+    "magic",
+    "transparent"
+  ],
+  "challenge": "base:terrain_magic_positive",
+  "group": "Магические зоны"
 }

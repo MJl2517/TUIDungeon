@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "portal",
+  "name": "Портал",
+  "description": "Портал. При входе переносит на старт выбранной карты. Карту назначения задайте в палитре.",
+  "glyph": "O",
+  "foreground": 13,
+  "background": null,
+  "art": null,
+  "group": "Порталы",
+  "tags": [
+    "portals",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": true,
+    "door": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "passage_blocked",
+  "name": "Заваленный проход",
+  "description": "Двери и проходы. Заваленный проход. Преграда движению. Закрывает обзор и свет. Закрытые двери неподвижны; открывание и смена состояния требуют отдельной механики.",
+  "glyph": "#",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Двери и проходы",
+  "tags": [
+    "doors",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  }
+}

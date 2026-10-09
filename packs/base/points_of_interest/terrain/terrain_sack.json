@@ -3,9 +3,23 @@
   "id": "terrain_sack",
   "name": "Мешок",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "s",
   "foreground": 136,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_sack"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "flammable",
+    "storage",
+    "transparent"
+  ],
+  "challenge": "base:terrain_sack",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

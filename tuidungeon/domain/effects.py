@@ -17,6 +17,21 @@ class EffectOutcome:
     amount: int = 0
     condition: str = ""
     target: "Character | None" = field(default=None, repr=False, compare=False)
+    damage_type: str | None = None
+    raw_amount: int | None = None
+    resolved_amount: int | None = None
+    response: str | None = None
+
+    def payload(self):
+        result = dict(kind=self.kind, amount=self.amount, condition=self.condition)
+        if self.kind == "damage":
+            result.update(
+                damage_type=self.damage_type,
+                raw_amount=self.raw_amount,
+                resolved_amount=self.resolved_amount,
+                response=self.response,
+            )
+        return result
 
 
 class EffectHandler(ABC):
@@ -30,7 +45,16 @@ class EffectHandler(ABC):
 class DamageEffect(EffectHandler):
     def apply(self, effect, target, dice):
         amount = effect.amount + (effect.dice.roll(dice) if effect.dice else 0)
-        return EffectOutcome("damage", target.take_damage(amount))
+        result = target.receive_damage(amount, effect.damage_type)
+        target.check_concentration(result.applied_amount, dice)
+        return EffectOutcome(
+            "damage",
+            result.applied_amount,
+            damage_type=result.damage_type,
+            raw_amount=result.raw_amount,
+            resolved_amount=result.resolved_amount,
+            response=result.response,
+        )
 
 
 class HealingEffect(EffectHandler):

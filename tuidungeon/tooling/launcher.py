@@ -10,7 +10,9 @@ from uuid import uuid4
 from ..content.packs import PROJECT_ROOT
 
 
-def open_test_map(root: Path, map_ref: str, seed: int):
+def open_test_map(
+    root: Path, map_ref: str, seed: int, character_class: str = "base:warrior"
+):
     if sys.platform.startswith("linux") and not (
         os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
     ):
@@ -23,6 +25,8 @@ def open_test_map(root: Path, map_ref: str, seed: int):
         "tuidungeon",
         "--test-map",
         map_ref,
+        "--test-class",
+        character_class,
         "--packs-dir",
         str(root),
         "--seed",

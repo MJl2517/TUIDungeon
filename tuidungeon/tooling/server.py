@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError, BaseModel, ConfigDict, Field
 from ..content.packs import PackStore, ContentError, Conflict, Referenced, PROJECT_ROOT
 from ..content.schemas import MODELS, Scores
+from ..content.migrations import migrate_map, migrate_document
 from ..domain.mechanics import mechanics
 from ..presentation.art import import_txt, export_txt
 from .sessions import TestSession
@@ -32,6 +33,7 @@ class VersionRequest(RequestModel):
 
 
 class SessionRequest(RequestModel):
+    cantrips: list[str] | None = None
     model_config = ConfigDict(extra="forbid", strict=True)
     map_ref: str
     race: str = "base:human"
@@ -48,12 +50,21 @@ class SessionRequest(RequestModel):
 class GameRequest(RequestModel):
     map_ref: str
     seed: int = 42
+    character_class: str = "base:warrior"
 
 
 class CommandRequest(RequestModel):
+    spell_id: str | None = None
+    source: Literal["class", "racial"] = "class"
+    option: str | None = None
     command: str
     placement: str | None = None
     choice: str | None = None
+    x: int | None = Field(default=None, ge=0)
+    y: int | None = Field(default=None, ge=0)
+    item: str | None = None
+    quantity: int = Field(default=1, ge=1, le=10000)
+    deposit: bool = False
 
 
 class SandboxRequest(RequestModel):
@@ -67,7 +78,8 @@ class SandboxRequest(RequestModel):
 
 LABELS = {
     "art": "Графика",
-    "tiles": "Тайлы",
+    "tiles": "Поверхности",
+    "objects": "Объекты окружения",
     "maps": "Подземелья",
     "monsters": "Монстры",
     "equipment": "Предметы",
@@ -80,6 +92,19 @@ LABELS = {
     "traps": "Ловушки",
     "points_of_interest": "Точки интереса",
 }
+ASSET_CATEGORIES = frozenset(
+    {
+        "art",
+        "tiles",
+        "objects",
+        "traps",
+        "points_of_interest",
+        "monsters",
+        "equipment",
+        "actions",
+        "challenges",
+    }
+)
 
 
 def template(store, category):
@@ -129,7 +154,7 @@ def template(store, category):
                 }
             ],
         )
-    if category == "tiles":
+    if category in ("tiles", "objects"):
         raw.update(
             glyph=".",
             foreground=7,
@@ -153,6 +178,8 @@ def template(store, category):
             blocks_sight=[[False] * 20 for _ in range(12)],
             spawn={"x": 1, "y": 1},
             decorations=[],
+            objects=[],
+            doors=[],
             traps=[],
             points_of_interest=[],
             monsters=[],
@@ -221,6 +248,8 @@ def create_app(root=None, dist=None):
                     "ref": r,
                     "id": d.id,
                     "name": d.name,
+                    "description": getattr(d, "description", ""),
+                    "asset": c in ASSET_CATEGORIES,
                     "version": store.versions[(c, r)],
                     "glyph": getattr(d, "glyph", None),
                     "classes": getattr(d, "classes", []),
@@ -233,16 +262,7 @@ def create_app(root=None, dist=None):
 
     @app.get("/api/assets")
     def assets():
-        categories = {
-            "art",
-            "tiles",
-            "traps",
-            "points_of_interest",
-            "monsters",
-            "equipment",
-            "actions",
-            "challenges",
-        }
+        categories = ASSET_CATEGORIES
         with store.lock:
             store.reload()
             return {
@@ -277,10 +297,16 @@ def create_app(root=None, dist=None):
 
     @app.post("/api/validate/{category}/{ref}")
     def validate_document(category, ref, request: SaveRequest):
+        store.reload()
         doc = MODELS.get(category)
         if not doc:
             raise ContentError("Неизвестная категория")
-        model = doc.model_validate(request.document)
+        raw = (
+            migrate_map(request.document)
+            if category == "maps"
+            else migrate_document(request.document, category)
+        )
+        model = doc.model_validate(raw)
         candidate = dict(store.documents)
         candidate[(category, ref)] = model
         store.validate_references(candidate, store.manifests)
@@ -329,10 +355,19 @@ def create_app(root=None, dist=None):
     def launch_game(request: GameRequest):
         store.reload()
         store.get("maps", request.map_ref)
+        store.get("classes", request.character_class)
+        from ..application.factories import create_test_hero
+        from ..content.packs import runtime_key
+
+        create_test_hero(store.runtime_catalog(), runtime_key(request.character_class))
         try:
-            open_test_map(store.root, request.map_ref, request.seed)
+            open_test_map(
+                store.root, request.map_ref, request.seed, request.character_class
+            )
         except OSError as error:
-            raise HTTPException(503, f"Не удалось открыть игровое окно: {error}") from error
+            raise HTTPException(
+                503, f"Не удалось открыть игровое окно: {error}"
+            ) from error
         return {"started": True, "map_ref": request.map_ref}
 
     @app.post("/api/sessions")
@@ -406,11 +441,10 @@ def create_app(root=None, dist=None):
                 "hp": monster.hp,
                 "conditions": monster.conditions,
                 "spell_slots": monster.spell_slots,
+                "cantrip_uses": monster.cantrip_uses,
+                "max_cantrip_uses": monster.max_cantrip_uses,
             },
-            "effects": [
-                {"kind": e.kind, "amount": e.amount, "condition": e.condition}
-                for e in result.effects
-            ],
+            "effects": [e.payload() for e in result.effects],
         }
 
     web = Path(dist) if dist else PROJECT_ROOT / "studio/dist"

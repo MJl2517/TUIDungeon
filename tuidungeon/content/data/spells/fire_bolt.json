@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "fire_bolt",
+  "name": "Огненный снаряд",
+  "description": "Атака заклинанием: 1d10 огнём. Явный поджог деревянной двери; масло добавляет 5 урона. Разрушение остальной мебели пока не реализовано. Стоимость: 1 общий заряд заговора.",
+  "level": 0,
+  "effects": [
+    {
+      "kind": "damage",
+      "amount": 0,
+      "dice": "1d10",
+      "condition": "",
+      "duration": 1,
+      "damage_type": "fire",
+      "params": {}
+    }
+  ],
+  "target": "cell",
+  "school": "evocation",
+  "modes": [
+    "combat",
+    "exploration"
+  ],
+  "range": 6,
+  "resolution": "attack",
+  "save_ability": null,
+  "cantrip_scaling": true,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": "projectile",
+  "world_parameters": {},
+  "concentration": false,
+  "pending_effects": [],
+  "tags": [
+    "ignite",
+    "fire"
+  ]
+}

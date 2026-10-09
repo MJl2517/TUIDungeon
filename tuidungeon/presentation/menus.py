@@ -9,6 +9,8 @@ class ActionMenu(Enum):
     REST = auto()
     MAGIC = auto()
     TARGET = auto()
+    SPELL_ITEM = auto()
+    SPELL_OPTION = auto()
     META = auto()
     EXIT = auto()
 
@@ -28,6 +30,17 @@ PAGE_SIZE = 6
 
 
 def action_lines(controller, menu=None):
+    attempt = getattr(controller.engine, "lockpick_attempt", None)
+    if attempt:
+        return [
+            f"Взлом замка: {attempt.progress}/{attempt.total}",
+            "".join(
+                "[#]" if i < attempt.progress else "[ ]" for i in range(attempt.total)
+            ),
+            "Space: следующий ход | Backspace: отмена",
+            "Каждое нажатие Space расходует ход и минуту.",
+            controller.message,
+        ]
     menu = menu or controller.action_menu
     if menu is ActionMenu.META:
         return [
@@ -48,9 +61,10 @@ def action_lines(controller, menu=None):
     if menu is ActionMenu.ACTIONS:
         mode = "выключить" if controller.engine.state.hero.sneaking else "включить"
         return [
-            f"1) Красться: {mode}",
+            f"1) Красться [Z]: {mode}",
             "2) Магия",
             "3) Ждать минуту",
+            "4) Волшебная рука" if controller.engine.active_hand else "",
             "Backspace: действия | M: меню",
             controller.message,
         ]
@@ -58,7 +72,7 @@ def action_lines(controller, menu=None):
         return [
             "1) Короткий отдых: 1 час",
             "2) Долгий отдых: 8 часов",
-            "Короткий: до 1/2 HP; долгий: HP и магия.",
+            "Короткий: 1/2 HP, заговоры +мод.; долгий: всё.",
             "Backspace: действия | M: меню",
             controller.message,
         ]
@@ -67,7 +81,7 @@ def action_lines(controller, menu=None):
             "1-6) Заклинание" if menu is ActionMenu.MAGIC else "1-6) Живая цель",
             "PgUp/PgDn: страницы",
             "Backspace: назад | M: меню",
-            "Успешное применение расходует ход и минуту.",
+            "Применение, включая промах: ход и ресурс.",
             controller.message,
         ]
     hint = (
@@ -76,8 +90,9 @@ def action_lines(controller, menu=None):
         else ""
     )
     return [
-        "1) Осмотр" + hint,
-        "2) Персонаж",
+        "1) Осмотр [E]" + hint,
+        "2) Персонаж | Z: скрытность "
+        + ("ВКЛ" if controller.engine.state.hero.sneaking else "ВЫКЛ"),
         "3) Действия | 4) Отдых",
         "WASD: шаг | ↑↓/Enter/F: вещи | M: меню",
         controller.message,

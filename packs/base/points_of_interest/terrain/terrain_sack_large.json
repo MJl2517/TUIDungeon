@@ -3,9 +3,23 @@
   "id": "terrain_sack_large",
   "name": "Большой мешок",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "S",
   "foreground": 136,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_sack_large"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "flammable",
+    "storage",
+    "transparent"
+  ],
+  "challenge": "base:terrain_sack_large",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

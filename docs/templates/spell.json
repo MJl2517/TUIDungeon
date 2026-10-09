@@ -7,8 +7,24 @@
   "effects": [
     {
       "kind": "damage",
+      "damage_type": "force",
       "dice": "3d4+3"
     }
   ],
-  "description": "Магические снаряды поражают выбранную цель."
+  "description": "Магические снаряды поражают выбранную цель.",
+  "school": "evocation",
+  "modes": [
+    "combat",
+    "exploration"
+  ],
+  "range": 6,
+  "resolution": "automatic",
+  "save_ability": null,
+  "cantrip_scaling": false,
+  "max_targets": 1,
+  "world_effect": null,
+  "world_parameters": {},
+  "concentration": false,
+  "pending_effects": [],
+  "tags": []
 }

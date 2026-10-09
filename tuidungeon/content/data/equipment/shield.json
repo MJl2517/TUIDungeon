@@ -4,7 +4,9 @@
   "name": "Щит",
   "weight": 3,
   "tags": [
-    "shield"
+    "shield",
+    "flammable",
+    "wooden"
   ],
   "slot": "off_hand",
   "durability": 40,

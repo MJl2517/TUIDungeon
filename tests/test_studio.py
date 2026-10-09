@@ -359,6 +359,9 @@ class ApiTests(PackFixture):
                 {"map_ref": "base:crypt & calc"},
                 {"map_ref": "base:crypt", "seed": "42"},
                 {"map_ref": "base:crypt", "command": "calc"},
+                {"map_ref": "base:crypt", "character_class": "base:missing"},
+                {"map_ref": "base:crypt", "character_class": "base:rogue & calc"},
+                {"map_ref": "base:crypt", "character_class": 1},
             ):
                 response = self.client.post("/api/game", json=body)
                 self.assertEqual(response.status_code, 422, response.text)
@@ -377,7 +380,14 @@ class ApiTests(PackFixture):
             self.assertEqual(
                 response.json(), {"started": True, "map_ref": "base:crypt"}
             )
-            launch.assert_called_once_with(self.root.resolve(), "base:crypt", 7)
+            launch.assert_called_once_with(self.root.resolve(), "base:crypt", 7, "base:warrior")
+            for character_class in ("base:warrior", "base:wizard", "base:rogue"):
+                response = self.client.post(
+                    "/api/game",
+                    json={"map_ref": "base:crypt", "character_class": character_class},
+                )
+                self.assertEqual(response.status_code, 200, response.text)
+                launch.assert_called_with(self.root.resolve(), "base:crypt", 42, character_class)
             launch.side_effect = OSError("window unavailable")
             response = self.client.post("/api/game", json={"map_ref": "base:crypt"})
             self.assertEqual(response.status_code, 503)
@@ -450,6 +460,8 @@ class ApiTests(PackFixture):
                 ),
             )
         controller.handle("enter")
+        self.assertEqual(controller.view, View.STORAGE)
+        controller.handle("f4")
         self.assertEqual(controller.view, View.INTERACTION)
         self.assertIn("сундук", "\n".join(render(controller, 100, 30)).lower())
         controller.handle("2")

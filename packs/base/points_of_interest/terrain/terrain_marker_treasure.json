@@ -7,5 +7,10 @@
   "foreground": 11,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_marker_treasure"
+  "tags": [
+    "markers",
+    "transparent"
+  ],
+  "challenge": "base:terrain_marker_treasure",
+  "group": "Метки мест"
 }

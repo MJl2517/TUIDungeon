@@ -5,7 +5,8 @@
   "weight": 5,
   "tags": [
     "armor",
-    "leather"
+    "leather",
+    "flammable"
   ],
   "slot": "armor",
   "durability": 40,

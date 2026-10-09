@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "minor_illusion",
+  "name": "Малая иллюзия",
+  "description": "Неподвижная иллюзия на выбранной клетке (5 ходов) или событие звука. Пока это видимая метка/звук; отвлечение патрулей и боевой контроль появятся вместе с AI и боем. Стоимость: 1 общий заряд заговора.",
+  "level": 0,
+  "effects": [],
+  "target": "cell",
+  "school": "illusion",
+  "modes": [
+    "combat",
+    "exploration"
+  ],
+  "range": 6,
+  "resolution": "automatic",
+  "save_ability": null,
+  "cantrip_scaling": false,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": "illusion",
+  "world_parameters": {
+    "duration": 5
+  },
+  "concentration": false,
+  "pending_effects": [
+    "отвлечение патрулей и боевой контроль"
+  ],
+  "tags": [
+    "illusion"
+  ]
+}

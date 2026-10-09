@@ -3,9 +3,24 @@
   "id": "terrain_crate_closed",
   "name": "Закрытый ящик",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "■",
   "foreground": 136,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_crate_closed"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "flammable",
+    "storage",
+    "transparent",
+    "wooden"
+  ],
+  "challenge": "base:terrain_crate_closed",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

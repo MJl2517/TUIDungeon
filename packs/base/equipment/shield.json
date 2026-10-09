@@ -3,13 +3,39 @@
   "id": "shield",
   "name": "Щит",
   "description": "",
-  "glyph": "?",
-  "foreground": 7,
+  "variants": [
+    {
+      "name": "Щит",
+      "glyph": "]",
+      "foreground": 250,
+      "background": null
+    },
+    {
+      "name": "Круглый щит",
+      "glyph": "O",
+      "foreground": 250,
+      "background": null
+    },
+    {
+      "name": "Большой щит",
+      "glyph": "D",
+      "foreground": 250,
+      "background": null
+    }
+  ],
+  "glyph": "[",
+  "foreground": 250,
   "background": null,
   "art": null,
+  "group": "Декорации: снаряжение",
+  "category": "armor",
   "weight": 3.0,
   "tags": [
-    "shield"
+    "armor_decor",
+    "flammable",
+    "shield",
+    "transparent",
+    "wooden"
   ],
   "durability": 40,
   "slot": "off_hand",
@@ -26,5 +52,7 @@
   "check_aids": [],
   "weapon_damage": null,
   "weapon_ability": "strength",
-  "charges": null
+  "charges": null,
+  "hands": 1,
+  "light": null
 }

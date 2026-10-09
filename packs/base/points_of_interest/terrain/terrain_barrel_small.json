@@ -3,9 +3,24 @@
   "id": "terrain_barrel_small",
   "name": "Маленькая бочка",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "o",
   "foreground": 136,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_barrel_small"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "flammable",
+    "storage",
+    "transparent",
+    "wooden"
+  ],
+  "challenge": "base:terrain_barrel_small",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

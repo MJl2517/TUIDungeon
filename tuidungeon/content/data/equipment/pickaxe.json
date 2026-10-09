@@ -1,0 +1,18 @@
+{
+  "id": "pickaxe",
+  "name": "Кирка",
+  "category": "tools",
+  "weight": 3.0,
+  "durability": 30,
+  "slot": "hand",
+  "hands": 1,
+  "tags": [
+    "pickaxe",
+    "flammable",
+    "wooden"
+  ],
+  "weapon_damage": "1d6",
+  "description": "Кирка в руке позволяет разрушать каменные плиты. Каждый удар по двери или плите наносит оружию 1d4 урона прочности.",
+  "schema_version": 1,
+  "damage_type": "piercing"
+}

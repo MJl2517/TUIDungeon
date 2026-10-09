@@ -7,6 +7,7 @@
   "foreground": 7,
   "background": null,
   "art": null,
+  "category": "tools",
   "weight": 0.1,
   "tags": [
     "key",
@@ -18,5 +19,8 @@
   "check_aids": [],
   "weapon_damage": null,
   "weapon_ability": "strength",
-  "charges": null
+  "charges": null,
+  "hands": 0,
+  "light": null,
+  "group": "Снаряжение"
 }

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "door_steel",
+  "name": "Стальная дверь",
+  "description": "Поставьте дверь, нажмите V и выберите её: состояние, замок и хиты настраиваются для каждого экземпляра.",
+  "glyph": "+",
+  "foreground": 117,
+  "background": null,
+  "art": null,
+  "group": "Двери",
+  "tags": [
+    "doors",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": {
+      "material": "steel",
+      "state": "closed",
+      "locked": false,
+      "lock_quality": "normal",
+      "lock_complexity": "simple",
+      "hit_points": null
+    }
+  }
+}

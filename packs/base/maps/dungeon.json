@@ -3,6 +3,9 @@
   "id": "dungeon",
   "name": "Учебное подземелье",
   "description": "",
+  "doors": [],
+  "ambient_light": "dark",
+  "lights": [],
   "width": 60,
   "height": 28,
   "tiles": [
@@ -5228,6 +5231,5 @@
     "x": 3,
     "y": 3
   },
-  "transitions": [],
-  "ambient_light": "dark"
+  "transitions": []
 }

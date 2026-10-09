@@ -1,10 +1,17 @@
 import { Doc, Entry, defaultFor, color } from "./model";
+import { damageLabels } from "./damage";
 const labels: Record<string, string> = {
   id: "Идентификатор",
   name: "Название",
   description: "Описание",
   glyph: "Символ на карте",
   underlay: "Тайл под предметом",
+  door: "Дверь",
+  material: "Материал двери",
+  state: "Начальное состояние",
+  locked: "Заперта",
+  lock_quality: "Качество замка",
+  lock_complexity: "Сложность замка",
   foreground: "Цвет символа",
   background: "Цвет фона",
   art: "Рисунок",
@@ -22,6 +29,11 @@ const labels: Record<string, string> = {
   actions: "Действия",
   special_actions: "Особые действия",
   inventory: "Инвентарь",
+  storage: "Контейнер",
+  capacity: "Вместимость, кг",
+  personal: "Личный (можно класть вещи; не обновляется)",
+  contents: "Начальное содержимое",
+  quantity: "Количество предметов",
   spells: "Заклинания",
   spell_slots: "Ячейки заклинаний",
   tags: "Теги",
@@ -29,6 +41,11 @@ const labels: Record<string, string> = {
   ability: "Характеристика",
   bonus: "Бонус",
   damage: "Кубики урона",
+  damage_type: "Тип урона",
+  damage_profile: "Защита от урона",
+  resistances: "Сопротивления (½ урона)",
+  vulnerabilities: "Уязвимости (двойной урон)",
+  immunities: "Иммунитеты (нет урона)",
   effects: "Эффекты",
   difficulty: "Сложность",
   weight: "Вес, кг",
@@ -47,7 +64,25 @@ const labels: Record<string, string> = {
   weapon_damage: "Кубики оружия",
   weapon_ability: "Характеристика оружия",
   charges: "Применения",
-  level: "Уровень",
+  level: "Уровень (0 — заговор)",
+  school: "Школа магии",
+  modes: "Режимы применения",
+  range: "Дальность, клеток",
+  resolution: "Бросок",
+  save_ability: "Характеристика спасброска",
+  cantrip_scaling: "Масштабирование урона на уровнях 5/11/17",
+  wounded_dice: "Кубики против раненой цели",
+  max_targets: "Максимум целей",
+  world_effect: "Механика исследования",
+  world_parameters: "Параметры исследования",
+  concentration: "Требует концентрации",
+  pending_effects: "Отложенные эффекты (подсказки)",
+  spellcasting_ability: "Заклинательская характеристика",
+  cantrip_choices: "Доступные заговоры",
+  cantrips_known: "Количество заговоров на выбор",
+  tool_amount: "Починка инструментов",
+  equipment_dice: "Починка оружия и доспехов",
+  max_weight: "Предел веса руки, кг",
   target: "Цель",
   ability_bonuses: "Бонусы характеристик",
   hp_per_level: "Хиты за уровень",
@@ -74,7 +109,9 @@ const labels: Record<string, string> = {
   challenge: "Испытание",
   walkable: "Проходимый",
   blocks_sight: "Преграждает обзор",
-  group: "Группа тайлов",
+  group: "Группа",
+  variants: "Варианты внешнего вида",
+  map_light: "Свет объекта на карте",
   brush: "Размещения при рисовании",
   trap: "Ловушка при входе",
   interaction: "Взаимодействие по Enter",
@@ -90,6 +127,8 @@ const labels: Record<string, string> = {
 function resolve(s: Doc, root: Doc): Doc {
   return s.$ref ? resolve(root.$defs[s.$ref.split("/").pop()!], root) : s;
 }
+export const fieldLabel = (key: string) => labels[key] ?? key;
+
 type Props = {
   schema: Doc;
   root: Doc;
@@ -252,10 +291,37 @@ export function FieldForm({
         {children.map(([key, child]) => (
           <FieldForm
             key={key}
-            schema={child as Doc}
-            root={root}
+            schema={
+              key === "world_parameters"
+                ? ((s.properties.world_effect?.world_schemas ?? {})[
+                    value?.world_effect
+                  ] ?? { type: "object", properties: {} })
+                : (child as Doc)
+            }
+            root={
+              key === "world_parameters"
+                ? ((s.properties.world_effect?.world_schemas ?? {})[
+                    value?.world_effect
+                  ] ?? root)
+                : root
+            }
             value={value?.[key]}
-            onChange={(v) => onChange({ ...value, [key]: v })}
+            onChange={(v) =>
+              onChange(
+                key === "world_effect"
+                  ? {
+                      ...value,
+                      [key]: v,
+                      world_parameters: v
+                        ? defaultFor(
+                            s.properties.world_effect.world_schemas[v],
+                            s.properties.world_effect.world_schemas[v],
+                          )
+                        : {},
+                    }
+                  : { ...value, [key]: v },
+              )
+            }
             entries={entries}
             mechanics={mechanics}
             label={key}
@@ -275,6 +341,28 @@ export function FieldForm({
         <legend>
           {title} <span className="count">{items.length}</span>
         </legend>
+        {s.tag_labels && (
+          <div className="toolbar">
+            {Object.entries(s.tag_labels).map(([tag, name]) => (
+              <label key={tag}>
+                <input
+                  type="checkbox"
+                  aria-label={String(name)}
+                  checked={items.includes(tag)}
+                  onChange={(e) =>
+                    onChange(
+                      e.target.checked
+                        ? [...items, tag]
+                        : items.filter((v: string) => v !== tag),
+                    )
+                  }
+                />
+                {String(name)} <small>({tag})</small>
+              </label>
+            ))}
+          </div>
+        )}
+        {s.description && <small>{s.description}</small>}
         {items.map((v: any, i: number) => (
           <div className="array-row" key={i}>
             <FieldForm
@@ -346,6 +434,20 @@ export function FieldForm({
           <option key={v} value={v}>
             {(
               {
+                ...damageLabels,
+                wood: "Деревянная",
+                bars: "Прутья",
+                steel: "Стальная",
+                stone: "Каменная плита",
+                adamantine: "Адамантиевая",
+                open: "Открыта",
+                closed: "Закрыта",
+                cheap: "Дешёвый — СЛ 10",
+                normal: "Обычный — СЛ 15",
+                expensive: "Дорогой — СЛ 20",
+                legendary: "Легендарный — СЛ 25",
+                simple: "Простой — 1 ход",
+                complex: "Сложный — 10 ходов",
                 strength: "Сила",
                 weapons: "Вооружение",
                 armor: "Доспехи",
@@ -366,7 +468,28 @@ export function FieldForm({
                 other: "На другого",
                 any: "Любая цель",
                 advantage: "Преимущество",
-                automatic: "Автоматический успех",
+                automatic: "Без броска",
+                save: "Спасбросок цели",
+                combat: "Бой",
+                exploration: "Исследование",
+                cell: "Клетка карты",
+                item: "Предмет",
+                abjuration: "Ограждение",
+                conjuration: "Вызов",
+                divination: "Прорицание",
+                enchantment: "Очарование",
+                evocation: "Воплощение",
+                illusion: "Иллюзия",
+                necromancy: "Некромантия",
+                transmutation: "Преобразование",
+                light: "Свет на предмете",
+                repair: "Починка",
+                projectile: "Снаряд / касание",
+                hand: "Волшебная рука",
+                tricks: "Фокусы",
+                dancing_lights: "Пляшущие огоньки",
+                elementalism: "Элементализм",
+                noise: "Шум",
                 enter: "Вход на клетку",
               } as Record<string, string>
             )[v] ?? v}

@@ -16,6 +16,7 @@ class CreationStep(Enum):
     BACKGROUND = auto()
     ROLL = auto()
     DISTRIBUTE = auto()
+    CANTRIPS = auto()
     CONFIRM = auto()
 
 
@@ -42,6 +43,17 @@ class CharacterCreation:
         self.rolls: tuple[AbilityRoll, ...] = ()
         # Indices, rather than values, preserve distinct dice results even on ties.
         self.assignments: list[int] = []
+        self.cantrips: list[str] = []
+
+    @property
+    def steps(self):
+        return tuple(
+            s
+            for s in CreationStep
+            if s is not CreationStep.CANTRIPS
+            or self.character_class
+            and self.character_class.cantrips_known
+        )
 
     def reroll(self) -> None:
         self.rolls = self.dice.abilities()
@@ -63,6 +75,9 @@ class CharacterCreation:
             stats,
             catalog=self.catalog,
             background=self.background,
+            cantrips=tuple(self.cantrips)
+            if len(self.cantrips) == self.character_class.cantrips_known
+            else None,
         )
 
     @property
@@ -73,6 +88,10 @@ class CharacterCreation:
             return self.catalog.ordered_races
         if self.step is CreationStep.CLASS:
             return self.catalog.ordered_classes
+        if self.step is CreationStep.CANTRIPS:
+            return tuple(
+                self.catalog.spells[s] for s in self.character_class.cantrip_choices
+            )
         if self.step is CreationStep.BACKGROUND and self.character_class:
             return tuple(
                 background
@@ -100,13 +119,29 @@ class CharacterCreation:
             CreationStep.RACE,
             CreationStep.CLASS,
             CreationStep.BACKGROUND,
+            CreationStep.CANTRIPS,
         ):
             buttons = [
-                CreationButton(i, option.name)
+                CreationButton(
+                    i,
+                    (
+                        ("[*] " if option.id in self.cantrips else "[ ] ")
+                        if self.step is CreationStep.CANTRIPS
+                        else ""
+                    )
+                    + option.name,
+                )
                 for i, option in enumerate(self.visible_options, 1)
             ]
             if self.step is CreationStep.BACKGROUND and not self.options:
                 buttons = [CreationButton(1, "Продолжить без предыстории")]
+            if self.step is CreationStep.CANTRIPS:
+                buttons.append(
+                    CreationButton(
+                        7,
+                        f"Продолжить ({len(self.cantrips)}/{self.character_class.cantrips_known})",
+                    )
+                )
             if self.page_count > 1:
                 if self.selection_page > 0:
                     buttons.append(CreationButton(8, "Предыдущая страница"))
@@ -157,11 +192,16 @@ class CharacterCreation:
             CreationStep.RACE,
             CreationStep.CLASS,
             CreationStep.BACKGROUND,
+            CreationStep.CANTRIPS,
         ):
             if number == 8:
                 self.change_page(-1)
             elif number == 9:
                 self.change_page(1)
+            elif number == 7 and self.step is CreationStep.CANTRIPS:
+                if len(self.cantrips) == self.character_class.cantrips_known:
+                    self.step = CreationStep.CONFIRM
+                    self.cursor = 0
             elif (
                 self.step is CreationStep.BACKGROUND
                 and not self.options
@@ -171,6 +211,12 @@ class CharacterCreation:
                 self.accept_background()
             elif 1 <= number <= len(self.visible_options):
                 selected = self.visible_options[number - 1]
+                if self.step is CreationStep.CANTRIPS:
+                    if selected.id in self.cantrips:
+                        self.cantrips.remove(selected.id)
+                    elif len(self.cantrips) < self.character_class.cantrips_known:
+                        self.cantrips.append(selected.id)
+                    return None
                 self.selection_page = 0
                 self.cursor = 0
                 if self.step is CreationStep.RACE:
@@ -178,6 +224,7 @@ class CharacterCreation:
                     self.step = CreationStep.CLASS
                 elif self.step is CreationStep.CLASS:
                     self.character_class = selected
+                    self.cantrips.clear()
                     self.background = None
                     self.step = CreationStep.BACKGROUND
                 else:
@@ -195,7 +242,11 @@ class CharacterCreation:
             if 0 <= index < len(self.rolls) and index not in self.assignments:
                 self.assignments.append(index)
                 if len(self.assignments) == len(Ability):
-                    self.step = CreationStep.CONFIRM
+                    self.step = (
+                        CreationStep.CANTRIPS
+                        if self.character_class.cantrips_known
+                        else CreationStep.CONFIRM
+                    )
                 self.cursor = 0
         elif self.step is CreationStep.CONFIRM:
             if number == 1:
@@ -227,5 +278,11 @@ class CharacterCreation:
             else:
                 self.step = CreationStep.ROLL
         elif self.step is CreationStep.CONFIRM:
+            if self.character_class.cantrips_known:
+                self.step = CreationStep.CANTRIPS
+            else:
+                self.assignments.pop()
+                self.step = CreationStep.DISTRIBUTE
+        elif self.step is CreationStep.CANTRIPS:
             self.assignments.pop()
             self.step = CreationStep.DISTRIBUTE

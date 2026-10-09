@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "ray_of_frost",
+  "name": "Луч холода",
+  "description": "Атака заклинанием: 1d8 холодом. Попадание гасит горящую дверь. Замедление и замораживание жидкостей появятся позже. Стоимость: 1 общий заряд заговора.",
+  "variants": [],
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 0,
+  "effects": [
+    {
+      "kind": "damage",
+      "amount": 0,
+      "dice": "1d8",
+      "condition": "",
+      "duration": 1,
+      "damage_type": "cold",
+      "params": {}
+    }
+  ],
+  "target": "cell",
+  "school": "evocation",
+  "modes": [
+    "combat",
+    "exploration"
+  ],
+  "range": 6,
+  "resolution": "attack",
+  "save_ability": null,
+  "cantrip_scaling": true,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": "projectile",
+  "world_parameters": {},
+  "concentration": false,
+  "pending_effects": [
+    "замедление в очереди боя",
+    "замораживание жидкостей"
+  ],
+  "tags": [
+    "cool"
+  ]
+}

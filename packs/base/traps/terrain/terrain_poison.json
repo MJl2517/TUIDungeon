@@ -18,7 +18,8 @@
       "dice": "1d4",
       "condition": "",
       "duration": 1,
-      "params": {}
+      "params": {},
+      "damage_type": "poison"
     },
     {
       "kind": "condition",
@@ -30,5 +31,10 @@
     }
   ],
   "repeatable": true,
-  "trigger": "enter"
+  "trigger": "enter",
+  "group": "Кислота и яд",
+  "tags": [
+    "poison",
+    "transparent"
+  ]
 }

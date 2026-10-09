@@ -34,6 +34,9 @@ class GameLaunchTests(unittest.TestCase):
                 )
                 self.assertNotIn("--terminal", command)
                 self.assertEqual(command[command.index("--test-map") + 1], "base:crypt")
+                self.assertEqual(
+                    command[command.index("--test-class") + 1], "base:warrior"
+                )
                 self.assertEqual(command[command.index("--packs-dir") + 1], str(root))
                 self.assertEqual(command[command.index("--seed") + 1], "42")
                 self.assertTrue(Path(command[-1]).name.startswith("studio-"))
@@ -52,6 +55,28 @@ class GameLaunchTests(unittest.TestCase):
                 with self.assertRaisesRegex(OSError, "графический сеанс"):
                     launcher.open_test_map(root, "base:crypt", 42)
             spawn.assert_not_called()
+
+    def test_selected_class_is_forwarded_without_shell_interpolation(self):
+        with (
+            patch.object(launcher.sys, "platform", "linux"),
+            patch.dict(os.environ, {"DISPLAY": ":0"}, clear=True),
+            patch.object(launcher.subprocess, "Popen") as spawn,
+            patch.object(launcher.threading, "Thread"),
+        ):
+            for character_class in (
+                "base:warrior",
+                "base:rogue",
+                "base:wizard",
+                "extra:scout",
+            ):
+                launcher.open_test_map(
+                    Path("packs with spaces"), "base:crypt", 7, character_class
+                )
+                command = spawn.call_args.args[0]
+                self.assertEqual(
+                    command[command.index("--test-class") + 1], character_class
+                )
+                self.assertNotIn("shell", spawn.call_args.kwargs)
 
 
 if __name__ == "__main__":

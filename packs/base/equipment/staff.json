@@ -3,14 +3,22 @@
   "id": "staff",
   "name": "Посох",
   "description": "",
-  "glyph": "?",
-  "foreground": 7,
+  "variants": [],
+  "glyph": "l",
+  "foreground": 250,
   "background": null,
   "art": null,
+  "group": "Декорации: оружие",
+  "category": "weapons",
   "weight": 2.0,
   "tags": [
+    "bludgeoning",
+    "flammable",
+    "focus",
+    "transparent",
     "weapon",
-    "focus"
+    "weapon_decor",
+    "wooden"
   ],
   "durability": 30,
   "slot": "weapon",
@@ -18,5 +26,8 @@
   "check_aids": [],
   "weapon_damage": "1d6",
   "weapon_ability": "strength",
-  "charges": null
+  "charges": null,
+  "hands": 1,
+  "light": null,
+  "damage_type": "bludgeoning"
 }

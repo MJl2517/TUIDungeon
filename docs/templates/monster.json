@@ -12,6 +12,11 @@
   },
   "hit_points": 7,
   "armor_class": 13,
+  "damage_profile": {
+    "resistances": [],
+    "vulnerabilities": [],
+    "immunities": []
+  },
   "speed": 2,
   "initiative_bonus": 1,
   "actions": [
@@ -28,6 +33,7 @@
       "kind": "attack",
       "ability": "dexterity",
       "damage": "1d4",
+      "damage_type": "piercing",
       "effects": [
         {
           "kind": "condition",

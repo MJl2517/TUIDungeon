@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "door_stone",
+  "name": "Каменная плита",
+  "description": "Перекрывает проход. Нельзя открыть, вскрыть или выломать; разрушается только киркой или дробящими атаками. Каждый удар наносит оружию 1d4 урона прочности.",
+  "glyph": "#",
+  "foreground": 244,
+  "background": null,
+  "art": null,
+  "group": "Двери",
+  "tags": [
+    "doors",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": {
+      "material": "stone",
+      "state": "closed",
+      "locked": false,
+      "lock_quality": "normal",
+      "lock_complexity": "simple",
+      "hit_points": null
+    }
+  }
+}

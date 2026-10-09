@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "rope_decor",
+  "name": "Закреплённая верёвка",
+  "description": "Механизмы. Верёвка. Проходимая клетка. Пропускает обзор и свет. Чтобы переключатель действовал, добавьте точку интереса с испытанием.",
+  "variants": [],
+  "glyph": "~",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Механизмы",
+  "tags": [
+    "mechanisms",
+    "walkable",
+    "transparent",
+    "flammable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  }
+}

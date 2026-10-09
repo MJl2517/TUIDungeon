@@ -39,6 +39,10 @@ def decode_sequence(sequence):
             57351: "right",
             57354: "pageup",
             57355: "pagedown",
+            57356: "home",
+            57357: "end",
+            57367: "f4",
+            57368: "f5",
         }
         key = names.get(code, chr(code) if 32 <= code < 57344 else "")
         if code == 99 and modifiers & 4:
@@ -54,11 +58,21 @@ def decode_sequence(sequence):
             else {"A": "up", "B": "down", "C": "right", "D": "left"}[match[3]],
             alt,
         )
-    match = re.fullmatch(r"\x1b\[(5|6)(?:;(\d+)(?::(\d+))?)?~", sequence)
+    match = re.fullmatch(r"\x1b\[(1|4|5|6|7|8|15)(?:;(\d+)(?::(\d+))?)?~", sequence)
     if match:
         alt = bool((int(match[2] or 1) - 1) & 2)
         return KeyEvent(
-            "" if match[3] == "3" else ("pageup" if match[1] == "5" else "pagedown"),
+            ""
+            if match[3] == "3"
+            else {
+                "1": "home",
+                "4": "end",
+                "5": "pageup",
+                "6": "pagedown",
+                "7": "home",
+                "8": "end",
+                "15": "f5",
+            }[match[1]],
             alt,
         )
     return KeyEvent()
@@ -83,6 +97,15 @@ class TerminalKeyboard:
             curses.KEY_PPAGE: "pageup",
             curses.KEY_NPAGE: "pagedown",
         }
+        for name, key in (
+            ("KEY_HOME", "home"),
+            ("KEY_END", "end"),
+            ("KEY_F4", "f4"),
+            ("KEY_F5", "f5"),
+        ):
+            code = getattr(curses, name, None)
+            if code is not None:
+                self.special[code] = key
         if sys.platform == "win32":
             # PDCurses ALT_0..ALT_9; CPython may not export these constants.
             # https://github.com/wmcbrine/PDCurses/blob/master/curses.h

@@ -28,6 +28,36 @@ const blank = () =>
   }) as any;
 const options = { masks: true, mechanics: true, target: "" };
 describe("map brushes", () => {
+  it("creates doors over floor and replaces the door without duplicating instances", () => {
+    const doc = blank();
+    const p = { x: 1, y: 1 };
+    doc.walkability[1][1] = false;
+    doc.blocks_sight[1][1] = true;
+    const tile = {
+      glyph: "X",
+      walkable: false,
+      blocks_sight: true,
+      brush: { door: { material: "wood", state: "closed", locked: true } },
+    };
+    paintTile(doc, "base:door_wood_locked_cheap_complex", tile, p, {
+      ...options,
+      mechanics: false,
+      masks: false,
+    });
+    expect(doc.tiles[1][1]).toBe("base:floor");
+    expect(doc.walkability[1][1]).toBe(true);
+    expect(doc.blocks_sight[1][1]).toBe(false);
+    expect(doc.doors[0].ref).toBe("base:door_wood_locked_cheap_complex");
+    doc.doors[0].id = "manual_door";
+    paintTile(doc, "base:door_steel_closed", tile, p, options);
+    expect(doc.doors).toHaveLength(1);
+    expect(doc.doors[0].ref).toBe("base:door_steel_closed");
+    paintTile(doc, "base:floor", { walkable: true }, p, options);
+    expect(doc.doors).toHaveLength(0);
+    expect(() =>
+      paintTile(doc, "base:door_steel_closed", tile, doc.spawn, options),
+    ).toThrow("старт");
+  });
   it("keeps item graphics on the instance and preserves a separate underlay", () => {
     const doc = blank();
     paintTile(

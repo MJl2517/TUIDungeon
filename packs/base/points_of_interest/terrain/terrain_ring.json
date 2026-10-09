@@ -7,5 +7,10 @@
   "foreground": 11,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_ring"
+  "tags": [
+    "transparent",
+    "treasure"
+  ],
+  "challenge": "base:terrain_ring",
+  "group": "Сокровища"
 }

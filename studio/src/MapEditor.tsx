@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Grid } from "./Grid";
 import {
   Doc,
@@ -12,9 +12,12 @@ import {
   rectangle,
   resizeMap,
   inBounds,
+  mapMasks,
 } from "./model";
 import { MapPalette, layerNames } from "./MapPalette";
-import { paintTile, sampleMap } from "./mapTools";
+import { paintTile, paintObject, sampleMap } from "./mapTools";
+import { InstanceInspector } from "./InstanceInspector";
+import { instanceDocument } from "./model";
 type Props = {
   doc: Doc;
   onChange: (d: Doc) => void;
@@ -24,6 +27,8 @@ type Props = {
   warnings: Doc[];
   shortcutsEnabled?: boolean;
   documentRef: string;
+  schemas: Record<string, Doc>;
+  mechanics: Doc[];
 };
 const names = layerNames;
 export function MapEditor({
@@ -35,6 +40,8 @@ export function MapEditor({
   warnings,
   shortcutsEnabled = true,
   documentRef,
+  schemas,
+  mechanics,
 }: Props) {
   const [layer, setLayer] = useState("tiles"),
     [tool, setTool] = useState("brush"),
@@ -78,8 +85,15 @@ export function MapEditor({
         ? "art"
         : layer === "transitions"
           ? "maps"
-          : layer;
-  const options = entries.filter((e) => e.category === category);
+          : layer === "doors"
+            ? "objects"
+            : layer;
+  const options = entries.filter(
+    (e) =>
+      e.category === category &&
+      (layer !== "doors" || assets["objects/" + e.ref]?.brush?.door) &&
+      (layer !== "objects" || !assets["objects/" + e.ref]?.brush?.door),
+  );
   const chosen =
     layer === "transitions"
       ? transitionTarget
@@ -98,8 +112,19 @@ export function MapEditor({
   } | null>(null);
   const shown = preview ?? doc;
   function paint(base: Doc, points: Point[], erase = false) {
-    if (layer === "tiles" && !erase && (!chosen || paletteEmpty)) {
-      notify("Тайлы не найдены. Измените поиск или группу.");
+    if (
+      [
+        "tiles",
+        "objects",
+        "doors",
+        "equipment",
+        "points_of_interest",
+        "traps",
+      ].includes(layer) &&
+      !erase &&
+      (!chosen || paletteEmpty)
+    ) {
+      notify("Нет объектов для рисования. Измените поиск или группу.");
       return clone(base);
     }
     const n = clone(base);
@@ -113,11 +138,29 @@ export function MapEditor({
             target: transitionTarget,
             erase,
           });
+        } else if (
+          [
+            "objects",
+            "doors",
+            "equipment",
+            "points_of_interest",
+            "traps",
+          ].includes(layer)
+        ) {
+          paintObject(
+            n,
+            layer,
+            chosen,
+            assets[category + "/" + chosen],
+            p,
+            transitionTarget,
+            erase,
+          );
         } else if (layer === "walkability" || layer === "blocks_sight")
           n[layer][p.y][p.x] = erase ? !maskValue : maskValue;
         else if (layer === "spawn") {
           if (
-            !n.walkability[p.y][p.x] ||
+            !mapMasks(n, assets).walkability[p.y][p.x] ||
             (n.monsters ?? []).some((m: Point) => m.x === p.x && m.y === p.y)
           )
             throw new Error("Выберите свободную проходимую клетку для старта.");
@@ -127,6 +170,18 @@ export function MapEditor({
             (entry: Point) => entry.x !== p.x || entry.y !== p.y,
           );
           if (!erase && (chosen || layer === "lights")) {
+            if (layer === "doors") {
+              if (
+                assets["objects/" + chosen]?.brush?.door?.state !== "open" &&
+                p.x === n.spawn.x &&
+                p.y === n.spawn.y
+              )
+                throw new Error(
+                  "Закрытая дверь не может занимать старт героя.",
+                );
+              n.walkability[p.y][p.x] = true;
+              n.blocks_sight[p.y][p.x] = false;
+            }
             if (
               layer !== "lights" &&
               layer !== "decorations" &&
@@ -179,6 +234,11 @@ export function MapEditor({
         entry = n[selected.category].find((a: Doc) => a.id === selected.id);
       entry.x = p.x;
       entry.y = p.y;
+      for (const transition of n.transitions ?? [])
+        if (transition.id === entry.id + "_transition") {
+          transition.x = p.x;
+          transition.y = p.y;
+        }
       onChange(n);
       return;
     }
@@ -206,12 +266,13 @@ export function MapEditor({
             n[key][p.y + y][p.x + x] = clone(v);
         }),
       );
+    const copyPrefix = "copy_" + Date.now() + "_";
     for (const key of placements)
       for (const e of clip[key])
         if (inBounds(n, { x: p.x + e.x, y: p.y + e.y }))
           (n[key] ??= []).push({
             ...clone(e),
-            id: moving ? e.id : e.id + "_copy_" + Date.now(),
+            id: moving ? e.id : copyPrefix + e.id,
             x: p.x + e.x,
             y: p.y + e.y,
           });
@@ -274,6 +335,12 @@ export function MapEditor({
           .filter((e: Point) => e.x === p.x && e.y === p.y)
           .map((e: Doc) => ({ category: c, id: e.id })),
       );
+      found.sort(
+        (a, b) =>
+          Number(b.category === layer) - Number(a.category === layer) ||
+          Number(a.category === "decorations") -
+            Number(b.category === "decorations"),
+      );
       setSelected(found[0] ?? null);
       setPanel("cell");
     }
@@ -292,7 +359,7 @@ export function MapEditor({
     }
     if (tool === "rect") s.next = paint(s.base, rectangle(s.start, p, true));
     else if (tool === "line") s.next = paint(s.base, line(s.start, p));
-    else if (["tiles", "walkability", "blocks_sight"].includes(layer))
+    else if (["brush", "erase"].includes(tool))
       s.next = paint(s.next, brushPoints(line(s.last, p)), tool === "erase");
     s.last = p;
     setPreview(s.next);
@@ -335,6 +402,9 @@ export function MapEditor({
   function deleteSelection() {
     const n = clone(doc);
     if (selected) {
+      n.transitions = (n.transitions ?? []).filter(
+        (entry: Doc) => entry.id !== selected.id + "_transition",
+      );
       n[selected.category] = n[selected.category].filter(
         (entry: Doc) => entry.id !== selected.id,
       );
@@ -463,25 +533,33 @@ export function MapEditor({
     view.addEventListener("wheel", wheel, { passive: false });
     return () => view.removeEventListener("wheel", wheel);
   }, [zoom, shortcutsEnabled]);
-  const overlays = [];
-  if (visibility.walkability)
-    overlays.push({
-      cells: shown.walkability.map((r: boolean[]) => r.map((v) => !v)),
-      color: "#f071784d",
-    });
-  if (visibility.blocks_sight)
-    overlays.push({ cells: shown.blocks_sight, color: "#8bb7ee55" });
-  const isolated = warnings.flatMap((w) => w.cells ?? []);
-  const isolatedSet = new Set(isolated.map((p: Point) => `${p.x},${p.y}`));
-  if (isolated.length)
-    overlays.push({
-      cells: Array.from({ length: doc.height }, (_, y) =>
-        Array.from({ length: doc.width }, (_, x) =>
-          isolatedSet.has(`${x},${y}`),
+  const masks = useMemo(() => mapMasks(shown, assets), [shown, assets]);
+  const cells = useMemo(
+    () => mapGrid(shown, assets, visibility),
+    [shown, assets, visibility],
+  );
+  const overlays = useMemo(() => {
+    const result = [];
+    if (visibility.walkability)
+      result.push({
+        cells: masks.walkability.map((r: boolean[]) => r.map((v) => !v)),
+        color: "#f071784d",
+      });
+    if (visibility.blocks_sight)
+      result.push({ cells: masks.blocks_sight, color: "#8bb7ee55" });
+    const isolated = warnings.flatMap((w) => w.cells ?? []);
+    const isolatedSet = new Set(isolated.map((p: Point) => `${p.x},${p.y}`));
+    if (isolated.length)
+      result.push({
+        cells: Array.from({ length: doc.height }, (_, y) =>
+          Array.from({ length: doc.width }, (_, x) =>
+            isolatedSet.has(`${x},${y}`),
+          ),
         ),
-      ),
-      color: "#edc87555",
-    });
+        color: "#edc87555",
+      });
+    return result;
+  }, [masks, visibility, warnings, doc.height, doc.width]);
   return (
     <div className="editor-layout map-editor">
       <div className="workspace">
@@ -612,7 +690,7 @@ export function MapEditor({
           onPointerCancelCapture={finishPan}
         >
           <Grid
-            cells={mapGrid(shown, assets, visibility)}
+            cells={cells}
             overlays={overlays}
             selection={selection}
             zoom={zoom}
@@ -716,8 +794,10 @@ export function MapEditor({
               setRef("");
             }}
             chosen={chosen}
-            onChoose={(next) => {
-              if (layer === "transitions") setTransitionTarget(next);
+            onChoose={(next, nextLayer) => {
+              if (nextLayer) setLayer(nextLayer);
+              if ((nextLayer ?? layer) === "transitions")
+                setTransitionTarget(next);
               else setRef(next);
               setTool("brush");
             }}
@@ -773,6 +853,51 @@ export function MapEditor({
             )}
             {panel === "cell" && (
               <>
+                {selected &&
+                  (() => {
+                    const placement = (doc[selected.category] ?? []).find(
+                      (p: Doc) => p.id === selected.id,
+                    );
+                    if (!placement || !placement.ref) return null;
+                    return (
+                      <InstanceInspector
+                        placement={placement}
+                        layer={selected.category}
+                        schemas={schemas}
+                        mechanics={mechanics}
+                        assets={assets}
+                        entries={entries}
+                        onChange={(changes) => {
+                          const category =
+                            selected.category === "doors"
+                              ? "objects"
+                              : selected.category;
+                          const base = assets[category + "/" + placement.ref];
+                          if (
+                            selected.category === "doors" &&
+                            placement.x === doc.spawn.x &&
+                            placement.y === doc.spawn.y &&
+                            instanceDocument(base, { ...placement, ...changes })
+                              .brush.door.state !== "open"
+                          ) {
+                            notify(
+                              "Закрытая дверь не может занимать старт героя.",
+                            );
+                            return;
+                          }
+                          onChange({
+                            ...doc,
+                            [selected.category]: doc[selected.category].map(
+                              (p: Doc) =>
+                                p.id === placement.id
+                                  ? { ...p, ...changes }
+                                  : p,
+                            ),
+                          });
+                        }}
+                      />
+                    );
+                  })()}
                 {selected?.category === "lights" &&
                   (() => {
                     const source = (doc.lights ?? []).find(
@@ -852,10 +977,14 @@ export function MapEditor({
                   <dt>Тайл</dt>
                   <dd>{doc.tiles[hover.y]?.[hover.x] ?? "Нет"}</dd>
                   <dt>Проход</dt>
-                  <dd>{doc.walkability[hover.y]?.[hover.x] ? "Да" : "Нет"}</dd>
+                  <dd>
+                    {masks.walkability[hover.y]?.[hover.x] ? "Да" : "Нет"}
+                  </dd>
                   <dt>Обзор</dt>
                   <dd>
-                    {doc.blocks_sight[hover.y]?.[hover.x] ? "Закрыт" : "Открыт"}
+                    {masks.blocks_sight[hover.y]?.[hover.x]
+                      ? "Закрыт"
+                      : "Открыт"}
                   </dd>
                 </dl>
                 {placements.map((key) =>
@@ -888,12 +1017,7 @@ export function MapEditor({
                     </button>
                     <button
                       onClick={() => {
-                        const n = clone(doc);
-                        n[selected.category] = n[selected.category].filter(
-                          (p: Doc) => p.id !== selected.id,
-                        );
-                        onChange(n);
-                        setSelected(null);
+                        deleteSelection();
                       }}
                     >
                       Удалить объект

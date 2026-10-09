@@ -3,14 +3,33 @@
   "id": "healing_potion",
   "name": "Зелье лечения",
   "description": "",
-  "glyph": "?",
-  "foreground": 7,
+  "variants": [
+    {
+      "name": "Маленькое зелье",
+      "glyph": "¡",
+      "foreground": 10,
+      "background": null
+    },
+    {
+      "name": "Магическое зелье",
+      "glyph": "!",
+      "foreground": 13,
+      "background": null
+    }
+  ],
+  "glyph": "!",
+  "foreground": 10,
   "background": null,
   "art": null,
+  "group": "Декорации: припасы",
+  "category": "consumables",
   "weight": 0.2,
   "tags": [
+    "artifacts",
+    "consumable",
     "potion",
-    "consumable"
+    "supplies_decor",
+    "transparent"
   ],
   "durability": null,
   "slot": null,
@@ -27,5 +46,7 @@
   "check_aids": [],
   "weapon_damage": null,
   "weapon_ability": "strength",
-  "charges": 1
+  "charges": 1,
+  "hands": 0,
+  "light": null
 }

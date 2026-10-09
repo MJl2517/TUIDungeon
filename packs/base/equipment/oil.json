@@ -1,15 +1,32 @@
 {
   "schema_version": 1,
   "id": "oil",
-  "name": "Масло для лампы",
-  "description": "Одна порция масла: 60 минут света. Расходуется автоматически при экипировке пустой лампы.",
-  "weight": 0.5,
-  "category": "consumables",
-  "charges": 1,
-  "tags": [
-    "lamp_oil",
-    "consumable"
-  ],
+  "name": "Масло",
+  "description": "Универсальное масло: одна порция заправляет лампу на 60 минут или покрывает выбранную клетку на 5 ходов. Поджог / урон огнём: немедленно +5 урона огнём, покрытие исчезает.",
   "glyph": "o",
-  "foreground": 11
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "category": "consumables",
+  "weight": 0.5,
+  "tags": [
+    "consumable",
+    "flammable",
+    "lamp_oil",
+    "oil",
+    "supplies_decor",
+    "throwable",
+    "transparent"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": 1,
+  "hands": 0,
+  "light": null,
+  "variants": [],
+  "group": "Декорации: припасы"
 }

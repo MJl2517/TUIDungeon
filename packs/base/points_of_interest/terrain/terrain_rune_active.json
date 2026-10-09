@@ -7,5 +7,14 @@
   "foreground": 13,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_rune_active"
+  "tags": [
+    "runes",
+    "transparent"
+  ],
+  "challenge": "base:terrain_rune_active",
+  "group": "Руны",
+  "map_light": {
+    "radius": 6,
+    "bright_radius": 3
+  }
 }

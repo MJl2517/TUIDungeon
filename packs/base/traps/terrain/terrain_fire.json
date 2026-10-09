@@ -18,9 +18,19 @@
       "dice": "1d4",
       "condition": "",
       "duration": 1,
-      "params": {}
+      "params": {},
+      "damage_type": "fire"
     }
   ],
   "repeatable": true,
-  "trigger": "enter"
+  "trigger": "enter",
+  "group": "Лава и огонь",
+  "tags": [
+    "fire",
+    "transparent"
+  ],
+  "map_light": {
+    "radius": 6,
+    "bright_radius": 3
+  }
 }

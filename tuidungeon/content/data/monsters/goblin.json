@@ -34,7 +34,8 @@
           "condition": "poisoned",
           "duration": 2
         }
-      ]
+      ],
+      "damage_type": "piercing"
     }
   ],
   "tags": [

@@ -1,16 +1,20 @@
 {
   "schema_version": 1,
   "id": "terrain_artifact_amulet",
-  "name": "Амулет",
+  "name": "Магический амулет",
   "description": "Предмет из каталога окружения. Его можно подобрать, осмотреть и носить.",
+  "variants": [],
   "glyph": "¤",
   "foreground": 13,
   "background": null,
   "art": null,
+  "group": "Артефакты",
   "category": "tools",
   "weight": 0.5,
   "tags": [
-    "artifact_amulet"
+    "artifact_amulet",
+    "artifacts",
+    "transparent"
   ],
   "durability": null,
   "slot": null,

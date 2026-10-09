@@ -131,7 +131,7 @@ def render_map(controller, width, height, tile_size):
     view = background_view(controller)
     if (
         not controller.engine
-        or view not in (View.EXPLORE, View.LOOK, View.THROW)
+        or view not in (View.EXPLORE, View.LOOK, View.THROW, View.IGNITE)
         or width < MIN_WIDTH
         or height < MIN_HEIGHT
     ):
@@ -141,7 +141,10 @@ def render_map(controller, width, height, tile_size):
     rows = max(1, area.height * TILE_SIZE[1] // tile_size)
     state = controller.engine.state
     focus = (
-        controller.look_position if view in (View.LOOK, View.THROW) else state.position
+        controller.look_position
+        if view
+        in (View.LOOK, View.THROW, View.IGNITE, View.SPELL_TARGET, View.HAND_TARGET)
+        else state.position
     )
     # Keep the focus centered even at world edges; off-map cells stay empty.
     cx, cy = focus.x - columns // 2, focus.y - rows // 2
@@ -164,7 +167,16 @@ def render_map(controller, width, height, tile_size):
                 attribute = screen.attribute(cell.foreground, cell.background)
                 if light.cells[y0 + y][x0 + x] == 1:
                     attribute |= STYLE.A_DIM
-                if view in (View.LOOK, View.THROW) and (x0 + x, y0 + y) == (
+                if view in (
+                    View.LOOK,
+                    View.THROW,
+                    View.IGNITE,
+                    View.SPELL_TARGET,
+                    View.HAND_TARGET,
+                ) and (
+                    x0 + x,
+                    y0 + y,
+                ) == (
                     focus.x,
                     focus.y,
                 ):
@@ -198,23 +210,35 @@ def map_zoom(tile_size, event):
     return max(24, min(72, tile_size + (12 if delta > 0 else -12 if delta < 0 else 0)))
 
 
+def draw_map_hint(console, controller):
+    """Replace the full hint row so shorter hints never leave old letters."""
+    area = map_area(console.width, console.height)
+    view = background_view(controller)
+    hint = (
+        "WASD: цель | Enter: применить"
+        if view in (View.SPELL_TARGET, View.HAND_TARGET)
+        else "WASD: цель | Enter: бросить"
+        if view is View.THROW
+        else "WASD: цель | Enter: поджечь"
+        if view is View.IGNITE
+        else "WASD: курсор | Enter: осмотр"
+        if view is View.LOOK
+        else "WASD: шаг | G: подобрать"
+    )
+    suffix = " | +/-: масштаб"
+    text = hint[: max(0, area.width - len(suffix))] + suffix
+    CellScreen(console).addnstr(
+        area.y + area.height, area.x, text.ljust(area.width), area.width
+    )
+
+
 def present(renderer, ui_render, map_render, console, controller, map_size):
     draw(console, controller)
     frame = render_map(controller, console.width, console.height, map_size)
     area = map_area(console.width, console.height)
     popup = popup_layout(controller, console.width, console.height)
     if frame and not popup:
-        screen = CellScreen(console)
-        hint = (
-            "".join(
-                map(chr, console.ch[area.y + area.height, area.x : area.x + area.width])
-            )
-            .rstrip()
-            .replace(" | ↑↓/Enter: вещи", "")
-        )
-        screen.addnstr(
-            area.y + area.height, area.x, hint + " | +/-: масштаб", area.width
-        )
+        draw_map_hint(console, controller)
     ui_texture = ui_render.render(console)
     map_texture = map_render.render(frame[0]) if frame else None
     output_width, output_height = renderer.output_size
@@ -294,6 +318,10 @@ def handle_event(controller, event):
         tcod.event.KeySym.TAB: "tab",
         tcod.event.KeySym.PAGEUP: "pageup",
         tcod.event.KeySym.PAGEDOWN: "pagedown",
+        tcod.event.KeySym.HOME: "home",
+        tcod.event.KeySym.END: "end",
+        tcod.event.KeySym.F5: "f5",
+        tcod.event.KeySym.F4: "f4",
     }
     key = names.get(event.sym, "")
     if not key and not controller.inventory.editing:
@@ -315,6 +343,8 @@ def run(
     store=None,
     test_map=False,
     save_path=None,
+    test_profile=None,
+    test_class=None,
 ):
     controller = Controller(
         seed,
@@ -324,6 +354,8 @@ def run(
         store=store,
         test_map=test_map,
         save_path=save_path,
+        test_profile=test_profile,
+        test_class=test_class,
     )
     tileset = load_tileset()
     with tcod.context.new(
@@ -350,7 +382,15 @@ def run(
         while controller.running:
             blink = int(time.monotonic() * 2) % 2
             if dirty or (
-                controller.view in (View.LOOK, View.THROW) and blink != last_blink
+                controller.view
+                in (
+                    View.LOOK,
+                    View.THROW,
+                    View.IGNITE,
+                    View.SPELL_TARGET,
+                    View.HAND_TARGET,
+                )
+                and blink != last_blink
             ):
                 console = context.new_console(
                     min_columns=MIN_WIDTH, min_rows=MIN_HEIGHT

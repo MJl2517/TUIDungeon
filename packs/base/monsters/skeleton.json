@@ -36,7 +36,8 @@
       "damage": "1d6",
       "effects": [],
       "difficulty": 10,
-      "description": ""
+      "description": "",
+      "damage_type": "bludgeoning"
     }
   ],
   "inventory": [],
@@ -44,5 +45,16 @@
   "spell_slots": {},
   "tags": [
     "undead"
-  ]
+  ],
+  "damage_profile": {
+    "resistances": [
+      "piercing"
+    ],
+    "vulnerabilities": [
+      "bludgeoning"
+    ],
+    "immunities": [
+      "poison"
+    ]
+  }
 }

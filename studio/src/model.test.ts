@@ -9,7 +9,82 @@ import {
   resizeMap,
   mapGrid,
   matchesEntry,
+  clone,
+  mergeProperties,
+  diffProperties,
+  instanceDocument,
 } from "./model";
+describe("instance properties", () => {
+  const door = {
+    glyph: "+",
+    foreground: 130,
+    background: null,
+    brush: {
+      door: {
+        material: "wood",
+        state: "closed",
+        locked: false,
+        lock_quality: "normal",
+        lock_complexity: "simple",
+      },
+    },
+  };
+  it("stores only local changes, inherits nested defaults and supports undo/redo", () => {
+    const changed = mergeProperties(door, {
+      brush: { door: { locked: true } },
+    });
+    const overrides = diffProperties(door, changed);
+    expect(overrides).toEqual({ brush: { door: { locked: true } } });
+    const h = new History({ id: "door", overrides: {} });
+    h.commit({ id: "door", overrides });
+    expect(instanceDocument(door, h.present).glyph).toBe("X");
+    h.undo();
+    expect(instanceDocument(door, h.present).glyph).toBe("+");
+    h.redo();
+    expect(instanceDocument(door, h.present).glyph).toBe("X");
+    expect(door.brush.door.locked).toBe(false);
+    expect(diffProperties(door, clone(door))).toEqual({});
+  });
+  it("replaces arrays and explicit null while retaining unrelated properties", () => {
+    const base = {
+      name: "Шипы",
+      failure: [{ kind: "damage", amount: 2 }],
+      art: "base:spikes",
+    };
+    const patch = { failure: [], art: null };
+    expect(mergeProperties(base, patch)).toEqual({ name: "Шипы", ...patch });
+    expect(diffProperties(base, mergeProperties(base, patch))).toEqual(patch);
+  });
+  it("renders local glyphs and canonical door state rather than shared templates", () => {
+    const doc = {
+      width: 4,
+      height: 2,
+      tiles: [
+        [null, null, null, null],
+        [null, null, null, null],
+      ],
+      spawn: { x: 0, y: 0 },
+      doors: [
+        {
+          id: "d",
+          ref: "base:door_wood",
+          x: 1,
+          y: 0,
+          overrides: { brush: { door: { state: "open" } } },
+        },
+      ],
+      equipment: [
+        { id: "i", ref: "base:tool", x: 2, y: 0, overrides: { glyph: "!" } },
+      ],
+    };
+    const result = mapGrid(doc, {
+      "objects/base:door_wood": door,
+      "equipment/base:tool": { glyph: "?", foreground: 7, background: null },
+    });
+    expect(result[0][1]?.char).toBe("/");
+    expect(result[0][2]?.char).toBe("!");
+  });
+});
 const cell = (char: string, bg: number | null = null) => ({
   char,
   foreground: 7,
@@ -32,6 +107,12 @@ describe("content search", () => {
     expect(matchesEntry(tile, "дверь opaque")).toBe(false);
     expect(matchesEntry(tile, "")).toBe(true);
   });
+  it("searches material traits by Russian labels and stable tag IDs", () => {
+    const wood = { ...tile, tags: ["wooden", "flammable"] };
+    for (const query of ["горючий", "деревянный", "flammable", "wooden"])
+      expect(matchesEntry(wood, query)).toBe(true);
+    expect(matchesEntry(tile, "горючий")).toBe(false);
+  });
   it("keeps old documents searchable without tile metadata", () => {
     expect(
       matchesEntry(
@@ -48,6 +129,19 @@ describe("content search", () => {
   });
 });
 describe("document editing", () => {
+  it("renders stone as an immovable slab regardless of stale lock settings", () => {
+    const base = {
+      glyph: "+",
+      brush: { door: { material: "stone", state: "open", locked: true } },
+    };
+    const slab = instanceDocument(base, { overrides: {} });
+    expect(slab.glyph).toBe("#");
+    expect(slab.walkable).toBe(false);
+    expect(slab.blocks_sight).toBe(true);
+    expect(slab.brush.door.locked).toBe(false);
+    expect(slab.brush.door.state).toBe("closed");
+    expect(base.brush.door.state).toBe("open");
+  });
   it("undo/redo returns entire layered documents and clears redo on a branch", () => {
     const h = new History({ layers: [{ cells: [[null]] }] });
     h.commit({ layers: [{ cells: [[cell("█")]] }] } as any);

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "chill_touch",
+  "name": "Холодное прикосновение",
+  "description": "Атака заклинанием по соседней цели: 1d10 некротического урона. Блокировка лечения появится в будущем бою. Стоимость: 1 общий заряд заговора.",
+  "variants": [],
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 0,
+  "effects": [
+    {
+      "kind": "damage",
+      "amount": 0,
+      "dice": "1d10",
+      "condition": "",
+      "duration": 1,
+      "damage_type": "necrotic",
+      "params": {}
+    }
+  ],
+  "target": "other",
+  "school": "necromancy",
+  "modes": [
+    "combat"
+  ],
+  "range": 1,
+  "resolution": "attack",
+  "save_ability": null,
+  "cantrip_scaling": true,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": null,
+  "world_parameters": {},
+  "concentration": false,
+  "pending_effects": [
+    "блокировка лечения"
+  ],
+  "tags": []
+}

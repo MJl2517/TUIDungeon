@@ -7,5 +7,10 @@
   "foreground": 229,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_altar_moon"
+  "tags": [
+    "shrines",
+    "transparent"
+  ],
+  "challenge": "base:terrain_altar_moon",
+  "group": "Алтари и святыни"
 }

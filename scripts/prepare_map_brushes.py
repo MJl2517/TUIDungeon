@@ -8,6 +8,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from tuidungeon.content.packs import PackStore
 from tuidungeon.content.schemas import MODELS, TileBrush, TileLight
+from tuidungeon.domain.materials import MATERIAL_TAGS
 
 
 def prepare(root=PROJECT_ROOT / "packs"):
@@ -148,6 +149,7 @@ def prepare(root=PROJECT_ROOT / "packs"):
                     **visual,
                     description="Доступно по Enter с клетки или по соседству. Награда однократная.",
                     challenge=challenge,
+                    tags=sorted(tags & MATERIAL_TAGS),
                 ),
             )
             walkable = True
@@ -205,6 +207,7 @@ def prepare(root=PROJECT_ROOT / "packs"):
                         }
                         else 1,
                         weapon_damage=damage,
+                        durability=30,
                         tags=["weapon", tile.id],
                     )
                 elif "armor_decor" in tags:
@@ -244,7 +247,8 @@ def prepare(root=PROJECT_ROOT / "packs"):
                         tags=["ammunition", tile.id],
                         charges=1,
                     )
-            brush["item"] = add("equipment", raw)
+            raw["tags"] = sorted(set(raw.get("tags", [])) | (tags & MATERIAL_TAGS))
+            brush["item"] = "base:oil" if base_item == "oil" else add("equipment", raw)
             brush["underlay"] = "base:floor"
             walkable = True
             hint += " Подбираемый предмет с весом и свойствами снаряжения."

@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 import json
 
 from ..domain.equipment import Equipment
+from ..domain.materials import material_details, material_search_terms
+from ..domain.damage import DAMAGE_LABELS, profile_details
 
 
 CATEGORIES = {
@@ -47,7 +49,9 @@ class InventoryBrowser:
                             item.id,
                             item.definition.description,
                             label,
-                            *sorted(item.definition.tags),
+                            *sorted(item.definition.tags | item.effect_tags),
+                            "свечение свет glowing" if item.glow else "",
+                            *material_search_terms(item.definition.tags),
                         )
                     ).casefold()
                 )
@@ -121,13 +125,21 @@ def render_inventory(canvas, rect, hero, browser, *, character=False, focused=Tr
             checkbox = (
                 ("[*] " if item.equipped else "[ ] ") if item.definition.slot else ""
             )
-            available = max(1, rect.width - 4 - len(checkbox))
+            durability = (
+                f" ({item.durability}/{item.definition.durability})"
+                if item.durability is not None
+                else ""
+            )
+            glow = f" [свет:{item.glow.remaining_turns}]" if item.glow else ""
+            available = max(
+                1, rect.width - 4 - len(checkbox) - len(durability) - len(glow)
+            )
             name = (
                 item.name
                 if len(item.name) <= available
                 else item.name[: available - 1] + "~"
             )
-            text = f"{marker} {checkbox}{name}"
+            text = f"{marker} {checkbox}{name}{durability}{glow}"
         else:
             expanded = entry.category not in browser.collapsed or bool(browser.query)
             text = f"{marker} {'-' if expanded else '+'} {CATEGORIES[entry.category]} ({entry.count})"
@@ -211,7 +223,9 @@ def item_details(item):
             ]
         )
     if definition.weapon_damage:
+        lines.append("Тип урона: " + DAMAGE_LABELS[item.damage_type])
         lines.append("Характеристика атаки: " + definition.weapon_ability.value)
+    lines.extend(profile_details(definition.damage_profile))
     armor = [
         f"{effect.amount}"
         for effect in definition.properties
@@ -225,14 +239,29 @@ def item_details(item):
     lines.append("КД: " + (", ".join(armor) if armor else "не изменяет базовую"))
     if bonus:
         lines.append(f"Бонус КД: {bonus:+d}")
-    lines.append("Теги: " + (", ".join(sorted(definition.tags)) or "нет"))
+    lines.append(
+        "Теги: " + (", ".join(sorted(definition.tags | item.effect_tags)) or "нет")
+    )
+    lines.extend(material_details(definition.tags))
+    if item.ignition_source:
+        lines.append(
+            "5: поджечь одну из 8 соседних клеток. Факел должен гореть в руке; огненное оружие — быть экипировано."
+        )
+    if "lamp_oil" in definition.tags:
+        lines.append(
+            "Масло: лампа на час или бросок на клетку на 5 ходов; первый огонь +5 урона."
+        )
     lines.append("Особые свойства и эффекты:")
-    if not definition.properties:
+    if not definition.properties and not item.glow:
         lines.append("Нет.")
+    if item.glow:
+        lines.append("- " + item.glow.description)
     for effect in definition.properties:
         mechanic = mechanics.entries.get(effect.kind)
         name = mechanic.name if mechanic else effect.kind
         value = dice_text(effect.dice) if effect.dice else str(effect.amount)
+        if effect.kind == "damage" and effect.damage_type:
+            value += " (" + DAMAGE_LABELS[effect.damage_type] + ")"
         if effect.condition:
             value = f"{effect.condition}, {effect.duration} ход."
         if effect.params:

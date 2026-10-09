@@ -11,7 +11,8 @@
   "tags": [
     "floors",
     "walkable",
-    "transparent"
+    "transparent",
+    "flammable"
   ],
   "walkable": true,
   "blocks_sight": false

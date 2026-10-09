@@ -3,6 +3,8 @@
 import random
 from ..content.catalog import ContentCatalog, default_catalog
 from ..content.packs import runtime_key
+from ..content.compiler import compile_definition
+from ..content.placements import resolve_challenge
 from ..domain.actors import Hero, Monster
 from ..domain.stats import Stats
 from ..domain.equipment import Equipment
@@ -11,17 +13,57 @@ from ..domain.effects import EffectRegistry
 from ..world.level import Level, TrapInstance, PointInstance
 from ..world.maps import DungeonMap, Position
 from ..world.state import GameState, MonsterPlacement
+from ..world.doors import DoorInstance, door_placements, door_category
+from ..world.storage import StorageInstance
+from ..domain.doors import Door
 
 
-def create_test_hero(catalog: ContentCatalog | None = None) -> Hero:
+def create_test_hero(
+    catalog: ContentCatalog | None = None, character_class: str | None = None
+) -> Hero:
     """A fixed starter hero; custom catalogs fall back to their first definitions."""
     catalog = catalog or default_catalog()
     if not catalog.races or not catalog.classes:
         raise ValueError("Для тестового героя нужны расы и классы")
+    if character_class is not None:
+        if character_class not in catalog.classes:
+            raise ValueError(f"Неизвестный тестовый класс: {character_class}")
+        if character_class == "wizard":
+            return create_test_wizard(catalog)
     race = catalog.races.get("human") or catalog.ordered_races[0]
-    character_class = catalog.classes.get("warrior") or catalog.ordered_classes[0]
+    definition = (
+        catalog.classes[character_class]
+        if character_class is not None
+        else catalog.classes.get("warrior") or catalog.ordered_classes[0]
+    )
     return Hero.create(
-        race, character_class, Stats((14, 12, 13, 10, 10, 8)), catalog=catalog
+        race, definition, Stats((14, 12, 13, 10, 10, 8)), catalog=catalog
+    )
+
+
+def prepare_test_wizard(hero: Hero) -> Hero:
+    """Grant the developer spellbook without changing shared class definitions."""
+    if hero.character_class.id != "wizard":
+        raise ValueError("Для тестового волшебника нужен класс wizard")
+    hero.test_profile = "wizard"
+    hero.class_spells = tuple(hero.catalog.spells.values())
+    hero.max_spell_slots = {
+        level: max(10, hero.max_spell_slots.get(level, 0))
+        for level in sorted({s.level for s in hero.class_spells if s.level > 0})
+    }
+    hero.restore_after_rest()
+    return hero
+
+
+def create_test_wizard(catalog: ContentCatalog | None = None) -> Hero:
+    catalog = catalog or default_catalog()
+    if not catalog.races or "wizard" not in catalog.classes:
+        raise ValueError("Для тестового волшебника нужны раса и класс wizard")
+    race = catalog.races.get("human") or catalog.ordered_races[0]
+    return prepare_test_wizard(
+        Hero.create(
+            race, "wizard", Stats((10, 12, 14, 18, 12, 10)), catalog=catalog
+        )
     )
 
 
@@ -36,6 +78,7 @@ class SessionFactory:
         character_class="base:warrior",
         scores=(14, 12, 13, 10, 10, 8),
         background=None,
+        cantrips=None,
     ):
         self.store.get("races", race)
         self.store.get("classes", character_class)
@@ -47,33 +90,79 @@ class SessionFactory:
             Stats(tuple(scores)),
             catalog=self.catalog,
             background=runtime_key(background) if background else None,
+            cantrips=tuple(runtime_key(s) for s in cantrips)
+            if cantrips is not None
+            else None,
         )
         return hero
 
     def state(self, map_ref, hero):
         definition = self.store.get("maps", map_ref)
+        level = Level(map_ref, definition, self.store)
+        for p in door_placements(self.store, definition):
+            tile = self.store.resolve(door_category(self.store, p.ref), p)
+            if tile.brush.door is None:
+                raise ValueError("Размещение двери должно ссылаться на тайл с door")
+            level.doors.append(DoorInstance(p, tile, Door.from_spec(tile.brush.door)))
+        # DungeonMap keeps underlying terrain; mutable doors are a separate overlay.
+        level.terrain
+        base = level._base_terrain
         rows = tuple(
-            "".join("." if c else "#" for c in row) for row in definition.walkability
+            "".join("." if c else "#" for c in row) for row in base.walkability
         )
         state = GameState(
             hero, DungeonMap(rows), Position(definition.spawn.x, definition.spawn.y)
         )
-        level = Level(map_ref, definition, self.store)
+        if not level.terrain.walkability[state.position.y][state.position.x]:
+            raise ValueError("Старт героя закрыт объектом")
         effects = EffectRegistry.default()
         for p in definition.traps:
-            level.traps.append(TrapInstance(p, self.store.get("traps", p.ref)))
+            level.traps.append(TrapInstance(p, self.store.resolve("traps", p)))
         for p in definition.points_of_interest:
-            point = self.store.get("points_of_interest", p.ref)
+            point = self.store.resolve("points_of_interest", p)
+            challenge_document = resolve_challenge(self.store.documents, point, p)
             challenge = TextChallenge(
-                self.catalog.challenges[runtime_key(point.challenge)], effects
+                compile_definition("challenges", point.challenge, challenge_document)
+                if p.challenge_overrides
+                else self.catalog.challenges[runtime_key(point.challenge)],
+                effects,
             )
             level.points.append(PointInstance(p, point, challenge))
         for p in definition.equipment:
-            level.items.append(
-                (p, Equipment.create(self.catalog.equipment[runtime_key(p.ref)]))
-            )
+            item = Equipment.create(self.store.placement_definition("equipment", p))
+            if p.overrides:
+                item.template = self.store.resolve("equipment", p).model_dump(
+                    mode="json"
+                )
+            level.items.append((p, item))
+        for category in ("objects", "points_of_interest"):
+            for p in getattr(definition, category):
+                obj = self.store.resolve(category, p)
+                if obj.storage is None:
+                    continue
+                container = StorageInstance(p, obj, obj.storage)
+                for entry in obj.storage.contents:
+                    item_definition = self.catalog.equipment[runtime_key(entry.item)]
+                    container.items.extend(
+                        Equipment.create(item_definition) for _ in range(entry.quantity)
+                    )
+                if container.weight > container.spec.capacity + 1e-9:
+                    raise ValueError(
+                        "Начальное содержимое превышает вместимость контейнера"
+                    )
+                level.containers.append(container)
         for p in definition.monsters:
-            monster = Monster.create(runtime_key(p.ref), catalog=self.catalog)
+            if not level.terrain.walkability[p.y][p.x]:
+                raise ValueError("Существо размещено на непроходимой клетке")
+            monster = Monster.create(
+                runtime_key(p.ref),
+                catalog=self.catalog,
+                definition=self.store.placement_definition("monsters", p),
+            )
+            if p.overrides:
+                monster.template = self.store.resolve("monsters", p).model_dump(
+                    mode="json"
+                )
             monster.definition_ref = p.ref
             state.monsters.append(MonsterPlacement(monster, Position(p.x, p.y)))
         state.level = level
@@ -87,10 +176,13 @@ class SessionFactory:
         seed=0,
         scores=(14, 12, 13, 10, 10, 8),
         background=None,
+        cantrips=None,
     ):
         from .engine import Engine
 
         return Engine(
-            self.state(map_ref, self.hero(race, character_class, scores, background)),
+            self.state(
+                map_ref, self.hero(race, character_class, scores, background, cantrips)
+            ),
             random.Random(seed),
         )

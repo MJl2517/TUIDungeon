@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "bookcase",
+  "name": "Книжный шкаф",
+  "description": "Мебель. Книжный шкаф. Преграда движению. Закрывает обзор и свет.",
+  "variants": [],
+  "glyph": "K",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Мебель",
+  "tags": [
+    "flammable",
+    "furniture",
+    "obstacle",
+    "opaque",
+    "storage",
+    "wooden"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
+}

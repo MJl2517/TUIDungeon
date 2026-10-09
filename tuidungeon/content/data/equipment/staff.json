@@ -5,9 +5,13 @@
   "weight": 2,
   "tags": [
     "weapon",
-    "focus"
+    "focus",
+    "bludgeoning",
+    "flammable",
+    "wooden"
   ],
   "slot": "weapon",
   "durability": 30,
-  "weapon_damage": "1d6"
+  "weapon_damage": "1d6",
+  "damage_type": "bludgeoning"
 }

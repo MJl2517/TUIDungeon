@@ -2,10 +2,19 @@
   "schema_version": 1,
   "id": "crowbar",
   "name": "Ломик",
-  "weight": 2.0,
+  "description": "В руке даёт преимущество только на выламывание двери. Каждая попытка тратит 1 прочность из 5. Сломанный ломик не даёт преимущества.",
   "category": "tools",
+  "weight": 2.0,
   "tags": [
     "lever"
   ],
-  "description": "Стальной рычаг для работы с тяжёлыми предметами."
+  "durability": 5,
+  "slot": "hand",
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 1,
+  "light": null
 }

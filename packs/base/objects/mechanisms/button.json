@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "button",
+  "name": "Кнопка",
+  "description": "Механизмы. Кнопка. Проходимая клетка. Пропускает обзор и свет. Чтобы переключатель действовал, добавьте точку интереса с испытанием.",
+  "glyph": "P",
+  "foreground": 246,
+  "background": null,
+  "art": null,
+  "group": "Механизмы",
+  "tags": [
+    "mechanisms",
+    "walkable",
+    "transparent"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  }
+}

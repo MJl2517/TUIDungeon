@@ -51,7 +51,7 @@ def run():
                 page.on("pageerror", lambda error: errors.append(str(error)))
                 page.goto(f"http://127.0.0.1:{port}")
                 try:
-                    expect(page.locator(".home-card")).to_have_count(13, timeout=15000)
+                    expect(page.locator(".home-card")).to_have_count(14, timeout=15000)
                 except AssertionError:
                     print("Initial Studio state:", page.locator("body").inner_text())
                     print("Browser errors:", errors)
@@ -77,15 +77,23 @@ def run():
                 page.get_by_label("Свернуть навигацию").click()
                 cards = page.locator(".palette-grid .palette-tile")
                 group = page.get_by_label("Группа тайлов")
-                query = page.get_by_label("Поиск тайлов")
-                expect(cards).to_have_count(441)
-                group.select_option(label="Двери и проходы")
-                expect(cards).to_have_count(16)
+                query = page.locator(".map-palette input[placeholder]")
+                library = page.request.get(
+                    f"http://127.0.0.1:{port}/api/library"
+                ).json()
+                tile_count = sum(
+                    entry["category"] == "tiles" for entry in library["documents"]
+                )
+                expect(cards).to_have_count(tile_count)
+                group.select_option(index=1)
+                assert 0 < cards.count() < tile_count
                 query.fill("ДВЕРЬ transparent")
-                expect(cards).to_have_count(4)
-                query.fill("╫")
+                expect(
+                    page.locator('.palette-tile[data-ref="base:door_bars"]')
+                ).to_be_visible()
+                query.fill("base:door_bars")
                 expect(cards).to_have_count(1)
-                door = page.locator('.palette-tile[data-ref="base:door_grate"]')
+                door = page.locator('.palette-tile[data-ref="base:door_bars"]')
                 expect(door).to_have_attribute(
                     "title", re.compile("Движение запрещено")
                 )
@@ -108,7 +116,6 @@ def run():
                     )
 
                 def choose(identifier):
-                    group.select_option(label="Все группы")
                     query.fill(identifier)
                     page.locator(f'.palette-tile[data-ref="base:{identifier}"]').click()
 
@@ -124,19 +131,21 @@ def run():
                 query.fill("несуществующий_тайл")
                 expect(cards).to_have_count(0)
                 paint(6, 3)
-                expect(page.locator(".statusbar")).to_contain_text("Тайлы не найдены")
+                expect(page.locator(".statusbar")).to_contain_text(
+                    "Нет объектов для рисования"
+                )
                 query.fill("")
                 page.get_by_label("Начальные маски тайла", exact=True).check()
                 page.get_by_label("Свойства тайлов").select_option("mechanics")
-                expect(cards).to_have_count(191)
+                expect(cards).to_have_count(0)
                 page.get_by_label("Сортировка палитры").select_option("id")
                 choose("torch_wall")
                 paint(7, 3)
-                choose("pressure_plate")
+                choose("terrain_pressure_plate")
                 paint(2, 1)
-                choose("decor_dagger")
+                choose("dagger")
                 paint(3, 1)
-                choose("chest")
+                choose("terrain_chest")
                 paint(4, 1)
                 choose("portal")
                 page.get_by_label("Карта назначения").select_option("base:dungeon")
@@ -160,9 +169,10 @@ def run():
                     return response.json()["document"]
 
                 saved = save()
-                assert saved["tiles"][3][3] == "base:door_grate"
+                assert saved["doors"][0]["ref"] == "base:door_bars"
+                assert saved["tiles"][3][3] is None
                 assert (saved["walkability"][3][3], saved["blocks_sight"][3][3]) == (
-                    False,
+                    True,
                     False,
                 )
                 assert (
@@ -171,13 +181,13 @@ def run():
                 )
                 assert saved["tiles"][3][6] is None
                 assert (
-                    len(saved["lights"])
-                    == len(saved["traps"])
+                    len(saved["traps"])
                     == len(saved["equipment"])
                     == len(saved["points_of_interest"])
                     == len(saved["transitions"])
                     == 1
                 )
+                assert len(saved["objects"]) == 2 and not saved["lights"]
 
                 view = page.locator(".map-viewport")
                 view.scroll_into_view_if_needed()
@@ -218,7 +228,7 @@ def run():
                 expect(page.locator(".unsaved")).to_have_count(0)
                 page.keyboard.press("Digit0")
                 query.fill("")
-                page.get_by_label("Свойства тайлов").select_option("all")
+                page.get_by_label("Слой карты").select_option("doors")
                 page.locator(".map-options .layer-badge").click()
                 page.keyboard.press("KeyI")
                 expect(page.get_by_title("Пипетка · I", exact=True)).to_have_class(
@@ -233,11 +243,14 @@ def run():
                 page.locator(".map-options .layer-badge").click()
                 paint(3, 3)
                 expect(
-                    page.locator('.palette-tile[data-ref="base:door_grate"]')
+                    page.locator('.palette-tile[data-ref="base:door_bars"]')
                 ).to_have_attribute("aria-pressed", "true")
                 paint(9, 4)
                 saved = save()
-                assert saved["tiles"][4][9] == "base:door_grate"
+                assert any(
+                    door["ref"] == "base:door_bars" and (door["x"], door["y"]) == (9, 4)
+                    for door in saved["doors"]
+                )
                 before = float(page.get_by_label("Масштаб карты").input_value())
                 page.mouse.move(box["x"] + 200, box["y"] + 200)
                 page.keyboard.down("Control")
@@ -312,16 +325,18 @@ def run():
                     page.get_by_label("Название документа", exact=True)
                 ).to_have_value("Проверка тайлов")
                 page.locator('.navigation [data-category="tiles"]').click()
-                page.locator(".library .search").fill("╫ transparent door_grate")
+                page.get_by_label("Поиск по всей библиотеке").fill(
+                    "+ transparent door_bars"
+                )
                 expect(page.locator(".library-list .library-entry")).to_have_count(1)
                 page.locator(".library-list .library-entry").click()
-                expect(page.get_by_label("Группа тайлов", exact=True)).to_have_value(
-                    "Двери и проходы"
+                expect(page.get_by_label("Группа", exact=True)).to_have_value(
+                    "Двери"
                 )
                 assert not errors, errors
                 browser.close()
                 print(
-                    "Browser OK: home, single collapsible navigation, visual palette + filters, masks, generated mechanics, pan + hotkeys + eyedropper, save/reopen, Python playtest + reset."
+                    "Browser OK: home, single collapsible navigation, global palette search + filters, independent masks, native placements, pan + hotkeys + eyedropper, save/reopen, Python playtest + reset."
                 )
         finally:
             server.should_exit = True

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "acid_flask",
+  "name": "Флакон кислоты",
+  "description": "Кислота наносит 2d6 урона. Сталь и прутья получают двойной урон и затем 2 урона коррозией в минуту. Бросьте флакон в дверь; одна порция.",
+  "glyph": "!",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "category": "consumables",
+  "weight": 0.5,
+  "tags": [
+    "acid",
+    "consumable",
+    "throwable"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": "2d6",
+  "weapon_ability": "strength",
+  "charges": 1,
+  "hands": 0,
+  "light": null,
+  "group": "Снаряжение",
+  "damage_type": "acid"
+}

@@ -13,10 +13,17 @@ export const sections: Record<
   },
   tiles: {
     icon: "▦",
-    name: "Тайлы и кисти",
+    name: "Поверхности",
     description:
-      "Одна клетка: рисунок, проходимость и готовые размещения механики.",
+      "Пол, стены, вода и природный рельеф; независимые маски карты.",
     family: "Мир",
+  },
+  objects: {
+    icon: "+",
+    name: "Окружение",
+    description:
+      "Двери, мебель, свет и переходы: рисунок и свойства в одном шаблоне.",
+    family: "Объекты",
   },
   art: {
     icon: "░",
@@ -152,7 +159,59 @@ export function brushDescription(
     tile.walkable ? "Проход разрешён" : "Движение запрещено",
     tile.blocks_sight ? "Закрывает обзор и свет" : "Пропускает обзор и свет",
   ];
+  if ((tile.tags ?? []).includes("wooden"))
+    rules.push("Материал: дерево / деревянные части.");
+  if ((tile.tags ?? []).includes("flammable"))
+    rules.push("Горючий материал (flammable).");
   const brush = tile.brush ?? {};
+  if (brush.door) {
+    const d = brush.door;
+    const dc: Record<string, number> = {
+      cheap: 10,
+      normal: 15,
+      expensive: 20,
+      legendary: 25,
+    };
+    const force: Record<string, number> = {
+      wood: 10,
+      bars: 15,
+      steel: 20,
+      adamantine: 25,
+    };
+    if (d.material !== "stone")
+      rules.push(
+        `Enter: открыть / закрыть / вскрыть / выломать. Взлом: СЛ ${dc[d.lock_quality ?? "normal"]}, ${d.lock_complexity === "complex" ? 10 : 1} ход(ов). Нужны исправные воровские инструменты; провал: −1 прочность.`,
+      );
+    if (d.material !== "stone")
+      rules.push(
+        `Выломать: СИЛ, СЛ ${force[d.material ?? "wood"]}. Ломик в руке: преимущество, −1 прочность за попытку.`,
+      );
+    rules.push(
+      d.material === "stone"
+        ? "Обозначение: # каменная плита."
+        : "Обозначения: + закрыта, X заперта, / открыта. Цвет задаёт материал.",
+    );
+    rules.push(
+      d.material === "stone"
+        ? "Выделение (V) → плита: HP конкретного экземпляра."
+        : "Выделение (V) → дверь: состояние, замок и HP конкретного экземпляра.",
+    );
+    if (d.material === "bars")
+      rules.push("Прутья пропускают свет; согнуть: СИЛ, СЛ 20.");
+    if (d.material === "wood") rules.push("Можно атаковать и поджечь.");
+    if (d.material === "steel")
+      rules.push(
+        "Физический урон не действует; кислота наносит двойной урон и вызывает коррозию.",
+      );
+    if (d.material === "stone")
+      rules.push(
+        "Каменная плита: нельзя открыть, вскрыть или выломать; только разрушение киркой или дробящими атаками.",
+      );
+    if (d.material === "adamantine")
+      rules.push(
+        "Неуничтожима; «Дневной свет» волшебника превращает её в каменную.",
+      );
+  }
   if (brush.trap) {
     const trap = assets["traps/" + brush.trap];
     rules.push(
@@ -231,4 +290,22 @@ function effectDescription(effect: Doc): string {
 
 export function paletteEntry(entry: Entry, assets: Record<string, Doc>): Doc {
   return assets[entry.category + "/" + entry.ref] ?? entry;
+}
+
+export function paletteLayer(
+  entry: Entry,
+  assets: Record<string, Doc>,
+): string | null {
+  if (entry.category === "art") return "decorations";
+  if (entry.category === "objects")
+    return paletteEntry(entry, assets).brush?.door ? "doors" : "objects";
+  return [
+    "tiles",
+    "equipment",
+    "traps",
+    "points_of_interest",
+    "monsters",
+  ].includes(entry.category)
+    ? entry.category
+    : null;
 }

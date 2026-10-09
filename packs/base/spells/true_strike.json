@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "true_strike",
+  "name": "Истинный удар",
+  "description": "Задел для будущего боя: преимущество следующей атаки оружием. Пока применение недоступно и заряд не тратится. Стоимость: 1 общий заряд заговора.",
+  "variants": [],
+  "glyph": "?",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "level": 0,
+  "effects": [],
+  "target": "self",
+  "school": "divination",
+  "modes": [
+    "combat"
+  ],
+  "range": 6,
+  "resolution": "automatic",
+  "save_ability": null,
+  "cantrip_scaling": false,
+  "wounded_dice": null,
+  "max_targets": 1,
+  "world_effect": null,
+  "world_parameters": {},
+  "concentration": false,
+  "pending_effects": [
+    "преимущество следующей атаки оружием в бою"
+  ],
+  "tags": []
+}

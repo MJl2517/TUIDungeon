@@ -10,10 +10,14 @@
   "category": "weapons",
   "weight": 2.0,
   "tags": [
+    "decor_halberd",
+    "flammable",
+    "transparent",
     "weapon",
-    "decor_halberd"
+    "weapon_decor",
+    "wooden"
   ],
-  "durability": null,
+  "durability": 30,
   "slot": "weapon",
   "properties": [],
   "check_aids": [],
@@ -21,5 +25,7 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 2,
-  "light": null
+  "light": null,
+  "group": "Декорации: оружие",
+  "damage_type": "slashing"
 }

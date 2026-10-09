@@ -2,12 +2,47 @@
   "schema_version": 1,
   "id": "rations",
   "name": "Дорожный паёк",
-  "weight": 1.0,
-  "category": "consumables",
-  "tags": [
-    "food"
-  ],
   "description": "Запас еды на день. Механика голода пока не добавлена.",
   "glyph": "r",
-  "foreground": 7
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "category": "consumables",
+  "weight": 1.0,
+  "tags": [
+    "flammable",
+    "food",
+    "supplies_decor",
+    "transparent"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 0,
+  "light": null,
+  "variants": [
+    {
+      "name": "Еда",
+      "glyph": "%",
+      "foreground": 10,
+      "background": null
+    },
+    {
+      "name": "Пища",
+      "glyph": "F",
+      "foreground": 10,
+      "background": null
+    },
+    {
+      "name": "Рацион",
+      "glyph": "r",
+      "foreground": 10,
+      "background": null
+    }
+  ],
+  "group": "Декорации: припасы"
 }

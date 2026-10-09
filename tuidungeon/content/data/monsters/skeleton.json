@@ -25,11 +25,23 @@
       "id": "bone_strike",
       "name": "Костяной удар",
       "kind": "attack",
-      "damage": "1d6"
+      "damage": "1d6",
+      "damage_type": "bludgeoning"
     }
   ],
   "tags": [
     "undead"
   ],
-  "art": "skeleton"
+  "art": "skeleton",
+  "damage_profile": {
+    "resistances": [
+      "piercing"
+    ],
+    "vulnerabilities": [
+      "bludgeoning"
+    ],
+    "immunities": [
+      "poison"
+    ]
+  }
 }

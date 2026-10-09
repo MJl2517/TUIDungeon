@@ -1,8 +1,9 @@
 {
   "schema_version": 1,
   "id": "floor_slab",
-  "name": "Каменная плита",
+  "name": "Напольная плита",
   "description": "Полы. Каменная плита. Проходимая клетка. Пропускает обзор и свет.",
+  "variants": [],
   "glyph": "◫",
   "foreground": 8,
   "background": null,
@@ -14,5 +15,14 @@
     "transparent"
   ],
   "walkable": true,
-  "blocks_sight": false
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  }
 }

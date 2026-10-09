@@ -109,23 +109,28 @@ class TerminalScreen:
         elif command == "b":
             for _ in range(count):
                 self.put(self.last_character)
-        elif command in "ST":
-            count = min(count, self.scroll_bottom - self.scroll_top + 1)
-            region = self.cells[self.scroll_top : self.scroll_bottom + 1]
+        elif command in "STLM":
+            if command in "LM" and not self.scroll_top <= self.y <= self.scroll_bottom:
+                return
+            top = self.y if command in "LM" else self.scroll_top
+            count = min(count, self.scroll_bottom - top + 1)
+            region = self.cells[top : self.scroll_bottom + 1]
             blanks = [[" "] * self.width for _ in range(count)]
-            self.cells[self.scroll_top : self.scroll_bottom + 1] = (
-                region[count:] + blanks if command == "S" else blanks + region[:-count]
+            upwards = command in "SM"
+            self.cells[top : self.scroll_bottom + 1] = (
+                region[count:] + blanks if upwards else blanks + region[:-count]
             )
-            previous = self.bold_cells.copy()
-            offset = count if command == "S" else -count
-            for row in range(self.scroll_top, self.scroll_bottom + 1):
-                for column in range(self.width):
-                    source = row + offset
-                    self.bold_cells[row, column] = (
-                        previous.get((source, column), False)
-                        if self.scroll_top <= source <= self.scroll_bottom
-                        else False
-                    )
+            offset = count if upwards else -count
+            for attributes in (self.bold_cells, self.reverse_cells):
+                previous = attributes.copy()
+                for row in range(top, self.scroll_bottom + 1):
+                    for column in range(self.width):
+                        source = row + offset
+                        attributes[row, column] = (
+                            previous.get((source, column), False)
+                            if top <= source <= self.scroll_bottom
+                            else False
+                        )
         else:
             raise AssertionError(f"Unhandled terminal command: {parameters}{command}")
         self.x = max(0, min(self.x, self.width - 1))
@@ -199,6 +204,7 @@ class TerminalSession(unittest.TestCase):
     map_ref = None
     test_map = False
     direct_test_map = False
+    test_profile = None
 
     def setUp(self):
         self.master, self.slave = pty.openpty()
@@ -238,7 +244,8 @@ class TerminalSession(unittest.TestCase):
                 if self.map_ref
                 else []
             )
-            + (["--test-map"] if self.test_map and not self.direct_test_map else []),
+            + (["--test-map"] if self.test_map and not self.direct_test_map else [])
+            + (["--test-wizard"] if self.test_profile == "wizard" else []),
             cwd="/tmp",
             env=env,
             stdin=self.slave,
@@ -256,6 +263,7 @@ class TerminalSession(unittest.TestCase):
             map_ref=self.map_ref,
             catalog=catalog,
             test_map=self.test_map,
+            test_profile=self.test_profile,
             save_path=self.save_path,
             store=store,
         )
@@ -301,7 +309,65 @@ class TerminalSession(unittest.TestCase):
         self.expect_frame()
 
 
+class WizardTerminalTests(TerminalSession):
+    map_ref = "base:crypt"
+    test_profile = "wizard"
+
+    def test_wizard_direct_launch_spell_menu_save_and_exit(self):
+        import json
+
+        self.assertEqual(self.controller.view, View.EXPLORE)
+        hero = self.controller.engine.state.hero
+        self.assertEqual(hero.character_class.id, "wizard")
+        self.assertEqual({s.id for s in hero.known_spells}, set(hero.catalog.spells))
+        self.key(b"3", "3")
+        self.key(b"2", "2")
+        self.key(b"\x7f", "backspace")
+        self.key(b"\x7f", "backspace")
+        self.key(b"m", "m")
+        self.key(b"1", "1")
+        saved = json.loads(self.save_path.read_text())
+        self.assertEqual(saved["test_profile"], "wizard")
+        self.key(b"q", "q")
+        self.key(b"2", "2")
+        self.assertEqual(self.process.wait(timeout=3), 0)
+        self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
+
+
 class TerminalTests(TerminalSession):
+    def test_cantrip_item_cast_cancel_and_save_in_real_terminal(self):
+        import json
+
+        self.key(b"\r", "enter")
+        for digit in b"121212345612371":
+            self.key(bytes([digit]), chr(digit))
+        self.assertEqual(self.controller.view, View.EXPLORE)
+        hero = self.controller.engine.state.hero
+        maximum = hero.max_cantrip_uses
+        for digit in b"3231":  # Actions → Magic → Light → staff.
+            self.key(bytes([digit]), chr(digit))
+        self.assertEqual(
+            (hero.cantrip_uses, self.controller.engine.state.turns), (maximum - 1, 1)
+        )
+        self.assertEqual(self.controller.engine.magic_effects[0].turns, 10)
+        for digit in b"324":
+            self.key(bytes([digit]), chr(digit))
+        self.assertEqual(self.controller.view, View.SPELL_TARGET)
+        self.key(b"d", "d")
+        self.key(b"\x08", "backspace")
+        self.assertEqual(
+            (hero.cantrip_uses, self.controller.engine.state.turns), (maximum - 1, 1)
+        )
+        self.key(b"m", "m")
+        self.key(b"1", "1")
+        saved = json.loads(self.save_path.read_text())
+        self.assertEqual(saved["hero"]["cantrip_uses"], maximum - 1)
+        self.assertEqual(saved["magic_effects"][0]["kind"], "light")
+        self.key(b"q", "q")
+        self.key(b"2", "2")
+        self.assertEqual(self.process.wait(timeout=3), 0)
+        self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
+
     def test_wasd_creation_buttons_background_confirmation_and_bold_focus(self):
         self.key(b"\r", "enter")
         self.key(b"d", "d")
@@ -315,6 +381,8 @@ class TerminalTests(TerminalSession):
         self.key(b"\r", "enter")
         for _ in range(6):
             self.key(b"\r", "enter")
+        for digit in b"1237":
+            self.key(bytes([digit]), chr(digit))
         line = self.screen.lines()[18]
         self.assertIn("[ Начать приключение ]", line)
         self.assertTrue(self.screen.bold_cells.get((18, line.index("["))))
@@ -369,7 +437,7 @@ class TerminalTests(TerminalSession):
         self.key(b"2", "2")
         self.key(b"1", "1")
         self.key(b"\x08", "backspace")
-        for digit in b"1234561":
+        for digit in b"12345612371":
             self.key(bytes([digit]), chr(digit))
         self.key(b"\x1bOC", "right")  # Application-mode arrow, enabled by keypad(True).
         self.assertTrue(self.controller.spells_tab)
@@ -471,6 +539,8 @@ class MapTerminalTests(TerminalSession):
         self.key(b"\x7f", "backspace")
         self.assertEqual(engine.state.turns, turns)
         self.key(b"\r", "enter")
+        self.assertIs(self.controller.view, View.STORAGE)
+        self.key(b"\x1bOS", "f4")
         self.key(b"2", "2")
         self.assertTrue(engine.state.level.points[0].challenge.completed)
         self.key(b"\x1bOC", "right")
@@ -480,6 +550,36 @@ class MapTerminalTests(TerminalSession):
         self.key(b"q", "q")
         self.key(b"2", "2")
         self.process.wait(timeout=3)
+        self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
+
+
+class StorageTerminalTests(TerminalSession):
+    map_ref = "dev:storage_lab"
+    test_map = True
+
+    def test_exchange_slider_cancel_resize_and_restore_terminal(self):
+        self.key(b"\r", "enter")
+        self.key(b"1", "1")  # Several objects nearby: choose the personal chest.
+        self.assertIs(self.controller.view, View.STORAGE)
+        self.key(b"\r", "enter")
+        self.assertIsNotNone(self.controller.storage.pending)
+        self.key(b"\x1bOC", "right")
+        self.assertEqual(self.controller.storage.quantity, 2)
+        self.key(b"\x7f", "backspace")
+        self.assertIsNone(self.controller.storage.pending)
+        self.key(b"\x1b[15~", "f5")
+        self.key(b"\x1bOC", "right")
+        self.key(b"\r", "enter")
+        container = self.controller.engine.storage_at("personal_chest")
+        self.assertEqual(len(container.items), 3)
+        self.key(b"\t", "tab")
+        self.resize(100, 30)
+        self.expect_frame()
+        self.assertEqual(self.controller.engine.state.turns, 0)
+        self.key(b"\x7f", "backspace")
+        self.key(b"q", "q")
+        self.key(b"2", "2")
+        self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
 
 

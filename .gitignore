@@ -9,6 +9,7 @@ studio/*.tsbuildinfo
 
 .ruff_cache/
 saves/
+backups/
 
 .agents/
 .codex/

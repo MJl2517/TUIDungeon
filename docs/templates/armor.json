@@ -9,6 +9,11 @@
   ],
   "slot": "armor",
   "durability": 80,
+  "damage_profile": {
+    "resistances": [],
+    "vulnerabilities": [],
+    "immunities": []
+  },
   "properties": [
     {
       "kind": "armor_class",

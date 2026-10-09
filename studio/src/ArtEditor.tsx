@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Grid } from "./Grid";
 import {
   Cell,
@@ -61,6 +61,7 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
   } | null>(null);
   const index = Math.min(layerIndex, doc.layers.length - 1);
   const shown = preview ?? doc;
+  const cells = useMemo(() => compose(shown), [shown]);
   const currentCell: Cell = { char: glyph, foreground: fg, background: bg };
   function paint(base: Doc, points: Point[], erase = false) {
     const next = clone(base);
@@ -275,7 +276,7 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
         </div>
         <div className="canvas-scroll">
           <Grid
-            cells={compose(shown)}
+            cells={cells}
             overlays={[
               {
                 cells: Array.from({ length: doc.height }, (_, y) =>

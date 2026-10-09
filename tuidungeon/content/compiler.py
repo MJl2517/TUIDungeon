@@ -22,7 +22,7 @@ REFERENCE_FIELDS = {
     "spells": ("art",),
     "actions": (),
     "races": ("art", "racial_spell"),
-    "classes": ("art", "starting_items", "spells", "actions"),
+    "classes": ("art", "starting_items", "spells", "actions", "cantrip_choices"),
     "backgrounds": ("art", "classes", "starting_items"),
     "monsters": ("art", "inventory", "spells", "actions"),
     "challenges": (),
@@ -44,32 +44,44 @@ class CompiledCatalog(ContentCatalog):
         return self
 
 
+def compile_definition(category, ref, doc):
+    raw = doc.model_dump(mode="json")
+    for name in REFERENCE_FIELDS[category]:
+        value = raw.get(name)
+        if isinstance(value, list):
+            raw[name] = [runtime_key(v) for v in value]
+        elif isinstance(value, str):
+            raw[name] = runtime_key(value)
+    raw.pop("schema_version", None)
+    raw["id"] = runtime_key(ref)
+    for name in (
+        "glyph",
+        "foreground",
+        "background",
+        "art",
+        "variants",
+        "group",
+        "map_light",
+    ):
+        raw.pop(name, None)
+    if category == "monsters":
+        raw["art"] = None
+    if category == "challenges":
+        raw.pop("description", None)
+        for choice in raw["choices"]:
+            if not choice.get("check_tag"):
+                choice.pop("check_tag", None)
+    return ContentCatalog()._parse(
+        category, raw, ACTION_KINDS, frozenset(mechanics.entries)
+    )
+
+
 def compile_catalog(documents):
     result, sources = CompiledCatalog(), {}
     for (category, ref), doc in documents.items():
         if category not in REFERENCE_FIELDS:
             continue
-        raw = doc.model_dump(mode="json")
-        for name in REFERENCE_FIELDS[category]:
-            value = raw.get(name)
-            if isinstance(value, list):
-                raw[name] = [runtime_key(v) for v in value]
-            elif isinstance(value, str):
-                raw[name] = runtime_key(value)
-        raw.pop("schema_version", None)
-        raw["id"] = runtime_key(ref)
-        for name in ("glyph", "foreground", "background", "art"):
-            raw.pop(name, None)
-        if category == "monsters":
-            raw["art"] = None
-        if category == "challenges":
-            raw.pop("description", None)
-            for choice in raw["choices"]:
-                if not choice.get("check_tag"):
-                    choice.pop("check_tag", None)
-        definition = result._parse(
-            category, raw, ACTION_KINDS, frozenset(mechanics.entries)
-        )
+        definition = compile_definition(category, ref, doc)
         getattr(result, category)[definition.id] = definition
         sources[category, definition.id] = ref
     result._validate_references(sources)
@@ -117,3 +129,15 @@ class ContentSnapshot:
 
     def snapshot(self):
         return self
+
+    def resolve(self, category, placement):
+        from .placements import resolve_placement
+
+        return resolve_placement(self.documents, category, placement)
+
+    def placement_definition(self, category, placement):
+        if not placement.overrides:
+            return getattr(self.catalog, category)[runtime_key(placement.ref)]
+        return compile_definition(
+            category, placement.ref, self.resolve(category, placement)
+        )

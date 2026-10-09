@@ -1,11 +1,18 @@
 {
   "schema_version": 1,
   "id": "terrain_amulet",
-  "name": "Амулет",
+  "name": "Тайник с амулетом",
   "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "variants": [],
   "glyph": "◊",
   "foreground": 11,
   "background": null,
   "art": null,
+  "group": "Сокровища",
+  "map_light": null,
+  "tags": [
+    "transparent",
+    "treasure"
+  ],
   "challenge": "base:terrain_amulet"
 }

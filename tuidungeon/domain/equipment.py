@@ -4,6 +4,29 @@ from dataclasses import dataclass, field
 from uuid import uuid4
 
 from .definitions import EquipmentDefinition
+from .materials import FLAMMABLE, WOODEN
+
+
+def find_lockpicks(inventory):
+    """Find working thieves' tools; custom packs share the lockpicks tag."""
+    return next((item for item in inventory if "lockpicks" in item.tags), None)
+
+
+@dataclass(frozen=True)
+class ItemGlow:
+    """Read-only view of a session-owned light enchantment."""
+
+    remaining_turns: int
+    radius: int
+    bright_radius: int
+
+    @property
+    def description(self):
+        return (
+            f"Свечение (Свет): осталось {self.remaining_turns} ход.; "
+            f"яркий радиус {self.bright_radius}, общий {self.radius} кл. "
+            "Без топлива и свободной руки."
+        )
 
 
 @dataclass
@@ -15,6 +38,8 @@ class Equipment:
     instance_id: str = field(default_factory=lambda: str(uuid4()), compare=False)
     fuel_minutes: int = 0
     lit: bool = False
+    template: dict | None = field(default=None, repr=False, compare=False)
+    glow: ItemGlow | None = field(default=None, repr=False, compare=False)
 
     @classmethod
     def create(
@@ -92,6 +117,15 @@ class Equipment:
         return "tools"
 
     @property
+    def damage_type(self):
+        # Compatibility for weapons authored before the typed field existed.
+        return (
+            "fire"
+            if "fire_damage" in self.definition.tags
+            else self.definition.damage_type
+        )
+
+    @property
     def broken(self) -> bool:
         return self.durability is not None and self.durability <= 0
 
@@ -101,7 +135,33 @@ class Equipment:
 
     @property
     def tags(self) -> frozenset[str]:
-        return self.definition.tags if self.usable else frozenset()
+        return (self.definition.tags if self.usable else frozenset()) | self.effect_tags
+
+    @property
+    def effect_tags(self) -> frozenset[str]:
+        return frozenset({"glowing"}) if self.glow else frozenset()
+
+    @property
+    def ignition_source(self) -> bool:
+        return bool(self.tags & {"поджог", "ignite", "fire_damage"})
+
+    @property
+    def flammable(self) -> bool:
+        return FLAMMABLE in self.definition.tags
+
+    @property
+    def wooden(self) -> bool:
+        return WOODEN in self.definition.tags
+
+    @property
+    def can_ignite(self) -> bool:
+        if not self.ignition_source:
+            return False
+        if self.definition.light:
+            return self.equipped and self.shining
+        if self.definition.weapon_damage:
+            return self.equipped
+        return True
 
     def wear(self, amount: int) -> None:
         if amount < 0:

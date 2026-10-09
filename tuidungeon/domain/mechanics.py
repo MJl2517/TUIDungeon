@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 import re
 from pydantic import BaseModel, ConfigDict, Field
+from .damage import DamageType
 
 
 class Parameters(BaseModel):
@@ -12,6 +13,12 @@ class Parameters(BaseModel):
 class AmountParameters(Parameters):
     amount: int = Field(default=0, ge=0)
     dice: str | None = None
+
+
+class DamageParameters(AmountParameters):
+    damage_type: DamageType | None = Field(
+        default=None, description="Один из 13 типов; без типа — прежний прямой урон"
+    )
 
 
 class ConditionParameters(Parameters):
@@ -56,6 +63,10 @@ class MechanicsRegistry:
                 if effect.kind == "condition"
                 else {"amount": effect.amount, "dice": effect.dice}
             )
+            if effect.kind == "damage":
+                data["damage_type"] = effect.damage_type
+            elif effect.damage_type is not None:
+                raise ValueError("damage_type допустимо только для damage")
             entry.parameters.model_validate(data)
             if effect.params:
                 raise ValueError(
@@ -69,6 +80,8 @@ class MechanicsRegistry:
             ):
                 raise ValueError(f"{effect.kind} не поддерживает dice")
         else:
+            if effect.damage_type is not None:
+                raise ValueError("Новая механика использует только params")
             if effect.amount or effect.dice or effect.condition or effect.duration != 1:
                 raise ValueError("Новая механика использует только params")
             entry.parameters.model_validate(effect.params)
@@ -114,7 +127,13 @@ for identifier, name in [
     ("armor_class", "Базовая КД"),
     ("armor_bonus", "Бонус КД"),
 ]:
-    model = ConditionParameters if identifier == "condition" else AmountParameters
+    model = (
+        ConditionParameters
+        if identifier == "condition"
+        else DamageParameters
+        if identifier == "damage"
+        else AmountParameters
+    )
     mechanics.entries[identifier] = Mechanic(identifier, name, model, builtin=True)
 
 # Agent-written extensions belong here; imports perform registration.

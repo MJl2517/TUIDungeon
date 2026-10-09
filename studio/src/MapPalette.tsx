@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { Doc, Entry, color, matchesEntry } from "./model";
-import { brushDescription, paletteEntry, tileFamily } from "./catalog";
+import {
+  brushDescription,
+  paletteEntry,
+  paletteLayer,
+  tileFamily,
+} from "./catalog";
 
 export const layerNames: Record<string, string> = {
-  tiles: "Тайлы",
+  tiles: "Поверхности",
+  objects: "Окружение",
+  doors: "Двери",
   decorations: "Рисунки",
   traps: "Ловушки",
   points_of_interest: "Взаимодействия",
@@ -21,7 +28,7 @@ type Props = {
   layer: string;
   onLayer: (layer: string) => void;
   chosen: string;
-  onChoose: (ref: string) => void;
+  onChoose: (ref: string, layer?: string) => void;
   target: string;
   onTarget: (target: string) => void;
   documentRef: string;
@@ -48,8 +55,22 @@ export function MapPalette({
     [sort, setSort] = useState("group"),
     [hovered, setHovered] = useState<Entry | null>(null);
   const category =
-    layer === "decorations" ? "art" : layer === "transitions" ? "maps" : layer;
-  const all = entries.filter((e) => e.category === category);
+    layer === "decorations"
+      ? "art"
+      : layer === "transitions"
+        ? "maps"
+        : layer === "doors"
+          ? "objects"
+          : layer;
+  const searching = !!query.trim() && layer !== "transitions";
+  const all = searching
+    ? entries.filter((e) => paletteLayer(e, assets))
+    : entries.filter(
+        (e) =>
+          e.category === category &&
+          (layer !== "doors" || assets["objects/" + e.ref]?.brush?.door) &&
+          (layer !== "objects" || !assets["objects/" + e.ref]?.brush?.door),
+      );
   const groups = [...new Set(all.map((e) => e.group ?? "Прочее"))].sort(
     (a, b) => a.localeCompare(b, "ru"),
   );
@@ -61,9 +82,11 @@ export function MapPalette({
   const options = all
     .filter((e) => {
       const tile = paletteEntry(e, assets);
+      if (!matchesEntry(e, query, assets)) return false;
+      if (searching) return true;
       return (
-        matchesEntry(e, query) &&
         (!pack || e.ref.startsWith(pack + ":")) &&
+        (!group || (e.group ?? "Прочее") === group) &&
         (layer !== "tiles" ||
           ((!family || tileFamily(tile) === family) &&
             (!group || (e.group ?? "Прочее") === group) &&
@@ -88,7 +111,9 @@ export function MapPalette({
       }
       return a.name.localeCompare(b.name, "ru");
     });
-  const selected = all.find((e) => e.ref === chosen);
+  const selected = all.find(
+    (e) => e.ref === chosen && paletteLayer(e, assets) === layer,
+  );
   useEffect(() => {
     onEmpty(options.length === 0);
   }, [options.length, onEmpty]);
@@ -115,11 +140,11 @@ export function MapPalette({
           className={layer === "tiles" ? "selected" : ""}
           onClick={() => changeLayer("tiles")}
         >
-          Кисти
+          Поверхности
         </button>
         <button
           className={!service && layer !== "tiles" ? "selected" : ""}
-          onClick={() => changeLayer("monsters")}
+          onClick={() => changeLayer("objects")}
         >
           Объекты
         </button>
@@ -132,10 +157,10 @@ export function MapPalette({
       </div>
       <p className="palette-explanation">
         {layer === "tiles"
-          ? "Кисть = рисунок клетки + маски + привязанные события. Нажмите на карточку и рисуйте."
+          ? "Пол, стены, вода и природные поверхности. Объекты размещайте из их собственных шаблонов."
           : service
             ? "Свет, старт, переходы и независимые маски карты."
-            : "Экземпляры шаблонов поверх рисунка: существа, предметы и взаимодействия."}
+            : "Один шаблон хранит рисунок и свойства. Выберите объект и рисуйте; локальные настройки доступны через V."}
       </p>
       <label className="palette-label">
         Слой карты
@@ -159,6 +184,12 @@ export function MapPalette({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          {searching && (
+            <p className="hint">
+              Поиск по всем поверхностям и объектам, независимо от категории,
+              пакета и фильтров.
+            </p>
+          )}
           <div className="palette-filters">
             <select
               aria-label="Пакет палитры"
@@ -180,6 +211,18 @@ export function MapPalette({
               <option value="id">По ID</option>
               <option value="mechanics">Сначала механика</option>
             </select>
+            {layer !== "tiles" && groups.length > 1 && (
+              <select
+                aria-label="Группа объектов"
+                value={group}
+                onChange={(e) => setGroup(e.target.value)}
+              >
+                <option value="">Все группы</option>
+                {groups.map((v) => (
+                  <option key={v}>{v}</option>
+                ))}
+              </select>
+            )}
             {layer === "tiles" && (
               <>
                 <select
@@ -229,35 +272,49 @@ export function MapPalette({
             aria-label="Каталог кистей"
           >
             {options.map((e) => {
+              const entryLayer = paletteLayer(e, assets) ?? layer;
+              const isSelected = chosen === e.ref && layer === entryLayer;
               const tile = paletteEntry(e, assets),
-                mechanics = layer === "tiles" && hasMechanics(tile);
-              const info =
-                layer === "tiles"
-                  ? brushDescription(tile, assets)
-                  : [
-                      layerNames[layer],
-                      tile.description ?? "",
-                      layer === "traps"
-                        ? `При входе: проверка ${tile.ability}, СЛ ${tile.difficulty}`
-                        : layer === "points_of_interest"
-                          ? "Взаимодействие по Enter с клетки или рядом"
-                          : layer === "equipment"
-                            ? "Можно подобрать в инвентарь"
-                            : layer === "monsters"
-                              ? "Занимает клетку, блокирует движение"
-                              : "",
-                    ].filter(Boolean);
+                mechanics =
+                  hasMechanics(tile) ||
+                  [
+                    "traps",
+                    "points_of_interest",
+                    "equipment",
+                    "monsters",
+                  ].includes(entryLayer);
+              const info = ["tiles", "objects", "doors"].includes(entryLayer)
+                ? brushDescription(tile, assets)
+                : [
+                    layerNames[entryLayer],
+                    tile.description ?? "",
+                    entryLayer === "traps"
+                      ? `При входе: проверка ${tile.ability}, СЛ ${tile.difficulty}`
+                      : entryLayer === "points_of_interest"
+                        ? "Взаимодействие по Enter с клетки или рядом"
+                        : entryLayer === "equipment"
+                          ? "Можно подобрать в инвентарь"
+                          : entryLayer === "monsters"
+                            ? "Занимает клетку, блокирует движение"
+                            : "",
+                  ].filter(Boolean);
               return (
                 <button
                   data-ref={e.ref}
-                  key={e.ref}
+                  key={e.category + "/" + e.ref}
                   aria-label={e.name + " · " + e.ref}
-                  aria-pressed={chosen === e.ref}
-                  className={
-                    "palette-tile " + (chosen === e.ref ? "selected" : "")
-                  }
+                  aria-pressed={isSelected}
+                  className={"palette-tile " + (isSelected ? "selected" : "")}
                   title={[e.name, ...info].join("\n")}
-                  onClick={() => onChoose(e.ref)}
+                  onClick={() => {
+                    if (searching) {
+                      setGroup("");
+                      setFamily("");
+                      setPack("");
+                      setFilter("all");
+                    }
+                    onChoose(e.ref, entryLayer);
+                  }}
                   onMouseEnter={() => setHovered(e)}
                   onMouseLeave={() => setHovered(null)}
                   onFocus={() => setHovered(e)}
@@ -275,11 +332,15 @@ export function MapPalette({
                   >
                     {tile.glyph ?? (layer === "decorations" ? "░" : ">")}
                   </span>
-                  <span className="tile-name">{e.name}</span>
+                  <span className="tile-name">
+                    {e.name}
+                    {searching && <small>{layerNames[entryLayer]}</small>}
+                  </span>
                   <span className="tile-sign">
                     {mechanics
                       ? "●"
-                      : layer === "tiles" && !tile.walkable
+                      : ["tiles", "objects"].includes(entryLayer) &&
+                          !tile.walkable
                         ? "▪"
                         : ""}
                   </span>
@@ -295,8 +356,8 @@ export function MapPalette({
         </>
       )}
       {(layer === "transitions" ||
-        (layer === "tiles" &&
-          assets["tiles/" + chosen]?.brush?.transition)) && (
+        (["tiles", "objects"].includes(layer) &&
+          assets[category + "/" + chosen]?.brush?.transition)) && (
         <label className="palette-label">
           Карта назначения
           <select
@@ -333,9 +394,14 @@ export function MapPalette({
             {detail.name}
           </strong>
           <small>{detail.ref}</small>
-          {(layer === "tiles"
+          {(["tiles", "objects", "doors"].includes(
+            paletteLayer(detail, assets) ?? layer,
+          )
             ? brushDescription(detailDoc, assets)
-            : [detailDoc.description ?? "", layerNames[layer]]
+            : [
+                detailDoc.description ?? "",
+                layerNames[paletteLayer(detail, assets) ?? layer],
+              ]
           )
             .filter(Boolean)
             .map((line, i) => (

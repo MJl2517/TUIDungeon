@@ -3,9 +3,31 @@
   "id": "chest",
   "name": "Запертый сундук",
   "description": "Старый сундук. Возможно, внутри осталось золото.",
+  "variants": [
+    {
+      "name": "Запертый сундук",
+      "glyph": "¤",
+      "foreground": 136,
+      "background": null
+    }
+  ],
   "glyph": "$",
   "foreground": 11,
   "background": null,
   "art": null,
-  "challenge": "base:locked_chest"
+  "group": "Контейнеры",
+  "map_light": null,
+  "tags": [
+    "containers",
+    "flammable",
+    "storage",
+    "transparent",
+    "wooden"
+  ],
+  "challenge": "base:locked_chest",
+  "storage": {
+    "capacity": 1000.0,
+    "personal": false,
+    "contents": []
+  }
 }

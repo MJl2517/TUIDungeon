@@ -37,12 +37,25 @@ def main() -> int:
         "--terminal", action="store_true", help="Запустить curses вместо окна tcod"
     )
     parser.add_argument("--map", default="base:dungeon", help="Карта pack_id:local_id")
-    parser.add_argument(
+    test_modes = parser.add_mutually_exclusive_group()
+    test_modes.add_argument(
         "--test-map",
         nargs="?",
         const="",
         metavar="PACK:MAP",
         help="Сразу открыть карту с готовым героем; без аргумента используется --map",
+    )
+    test_modes.add_argument(
+        "--test-wizard",
+        nargs="?",
+        const="",
+        metavar="PACK:MAP",
+        help="Сразу открыть карту с волшебником, знающим все заклинания; без аргумента используется --map",
+    )
+    parser.add_argument(
+        "--test-class",
+        metavar="PACK:CLASS",
+        help="Класс готового героя для --test-map (например, base:rogue)",
     )
     parser.add_argument("--packs-dir", help="Папка подключаемых пакетов")
     parser.add_argument(
@@ -54,11 +67,14 @@ def main() -> int:
     )
     args = parser.parse_args()
     args.symbols = args.symbols or ("ascii" if args.terminal else "unicode")
-    if args.test_map is not None:
+    if args.test_class is not None and args.test_map is None:
+        parser.error("--test-class используется вместе с --test-map")
+    test_map = args.test_map is not None or args.test_wizard is not None
+    test_profile = "wizard" if args.test_wizard is not None else None
+    if test_map:
         if args.studio:
-            parser.error("--test-map запускает игру и несовместим с --studio")
-        if args.test_map:
-            args.map = args.test_map
+            parser.error("Тестовый запуск карты несовместим с --studio")
+        args.map = args.test_wizard or args.test_map or args.map
     if not 1 <= args.port <= 65535:
         parser.error("Порт должен быть от 1 до 65535")
     if args.studio:
@@ -95,6 +111,14 @@ def main() -> int:
             if not args.validate_content:
                 store.get("maps", args.map)
             catalog = store.runtime_catalog()
+        if args.test_class is not None:
+            from .content.packs import runtime_key
+
+            if store and ":" in args.test_class:
+                store.get("classes", args.test_class)
+            args.test_class = runtime_key(args.test_class)
+            if args.test_class not in catalog.classes:
+                raise ValueError(f"Неизвестный тестовый класс: {args.test_class}")
         from .presentation.symbols import ArtLibrary
 
         for monster in catalog.monsters.values():
@@ -133,6 +157,9 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
+    if test_profile == "wizard" and "wizard" not in catalog.classes:
+        print("Ошибка контента: для --test-wizard нужен класс wizard.", file=sys.stderr)
+        return 1
     if not args.terminal:
         try:
             from .presentation.window import run as run_window
@@ -143,8 +170,10 @@ def main() -> int:
                 catalog,
                 args.map if store else None,
                 store,
-                args.test_map is not None,
+                test_map,
                 args.save_file,
+                test_profile=test_profile,
+                test_class=args.test_class,
             )
             return 0
         except (ImportError, OSError, RuntimeError) as error:
@@ -185,8 +214,10 @@ def main() -> int:
             catalog,
             args.map if store else None,
             store,
-            args.test_map is not None,
+            test_map,
             args.save_file,
+            test_profile=test_profile,
+            test_class=args.test_class,
         )
     except KeyboardInterrupt:
         return 0

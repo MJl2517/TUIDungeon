@@ -10,7 +10,10 @@
   "category": "armor",
   "weight": 3.0,
   "tags": [
-    "decor_cloak"
+    "armor_decor",
+    "decor_cloak",
+    "flammable",
+    "transparent"
   ],
   "durability": null,
   "slot": "back",
@@ -20,5 +23,6 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 0,
-  "light": null
+  "light": null,
+  "group": "Декорации: снаряжение"
 }

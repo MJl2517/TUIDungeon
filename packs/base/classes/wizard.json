@@ -31,5 +31,26 @@
     "base:influence"
   ],
   "carry_per_strength": 5.0,
-  "order": 1
+  "order": 1,
+  "cantrip_choices": [
+    "base:light",
+    "base:fire_bolt",
+    "base:mending",
+    "base:toll_the_dead",
+    "base:acid_splash",
+    "base:ray_of_frost",
+    "base:shocking_grasp",
+    "base:mage_hand",
+    "base:minor_illusion",
+    "base:prestidigitation",
+    "base:poison_spray",
+    "base:chill_touch",
+    "base:thunderclap",
+    "base:blade_ward",
+    "base:dancing_lights",
+    "base:elementalism",
+    "base:true_strike"
+  ],
+  "cantrips_known": 3,
+  "spellcasting_ability": "intelligence"
 }

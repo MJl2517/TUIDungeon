@@ -11,7 +11,9 @@
   "tags": [
     "plants",
     "obstacle",
-    "opaque"
+    "opaque",
+    "flammable",
+    "wooden"
   ],
   "walkable": false,
   "blocks_sight": true

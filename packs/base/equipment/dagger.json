@@ -3,14 +3,19 @@
   "id": "dagger",
   "name": "Кинжал",
   "description": "",
-  "glyph": "?",
-  "foreground": 7,
+  "variants": [],
+  "glyph": "†",
+  "foreground": 250,
   "background": null,
   "art": null,
+  "group": "Декорации: оружие",
+  "category": "weapons",
   "weight": 0.5,
   "tags": [
+    "blade",
+    "transparent",
     "weapon",
-    "blade"
+    "weapon_decor"
   ],
   "durability": 30,
   "slot": "weapon",
@@ -18,5 +23,8 @@
   "check_aids": [],
   "weapon_damage": "1d4",
   "weapon_ability": "dexterity",
-  "charges": null
+  "charges": null,
+  "hands": 1,
+  "light": null,
+  "damage_type": "piercing"
 }

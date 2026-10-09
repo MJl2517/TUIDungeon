@@ -7,5 +7,11 @@
   "foreground": 3,
   "background": null,
   "art": null,
-  "challenge": "base:terrain_map_fragment"
+  "tags": [
+    "books",
+    "flammable",
+    "transparent"
+  ],
+  "challenge": "base:terrain_map_fragment",
+  "group": "Книги и документы"
 }

@@ -4,7 +4,8 @@
   "name": "Мантия",
   "weight": 1,
   "tags": [
-    "clothing"
+    "clothing",
+    "flammable"
   ],
   "slot": "armor"
 }
