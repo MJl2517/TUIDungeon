@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "craft_club",
+  "name": "Простая дубинка",
+  "description": "Базовый рецепт. Требуется хотя бы тусклый свет.",
+  "category": "basic",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Вручную",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 2
+    },
+    {
+      "name": "Импровизация: связать обломки",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 1
+        },
+        {
+          "items": [
+            "base:cloth",
+            "base:plant_fiber"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 4,
+      "result": [
+        {
+          "item": "base:improvised_club",
+          "quantity": 1
+        }
+      ],
+      "check": {
+        "ability": "dexterity",
+        "difficulty": 8
+      }
+    }
+  ],
+  "result": [
+    {
+      "item": "base:club",
+      "quantity": 1
+    }
+  ]
+}

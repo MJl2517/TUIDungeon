@@ -10,7 +10,9 @@
   "tags": [
     "books",
     "flammable",
-    "transparent"
+    "transparent",
+    "magic",
+    "paper"
   ],
   "challenge": "base:terrain_scroll_magic",
   "group": "Книги и документы"

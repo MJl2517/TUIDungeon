@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "puddle_small",
+  "name": "Мелкая лужа",
+  "description": "Конечный источник грязной воды. После набора последней порции лужа исчезает.",
+  "variants": [],
+  "glyph": "◌",
+  "foreground": 4,
+  "background": null,
+  "art": null,
+  "map_category": "special",
+  "group": "Вода",
+  "tags": [
+    "liquid",
+    "transparent",
+    "walkable",
+    "water"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "light_fixture": null,
+  "campfire": null,
+  "water_source": {
+    "kind": "dirty_water",
+    "portions": 1
+  },
+  "door_remains": [],
+  "destruction": null,
+  "movable": false,
+  "weight": 0.0,
+  "storage": null
+}

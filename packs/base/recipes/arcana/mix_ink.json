@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "mix_ink",
+  "name": "Приготовить чернила",
+  "description": "Приготовить чернила.",
+  "category": "calligrapher",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "calligrapher_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:pigment"
+          ],
+          "quantity": 1
+        },
+        {
+          "items": [
+            "base:binding_resin"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 2,
+      "tools": [
+        "calligrapher_tools"
+      ],
+      "proficiencies": [
+        "calligrapher_tools"
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:ink",
+      "quantity": 1
+    }
+  ],
+  "operation": {
+    "kind": "liquid",
+    "liquids": [
+      "clean_water"
+    ],
+    "portions": 1
+  }
+}

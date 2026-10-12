@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "clay_pot",
+  "name": "Глиняный сосуд",
+  "description": "Глиняный сосуд.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "tools",
+  "group": "Ремёсла и добыча",
+  "weight": 0.5,
+  "tags": [
+    "ceramic"
+  ],
+  "vessel": {
+    "heat_safe": true,
+    "fragile": true,
+    "capacity_portions": 3
+  },
+  "durability": null
+}

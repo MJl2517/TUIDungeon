@@ -9,7 +9,9 @@
   "art": null,
   "tags": [
     "transparent",
-    "treasure"
+    "treasure",
+    "copper",
+    "metal"
   ],
   "challenge": "base:terrain_treasure_copper",
   "group": "Сокровища"

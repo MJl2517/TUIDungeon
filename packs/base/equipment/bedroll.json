@@ -11,7 +11,9 @@
   "weight": 3.0,
   "tags": [
     "camping",
-    "flammable"
+    "cloth",
+    "flammable",
+    "rest_spot"
   ],
   "durability": null,
   "slot": null,

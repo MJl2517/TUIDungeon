@@ -54,6 +54,8 @@
   "spell_slots": {},
   "tags": [
     "humanoid",
-    "goblin"
+    "goblin",
+    "living",
+    "organic"
   ]
 }

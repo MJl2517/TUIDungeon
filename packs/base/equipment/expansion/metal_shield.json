@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "metal_shield",
+  "name": "Металлический щит",
+  "description": "Металлический щит.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "armor",
+  "group": "Ремёсла и добыча",
+  "weight": 3,
+  "tags": [
+    "metal",
+    "armor"
+  ],
+  "slot": "shield",
+  "hands": 1,
+  "durability": 40,
+  "properties": [
+    {
+      "kind": "armor_bonus",
+      "amount": 2
+    }
+  ]
+}

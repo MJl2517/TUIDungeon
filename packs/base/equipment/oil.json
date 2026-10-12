@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "oil",
   "name": "Масло",
-  "description": "Универсальное масло: одна порция заправляет лампу на 60 минут или покрывает выбранную клетку на 5 ходов. Поджог / урон огнём: немедленно +5 урона огнём, покрытие исчезает.",
+  "description": "Заправляет лампу на час. Разлитое масло держится 5 ходов и при поджоге наносит 5 урона огнём.",
   "glyph": "o",
   "foreground": 11,
   "background": null,
@@ -16,7 +16,9 @@
     "oil",
     "supplies_decor",
     "throwable",
-    "transparent"
+    "transparent",
+    "fuel",
+    "liquid"
   ],
   "durability": null,
   "slot": null,

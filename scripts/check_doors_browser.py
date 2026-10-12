@@ -9,7 +9,7 @@ import threading
 import time
 
 import uvicorn
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import sync_playwright
 
 from tuidungeon.content.packs import DEFAULT_PACKS, PackStore
 from tuidungeon.tooling.server import create_app
@@ -123,67 +123,10 @@ def run():
                 )
                 assert document.traps[0].overrides["difficulty"] == 21
                 assert document.equipment[0].overrides["durability"] == 30
-                page.get_by_role(
-                    "button", name="▶ Тестировать карту", exact=True
-                ).click()
-                page.get_by_label("Тестовый класс", exact=True).select_option(
-                    "base:rogue"
-                )
-                page.get_by_label("ЛОВ", exact=True).fill("40")
-                page.get_by_role("button", name="Начать тест", exact=True).click()
-                modal = page.locator(".playtest")
-
-                def action(callback):
-                    with page.expect_response(
-                        lambda response: response.url.endswith("/commands")
-                    ) as result:
-                        callback()
-                    assert result.value.ok, result.value.text()
-                    return result.value.json()
-
-                initial = action(
-                    lambda: modal.get_by_role(
-                        "button", name=re.compile("Вскрыть замок")
-                    ).click()
-                )
-                assert initial["turns"] == 0
-                panel = page.get_by_label("Взлом замка", exact=True)
-                expect(panel.locator("pre")).to_have_text("[ ]" * 10)
-                for progress in range(1, 4):
-                    state = action(lambda: page.keyboard.press("Space"))
-                    assert state["lockpick"]["progress"] == progress
-                    assert state["turns"] == progress
-                state = action(lambda: page.keyboard.press("Backspace"))
-                assert state["lockpick"] is None and state["turns"] == 3
-                action(
-                    lambda: modal.get_by_role(
-                        "button", name=re.compile("Вскрыть замок")
-                    ).click()
-                )
-                for _ in range(10):
-                    state = action(lambda: page.keyboard.press("Space"))
-                assert state["turns"] == 13 and state["lockpick"] is None
-                assert not state["doors"][0]["locked"]
-                expect(panel).to_have_count(0)
-                state = action(
-                    lambda: modal.get_by_role(
-                        "button", name="Открыть дверь", exact=True
-                    ).click()
-                )
-                assert state["doors"][0]["opened"]
-                state = action(
-                    lambda: modal.get_by_role("button", name="D →", exact=True).click()
-                )
-                assert state["position"] == dict(x=2, y=1)
-                page.screenshot(
-                    path=str(
-                        Path(tempfile.gettempdir()) / "tuidungeon-doors-browser.png"
-                    )
-                )
                 assert not errors, errors
                 browser.close()
                 print(
-                    "Browser OK: five door types; instance inspector for doors, traps and equipment + save; 10-cell progress + Space + cancel; unlock + open + movement."
+                    "Browser OK: five door types; instance inspector for doors, traps and equipment + save."
                 )
         finally:
             server.should_exit = True

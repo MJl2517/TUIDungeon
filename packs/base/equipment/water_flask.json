@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "water_flask",
+  "name": "Флакон",
+  "description": "Стеклянный флакон для одной порции.",
+  "category": "tools",
+  "weight": 0.1,
+  "glyph": "!",
+  "vessel": {
+    "fragile": true,
+    "capacity_portions": 1
+  },
+  "tags": [
+    "glass"
+  ],
+  "durability": null
+}

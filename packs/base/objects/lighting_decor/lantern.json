@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "lantern",
   "name": "Фонарь",
-  "description": "Фонарь. Источник света: радиус 6 клеток.",
+  "description": "Источник света можно снять; состояние и остаток топлива сохраняются.",
   "glyph": "○",
   "foreground": 11,
   "background": null,
@@ -10,6 +10,7 @@
   "group": "Источники света: рисунки",
   "tags": [
     "lighting_decor",
+    "storage",
     "transparent",
     "walkable"
   ],
@@ -26,5 +27,19 @@
     },
     "transition": false,
     "door": null
+  },
+  "light_fixture": {
+    "item": "base:lamp",
+    "stays_when_empty": false
+  },
+  "storage": {
+    "capacity": 1000,
+    "personal": false,
+    "contents": [
+      {
+        "item": "base:lamp",
+        "quantity": 1
+      }
+    ]
   }
 }

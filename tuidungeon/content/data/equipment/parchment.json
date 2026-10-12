@@ -8,5 +8,6 @@
     "paper",
     "flammable"
   ],
-  "description": "Листы для заметок и зарисовок."
+  "description": "Листы для заметок и зарисовок.",
+  "durability": null
 }

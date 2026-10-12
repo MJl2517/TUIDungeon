@@ -8,6 +8,7 @@ from pathlib import Path
 import random
 import tempfile
 import unittest
+from tuidungeon.domain.storage import item_stacks
 
 from tuidungeon.application.engine import Engine
 from tuidungeon.application.factories import SessionFactory
@@ -21,7 +22,7 @@ from tuidungeon.presentation.tui import (
     Layout,
     View,
     render,
-    item_overlay_rect,
+    popup_layout,
 )
 from tuidungeon.world.maps import DungeonMap, Position
 from tuidungeon.world.state import GameState
@@ -131,8 +132,10 @@ class GroundItemTests(InventoryFixture):
         state = self.engine.state
         potion = Equipment.create(self.factory.catalog.equipment["healing_potion"])
         potion.charges = 0
+        potion.liquid_kind, potion.liquid_portions, potion.liquid_effects = None, 0, ()
         state.hero.inventory.append(potion)
-        self.engine.place_item(potion, Position(4, 3), throwing=True)
+        state.position = Position(4, 3)
+        self.engine.place_item(potion, state.position)
         expected = [
             (p.id, p.ref, p.x, p.y, item.instance_id, item.charges)
             for p, item in state.items
@@ -146,8 +149,8 @@ class GroundItemTests(InventoryFixture):
             ],
             expected,
         )
-        self.assertIn(potion.name, " ".join(loaded.inspect_cell(Position(4, 3))))
         loaded.state.position = Position(4, 3)
+        self.assertIn(potion.name, " ".join(loaded.inspect_cell(Position(4, 3))))
         self.assertTrue(loaded.pickup_item().performed)
         self.assertEqual(
             loaded.state.hero.inventory[-1].instance_id, potion.instance_id
@@ -206,13 +209,60 @@ class InventoryNavigationTests(InventoryFixture):
             test_map=True,
         )
 
+    def test_equal_items_share_rows_without_losing_instances_or_state(self):
+        c = self.controller
+        hero = c.engine.state.hero
+        wood = [
+            Equipment.create(self.factory.catalog.equipment["wood"]) for _ in range(12)
+        ]
+        potions = [
+            Equipment.create(self.factory.catalog.equipment["healing_potion"])
+            for _ in range(3)
+        ]
+        potions[-1].charges = 0
+        (
+            potions[-1].liquid_kind,
+            potions[-1].liquid_portions,
+            potions[-1].liquid_effects,
+        ) = (
+            None,
+            0,
+            (),
+        )
+        torches = [
+            Equipment.create(self.factory.catalog.equipment["torch"]) for _ in range(2)
+        ]
+        torches[-1].fuel_minutes = 20
+        hero.inventory[:] = wood + potions + torches
+        ids = [i.instance_id for i in hero.inventory]
+        browser = c.inventory
+        items = [r for r in browser.rows(hero) if r.item]
+        self.assertEqual(sorted(r.quantity for r in items), [1, 1, 1, 2, 12])
+        self.assertEqual([i.instance_id for i in hero.inventory], ids)
+        browser.query = "wood"
+        for sheet in (False, True):
+            c.view = View.CHARACTER if sheet else View.EXPLORE
+            c.sheet_section = 1
+            text = "\n".join(render(c, 100, 28))
+            self.assertIn("Древесина x12", text)
+        hero.hp = 1
+        self.assertTrue(c.engine.use_item(potions[0]).performed)
+        potion_stacks = [
+            s for s in item_stacks(hero.inventory) if s.first.id == "healing_potion"
+        ]
+        self.assertEqual(
+            sorted((s.first.charges, s.quantity) for s in potion_stacks),
+            [(0, 2), (1, 1)],
+        )
+        self.assertEqual([i.instance_id for i in hero.inventory], ids)
+
     def test_remaining_durability_is_visible_in_sidebar_and_sheet_even_for_long_names(
         self,
     ):
         c = self.controller
         definition = replace(
-            self.factory.catalog.equipment["thieves_tools"],
-            name="Очень длинное название воровских инструментов",
+            self.factory.catalog.equipment["arcane_focus"],
+            name="Очень длинное название магического фокуса",
             slot="hand",
             hands=1,
         )
@@ -223,7 +273,7 @@ class InventoryNavigationTests(InventoryFixture):
             if item.hands:
                 c.engine.state.hero.unequip(item)
         self.assertTrue(c.engine.state.hero.equip(tools))
-        c.inventory.query = "воровских"
+        c.inventory.query = "фокуса"
         for width in (80, 100):
             for sheet in (False, True):
                 c.view = View.CHARACTER if sheet else View.EXPLORE
@@ -256,6 +306,47 @@ class InventoryNavigationTests(InventoryFixture):
         raw["category"] = "unknown"
         with self.assertRaises(ValueError):
             EquipmentDocument.model_validate(raw)
+
+    def test_tools_have_separate_group_from_utility_gear(self):
+        c = self.controller
+        hero = c.engine.state.hero
+        catalog = self.factory.catalog.equipment
+        tools = [
+            Equipment.create(catalog[name])
+            for name in ("pickaxe", "crowbar", "thieves_tools")
+        ]
+        gear = [
+            Equipment.create(catalog[name])
+            for name in ("torch", "rope", "arcane_focus")
+        ]
+        hero.inventory[:] = tools + gear
+        browser = c.inventory
+        for category, items in (("tools", tools), ("gear", gear)):
+            self.assertEqual(
+                [
+                    r.item
+                    for r in browser.rows(hero)
+                    if r.item and r.category == category
+                ],
+                items,
+            )
+            label = "Инструменты" if category == "tools" else "Снаряжение"
+            for item in items:
+                self.assertIn("Тип снаряжения: " + label, item_details(item))
+            browser.query = label
+            self.assertEqual([r.item for r in browser.rows(hero) if r.item], items)
+            browser.query = ""
+        browser.collapsed.add("tools")
+        self.assertEqual([r.item for r in browser.rows(hero) if r.item], gear)
+        for character in (False, True):
+            c.view = View.CHARACTER if character else View.EXPLORE
+            c.sheet_section = 1
+            text = "\n".join(render(c, 100, 28))
+            self.assertIn("+ Инструменты (3)", text)
+            self.assertIn("- Снаряжение (3)", text)
+            self.assertIn("Верёвка", text)
+            self.assertNotIn("Ломик", text)
+        self.assertEqual(hero.inventory, tools + gear)
 
     def test_page_arrows_do_not_change_sidebar_and_backspace_closes_sheet(self):
         c = self.controller
@@ -312,7 +403,7 @@ class InventoryNavigationTests(InventoryFixture):
         c.handle("2")
         self.assertEqual(c.view, View.ITEM_INSPECT)
         screen = render(c, 80, 24)
-        rect = item_overlay_rect(80, 24)
+        rect = popup_layout(c, 80, 24)[1]
         self.assertIn("Осмотр предмета", screen[rect.y])
         self.assertIn("Тип снаряжения:", "\n".join(screen))
         self.assertIn("Урон: 1d8", "\n".join(screen))
@@ -328,6 +419,8 @@ class InventoryNavigationTests(InventoryFixture):
         self.assertEqual(c.engine.state.turns, 1)
         self.assertTrue(any(i is item for i in c.engine.state.hero.inventory))
         c.handle("4")
+        self.assertEqual(c.view, View.CHARACTER)
+        c.handle("escape")
         self.assertEqual(c.view, View.EXPLORE)
         self.assertIs(c.engine.state.items[-1][1], item)
         c.handle("g")
@@ -406,6 +499,72 @@ class InventoryNavigationTests(InventoryFixture):
             any(row.item and row.item.name == "Меч" for row in browser.rows(hero))
         )
         self.assertEqual(hero.inventory, before)
+
+    def test_item_cards_show_only_applicable_stats_and_hide_internal_tags(self):
+        catalog = self.factory.catalog.equipment
+        cases = (
+            (
+                "wood",
+                ("Вес:",),
+                ("Урон:", "Стойкость:", "КД:", "Занимает рук:", "Заряды:"),
+            ),
+            ("torch", ("Топливо:", "Занимает рук: 1"), ("Урон:", "Стойкость:", "КД:")),
+            ("sword", ("Урон: 1d8", "Стойкость:", "Занимает рук:"), ("КД:", "Заряды:")),
+            ("mail", ("КД: 16", "Стойкость:"), ("Урон:", "Занимает рук:", "Заряды:")),
+            ("shield", ("Бонус КД: +2", "Занимает рук: 1"), ("Урон:", "Заряды:")),
+            (
+                "bandage",
+                ("Лечение: 4", "Заряды: 1/1"),
+                ("Урон:", "КД:", "Стойкость:", "Занимает рук:"),
+            ),
+        )
+        for name, present, absent in cases:
+            with self.subTest(item=name):
+                item = Equipment.create(
+                    replace(
+                        catalog[name],
+                        tags=catalog[name].tags | {"cursed", "hidden_quest"},
+                    )
+                )
+                for preview in (False, True):
+                    text = "\n".join(item_details(item, preview=preview))
+                    for field in present:
+                        self.assertIn(field, text)
+                    for field in (
+                        *absent,
+                        "Теги:",
+                        "cursed",
+                        "hidden_quest",
+                        "Слот:",
+                        "Нет.",
+                        "Описание не задано",
+                        "Особые свойства",
+                        "Надето: нет",
+                    ):
+                        self.assertNotIn(field, text)
+                    if name == "mail":
+                        self.assertEqual(text.count("КД:"), 1)
+        potion = Equipment.create(catalog["healing_potion"])
+        potion.charges = 0
+        potion.liquid_kind, potion.liquid_portions, potion.liquid_effects = None, 0, ()
+        self.assertIn("Вместимость: 1 порция", item_details(potion))
+        self.assertNotIn("Лечение: 2d4+2", item_details(potion))
+        self.assertFalse(
+            any(line.startswith("Заряды:") for line in item_details(potion))
+        )
+        sword = Equipment.create(catalog["sword"])
+        sword.durability = 0
+        self.assertIn("Стойкость: 0/50", item_details(sword))
+        torch = Equipment.create(catalog["torch"])
+        self.assertIn("Топливо: 60 мин.", item_details(torch, preview=True))
+        self.assertNotIn("Свет: погашен", item_details(torch, preview=True))
+        hero = self.engine.state.hero
+        hero.inventory[:] = [
+            Equipment.create(replace(catalog["wood"], tags=frozenset({"cursed"})))
+        ]
+        self.assertFalse(
+            any(r.item for r in InventoryBrowser(query="cursed").rows(hero))
+        )
 
     def test_details_include_effects_armor_tools_and_resource_limits(self):
         for name, text in (

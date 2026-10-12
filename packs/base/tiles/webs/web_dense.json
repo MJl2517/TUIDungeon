@@ -12,7 +12,8 @@
     "webs",
     "walkable",
     "transparent",
-    "flammable"
+    "flammable",
+    "sticky"
   ],
   "walkable": true,
   "blocks_sight": false

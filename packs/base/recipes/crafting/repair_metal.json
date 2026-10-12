@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "repair_metal",
+  "name": "Ремонт металлического предмета",
+  "description": "",
+  "category": "smith",
+  "basic_known": false,
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:metal_scrap"
+          ],
+          "quantity": 1
+        }
+      ],
+      "stations": [
+        [
+          "anvil"
+        ]
+      ],
+      "tools": [
+        "smith_tools"
+      ],
+      "proficiencies": [
+        "smith_tools"
+      ],
+      "turns": 3
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "repair_item",
+    "target_tags": [
+      "metal"
+    ],
+    "repair_amount": 10
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "weave_cloth",
+  "name": "Соткать ткань",
+  "description": "Соткать ткань.",
+  "category": "weaver",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "weaver_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:plant_fiber",
+            "base:spider_silk"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 2,
+      "tools": [
+        "weaver_tools"
+      ],
+      "proficiencies": [
+        "weaver_tools"
+      ],
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "base:cloth",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

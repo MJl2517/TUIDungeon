@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "tree_branches",
+  "name": "Дерево с ветвями",
+  "description": "Дерево с ветвями. Можно срубить режущим инструментом; древесина остаётся на земле.",
+  "variants": [],
+  "glyph": "¥",
+  "foreground": 2,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Растительность",
+  "tags": [
+    "flammable",
+    "obstacle",
+    "opaque",
+    "organic",
+    "plants",
+    "wooden"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": 2880,
+    "max_hp": 16,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "chop",
+      "tools": [
+        "blade"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 1
+      }
+    ]
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null
+}

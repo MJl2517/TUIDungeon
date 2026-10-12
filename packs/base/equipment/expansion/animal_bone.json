@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "animal_bone",
+  "name": "Кость животного",
+  "description": "Кость животного.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "materials",
+  "group": "Ремёсла и добыча",
+  "weight": 0.2,
+  "tags": [
+    "organic",
+    "bone"
+  ]
+}

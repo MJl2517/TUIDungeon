@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "rune_dagger",
+  "name": "Рунный клинок",
+  "description": "Постоянные руны дают +1 к урону клинка; свойство не зависит от временных эффектов.",
+  "weight": 1.0,
+  "category": "weapons",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "!",
+  "foreground": 13,
+  "tags": [
+    "magic",
+    "metal",
+    "iron",
+    "weapon"
+  ],
+  "durability": 20,
+  "slot": "hand",
+  "hands": 1,
+  "weapon_damage": "1d4+1",
+  "damage_type": "piercing"
+}

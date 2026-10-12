@@ -1,0 +1,87 @@
+{
+  "image": "1 bit/Tilesheet/monochrome-transparent_packed.png",
+  "columns": 49,
+  "rows": 22,
+  "special": {
+    "hero": [27, 0],
+    "door_closed": [5, 10],
+    "door_open": [3, 10],
+    "door_bent": [1, 5]
+  },
+  "glyphs": {
+    "@": [27, 0],
+    "#": [0, 13],
+    ".": [5, 0],
+    "g": [25, 5],
+    "s": [24, 4],
+    "+": [5, 10],
+    "╬": [5, 10],
+    "╫": [5, 10],
+    "'": [3, 10],
+    "○": [15, 2]
+  },
+  "content": {
+    "tiles": {
+      "base:floor": [5, 0],
+      "base:wall": [0, 13],
+      "base:wall_horizontal": [0, 13],
+      "base:wall_vertical": [0, 13],
+      "base:floor_planks": [23, 12],
+      "base:grass_short": [0, 2],
+      "base:grass_tall": [0, 2],
+      "base:grass_dry": [0, 2],
+      "base:mushroom": [5, 2],
+      "base:water_shallow": [9, 0],
+      "base:water_deep": [11, 0],
+      "base:web": [2, 15]
+    },
+    "objects": {
+      "base:tree": [4, 2],
+      "base:tree_dead": [6, 2],
+      "base:bed": [13, 7],
+      "base:table": [8, 7],
+      "base:chair": [3, 7],
+      "base:lantern": [15, 2],
+      "base:torch_wall": [14, 2],
+      "base:torch_decor": [14, 2],
+      "base:candle": [4, 15],
+      "base:campfire": [12, 10],
+      "base:workbench": [8, 7],
+      "base:barricade": [1, 5],
+      "base:rubble_large": [2, 0],
+      "base:alchemy_flower": [15, 6],
+      "base:bitter_flower": [15, 6],
+      "base:fiber_flower": [15, 6],
+      "base:medicinal_flower": [15, 6],
+      "base:poison_flower": [15, 6],
+      "base:stairs_down": [2, 6],
+      "base:stairs_up": [2, 6]
+    },
+    "equipment": {
+      "base:lamp": [15, 2],
+      "base:torch": [14, 2],
+      "base:candle": [4, 15],
+      "base:gold": [36, 16],
+      "base:sword": [33, 6],
+      "base:dagger": [32, 2],
+      "base:shield": [39, 4],
+      "base:healing_potion": [39, 11],
+      "base:wood": [26, 11],
+      "base:stone": [28, 8],
+      "base:pickaxe": [44, 5]
+    },
+    "monsters": {
+      "base:goblin": [25, 5],
+      "base:skeleton": [24, 4]
+    },
+    "points_of_interest": {
+      "base:chest": [8, 6],
+      "base:terrain_barrel": [9, 19],
+      "base:terrain_barrel_small": [9, 19],
+      "base:terrain_barrel_large": [9, 19],
+      "base:terrain_crate": [9, 6],
+      "base:terrain_crate_reinforced": [9, 6],
+      "base:terrain_crate_closed": [9, 6]
+    }
+  }
+}

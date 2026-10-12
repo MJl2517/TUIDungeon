@@ -13,16 +13,16 @@ def main():
     store = PackStore()
     crowbar = store.get("equipment", "base:crowbar").model_dump(mode="json")
     crowbar.update(
-        durability=5,
+        durability=None,
         slot="hand",
         hands=1,
-        description="В руке даёт преимущество только на выламывание двери. Каждая попытка тратит 1 прочность из 5. Сломанный ломик не даёт преимущества.",
+        description="В руке даёт преимущество на выламывание двери. Открывает ящики и снимает баррикады. Не изнашивается.",
     )
     thieves_tools = store.get("equipment", "base:thieves_tools").model_dump(mode="json")
     thieves_tools.update(
-        durability=10,
+        durability=None,
         check_aids=[],
-        description="Необходимы для взлома замков. Прочность 10; провал взлома расходует 1 прочность. Сломанные инструменты использовать нельзя.",
+        description="Необходимы для взлома замков. Не изнашиваются, в том числе при провале.",
     )
     acid = dict(
         id="acid_flask",
@@ -43,10 +43,10 @@ def main():
         glyph="/",
         foreground=7,
         weight=3.0,
-        durability=30,
+        durability=None,
         slot="hand",
         hands=1,
-        tags=["pickaxe"],
+        tags=["pickaxe", "tool"],
         weapon_damage="1d6",
         description="Кирка в руке позволяет разрушать каменные плиты.",
     )

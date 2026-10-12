@@ -6,7 +6,9 @@
   "category": "tools",
   "tags": [
     "camping",
-    "flammable"
+    "flammable",
+    "cloth"
   ],
-  "description": "Снаряжение для ночлега в походе."
+  "description": "Снаряжение для ночлега в походе.",
+  "durability": null
 }

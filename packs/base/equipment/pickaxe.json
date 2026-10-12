@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "pickaxe",
   "name": "Кирка",
-  "description": "Кирка в руке позволяет разрушать каменные плиты. Каждый удар по двери или плите наносит оружию 1d4 урона прочности.",
+  "description": "Разбирает крупный завал за 10 ходов вместо 30. Позволяет разрушать каменные плиты и двери. Не изнашивается.",
   "glyph": "/",
   "foreground": 7,
   "background": null,
@@ -12,9 +12,11 @@
   "tags": [
     "pickaxe",
     "flammable",
-    "wooden"
+    "wooden",
+    "metal",
+    "tool"
   ],
-  "durability": 30,
+  "durability": null,
   "slot": "hand",
   "properties": [],
   "check_aids": [],

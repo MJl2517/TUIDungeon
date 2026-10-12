@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "craft_rune_leather",
+  "name": "Рунный кожаный доспех",
+  "description": "Рунный кожаный доспех.",
+  "category": "magic",
+  "basic_known": false,
+  "learn_on_proficiency": [],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:raw_leather"
+          ],
+          "quantity": 2
+        },
+        {
+          "items": [
+            "base:arcane_dust"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 5,
+      "tools": [
+        "leatherworker_tools"
+      ],
+      "proficiencies": [
+        "leatherworker_tools"
+      ],
+      "spells": [
+        "base:light"
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:rune_leather",
+      "quantity": 1
+    }
+  ]
+}

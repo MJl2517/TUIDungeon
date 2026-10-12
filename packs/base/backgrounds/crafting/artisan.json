@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "artisan",
+  "name": "Ремесленник",
+  "description": "Владеет инструментами плотника и кузнеца; начинает с инструментами плотника.",
+  "skills": [],
+  "tool_proficiencies": [
+    "carpenter_tools",
+    "smith_tools"
+  ],
+  "starting_items": [
+    "base:carpenter_tools"
+  ],
+  "starting_recipes": [
+    "base:craft_torch"
+  ]
+}

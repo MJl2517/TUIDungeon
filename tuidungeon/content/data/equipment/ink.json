@@ -6,7 +6,9 @@
   "category": "tools",
   "tags": [
     "writing",
-    "flammable"
+    "flammable",
+    "liquid"
   ],
-  "description": "Набор для записей и копирования письмен."
+  "description": "Набор для записей и копирования письмен.",
+  "durability": null
 }

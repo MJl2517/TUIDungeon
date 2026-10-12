@@ -34,6 +34,7 @@ class DoorInstance:
     definition: TileDocument
     door: Door
     instance_id: str = field(default_factory=lambda: str(uuid4()))
+    brace: object = None
 
     # The interaction contract is shared with points of interest. The door
     # command handler owns resolution; this object only describes choices.
@@ -47,12 +48,28 @@ class DoorInstance:
 
     @property
     def text(self):
-        return "\n".join(self.door.inspection())
+        return "\n".join(self.door.inspection()) + (
+            "\nПодпорка: " + self.brace.name if self.brace else ""
+        )
 
     def available_choices(self, hero):
         door = self.door
         if door.destroyed or door.bent:
             return ()
+        if self.brace:
+            return (
+                DoorChoice("unbrace", "Убрать подпорку"),
+                DoorChoice("attack", "Разрушить дверь вместе с подпоркой"),
+            )
+        brace = any(
+            i.usable and not i.equipped and "door_brace" in i.tags
+            for i in hero.inventory
+        )
+        brace_choices = (
+            (DoorChoice("brace", "Установить подпорку (кол или клин)"),)
+            if brace and door.material != "stone"
+            else ()
+        )
         if door.material == "stone":
             return (
                 DoorChoice(
@@ -61,7 +78,7 @@ class DoorInstance:
                 ),
             )
         if door.opened:
-            return (DoorChoice("close", "Закрыть дверь"),)
+            return (DoorChoice("close", "Закрыть дверь"), *brace_choices)
         tools = find_lockpicks(hero.inventory)
         tool_hint = (
             f"инструменты {tools.durability}/{tools.definition.durability}; провал: −1 прочность"
@@ -113,4 +130,4 @@ class DoorInstance:
                         "Дневной свет: превратить дверь в каменную плиту (ячейка 3 ур.)",
                     )
                 )
-        return tuple(choices)
+        return (*choices, *brace_choices)

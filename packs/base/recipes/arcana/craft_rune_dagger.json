@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "craft_rune_dagger",
+  "name": "Рунный клинок",
+  "description": "Рунный клинок.",
+  "category": "magic",
+  "basic_known": false,
+  "learn_on_proficiency": [],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:iron"
+          ],
+          "quantity": 2
+        },
+        {
+          "items": [
+            "base:arcane_dust"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 5,
+      "tools": [
+        "smith_tools"
+      ],
+      "proficiencies": [
+        "smith_tools"
+      ],
+      "stations": [
+        [
+          "forge"
+        ],
+        [
+          "anvil"
+        ]
+      ],
+      "spells": [
+        "base:fire_bolt"
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:rune_dagger",
+      "quantity": 1
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "improvised_lockpicks",
+  "name": "Простые отмычки",
+  "description": "Инструмент для взлома замков. Не изнашивается.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "tools",
+  "group": "Ремёсла и добыча",
+  "weight": 0.1,
+  "tags": [
+    "metal",
+    "lockpicks",
+    "tool"
+  ],
+  "durability": null
+}

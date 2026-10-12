@@ -29,5 +29,16 @@
     "transparent",
     "trap_decor",
     "wooden"
-  ]
+  ],
+  "dismantle": {
+    "turns": 3,
+    "fast_tool": "lever",
+    "fast_turns": 1,
+    "loot": [
+      {
+        "item": "base:metal_scrap",
+        "quantity": 2
+      }
+    ]
+  }
 }

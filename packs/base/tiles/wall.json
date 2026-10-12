@@ -8,5 +8,8 @@
   "background": null,
   "art": null,
   "walkable": false,
-  "blocks_sight": true
+  "blocks_sight": true,
+  "tags": [
+    "stone"
+  ]
 }

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "cloth",
+  "name": "Тряпка",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.1,
+  "tags": [
+    "cloth",
+    "flammable",
+    "organic"
+  ]
+}

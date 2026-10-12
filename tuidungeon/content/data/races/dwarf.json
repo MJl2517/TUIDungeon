@@ -4,5 +4,10 @@
   "name": "Дварф",
   "order": 1,
   "hp_per_level": 1,
-  "description": "+1 к максимальному HP за уровень"
+  "description": "+1 к максимальному HP за уровень",
+  "tags": [
+    "humanoid",
+    "living",
+    "organic"
+  ]
 }

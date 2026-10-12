@@ -176,6 +176,7 @@ def action(value, action_kinds, effect_kinds) -> ActionDefinition:
             "effects",
             "difficulty",
             "description",
+            "tags",
         },
         {"id", "name", "kind"},
     )
@@ -199,6 +200,7 @@ def action(value, action_kinds, effect_kinds) -> ActionDefinition:
         integer(value.get("difficulty", 10), "difficulty", 0),
         text(value.get("description", ""), "description", empty=True, multiline=True),
         value.get("damage_type", "bludgeoning"),
+        frozenset(names(value.get("tags", []), "tags")),
     )
 
 
@@ -213,6 +215,7 @@ def no_duplicate_fields(pairs):
 
 @dataclass
 class ContentCatalog:
+    recipes: dict = field(default_factory=dict)
     equipment: dict[str, EquipmentDefinition] = field(default_factory=dict)
     spells: dict[str, Spell] = field(default_factory=dict)
     actions: dict[str, ActionDefinition] = field(default_factory=dict)
@@ -265,6 +268,10 @@ class ContentCatalog:
         return result
 
     def _parse(self, category, value, action_kinds, effect_kinds):
+        if category == "recipes":
+            from .schemas import RecipeDocument
+
+            return RecipeDocument.model_validate(value)
         if category == "actions":
             return action(value, action_kinds, effect_kinds)
         definition_type = {
@@ -297,13 +304,20 @@ class ContentCatalog:
             )
         if "order" in data:
             data["order"] = integer(data["order"], "order", 0)
-        for key in ("tags",):
+        for key in ("tags", "tool_proficiencies"):
             if key in data:
                 data[key] = frozenset(
                     entry if entry == "поджог" else identifier(entry, key)
                     for entry in sequence(data[key], key)
                 )
-        for key in ("starting_items", "inventory", "spells", "actions", "classes"):
+        for key in (
+            "starting_items",
+            "inventory",
+            "spells",
+            "actions",
+            "classes",
+            "starting_recipes",
+        ):
             if key in data:
                 data[key] = names(data[key], key)
                 if key in ("spells", "actions") and len(set(data[key])) != len(
@@ -321,6 +335,24 @@ class ContentCatalog:
                 0, data.get("damage_type", "bludgeoning"), allow_untyped=False
             )
             data["hands"] = integer(data.get("hands", 0), "hands", 0, 2)
+            data["spell_bonus"] = integer(
+                data.get("spell_bonus", 0), "spell_bonus", 0, 5
+            )
+            if data.get("reading") is not None:
+                from .schemas import ReadingText
+
+                data["reading"] = ReadingText.model_validate(data["reading"])
+            if data.get("cast_spell") is not None:
+                data["cast_spell"] = identifier(data["cast_spell"], "cast_spell")
+            if data.get("value_gold") is not None:
+                data["value_gold"] = integer(data["value_gold"], "value_gold", 0)
+            if data.get("vessel") is not None:
+                from .schemas import VesselSpec
+                from ..domain.liquids import VesselDefinition
+
+                data["vessel"] = VesselDefinition(
+                    **VesselSpec.model_validate(data["vessel"]).model_dump()
+                )
             if data.get("light") is not None:
                 from .schemas import LightSource
 
@@ -334,6 +366,7 @@ class ContentCatalog:
                 "armor",
                 "consumables",
                 "tools",
+                "materials",
             ):
                 raise ContentError(
                     "category: нужно weapons, armor, consumables или tools"
@@ -497,6 +530,18 @@ class ContentCatalog:
                     f"{path}: {label}: неизвестный id {content_id!r} в {category}"
                 )
 
+        for definition in self.equipment.values():
+            if definition.cast_spell:
+                require(
+                    "spells",
+                    definition.cast_spell,
+                    "equipment",
+                    definition.id,
+                    "cast_spell",
+                )
+                spell = self.spells[definition.cast_spell]
+                if not spell.world_effect or "exploration" not in spell.modes:
+                    raise ContentError("Свиток требует рабочее заклинание исследования")
         for category in ("classes", "backgrounds", "monsters"):
             for definition in getattr(self, category).values():
                 for item_id in getattr(definition, "starting_items", ()) + getattr(

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "leather_strip",
+  "name": "Кожаная лента",
+  "description": "Кожаная лента.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "materials",
+  "group": "Ремёсла и добыча",
+  "weight": 0.1,
+  "tags": [
+    "leather",
+    "organic",
+    "flammable"
+  ]
+}

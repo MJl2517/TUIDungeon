@@ -9,7 +9,9 @@
   "art": null,
   "tags": [
     "transparent",
-    "treasure"
+    "treasure",
+    "gold",
+    "metal"
   ],
   "challenge": "base:terrain_treasure_gold",
   "variants": [

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "stone_block",
+  "name": "Каменный блок",
+  "description": "Каменный блок.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "materials",
+  "group": "Ремёсла и добыча",
+  "weight": 2,
+  "tags": [
+    "stone"
+  ]
+}

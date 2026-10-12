@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "craft_dragon_leather",
+  "name": "Доспех из драконьей кожи",
+  "description": "Доспех из драконьей кожи.",
+  "category": "leatherworker",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "leatherworker_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:dragon_hide"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 5,
+      "tools": [
+        "leatherworker_tools"
+      ],
+      "proficiencies": [
+        "leatherworker_tools"
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:dragon_leather",
+      "quantity": 1
+    }
+  ]
+}

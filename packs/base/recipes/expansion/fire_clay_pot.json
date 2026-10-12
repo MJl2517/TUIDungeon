@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "fire_clay_pot",
+  "name": "Обжечь сосуд",
+  "description": "Обжечь сосуд.",
+  "category": "potter",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "potter_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:clay"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 3,
+      "tools": [
+        "potter_tools"
+      ],
+      "proficiencies": [
+        "potter_tools"
+      ],
+      "stations": [
+        [
+          "oven"
+        ]
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:clay_pot",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

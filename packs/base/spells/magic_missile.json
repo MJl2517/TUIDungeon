@@ -19,5 +19,8 @@
       "damage_type": "force"
     }
   ],
-  "target": "other"
+  "target": "other",
+  "tags": [
+    "magic"
+  ]
 }

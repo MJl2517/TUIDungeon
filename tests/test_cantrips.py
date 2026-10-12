@@ -1,5 +1,7 @@
 """Charges, cast validation, timed world effects and reproducible spell rolls."""
 
+from scripts.testing import lay_bedroll
+
 from dataclasses import replace
 from pathlib import Path
 import random
@@ -74,6 +76,7 @@ class CantripTests(unittest.TestCase):
         e.apply(Action.SHORT_REST)
         self.assertEqual((h.cantrip_uses, h.spell_slots[1]), (16, 1))
         h.cantrip_uses = 1
+        lay_bedroll(e)
         e.apply(Action.REST)
         self.assertEqual((h.cantrip_uses, h.spell_slots[1]), (16, 2))
 
@@ -112,7 +115,9 @@ class CantripTests(unittest.TestCase):
         e.place_item(first, e.state.position)
         e.apply(Action.EAST)
         self.assertEqual(e.magic_lights()[0][0], Position(4, 4))
-        self.assertIn("Свечение", "\n".join(e.inspect_cell(Position(4, 4))))
+        inspection = "\n".join(e.inspect_cell(Position(4, 4)))
+        self.assertIn("Свечение", inspection)
+        self.assertNotIn("Тег:", inspection)
         self.cast(e, "light", second)
         self.assertIsNone(first.glow)
         self.assertNotIn("glowing", first.tags)
@@ -128,7 +133,9 @@ class CantripTests(unittest.TestCase):
         self.assertNotIn("glowing", second.tags)
         self.assertEqual(e.lighting.level_at(Position(6, 4)), 0)
 
-    def test_light_property_is_visible_searchable_and_does_not_change_template_or_stack(self):
+    def test_light_property_is_visible_searchable_and_does_not_change_template_or_stack(
+        self,
+    ):
         e = self.engine()
         hero = e.state.hero
         item = hero.inventory[0]
@@ -142,12 +149,19 @@ class CantripTests(unittest.TestCase):
         self.assertEqual(len(item_stacks([item, twin])), 2)
         self.assertIn("[свет:10]", item_stacks([item])[0].label)
         details = "\n".join(item_details(item))
-        for text in ("glowing", "Свечение (Свет)", "осталось 10 ход.", "яркий радиус 3", "общий 6 кл."):
+        self.assertNotIn("glowing", details)
+        for text in (
+            "Свечение (Свет)",
+            "осталось 10 ход.",
+            "яркий радиус 3",
+            "общий 6 кл.",
+        ):
             self.assertIn(text, details)
         browser = InventoryBrowser(query="свечение")
         self.assertEqual([row.item for row in browser.rows(hero) if row.item], [item])
         e.apply(Action.WAIT)
         self.assertEqual(item.glow.remaining_turns, 9)
+        lay_bedroll(e)
         e.apply(Action.REST)
         self.assertIsNone(item.glow)
         self.assertNotIn("glowing", item.tags)
@@ -163,10 +177,14 @@ class CantripTests(unittest.TestCase):
             repo = SaveRepository(Path(folder) / "ground-glow.json")
             repo.save(e)
             loaded = repo.load(self.catalog)
-        restored = next(i for _, i in loaded.state.items if i.instance_id == item.instance_id)
+        restored = next(
+            i for _, i in loaded.state.items if i.instance_id == item.instance_id
+        )
         self.assertEqual(restored.glow, item.glow)
         self.assertIn("glowing", restored.tags)
-        with patch.object(loaded, "_find_magic_item", side_effect=AssertionError("Repeated item scan")):
+        with patch.object(
+            loaded, "_find_magic_item", side_effect=AssertionError("Repeated item scan")
+        ):
             loaded.magic_lights()
             loaded.apply(Action.WAIT)
         self.assertEqual(restored.glow.remaining_turns, item.glow.remaining_turns - 1)
@@ -189,9 +207,9 @@ class CantripTests(unittest.TestCase):
             (e.state.turns, e.state.clock.elapsed_minutes, h.cantrip_uses), before
         )
 
-    def test_repair_broken_tools_one_and_weapon_d4_without_consuming_slots(self):
+    def test_repair_focus_one_and_weapon_d4_without_consuming_slots(self):
         e = self.engine()
-        for identifier, before, expected in (("thieves_tools", 0, 1), ("dagger", 1, 5)):
+        for identifier, before, expected in (("arcane_focus", 0, 1), ("dagger", 1, 5)):
             item = Equipment.create(self.catalog.equipment[identifier])
             e.state.hero.inventory.append(item)
             item.durability = before
@@ -200,12 +218,14 @@ class CantripTests(unittest.TestCase):
             self.assertEqual(item.durability, min(item.definition.durability, expected))
         self.assertEqual(e.state.hero.spell_slots, {1: 2})
 
-    def test_repair_targets_exclude_indestructible_and_intact_items_but_include_tools(self):
+    def test_repair_targets_exclude_tools_and_intact_items(
+        self,
+    ):
         e = self.engine()
         h = e.state.hero
         tools = [
             Equipment.create(self.catalog.equipment[identifier])
-            for identifier in ("crowbar", "thieves_tools", "master_lockpicks")
+            for identifier in ("arcane_focus", "shield", "mail")
         ]
         for item in tools:
             item.wear(1)
@@ -214,32 +234,41 @@ class CantripTests(unittest.TestCase):
         h.inventory.extend([intact, *tools])
         before = (e.state.turns, h.cantrip_uses, e.dice.rng.getstate())
         self.assertEqual(e.spell_item_targets(self.catalog.spells["mending"]), tools)
-        self.assertEqual(e.spell_item_targets(self.catalog.spells["light"]), h.inventory)
+        self.assertEqual(
+            e.spell_item_targets(self.catalog.spells["light"]), h.inventory
+        )
         for item in h.inventory:
             if item not in tools:
                 self.assertFalse(self.cast(e, "mending", item).performed)
         self.assertEqual((e.state.turns, h.cantrip_uses, e.dice.rng.getstate()), before)
         for item in tools:
             durability = item.durability
-            self.assertTrue(self.cast(e, "mending", item).performed)
+            with patch.object(e.dice, "roll", return_value=(1,)):
+                self.assertTrue(self.cast(e, "mending", item).performed)
             self.assertEqual(item.durability, durability + 1)
-        self.assertEqual(e.spell_item_targets(self.catalog.spells["mending"]), [tools[1]])
+        self.assertEqual(
+            e.spell_item_targets(self.catalog.spells["mending"]), [tools[1]]
+        )
 
     def test_repair_menu_pagination_and_numbers_use_filtered_inventory(self):
         e = self.engine()
-        tools = [Equipment.create(self.catalog.equipment["crowbar"]) for _ in range(8)]
+        tools = [
+            Equipment.create(self.catalog.equipment["arcane_focus"]) for _ in range(8)
+        ]
         for item in tools:
             item.durability = 0
         e.state.hero.inventory.extend(tools)
         c = Controller(3)
         c.engine, c.view = e, View.EXPLORE
         c.open_magic()
-        c.choose_spell(next(i for i, (s, _) in enumerate(c.spell_options) if s.id == "mending"))
+        c.choose_spell(
+            next(i for i, (s, _) in enumerate(c.spell_options) if s.id == "mending")
+        )
         self.assertEqual(c.spell_items, tools)
-        self.assertEqual(popup_content(c)[2], ["Ломик (0/5)"] * 6)
+        self.assertEqual(popup_content(c)[2], ["Рунный фокус (0/10)"] * 6)
         c.handle("pagedown")
         self.assertEqual(c.page, 1)
-        self.assertEqual(popup_content(c)[2], ["Ломик (0/5)"] * 2)
+        self.assertEqual(popup_content(c)[2], ["Рунный фокус (0/10)"] * 2)
         c.handle("2")
         self.assertEqual([i.durability for i in tools], [0] * 7 + [1])
         self.assertEqual(e.state.turns, 1)
@@ -249,13 +278,19 @@ class CantripTests(unittest.TestCase):
         c = Controller(3)
         c.engine, c.view = e, View.EXPLORE
         c.open_magic()
-        c.choose_spell(next(i for i, (s, _) in enumerate(c.spell_options) if s.id == "mending"))
+        c.choose_spell(
+            next(i for i, (s, _) in enumerate(c.spell_options) if s.id == "mending")
+        )
         before = (e.state.turns, e.state.hero.cantrip_uses)
         self.assertEqual(c.spell_items, [])
-        self.assertIn("Нет повреждённых предметов с прочностью", "\n".join(popup_content(c)[1]))
+        self.assertIn(
+            "Нет повреждённых предметов с прочностью", "\n".join(popup_content(c)[1])
+        )
         c.handle("pagedown")
         c.handle("1")
-        self.assertEqual((c.page, e.state.turns, e.state.hero.cantrip_uses), (0, *before))
+        self.assertEqual(
+            (c.page, e.state.turns, e.state.hero.cantrip_uses), (0, *before)
+        )
         c.handle("backspace")
         self.assertEqual(c.action_menu, ActionMenu.MAGIC)
 
@@ -380,7 +415,9 @@ class CantripTests(unittest.TestCase):
         self.assertEqual(loaded.state.hero.known_spells, e.state.hero.known_spells)
         self.assertEqual(loaded.magic_effects, e.magic_effects)
         self.assertEqual(loaded.magic_lights(), e.magic_lights())
-        self.assertEqual(loaded.state.hero.inventory[0].glow, e.state.hero.inventory[0].glow)
+        self.assertEqual(
+            loaded.state.hero.inventory[0].glow, e.state.hero.inventory[0].glow
+        )
         self.assertIn("glowing", loaded.state.hero.inventory[0].tags)
         self.assertEqual(loaded.dice.rng.getstate(), e.dice.rng.getstate())
 
@@ -547,38 +584,6 @@ class WorldCantripTests(unittest.TestCase):
         self.assertTrue(e.use_magic_hand(Position(4, 2)).performed)
         self.assertTrue(self.instance.door.opened)
         self.assertEqual(e.state.hero.cantrip_uses, e.state.hero.max_cantrip_uses - 1)
-
-    def test_browser_and_engine_share_rolls_costs_and_reset_state(self):
-        from tuidungeon.tooling.sessions import TestSession
-        from tuidungeon.application.factories import SessionFactory
-
-        self.setup_map()
-        options = dict(
-            map_ref="base:door_test",
-            character_class="base:wizard",
-            seed=19,
-            cantrips=["light", "fire_bolt", "mending"],
-        )
-        browser = TestSession(self.store, options)
-        engine = SessionFactory(self.store).session(**options)
-        for command in ("fire_bolt", "fire_bolt"):
-            state = browser.command("cast", spell_id=command, x=4, y=2)
-            engine.cast_spell(command, SpellSource.CLASS, Position(4, 2))
-            self.assertEqual(state["turns"], engine.state.turns)
-            self.assertEqual(
-                state["hero"]["cantrip_uses"], engine.state.hero.cantrip_uses
-            )
-            self.assertEqual(
-                browser.engine.state.level.doors[0].door.hp,
-                engine.state.level.doors[0].door.hp,
-            )
-            self.assertEqual(browser.engine.events[-1], engine.events[-1])
-        browser.reset()
-        self.assertEqual(browser.engine.state.level.doors[0].door.hp, 15)
-        self.assertEqual(
-            browser.engine.state.hero.cantrip_uses,
-            browser.engine.state.hero.max_cantrip_uses,
-        )
 
 
 if __name__ == "__main__":

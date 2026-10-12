@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "pigment",
+  "name": "Пигмент",
+  "description": "Пигмент.",
+  "weight": 0.05,
+  "category": "materials",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "*",
+  "foreground": 7,
+  "tags": [
+    "stone"
+  ]
+}

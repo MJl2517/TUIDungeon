@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "packed_furniture",
+  "name": "Мебель",
+  "description": "Поднятая мебель. Содержимое переносится вместе с ней.",
+  "glyph": "T",
+  "foreground": 130,
+  "category": "tools",
+  "group": "Мебель",
+  "weight": 0,
+  "durability": null
+}

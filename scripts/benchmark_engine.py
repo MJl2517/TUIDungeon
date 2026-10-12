@@ -17,7 +17,6 @@ from tuidungeon.application.engine import Action
 from tuidungeon.application.factories import SessionFactory
 from tuidungeon.content.packs import PackStore
 from tuidungeon.content.schemas import MapDocument
-from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.world.lighting import LightField
 
 
@@ -84,10 +83,9 @@ def scenario(store, size, repeat, *, items=0, lights=0, ambient="bright"):
     encoded = definition.model_dump_json().encode()
     raw = json.loads(encoded)
     factory = SessionFactory(local)
-    session = TestSession(local, {"map_ref": "base:benchmark", "seed": 42})
-    engine = session.engine
+    engine = factory.session("base:benchmark", seed=42)
     with patch.object(LightField, "calculate", wraps=LightField.calculate) as calls:
-        snapshot = session.snapshot()
+        engine.render_cells()
         light_calls = calls.call_count
 
     return {
@@ -96,8 +94,7 @@ def scenario(store, size, repeat, *, items=0, lights=0, ambient="bright"):
         "lights": lights,
         "ambient": ambient,
         "map_json_bytes": len(encoded),
-        "snapshot_json_bytes": len(json.dumps(snapshot).encode()),
-        "light_calculations_per_snapshot": light_calls,
+        "light_calculations_per_frame": light_calls,
         "median_ms": {
             "json_decode": measure(lambda: json.loads(encoded), repeat),
             "schema_validation": measure(
@@ -112,11 +109,9 @@ def scenario(store, size, repeat, *, items=0, lights=0, ambient="bright"):
             ),
             "lighting": measure(lambda: engine.lighting, repeat),
             "render_cells": measure(engine.render_cells, repeat),
-            "browser_snapshot": measure(session.snapshot, repeat),
             "move_and_lighting": measure(
                 after_move(engine, lambda: engine.lighting), repeat
             ),
-            "move_and_snapshot": measure(after_move(engine, session.snapshot), repeat),
             "move_and_viewport": measure(
                 after_move(
                     engine,
@@ -131,7 +126,6 @@ def scenario(store, size, repeat, *, items=0, lights=0, ambient="bright"):
                 ),
                 repeat,
             ),
-            "snapshot_json_encode": measure(lambda: json.dumps(snapshot), repeat),
         },
     }
 

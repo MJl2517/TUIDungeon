@@ -13,7 +13,9 @@
     "armor_decor",
     "decor_cloak",
     "flammable",
-    "transparent"
+    "transparent",
+    "cloth",
+    "clothing"
   ],
   "durability": null,
   "slot": "back",

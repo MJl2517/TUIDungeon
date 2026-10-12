@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "ironwood",
+  "name": "Железное дерево",
+  "description": "Железное дерево.",
+  "weight": 1.0,
+  "category": "materials",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "*",
+  "foreground": 7,
+  "tags": [
+    "wooden",
+    "organic",
+    "flammable"
+  ]
+}

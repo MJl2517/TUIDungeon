@@ -2,15 +2,16 @@
   "schema_version": 1,
   "id": "lamp",
   "name": "Масляная лампа",
-  "description": "Занимает одну руку. При зажигании пустой лампы расходуется одна порция масла на 60 минут. Снятие гасит огонь и сохраняет остаток топлива.",
-  "glyph": "&",
+  "description": "Многоразовый источник света. Заправляется маслом; гаснет при снятии, сохраняя топливо.",
+  "glyph": "○",
   "foreground": 11,
   "background": null,
   "art": null,
   "category": "tools",
   "weight": 1.0,
   "tags": [
-    "light_source"
+    "light_source",
+    "metal"
   ],
   "durability": null,
   "slot": "hand",

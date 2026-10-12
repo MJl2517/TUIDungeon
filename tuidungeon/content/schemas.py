@@ -6,7 +6,8 @@ from wcwidth import wcwidth
 from ..domain.definitions import DiceExpression
 from ..domain.value_types import freeze
 from ..domain.doors import Material, LockQuality, LockComplexity, MATERIALS, door_glyph
-from ..domain.materials import TAGS_DESCRIPTION, TAG_LABELS
+from ..domain.tags import TAGS_DESCRIPTION, TAG_SCHEMA
+from ..domain.liquids import LiquidKind, WaterKind
 from ..domain.damage import DamageType, DamageSelector
 
 LocalId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*$")]
@@ -14,6 +15,7 @@ Ref = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$")]
 AbilityName = Literal[
     "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"
 ]
+MapCategory = Literal["auto", "floor", "wall", "destructible", "furniture", "special"]
 Color = Annotated[int, Field(ge=0, le=255)]
 Positive = Annotated[int, Field(ge=1)]
 Nonnegative = Annotated[int, Field(ge=0)]
@@ -141,6 +143,9 @@ class ActionFields(StrictModel):
     effects: list[Effect] = Field(default_factory=list)
     difficulty: Nonnegative = 10
     description: str = ""
+    tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
 
     _effects = field_validator("effects")(active_effects)
 
@@ -209,14 +214,247 @@ class LightSource(StrictModel):
         return self
 
 
+class VesselSpec(StrictModel):
+    capacity_portions: Annotated[int, Field(ge=1, le=1000, strict=True)] = 1
+    heat_safe: bool = False
+    fragile: bool = False
+    initial_kind: LiquidKind | None = None
+    initial_portions: Annotated[int, Field(ge=0, le=1000, strict=True)] = 0
+
+    @model_validator(mode="before")
+    @classmethod
+    def legacy(cls, value):
+        from ..domain.liquids import migrate_vessel
+
+        return migrate_vessel(value)
+
+    @model_validator(mode="after")
+    def contents(self):
+        if self.initial_portions > self.capacity_portions or bool(
+            self.initial_portions
+        ) != bool(self.initial_kind):
+            raise ValueError("Объём и вид содержимого сосуда не согласованы")
+        return self
+
+
+class WaterSourceSpec(StrictModel):
+    kind: WaterKind = "dirty_water"
+    portions: Annotated[int, Field(ge=1, le=1000)] | None = Field(
+        default=None,
+        description="Запас порций. Пусто — неисчерпаемый источник; при исчерпании объект исчезает.",
+    )
+
+
+class CampfireSpec(StrictModel):
+    fuel_minutes: Annotated[int, Field(ge=1, le=10000)] = 60
+    fuel_tag: LocalId = "wooden"
+    radius: Annotated[int, Field(ge=1, le=32)] = 5
+    bright_radius: Annotated[int, Field(ge=0, le=32)] = 3
+
+    @model_validator(mode="after")
+    def radii(self):
+        if self.bright_radius > self.radius:
+            raise ValueError("Яркий радиус больше общего")
+        return self
+
+
+class RecipeOperation(StrictModel):
+    kind: Literal[
+        "liquid",
+        "repair_item",
+        "repair_object",
+        "place_object",
+        "place_trap",
+        "coat_weapon",
+        "appraise_item",
+    ] = "liquid"
+    target_tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
+    liquids: list[LiquidKind] = Field(default_factory=list)
+    portions: Annotated[int, Field(ge=1, le=1000, strict=True)] = 3
+    liquid_result: LiquidKind | None = None
+    heat_safe: bool = False
+    repair_amount: Annotated[int, Field(ge=1, le=100000)] = 10
+    place_object: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "objects"}
+    )
+    place_trap: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "traps"}
+    )
+    poison_damage: Annotated[int, Field(ge=1, le=100)] = 2
+    ignition: bool = False
+
+    @model_validator(mode="before")
+    @classmethod
+    def legacy(cls, value):
+        if isinstance(value, dict) and "volume_ml" in value:
+            data = dict(value)
+            volume = data.pop("volume_ml")
+            if "portions" in data or type(volume) is not int or volume <= 0:
+                raise ValueError("Недопустимый объём обработки")
+            data["portions"] = 3 if volume == 500 else (volume + 249) // 250
+            return data
+        return value
+
+    @model_validator(mode="after")
+    def requirements(self):
+        if self.kind == "liquid" and not self.liquids:
+            raise ValueError("Укажите допустимые жидкости")
+        if (self.kind == "place_object") != bool(self.place_object):
+            raise ValueError("Ссылка на объект нужна только для размещения")
+        if (self.kind == "place_trap") != bool(self.place_trap):
+            raise ValueError("Ссылка на ловушку нужна только для установки")
+        if self.kind != "liquid" and (
+            self.liquids or self.liquid_result or self.heat_safe
+        ):
+            raise ValueError(
+                "Параметры жидкости допустимы только для обработки жидкости"
+            )
+        if self.kind != "place_object" and self.ignition:
+            raise ValueError("Зажигание допустимо только при создании объекта")
+        return self
+
+
+class RecipeIngredient(StrictModel):
+    items: Annotated[list[Ref], Field(min_length=1, max_length=32)] = Field(
+        default_factory=lambda: ["base:wood"],
+        json_schema_extra={"ref_category": "equipment"},
+    )
+    quantity: Annotated[int, Field(ge=1, le=1000)] = 1
+
+
+class RecipeOutput(StrictModel):
+    item: Ref = Field(
+        default="base:torch", json_schema_extra={"ref_category": "equipment"}
+    )
+    quantity: Annotated[int, Field(ge=1, le=1000)] = 1
+
+
+class RecipeCheck(StrictModel):
+    ability: AbilityName = "intelligence"
+    difficulty: Annotated[int, Field(ge=0, le=100)] = 10
+
+
+class RecipeVariant(StrictModel):
+    result: list[RecipeOutput] | None = Field(
+        default=None,
+        max_length=32,
+        description="Результат этого способа; пусто — общий результат рецепта",
+    )
+    check: RecipeCheck | None = None
+    spells: list[Ref] = Field(
+        default_factory=list,
+        json_schema_extra={"ref_category": "spells"},
+        description="Нужны знания всех перечисленных заклинаний; свиток не даёт знания",
+    )
+    name: str = "Обычный способ"
+    ingredients: Annotated[list[RecipeIngredient], Field(max_length=32)] = Field(
+        default_factory=lambda: [RecipeIngredient()]
+    )
+    tools: list[LocalId] = Field(default_factory=list)
+    proficiencies: list[LocalId] = Field(default_factory=list)
+    stations: list[Annotated[list[LocalId], Field(min_length=1, max_length=16)]] = (
+        Field(
+            default_factory=list,
+            description="Каждая группа: одна станция из списка; нужны все группы",
+        )
+    )
+    turns: Annotated[int, Field(ge=1, le=1000)] = 1
+    _name = field_validator("name")(title_text)
+
+
+class RecipeDocument(Document):
+    learn_recipes: list[Ref] = Field(
+        default_factory=list,
+        max_length=32,
+        json_schema_extra={"ref_category": "recipes"},
+        description="Рецепты, открываемые успешным завершением эксперимента",
+    )
+    category: LocalId = "basic"
+    basic_known: bool = True
+    learn_on_proficiency: list[LocalId] = Field(
+        default_factory=list,
+        description="Рецепт изучается при получении любого из этих владений",
+    )
+    variants: Annotated[list[RecipeVariant], Field(min_length=1, max_length=16)] = (
+        Field(default_factory=lambda: [RecipeVariant()])
+    )
+    result: Annotated[list[RecipeOutput], Field(max_length=32)] = Field(
+        default_factory=lambda: [RecipeOutput()]
+    )
+    check: RecipeCheck | None = None
+    operation: RecipeOperation | None = None
+
+    @model_validator(mode="after")
+    def bounded_items(self):
+        if not self.operation and (
+            any(
+                not (v.result if v.result is not None else self.result)
+                or not v.ingredients
+                for v in self.variants
+            )
+        ):
+            raise ValueError("Обычный рецепт требует ингредиенты и результат")
+        if any(
+            sum(r.quantity for r in (v.result if v.result is not None else self.result))
+            > 1000
+            for v in self.variants
+        ) or any(sum(i.quantity for i in v.ingredients) > 1000 for v in self.variants):
+            raise ValueError(
+                "Рецепт ограничен 1000 входными и 1000 выходными предметами"
+            )
+        return self
+
+
+class ReadingText(StrictModel):
+    learn_recipes: list[Ref] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "recipes"}
+    )
+    title: Annotated[str, Field(min_length=1, max_length=200)] = "Без названия"
+    pages: Annotated[list[str], Field(min_length=1, max_length=256)] = Field(
+        default_factory=lambda: ["Текст записки."],
+        description="Страницы текста; длинные страницы дополнительно делятся по размеру окна",
+    )
+    _title = field_validator("title")(title_text)
+
+    @field_validator("pages")
+    @classmethod
+    def readable_pages(cls, value):
+        for page in value:
+            if not page.strip() or len(page) > 20000:
+                raise ValueError(
+                    "Страница должна содержать от 1 до 20000 символов текста"
+                )
+            narrative_text(page)
+        return value
+
+
 class EquipmentDocument(Visual):
+    @model_validator(mode="before")
+    @classmethod
+    def legacy_liquids(cls, value):
+        from ..domain.liquids import migrate_vessel
+
+        if isinstance(value, dict) and isinstance(value.get("vessel"), dict):
+            return dict(value, vessel=migrate_vessel(value["vessel"], value.get("id")))
+        return value
+
+    cast_spell: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "spells"}
+    )
+    spell_bonus: Annotated[int, Field(ge=0, le=5)] = 0
+    reading: ReadingText | None = None
+    value_gold: Nonnegative | None = None
     group: str = "Снаряжение"
-    category: Literal["weapons", "armor", "consumables", "tools"] | None = None
+    category: (
+        Literal["weapons", "armor", "consumables", "tools", "materials"] | None
+    ) = None
     weight: Annotated[float, Field(ge=0, allow_inf_nan=False)] = 0
     tags: list[LocalId | Literal["поджог"]] = Field(
         default_factory=list,
         description=TAGS_DESCRIPTION,
-        json_schema_extra={"tag_labels": TAG_LABELS},
+        json_schema_extra=TAG_SCHEMA,
     )
     durability: Positive | None = None
     slot: LocalId | None = None
@@ -229,10 +467,29 @@ class EquipmentDocument(Visual):
     charges: Positive | None = None
     hands: Annotated[int, Field(ge=0, le=2)] = 0
     light: LightSource | None = None
+    vessel: VesselSpec | None = None
     _dice = field_validator("weapon_damage")(ActionFields.damage_valid.__func__)
 
     @model_validator(mode="after")
     def light_hand(self):
+        if "tool" in self.tags:
+            object.__setattr__(self, "durability", None)
+        if self.cast_spell and (
+            self.charges is None
+            or self.slot
+            or self.properties
+            or self.light
+            or self.vessel
+        ):
+            raise ValueError(
+                "Свиток требует заряды и не может быть экипировкой, сосудом или иметь другие активные свойства"
+            )
+        if self.spell_bonus and not self.slot:
+            raise ValueError("Магический фокус должен экипироваться")
+        if self.vessel and self.light:
+            raise ValueError(
+                "Сосуд и переносной свет должны быть отдельными предметами"
+            )
         if self.light and (self.slot != "hand" or self.hands != 1):
             raise ValueError("Переносной свет должен иметь slot=hand и hands=1")
         return self
@@ -275,7 +532,9 @@ class SpellDocument(Visual):
     world_parameters: dict = Field(default_factory=dict)
     concentration: bool = False
     pending_effects: list[str] = Field(default_factory=list)
-    tags: list[LocalId] = Field(default_factory=list)
+    tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
     _wounded = field_validator("wounded_dice")(ActionFields.damage_valid.__func__)
 
     @model_validator(mode="after")
@@ -307,6 +566,9 @@ class SpellDocument(Visual):
 
 
 class RaceDocument(Visual):
+    tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
     damage_profile: DamageDefenses = Field(default_factory=DamageDefenses)
     ability_bonuses: Bonuses = Field(default_factory=Bonuses)
     hp_per_level: Nonnegative = 0
@@ -325,6 +587,10 @@ class RaceDocument(Visual):
 
 
 class ClassDocument(Visual):
+    tool_proficiencies: list[LocalId] = Field(default_factory=list)
+    starting_recipes: list[Ref] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "recipes"}
+    )
     damage_profile: DamageDefenses = Field(default_factory=DamageDefenses)
     spellcasting_ability: AbilityName = "intelligence"
     cantrip_choices: list[Ref] = Field(
@@ -369,6 +635,10 @@ class ClassDocument(Visual):
 
 
 class BackgroundDocument(Visual):
+    tool_proficiencies: list[LocalId] = Field(default_factory=list)
+    starting_recipes: list[Ref] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "recipes"}
+    )
     classes: list[Ref] = Field(
         default_factory=list, json_schema_extra={"ref_category": "classes"}
     )
@@ -383,7 +653,9 @@ class BackgroundDocument(Visual):
     starting_items: list[Ref] = Field(
         default_factory=list, json_schema_extra={"ref_category": "equipment"}
     )
-    tags: list[LocalId] = Field(default_factory=list)
+    tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
 
 
 class MonsterDocument(Visual):
@@ -410,7 +682,9 @@ class MonsterDocument(Visual):
     spell_slots: dict[Annotated[str, Field(pattern="^[1-9]$")], Nonnegative] = Field(
         default_factory=dict
     )
-    tags: list[LocalId] = Field(default_factory=list)
+    tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
 
     @model_validator(mode="after")
     def unique_actions(self):
@@ -430,10 +704,18 @@ class Choice(StrictModel):
     ability: AbilityName | None = None
     difficulty: Nonnegative = 10
     check_tag: LocalId | Literal[""] = ""
-    required_tags: list[LocalId] = Field(default_factory=list)
-    visible_tags: list[LocalId] = Field(default_factory=list)
-    advantage_tags: list[LocalId] = Field(default_factory=list)
-    automatic_tags: list[LocalId] = Field(default_factory=list)
+    required_tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
+    visible_tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
+    advantage_tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
+    automatic_tags: list[LocalId] = Field(
+        default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
+    )
     success: list[Effect] = Field(default_factory=list)
     failure: list[Effect] = Field(default_factory=list)
     minutes: Nonnegative = 1
@@ -454,12 +736,48 @@ class ChallengeDocument(Document):
         return self
 
 
+class DismantleSpec(StrictModel):
+    verb: Literal["dismantle", "butcher", "harvest", "chop", "remove_barricade"] = (
+        "dismantle"
+    )
+    tools: list[LocalId] = Field(
+        default_factory=list,
+        description="Нужен хотя бы один исправный инструмент с указанным тегом",
+    )
+    turns: Annotated[int, Field(ge=1, le=1000)] = 3
+    fast_tool: LocalId | None = "lever"
+    fast_turns: Annotated[int, Field(ge=1, le=1000)] = 1
+
+    @model_validator(mode="before")
+    @classmethod
+    def discard_legacy_wear(cls, value):
+        if isinstance(value, dict) and "fast_tool_wear" in value:
+            value = dict(value)
+            value.pop("fast_tool_wear")
+        return value
+
+    loot: list[RecipeOutput] = Field(default_factory=list, max_length=32)
+
+
+class DestructionSpec(StrictModel):
+    regrow_minutes: Annotated[int, Field(ge=1, le=1000000)] | None = Field(
+        default=None,
+        description="Восстановление после сбора, рубки или разрушения, в игровых минутах. Пусто — не восстанавливается. На занятой клетке появление откладывается.",
+    )
+    max_hp: Positive = 20
+    damage_profile: DamageDefenses = Field(default_factory=DamageDefenses)
+    dismantle: DismantleSpec | None = None
+    remains: list[RecipeOutput] = Field(default_factory=list, max_length=32)
+
+
 class TrapDocument(Visual):
+    disarm: RecipeCheck | None = None
+    dismantle: DismantleSpec | None = None
     group: str = "Ловушки"
     tags: list[LocalId] = Field(
         default_factory=list,
         description=TAGS_DESCRIPTION,
-        json_schema_extra={"tag_labels": TAG_LABELS},
+        json_schema_extra=TAG_SCHEMA,
     )
     map_light: TileLight | None = None
     _effects = field_validator("success", "failure", check_fields=False)(active_effects)
@@ -478,6 +796,8 @@ class StorageItem(StrictModel):
 
 
 class StorageSpec(StrictModel):
+    open_tool: LocalId | None = None
+    search_contents: bool = False
     capacity: Annotated[float, Field(gt=0, le=1000000, allow_inf_nan=False)] = 1000
     personal: bool = False
     contents: list[StorageItem] = Field(default_factory=list, max_length=256)
@@ -492,16 +812,43 @@ def configure_storage(document):
 
 
 class PointDocument(Visual):
+    water_source: WaterSourceSpec | None = None
+
+    destruction: DestructionSpec | None = None
+    movable: bool = False
+    weight: Annotated[float, Field(ge=0, le=1000000, allow_inf_nan=False)] = 0
+    map_category: MapCategory = Field(
+        default="auto",
+        description="Раздел палитры карты. Организует кисти; не добавляет игровые действия разрушения или переноса.",
+    )
     group: str = "События"
     map_light: TileLight | None = None
     tags: list[LocalId] = Field(
         default_factory=list,
         description=TAGS_DESCRIPTION,
-        json_schema_extra={"tag_labels": TAG_LABELS},
+        json_schema_extra=TAG_SCHEMA,
     )
-    challenge: Ref = Field(json_schema_extra={"ref_category": "challenges"})
+    challenge: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "challenges"}
+    )
+    reading: ReadingText | None = None
+    learn_recipes: list[Ref] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "recipes"}
+    )
     storage: StorageSpec | None = None
     _storage = model_validator(mode="after")(configure_storage)
+
+    @model_validator(mode="after")
+    def interaction_required(self):
+        if not (
+            self.challenge
+            or self.reading
+            or self.storage
+            or self.learn_recipes
+            or self.water_source
+        ):
+            raise ValueError("Нужно испытание, текст для чтения или контейнер")
+        return self
 
 
 class DoorSpec(StrictModel):
@@ -540,11 +887,15 @@ class TileBrush(StrictModel):
 
 
 class TileDocument(Visual):
+    map_category: MapCategory = Field(
+        default="auto",
+        description="Раздел палитры карты. Организует кисти; не добавляет игровые действия разрушения или переноса.",
+    )
     group: str = "Прочее"
     tags: list[LocalId] = Field(
         default_factory=list,
         description=TAGS_DESCRIPTION,
-        json_schema_extra={"tag_labels": TAG_LABELS},
+        json_schema_extra=TAG_SCHEMA,
     )
     walkable: bool = True
     blocks_sight: bool = False
@@ -583,7 +934,20 @@ class TileDocument(Visual):
         return self
 
 
+class LightFixtureSpec(StrictModel):
+    item: Ref = Field(json_schema_extra={"ref_category": "equipment"})
+    stays_when_empty: bool = True
+
+
 class WorldObjectDocument(TileDocument):
+    light_fixture: LightFixtureSpec | None = None
+    campfire: CampfireSpec | None = None
+    water_source: WaterSourceSpec | None = None
+
+    door_remains: list[RecipeOutput] = Field(default_factory=list, max_length=32)
+    destruction: DestructionSpec | None = None
+    movable: bool = False
+    weight: Annotated[float, Field(ge=0, le=1000000, allow_inf_nan=False)] = 0
     """One world object definition: furniture, a door, light or transition."""
 
     storage: StorageSpec | None = None
@@ -591,6 +955,20 @@ class WorldObjectDocument(TileDocument):
 
     @model_validator(mode="after")
     def no_duplicate_mechanics(self):
+        if self.light_fixture:
+            if self.storage is None:
+                object.__setattr__(
+                    self,
+                    "storage",
+                    StorageSpec(contents=[StorageItem(item=self.light_fixture.item)]),
+                )
+                object.__setattr__(self, "tags", freeze([*self.tags, "storage"]))
+            if sum(i.quantity for i in self.storage.contents) > 1 or any(
+                i.item != self.light_fixture.item for i in self.storage.contents
+            ):
+                raise ValueError(
+                    "В подставке допустим только один подходящий источник света"
+                )
         if self.brush.item or self.brush.trap or self.brush.interaction:
             raise ValueError(
                 "Предметы, ловушки и взаимодействия размещаются из собственных шаблонов"
@@ -637,12 +1015,47 @@ class Coordinate(StrictModel):
     y: Nonnegative = 0
 
 
+class InitialItemState(StrictModel):
+    durability: Nonnegative | None = None
+    contaminated: bool = False
+
+
 class Placement(Coordinate):
+    @model_validator(mode="before")
+    @classmethod
+    def legacy_liquids(cls, value):
+        if isinstance(value, dict):
+            overrides = value.get("overrides", {})
+            vessel = overrides.get("vessel") if isinstance(overrides, dict) else None
+            if isinstance(vessel, dict) and (
+                "initial_ml" in vessel or "capacity_ml" in vessel
+            ):
+                from ..domain.liquids import migrate_vessel, legacy_portions
+
+                replacement = migrate_vessel(
+                    vessel, value.get("ref", "").removeprefix("base:")
+                )
+                if "initial_ml" not in vessel and "capacity_ml" in vessel:
+                    replacement.pop("initial_portions", None)
+                if "initial_ml" in replacement:
+                    replacement = dict(replacement)
+                    if "initial_portions" in replacement:
+                        raise ValueError("Нельзя смешивать старые объёмы и порции")
+                    replacement["initial_portions"] = legacy_portions(
+                        replacement.pop("initial_ml"), value.get("ref")
+                    )
+                return dict(value, overrides=dict(overrides, vessel=replacement))
+        return value
+
     id: LocalId
     ref: Ref
     overrides: dict = Field(
         default_factory=dict,
         description="Локальные свойства шаблона; вложенные объекты объединяются, списки заменяются.",
+    )
+    item_state: InitialItemState | None = Field(
+        default=None,
+        description="Начальное состояние предмета на земле (только слой предметов)",
     )
     challenge_overrides: dict = Field(
         default_factory=dict, description="Локальные свойства испытания точки интереса"
@@ -681,6 +1094,12 @@ class MapDocument(Document):
     tiles: list[list[Ref | None]]
     walkability: list[list[bool]]
     blocks_sight: list[list[bool]]
+    roof: list[list[bool]] = Field(
+        default_factory=lambda data: [
+            [False] * data["width"] for _ in range(data["height"])
+        ],
+        description="Крыша отключает общий свет клетки, не перекрывая источники света.",
+    )
     decorations: list[Placement] = Field(
         default_factory=list, json_schema_extra={"ref_category": "art"}
     )
@@ -701,7 +1120,7 @@ class MapDocument(Document):
 
     @model_validator(mode="after")
     def map_valid(self):
-        for name in ("tiles", "walkability", "blocks_sight"):
+        for name in ("tiles", "walkability", "blocks_sight", "roof"):
             grid = getattr(self, name)
             if len(grid) != self.height or any(len(row) != self.width for row in grid):
                 raise ValueError(f"Размер {name} не совпадает с картой")
@@ -725,6 +1144,13 @@ class MapDocument(Document):
             "lights",
         ):
             for entry in getattr(self, category):
+                if (
+                    getattr(entry, "item_state", None) is not None
+                    and category != "equipment"
+                ):
+                    raise ValueError(
+                        "Начальное состояние предмета допустимо только в слое equipment"
+                    )
                 if entry.id in ids:
                     raise ValueError("Повторный id размещения")
                 ids.add(entry.id)
@@ -743,6 +1169,7 @@ class MapDocument(Document):
 
 
 MODELS = {
+    "recipes": RecipeDocument,
     "art": ArtDocument,
     "tiles": TileDocument,
     "objects": WorldObjectDocument,

@@ -61,6 +61,7 @@ class AttackAction(CharacterAction):
             definition.damage,
             definition.damage_type,
         )
+        weapon = None
         if damage is None:
             weapons = [
                 item
@@ -95,10 +96,17 @@ class AttackAction(CharacterAction):
         amount = max(0, damage.roll(context.dice) + actor.stats.modifier(ability))
         outcome = effects.apply_all(
             (EffectSpec("damage", amount, damage_type=damage_type),)
-            + definition.effects,
+            + definition.effects
+            + (
+                (EffectSpec("damage", weapon.poison_damage, damage_type="poison"),)
+                if weapon and weapon.poison_damage
+                else ()
+            ),
             target,
             context.dice,
         )
+        if weapon:
+            weapon.poison_damage = 0
         return ActionOutcome(True, True, "Атака попала.", check, outcome)
 
 

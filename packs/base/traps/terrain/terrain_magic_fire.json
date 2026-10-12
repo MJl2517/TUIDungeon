@@ -27,7 +27,8 @@
   "group": "Лава и огонь",
   "tags": [
     "fire",
-    "transparent"
+    "transparent",
+    "magic"
   ],
   "map_light": {
     "radius": 6,

@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 import re
 
+from .liquids import VesselDefinition
 from .rules import Ability
 from .stats import Stats
 from .value_types import freeze
@@ -58,6 +59,7 @@ class ActionDefinition:
     difficulty: int = 10
     description: str = ""
     damage_type: DamageType = "bludgeoning"
+    tags: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -91,8 +93,17 @@ class EquipmentDefinition:
     category: str | None = None
     hands: int = 0
     light: LightDefinition | None = None
+    vessel: VesselDefinition | None = None
     damage_type: DamageType = "bludgeoning"
     damage_profile: DamageProfile = DamageProfile()
+    value_gold: int | None = None
+    cast_spell: str | None = None
+    spell_bonus: int = 0
+    reading: object | None = None
+
+    def __post_init__(self):
+        if "tool" in self.tags:
+            object.__setattr__(self, "durability", None)
 
 
 @dataclass(frozen=True)
@@ -134,6 +145,8 @@ class RaceDefinition:
     description: str = ""
     damage_profile: DamageProfile = DamageProfile()
 
+    tags: frozenset[str] = frozenset()
+
     @property
     def value(self) -> str:
         return self.name
@@ -156,6 +169,9 @@ class ClassDefinition:
     cantrip_choices: tuple[str, ...] = ()
     cantrips_known: int = 0
 
+    tool_proficiencies: frozenset[str] = frozenset()
+    starting_recipes: tuple[str, ...] = ()
+
     @property
     def value(self) -> str:
         return self.name
@@ -171,6 +187,9 @@ class BackgroundDefinition:
     description: str = ""
     classes: tuple[str, ...] = ()
     skills: tuple[str, ...] = ()
+
+    tool_proficiencies: frozenset[str] = frozenset()
+    starting_recipes: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

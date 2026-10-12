@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "rubble_large",
+  "name": "Крупный завал",
+  "description": "Разбор: 30 ходов вручную, 10 с киркой. Инструмент не изнашивается.",
+  "variants": [],
+  "glyph": "X",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Руины и мусор",
+  "tags": [
+    "obstacle",
+    "opaque",
+    "ruins",
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "light_fixture": null,
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": null,
+    "max_hp": 50,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "dismantle",
+      "tools": [],
+      "turns": 30,
+      "fast_tool": "pickaxe",
+      "fast_turns": 10,
+      "loot": [
+        {
+          "item": "base:stone",
+          "quantity": 3
+        }
+      ]
+    },
+    "remains": []
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null
+}

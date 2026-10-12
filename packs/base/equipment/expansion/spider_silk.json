@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "spider_silk",
+  "name": "Паутина",
+  "description": "Паутина.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "materials",
+  "group": "Ремёсла и добыча",
+  "weight": 0.1,
+  "tags": [
+    "organic",
+    "fiber",
+    "flammable"
+  ]
+}

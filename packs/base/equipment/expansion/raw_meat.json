@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "raw_meat",
+  "name": "Сырое мясо",
+  "description": "Сырое мясо.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "materials",
+  "group": "Ремёсла и добыча",
+  "weight": 0.5,
+  "tags": [
+    "organic",
+    "food"
+  ]
+}

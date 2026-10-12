@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "build_barricade",
+  "name": "Построить баррикаду",
+  "description": "Построить баррикаду.",
+  "category": "basic",
+  "basic_known": true,
+  "learn_on_proficiency": [],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 3
+        }
+      ],
+      "turns": 3,
+      "tools": [],
+      "proficiencies": [],
+      "stations": []
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "place_object",
+    "place_object": "base:barricade"
+  }
+}

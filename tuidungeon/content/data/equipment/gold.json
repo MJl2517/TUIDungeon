@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "gold",
+  "name": "Золотая монета",
+  "description": "Деньги и материал для ремесла. 50 монет весят 0,5 кг.",
+  "category": "materials",
+  "weight": 0.01,
+  "tags": [
+    "gold",
+    "metal"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 0,
+  "light": null
+}

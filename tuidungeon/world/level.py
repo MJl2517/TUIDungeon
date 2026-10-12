@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 from uuid import uuid4
 from ..domain.challenges import TextChallenge
+from ..domain.definitions import ChallengeChoice
 from .terrain import Terrain
 from .doors import DoorInstance
 from .storage import StorageInstance
@@ -24,14 +25,45 @@ class TrapInstance:
     definition: TrapDocument
     instance_id: str = field(default_factory=lambda: str(uuid4()))
     triggered: bool = False
+    discovered: bool = False
+    disabled: bool = False
 
 
 @dataclass
 class PointInstance:
     placement: Placement
     definition: PointDocument
-    challenge: TextChallenge
+    challenge: TextChallenge | None
     instance_id: str = field(default_factory=lambda: str(uuid4()))
+
+    @property
+    def text(self):
+        return (
+            self.challenge.text
+            if self.challenge
+            and (not self.definition.storage or self.definition.storage.search_contents)
+            else self.definition.description
+        )
+
+    @property
+    def completed(self):
+        return bool(self.challenge and self.challenge.completed)
+
+    def available_choices(self, hero):
+        choices = (
+            self.challenge.available_choices(hero)
+            if self.challenge
+            and (not self.definition.storage or self.definition.storage.search_contents)
+            else ()
+        )
+        if self.definition.learn_recipes:
+            choices = (
+                ChallengeChoice("study", "Изучить мастерскую", minutes=0),
+                *choices,
+            )
+        if self.definition.reading:
+            return (ChallengeChoice("read_note", "Прочесть", minutes=0), *choices)
+        return choices
 
 
 @dataclass
@@ -46,6 +78,13 @@ class Level:
     items: list[tuple[Placement | ItemPlacement, Equipment]] = field(
         default_factory=list
     )
+
+    object_states: dict = field(default_factory=dict)
+    regrowing_objects: list = field(default_factory=list)
+    door_loot: set = field(default_factory=set)
+
+    def __post_init__(self):
+        self.authored_definition = self.definition
 
     def __setattr__(self, name, value):
         if name in (
@@ -102,7 +141,11 @@ class Level:
                 for p in getattr(self.definition, category):
                     doc = self.store.resolve(category, p)
                     light = doc.brush.light if category == "objects" else doc.map_light
-                    if light and (p.x, p.y) not in explicit:
+                    if (
+                        light
+                        and not getattr(doc, "light_fixture", None)
+                        and (p.x, p.y) not in explicit
+                    ):
                         sources.append((Position(p.x, p.y), light))
             self._static_lights = tuple(sources)
             self._lights_definition = self.definition
@@ -116,7 +159,17 @@ class Level:
         index = self.index("points")
         points = [
             p
-            for dx, dy in ((0, 0), (0, -1), (0, 1), (-1, 0), (1, 0))
+            for dx, dy in (
+                (0, 0),
+                (0, -1),
+                (0, 1),
+                (-1, 0),
+                (1, 0),
+                (-1, -1),
+                (1, -1),
+                (-1, 1),
+                (1, 1),
+            )
             for p in index.at(position.x + dx, position.y + dy)
         ]
         # Preserve authored ordering for numbered interaction menus.
@@ -126,7 +179,17 @@ class Level:
         index = self.index("doors")
         return [
             door
-            for dx, dy in ((0, 0), (0, -1), (0, 1), (-1, 0), (1, 0))
+            for dx, dy in (
+                (0, 0),
+                (0, -1),
+                (0, 1),
+                (-1, 0),
+                (1, 0),
+                (-1, -1),
+                (1, -1),
+                (-1, 1),
+                (1, 1),
+            )
             for door in index.at(position.x + dx, position.y + dy)
         ]
 
@@ -149,29 +212,57 @@ class Level:
         )
         cells = [list(row[x : x + width]) for row in self.cells[y : y + height]]
 
-        def draw(definition, p):
+        def draw(definition, p, category, ref=None):
+            visual_ref = category + "/" + (ref or p.ref)
             if isinstance(definition, dict):
                 cells[p.y - y][p.x - x] = glyph_cell(
                     definition["glyph"],
                     definition["foreground"],
-                    definition["background"],
+                    definition["background"]
+                    if definition["background"] is not None
+                    else cells[p.y - y][p.x - x].background,
+                    visual_ref,
                 )
             else:
                 cells[p.y - y][p.x - x] = glyph_cell(
-                    definition.glyph, definition.foreground, definition.background
+                    definition.glyph,
+                    definition.foreground,
+                    definition.background
+                    if definition.background is not None
+                    else cells[p.y - y][p.x - x].background,
+                    visual_ref,
                 )
 
+        for container in self.index("containers").region(x, y, width, height):
+            fixture = getattr(container.definition, "light_fixture", None)
+            if fixture and fixture.stays_when_empty and not container.items:
+                p = container.placement
+                cells[p.y - y][p.x - x] = glyph_cell("†", 8)
         for trap in self.index("traps").region(x, y, width, height):
-            if not trap.definition.hidden or trap.triggered:
-                draw(trap.definition, trap.placement)
+            if not trap.definition.hidden or trap.triggered or trap.discovered:
+                draw(trap.definition, trap.placement, "traps")
         for point in self.index("points").region(x, y, width, height):
-            draw(point.definition, point.placement)
+            draw(point.definition, point.placement, "points_of_interest")
         for instance in self.index("doors").region(x, y, width, height):
             p, door = instance.placement, instance.door
             if not door.destroyed:
-                cells[p.y - y][p.x - x] = glyph_cell(door.glyph, door.display_color())
+                cells[p.y - y][p.x - x] = glyph_cell(
+                    door.glyph,
+                    door.display_color(),
+                    visual_ref=(
+                        "door_open"
+                        if door.opened
+                        else "door_bent"
+                        if door.bent
+                        else "door_closed"
+                    ),
+                )
         for placement, item in state.item_index.region(x, y, width, height):
-            draw(item.template or self.store.get("equipment", placement.ref), placement)
+            draw(
+                item.template or self.store.get("equipment", placement.ref),
+                placement,
+                "equipment",
+            )
         for monster in state.actor_index.region(x, y, width, height):
             if monster.monster.hp > 0:
                 ref = getattr(monster.monster, "definition_ref", None)
@@ -179,10 +270,14 @@ class Level:
                     draw(
                         monster.monster.template or self.store.get("monsters", ref),
                         monster.position,
+                        "monsters",
+                        ref,
                     )
         p = state.position
         if x <= p.x < x + width and y <= p.y < y + height:
             cells[p.y - y][p.x - x] = glyph_cell(
-                "@", 244 if state.hero.sneaking else 15
+                "@",
+                244 if state.hero.sneaking else 15,
+                visual_ref="hero",
             )
         return cells

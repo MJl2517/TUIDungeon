@@ -16,3 +16,4 @@ class MagicPlacement:
     params: dict = field(default_factory=dict)
     instance_id: str = field(default_factory=lambda: str(uuid4()))
     spell_id: str | None = None
+    scroll_definition: str | None = None

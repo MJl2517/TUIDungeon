@@ -1,0 +1,22 @@
+{
+  "id": "crafting_manual",
+  "name": "Памятка плотника",
+  "description": "На поверхности виден текст. Можно прочесть вблизи.",
+  "group": "Записки",
+  "glyph": "~",
+  "foreground": 11,
+  "reading": {
+    "title": "Сборка факела",
+    "pages": [
+      "Обмотайте древесину тканью. Инструменты плотника ускоряют работу. Для работы требуется полный свет."
+    ],
+    "learn_recipes": [
+      "base:craft_workshop_torch"
+    ]
+  },
+  "tags": [
+    "book",
+    "flammable",
+    "paper"
+  ]
+}

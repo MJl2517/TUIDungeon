@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import shutil
+import os
 import socket
 import tempfile
 import threading
@@ -64,7 +65,8 @@ def run():
                 browser = p.chromium.launch(
                     headless=True,
                     executable_path=shutil.which("google-chrome")
-                    or shutil.which("chromium"),
+                    or shutil.which("chromium")
+                    or os.environ.get("PLAYWRIGHT_BROWSER_EXECUTABLE"),
                     args=["--no-sandbox"],
                 )
                 page = browser.new_page(viewport=dict(width=1600, height=1000))
@@ -75,15 +77,20 @@ def run():
                 page.on("request", lambda request: requests.append(request.url))
                 page.goto(f"http://127.0.0.1:{port}")
                 page.locator('.navigation [data-category="maps"]').click()
-                page.get_by_label("Пакет библиотеки").select_option("sample")
-                page.get_by_label("Поиск по всей библиотеке").fill("щит")
-                result = page.locator(".library-entry").filter(has_text="base:shield")
+                page.get_by_label("Пакет контента").select_option("sample")
+                page.get_by_label("Поиск контента").fill("щит")
+                expect(page.locator(".content-entry")).to_have_count(0)
+                page.keyboard.press("Control+k")
+                picker = page.get_by_role("dialog", name="Поиск по проекту", exact=True)
+                picker.get_by_label("Поиск контента").fill("щит")
+                result = picker.locator(".content-entry").filter(has_text="base:shield")
                 expect(result).to_have_count(1)
                 result.click()
                 expect(page.locator(".document-heading h1")).to_have_text("Щит")
                 page.locator('.navigation [data-category="maps"]').click()
-                page.get_by_label("Пакет библиотеки").select_option("all")
-                page.locator(".library-list").get_by_role(
+                page.get_by_label("Пакет контента").select_option("all")
+                page.get_by_label("Поиск контента").fill("")
+                page.locator(".content-results").get_by_role(
                     "button", name="Проверка ревизии", exact=False
                 ).click()
                 canvas = page.locator(".map-editor canvas")
@@ -144,6 +151,9 @@ def run():
                 page.get_by_label("Пакет палитры").select_option("sample")
                 page.get_by_label("Свойства тайлов").select_option("blocking")
                 search.fill("base:shield")
+                expect(page.locator(".palette-tile")).to_have_count(0)
+                page.get_by_label("Пакет палитры").select_option("")
+                page.get_by_label("Свойства тайлов").select_option("all")
                 expect(page.locator(".palette-tile")).to_have_count(1)
                 page.locator('.palette-tile[data-ref="base:shield"]').click()
                 expect(page.get_by_label("Слой карты")).to_have_value("equipment")
@@ -173,7 +183,7 @@ def run():
                 assert not errors, errors
                 browser.close()
                 print(
-                    "Browser OK: two unchanged polls without flashes/reloads/canvas resets; background edits preserve draft; global search ignores filters; native placement, variant and engine geometry."
+                    "Browser OK: two unchanged polls without flashes/reloads/canvas resets; background edits preserve draft; global search and persistent filters; native placement, variant and engine geometry."
                 )
         finally:
             server.should_exit = True

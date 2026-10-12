@@ -11,7 +11,8 @@
   "tags": [
     "earth",
     "walkable",
-    "transparent"
+    "transparent",
+    "soil"
   ],
   "walkable": true,
   "blocks_sight": false

@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 from uuid import uuid4
+from math import fsum
 
 from ..domain.equipment import Equipment
 from ..content.schemas import Placement, StorageSpec
@@ -17,7 +18,7 @@ class StorageInstance:
 
     @property
     def weight(self):
-        return sum(item.weight for item in self.items)
+        return fsum(item.weight for item in self.items)
 
     def replace_loot(self, items):
         """Future restock jobs must never overwrite the player's personal stash."""

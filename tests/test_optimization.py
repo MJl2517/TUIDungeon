@@ -18,7 +18,6 @@ from tuidungeon.domain.mechanics import mechanics, Parameters
 from tuidungeon.domain.effects import EffectOutcome
 from tuidungeon.domain.equipment import Equipment
 from tuidungeon.presentation.tui import Controller, View, render, draw_colors
-from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.tooling.server import template
 from tuidungeon.world.lighting import LightField, line_of_sight
 from tuidungeon.world.maps import Position
@@ -46,6 +45,7 @@ class RuntimeOptimizationTests(unittest.TestCase):
         raw["lights"] = [{"id": "old_light", "x": 30, "y": 30}]
         self.store.documents["maps", "base:crypt"] = MapDocument.model_validate(raw)
         new = MapDocument.model_validate(template(self.store, "maps"))
+        self.assertEqual(new.roof, [[False] * new.width for _ in range(new.height)])
         self.assertEqual((new.width, new.height), (20, 12))
         self.assertEqual(new.lights, [])
         self.assertEqual(new.ambient_light, "bright")
@@ -116,9 +116,8 @@ class RuntimeOptimizationTests(unittest.TestCase):
         self.assertEqual(other.state.position, Position(6, 6))
         self.assertEqual(self.engine.state.position, Position(7, 6))
 
-    def test_browser_and_terminal_share_one_light_calculation_and_wait_reuses_it(self):
-        session = TestSession(self.store, {"map_ref": "base:benchmark"})
-        engine = session.engine
+    def test_terminal_reuses_light_calculation_across_render_passes_and_wait(self):
+        engine = self.factory.session("base:benchmark")
         controller = Controller(catalog=engine.catalog)
         controller.engine, controller.view = engine, View.EXPLORE
         colors = SimpleNamespace(
@@ -126,8 +125,8 @@ class RuntimeOptimizationTests(unittest.TestCase):
             attribute=lambda *args: 0,
         )
         with patch.object(LightField, "calculate", wraps=LightField.calculate) as calls:
-            session.snapshot()
-            session.snapshot()
+            engine.render_cells()
+            engine.render_cells()
             render(controller, 80, 24)
             draw_colors(Mock(), controller, 80, 24, colors)
             self.assertEqual(calls.call_count, 1)
@@ -198,8 +197,10 @@ class RuntimeOptimizationTests(unittest.TestCase):
     def test_actor_movement_updates_occupancy_and_frame(self):
         state = self.engine.state
         placement = self.engine.add_monster("base:goblin", Position(7, 6))
-        self.assertEqual(self.engine.render_cells()[6][7].char,
-                         self.store.get("monsters", "base:goblin").glyph)
+        self.assertEqual(
+            self.engine.render_cells()[6][7].char,
+            self.store.get("monsters", "base:goblin").glyph,
+        )
         self.assertFalse(self.engine.apply(Action.EAST).performed)
         updated = state.move_monster(placement, Position(8, 6))
         self.assertEqual(state.actor_index.at(7, 6), ())
@@ -222,26 +223,6 @@ class RuntimeOptimizationTests(unittest.TestCase):
             self.engine.apply(Action.WAIT)
             burn.assert_not_called()
         self.assertEqual(len(state.items), 1000)
-
-    def test_browser_camera_follows_hero_and_reset_preserves_camera_options(self):
-        session = TestSession(
-            self.store,
-            {"map_ref": "base:benchmark", "viewport_width": 5, "viewport_height": 4},
-        )
-        first = session.snapshot()
-        self.assertEqual((len(first["cells"]), len(first["cells"][0])), (4, 5))
-        viewport = first["viewport"]
-        p = first["position"]
-        self.assertEqual(
-            first["cells"][p["y"] - viewport["y"]][p["x"] - viewport["x"]]["char"], "@"
-        )
-        moved = session.command("d")
-        self.assertGreater(moved["viewport"]["x"], first["viewport"]["x"])
-        self.assertEqual((moved["width"], moved["height"]), (12, 12))
-        session.reset()
-        self.assertEqual(session.snapshot()["viewport"], first["viewport"])
-        with self.assertRaises(ValueError):
-            TestSession(self.store, {"map_ref": "base:benchmark", "viewport_width": 5})
 
 
 class IncrementalContentTests(unittest.TestCase):

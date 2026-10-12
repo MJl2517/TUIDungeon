@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "tinder",
+  "name": "Растопка",
+  "description": "Горючий материал для будущего разведения костров; может быть подожжён существующими источниками огня.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.25,
+  "tags": [
+    "flammable",
+    "tinder",
+    "fiber",
+    "fuel",
+    "organic"
+  ]
+}

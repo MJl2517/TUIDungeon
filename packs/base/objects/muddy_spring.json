@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "muddy_spring",
+  "name": "Мутный источник",
+  "description": "Вид воды задан в свойствах источника.",
+  "glyph": "~",
+  "foreground": 6,
+  "map_category": "special",
+  "group": "Источники воды",
+  "walkable": false,
+  "water_source": {
+    "kind": "dirty_water"
+  }
+}

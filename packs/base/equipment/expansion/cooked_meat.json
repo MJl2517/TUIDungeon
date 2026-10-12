@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "cooked_meat",
+  "name": "Приготовленное мясо",
+  "description": "Восстанавливает 2 HP. Голод будет подключён отдельной системой.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "consumables",
+  "group": "Ремёсла и добыча",
+  "weight": 0.4,
+  "tags": [
+    "organic",
+    "food",
+    "consumable"
+  ],
+  "charges": 1,
+  "properties": [
+    {
+      "kind": "heal",
+      "amount": 2
+    }
+  ]
+}

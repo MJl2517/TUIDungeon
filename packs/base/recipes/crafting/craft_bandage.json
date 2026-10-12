@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "craft_bandage",
+  "name": "Бинт",
+  "description": "Базовый рецепт. Требуется хотя бы тусклый свет.",
+  "category": "basic",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Вручную",
+      "ingredients": [
+        {
+          "items": [
+            "base:cloth"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 1
+    }
+  ],
+  "result": [
+    {
+      "item": "base:bandage",
+      "quantity": 1
+    }
+  ]
+}

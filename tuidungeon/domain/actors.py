@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 from uuid import uuid4
+from math import fsum
 
 from .actions import ActionContext, ActionOutcome, ActionRegistry, SpellSource
 from .definitions import (
@@ -43,7 +44,6 @@ class Character(ABC):
     spell_slots: dict[int, int] = field(default_factory=dict)
     max_racial_uses: int = 0
     racial_uses: int = 0
-    gold: int = 0
     experience: int = 0
     innate_tags: frozenset[str] = frozenset()
     conditions: dict[str, int] = field(default_factory=dict)
@@ -110,8 +110,36 @@ class Character(ABC):
         return self.stats.score(Ability.STRENGTH) * self.carry_per_strength
 
     @property
+    def gold(self) -> int:
+        return sum(i.id in {"gold", "base:gold"} for i in self.inventory)
+
+    @gold.setter
+    def gold(self, amount: int):
+        if type(amount) is not int or amount < 0:
+            raise ValueError(
+                "Количество золота должно быть целым неотрицательным числом"
+            )
+        difference = amount - self.gold
+        if difference > 0:
+            # ponytail: reuse item instances; counted stacks only if huge treasuries become a bottleneck.
+            self.inventory.extend(
+                Equipment.create(self.catalog.equipment["gold"])
+                for _ in range(difference)
+            )
+        elif difference < 0:
+            coins = [i for i in self.inventory if i.id in {"gold", "base:gold"}]
+            removed = {i.instance_id for i in coins[:-difference]}
+            self.inventory[:] = [
+                i for i in self.inventory if i.instance_id not in removed
+            ]
+
+    @property
+    def gold_weight(self) -> float:
+        return self.gold / 100
+
+    @property
     def carried_weight(self) -> float:
-        return sum(item.weight for item in self.inventory)
+        return fsum(item.weight for item in self.inventory)
 
     @property
     def overloaded(self) -> bool:
@@ -172,7 +200,18 @@ class Character(ABC):
 
     @property
     def spell_attack_bonus(self):
-        return self.stats.modifier(self.spellcasting_ability) + self.proficiency_bonus
+        return (
+            self.stats.modifier(self.spellcasting_ability)
+            + self.proficiency_bonus
+            + max(
+                (
+                    i.definition.spell_bonus
+                    for i in self.inventory
+                    if i.equipped and i.usable
+                ),
+                default=0,
+            )
+        )
 
     @property
     def spell_save_dc(self):
@@ -287,6 +326,12 @@ class Character(ABC):
             return ActionOutcome(False, False, "Персонаж без сознания.")
         if not any(owned is item for owned in self.inventory) or not item.usable:
             return ActionOutcome(False, False, "Предмет недоступен.")
+        if item.definition.vessel:
+            from .liquids import drink_liquid
+
+            return drink_liquid(
+                item, target or self, dice, effects or EffectRegistry.default()
+            )
         active = tuple(
             prop
             for prop in item.definition.properties
@@ -353,6 +398,8 @@ class Hero(Character):
     level: int = 1
     background: BackgroundDefinition | None = None
     test_profile: str | None = None
+    tool_proficiencies: set[str] = field(default_factory=set)
+    known_recipes: set[str] = field(default_factory=set)
 
     @classmethod
     def create(
@@ -439,11 +486,40 @@ class Hero(Character):
             ),
             spellcasting_ability=character_class.spellcasting_ability,
         )
+        hero.tool_proficiencies = set(character_class.tool_proficiencies) | (
+            set(background.tool_proficiencies) if background else set()
+        )
+        hero.known_recipes = (
+            {
+                ref
+                for ref, r in catalog.recipes.items()
+                if r.basic_known
+                or set(r.learn_on_proficiency) & hero.tool_proficiencies
+            }
+            | set(character_class.starting_recipes)
+            | (set(background.starting_recipes) if background else set())
+        )
         hero.cantrip_uses = hero.max_cantrip_uses
         for item in hero.inventory:
             if item.definition.slot and not item.definition.light:
                 hero.equip(item)
         return hero
+
+    def learn_recipes(self, refs):
+        refs = set(refs)
+        if not refs <= self.catalog.recipes.keys():
+            raise ValueError("Источник содержит неизвестный рецепт")
+        learned = sorted(refs - self.known_recipes)
+        self.known_recipes.update(refs)
+        return learned
+
+    def learn_tool_proficiency(self, tag):
+        self.tool_proficiencies.add(tag)
+        return self.learn_recipes(
+            ref
+            for ref, recipe in self.catalog.recipes.items()
+            if tag in recipe.learn_on_proficiency
+        )
 
     @property
     def available_actions(self) -> tuple[ActionDefinition, ...]:

@@ -32,5 +32,7 @@
   "pending_effects": [
     "блокировка лечения"
   ],
-  "tags": []
+  "tags": [
+    "magic"
+  ]
 }

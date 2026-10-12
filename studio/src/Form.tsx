@@ -1,7 +1,59 @@
+import { useState } from "react";
+import { ContentSelect } from "./ContentBrowser";
+import { craftNames, mapCategoryNames } from "./catalog";
 import { Doc, Entry, defaultFor, color } from "./model";
 import { damageLabels } from "./damage";
 const labels: Record<string, string> = {
+  cast_spell: "Заклинание свитка",
+  spell_bonus: "Бонус фокуса к магической атаке и СЛ",
+  operation: "Операция с предметом или миром",
+  target_tags: "Материал или назначение цели",
+  liquids: "Подходящие виды жидкости",
+  portions: "Количество порций",
+  liquid_result: "Жидкость после обработки (пусто — расход)",
+  repair_amount: "Восстановить прочности",
+  place_object: "Создаваемый объект",
+  place_trap: "Устанавливаемая ловушка",
+  poison_damage: "Ядовитый урон следующего попадания",
+  value_gold: "Стоимость, раскрываемая оценкой (золото)",
+  disarm: "Обезвреживание: провал вызывает срабатывание",
+  verb: "Вид работы",
+  ignition: "Требуется источник зажигания",
+  vessel: "Сосуд и начальное содержимое",
+  capacity_portions: "Вместимость, порции",
+  heat_safe: "Допускается нагревание",
+  fragile: "Разбивается при броске",
+  initial_kind: "Начальная жидкость",
+  initial_portions: "Начальное количество порций",
+  water_source: "Источник воды",
+  campfire: "Костёр",
+  fuel_minutes: "Минут горения на единицу топлива",
+  destruction: "Разрушение и разбор",
+  regrow_minutes: "Восстановление через (игровые минуты)",
+  dismantle: "Разбор",
+  loot: "Материалы после разбора",
+  remains: "Остатки после разрушения",
+  door_remains: "Остатки сломанной двери",
+  max_hp: "Максимальная прочность",
+  movable: "Можно поднять и передвинуть",
+  fast_tool: "Инструмент для ускорения",
+  fast_turns: "Ходы с инструментом",
+  open_tool: "Тег инструмента для открытия (пусто — открыто)",
+  search_contents: "Разрешить поиск ценностей",
+  light_fixture: "Подставка для источника света",
+  stays_when_empty: "Оставлять подставку после снятия",
   id: "Идентификатор",
+  ingredients: "Ингредиенты",
+  items: "Подходящие материалы (один из вариантов)",
+  result: "Результат изготовления",
+  tools: "Теги нужных инструментов",
+  proficiencies: "Нужные владения инструментами",
+  tool_proficiencies: "Владения инструментами",
+  starting_recipes: "Начальные рецепты",
+  stations: "Станции: все группы, один вариант внутри группы",
+  turns: "Ходы изготовления",
+  basic_known: "Рецепт известен с начала игры",
+  check: "Проверка рискованной работы",
   name: "Название",
   description: "Описание",
   glyph: "Символ на карте",
@@ -30,6 +82,11 @@ const labels: Record<string, string> = {
   special_actions: "Особые действия",
   inventory: "Инвентарь",
   storage: "Контейнер",
+  reading: "Текст для чтения",
+  learn_recipes: "Изучаемые рецепты",
+  learn_on_proficiency: "Изучается с владением инструментами",
+  title: "Заголовок текста",
+  pages: "Страницы",
   capacity: "Вместимость, кг",
   personal: "Личный (можно класть вещи; не обновляется)",
   contents: "Начальное содержимое",
@@ -50,6 +107,7 @@ const labels: Record<string, string> = {
   difficulty: "Сложность",
   weight: "Вес, кг",
   category: "Тип снаряжения",
+  map_category: "Категория на карте",
   durability: "Стойкость",
   slot: "Слот снаряжения",
   hands: "Занимает рук (0–2)",
@@ -127,7 +185,12 @@ const labels: Record<string, string> = {
 function resolve(s: Doc, root: Doc): Doc {
   return s.$ref ? resolve(root.$defs[s.$ref.split("/").pop()!], root) : s;
 }
-export const fieldLabel = (key: string) => labels[key] ?? key;
+export const fieldLabel = (key: string, root?: Doc) =>
+  root?.title === "RecipeDocument" && key === "variants"
+    ? "Способы изготовления"
+    : root?.title === "RecipeDocument" && key === "category"
+      ? "Ремесло"
+      : (labels[key] ?? key);
 
 type Props = {
   schema: Doc;
@@ -141,6 +204,87 @@ type Props = {
   lockedId?: boolean;
   path?: string;
 };
+function TagPicker({
+  labels,
+  groups,
+  items,
+  onChange,
+}: {
+  labels: Record<string, string>;
+  groups?: Record<string, string[]>;
+  items: string[];
+  onChange: (value: string[]) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const needle = query.trim().toLocaleLowerCase();
+  const quick = Object.keys(labels).filter(
+    (tag) =>
+      items.includes(tag) || ["flammable", "wooden", "storage"].includes(tag),
+  );
+  const choice = (tag: string) => (
+    <label key={tag}>
+      <input
+        type="checkbox"
+        aria-label={labels[tag]}
+        checked={items.includes(tag)}
+        onChange={(e) =>
+          onChange(
+            e.target.checked
+              ? [...items, tag]
+              : items.filter((value) => value !== tag),
+          )
+        }
+      />
+      {labels[tag]} <small>({tag})</small>
+    </label>
+  );
+  const sections = Object.entries(
+    groups ?? { Признаки: Object.keys(labels) },
+  ).map(([group, tags]) => {
+    const visible = tags.filter(
+      (tag) =>
+        labels[tag] &&
+        (needle
+          ? `${labels[tag]} ${tag}`.toLocaleLowerCase().includes(needle)
+          : !quick.includes(tag)),
+    );
+    return visible.length ? (
+      <fieldset key={group}>
+        <legend>{group}</legend>
+        <div className="toolbar">{visible.map(choice)}</div>
+      </fieldset>
+    ) : null;
+  });
+  return (
+    <div className="tag-picker">
+      <input
+        type="search"
+        aria-label="Поиск игровых тегов"
+        placeholder="Найти тег: камень, poison, магия…"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+      {needle ? (
+        <div className="tag-options">
+          {sections.some(Boolean) ? sections : <p>Теги не найдены</p>}
+        </div>
+      ) : (
+        <>
+          <div className="toolbar">{quick.map(choice)}</div>
+          <details>
+            <summary>Все игровые признаки по группам</summary>
+            <div className="tag-options">{sections}</div>
+          </details>
+        </>
+      )}
+      <small>
+        Теги описывают свойства. Прочность, перемещение, содержимое и эффекты
+        настраиваются в своих разделах.
+      </small>
+    </div>
+  );
+}
+
 export function FieldForm({
   schema,
   root,
@@ -161,7 +305,7 @@ export function FieldForm({
       s.anyOf.find((x: Doc) => x.type !== "null"),
       root,
     );
-  const title = label ? (labels[label] ?? original.title ?? label) : "";
+  const title = label ? fieldLabel(label, root) : "";
   const category = refCategory ?? original.ref_category ?? s.ref_category;
   if (nullable && value == null)
     return (
@@ -279,92 +423,178 @@ export function FieldForm({
       );
     }
     const children = Object.entries(s.properties).filter(
-      ([key]) => key !== "schema_version",
+      ([key]) =>
+        key !== "schema_version" &&
+        (s.title !== "RecipeOperation" ||
+          (
+            {
+              liquid: [
+                "kind",
+                "liquids",
+                "portions",
+                "liquid_result",
+                "heat_safe",
+              ],
+              repair_item: ["kind", "target_tags", "repair_amount"],
+              repair_object: ["kind", "target_tags", "repair_amount"],
+              place_object: ["kind", "place_object", "ignition"],
+              place_trap: ["kind", "place_trap"],
+              coat_weapon: ["kind", "target_tags", "poison_damage"],
+              appraise_item: ["kind", "target_tags"],
+            } as Record<string, string[]>
+          )[value?.kind ?? "liquid"]?.includes(key)),
     );
+    const renderChild = ([key, child]: [string, unknown]) => (
+      <FieldForm
+        key={key}
+        schema={
+          key === "world_parameters"
+            ? ((s.properties.world_effect?.world_schemas ?? {})[
+                value?.world_effect
+              ] ?? { type: "object", properties: {} })
+            : (child as Doc)
+        }
+        root={
+          key === "world_parameters"
+            ? ((s.properties.world_effect?.world_schemas ?? {})[
+                value?.world_effect
+              ] ?? root)
+            : root
+        }
+        value={value?.[key]}
+        onChange={(v) =>
+          onChange(
+            key === "world_effect"
+              ? {
+                  ...value,
+                  [key]: v,
+                  world_parameters: v
+                    ? defaultFor(
+                        s.properties.world_effect.world_schemas[v],
+                        s.properties.world_effect.world_schemas[v],
+                      )
+                    : {},
+                }
+              : key === "kind" && s.title === "RecipeOperation"
+                ? {
+                    kind: v,
+                    ...(v === "liquid"
+                      ? { liquids: [], portions: 3, heat_safe: false }
+                      : v === "place_object"
+                        ? { place_object: null, ignition: false }
+                        : v === "place_trap"
+                          ? { place_trap: null }
+                          : v === "coat_weapon"
+                            ? { target_tags: [], poison_damage: 2 }
+                            : { target_tags: [], repair_amount: 10 }),
+                  }
+                : { ...value, [key]: v },
+          )
+        }
+        entries={entries}
+        mechanics={mechanics}
+        label={key}
+        refCategory={category}
+        lockedId={lockedId && key === "id" && path === ""}
+        path={path ? `${path}.${key}` : key}
+      />
+    );
+    const recipeVariant = s.title === "RecipeVariant";
+    const requirements = children.filter(([key]) =>
+      ["tools", "proficiencies", "stations"].includes(key),
+    );
+    const hasRequirements = requirements.some(([key]) => value?.[key]?.length);
     return (
       <fieldset
         className={
-          label === "stats" || label === "ability_bonuses" ? "scores" : ""
+          "form-object " +
+          (!label ? "anonymous-object " : "") +
+          (label === "stats" || label === "ability_bonuses" ? "scores " : "") +
+          (s.title === "RecipeIngredient" ? "recipe-ingredient" : "")
         }
       >
-        <legend>{title}</legend>
-        {children.map(([key, child]) => (
-          <FieldForm
-            key={key}
-            schema={
-              key === "world_parameters"
-                ? ((s.properties.world_effect?.world_schemas ?? {})[
-                    value?.world_effect
-                  ] ?? { type: "object", properties: {} })
-                : (child as Doc)
-            }
-            root={
-              key === "world_parameters"
-                ? ((s.properties.world_effect?.world_schemas ?? {})[
-                    value?.world_effect
-                  ] ?? root)
-                : root
-            }
-            value={value?.[key]}
-            onChange={(v) =>
-              onChange(
-                key === "world_effect"
-                  ? {
-                      ...value,
-                      [key]: v,
-                      world_parameters: v
-                        ? defaultFor(
-                            s.properties.world_effect.world_schemas[v],
-                            s.properties.world_effect.world_schemas[v],
-                          )
-                        : {},
-                    }
-                  : { ...value, [key]: v },
-              )
-            }
-            entries={entries}
-            mechanics={mechanics}
-            label={key}
-            refCategory={category}
-            lockedId={lockedId && key === "id" && path === ""}
-            path={path ? `${path}.${key}` : key}
-          />
-        ))}
+        {title && <legend>{title}</legend>}
+        {recipeVariant ? (
+          <div className="recipe-variant-fields">
+            {children
+              .filter(([key]) => ["name", "turns"].includes(key))
+              .map(renderChild)}
+            <div className="wide">
+              {children
+                .filter(([key]) => key === "ingredients")
+                .map(renderChild)}
+            </div>
+            <details
+              className="recipe-requirements wide"
+              open={hasRequirements}
+            >
+              <summary>
+                Условия работы{" "}
+                <small>
+                  {hasRequirements
+                    ? "Инструменты, владения и станции"
+                    : "Без специальных требований"}
+                </small>
+              </summary>
+              <div>{requirements.map(renderChild)}</div>
+            </details>
+          </div>
+        ) : (
+          children.map(renderChild)
+        )}
         {clear}
       </fieldset>
     );
   }
+
   if (s.type === "array") {
     const items = value ?? [];
     return (
-      <fieldset>
+      <fieldset className="form-array">
         <legend>
           {title} <span className="count">{items.length}</span>
         </legend>
         {s.tag_labels && (
-          <div className="toolbar">
-            {Object.entries(s.tag_labels).map(([tag, name]) => (
-              <label key={tag}>
-                <input
-                  type="checkbox"
-                  aria-label={String(name)}
-                  checked={items.includes(tag)}
-                  onChange={(e) =>
-                    onChange(
-                      e.target.checked
-                        ? [...items, tag]
-                        : items.filter((v: string) => v !== tag),
-                    )
-                  }
-                />
-                {String(name)} <small>({tag})</small>
-              </label>
-            ))}
-          </div>
+          <TagPicker
+            labels={s.tag_labels}
+            groups={s.tag_groups}
+            items={items}
+            onChange={onChange}
+          />
         )}
         {s.description && <small>{s.description}</small>}
-        {items.map((v: any, i: number) => (
-          <div className="array-row" key={i}>
+        {items.map((v: any, i: number) => {
+          const complex = resolve(s.items, root).type === "object";
+          const itemName =
+            (
+              {
+                variants: root.title === "RecipeDocument" ? "Способ" : "Вид",
+                ingredients: "Ингредиент",
+                items: "Материал",
+                tools: "Инструмент",
+                proficiencies: "Владение",
+                result: "Результат",
+                choices: "Вариант",
+                effects: "Эффект",
+                contents: "Предмет",
+                pages: "Страница",
+              } as Record<string, string>
+            )[label] ?? "Элемент";
+          const materials = v?.items
+            ?.map(
+              (ref: string) =>
+                entries.find((e) => e.category === "equipment" && e.ref === ref)
+                  ?.name ?? ref,
+            )
+            .join(" / ");
+          const output = v?.item
+            ? (entries.find(
+                (e) => e.category === "equipment" && e.ref === v.item,
+              )?.name ?? v.item)
+            : "";
+          const detail = v?.name || materials || output;
+          const caption = `${itemName} ${i + 1}${detail ? " · " + detail : ""}${v?.quantity ? " ×" + v.quantity : ""}`;
+          const control = (
             <FieldForm
               schema={s.items}
               root={root}
@@ -374,21 +604,38 @@ export function FieldForm({
               }
               entries={entries}
               mechanics={mechanics}
-              label={String(i + 1)}
+              label={complex ? "" : `${itemName} ${i + 1}`}
               refCategory={category}
               path={`${path}[${i}]`}
             />
+          );
+          const remove = (
             <button
-              className="mini"
-              title="Удалить элемент"
+              className="mini array-remove"
+              aria-label={`Удалить: ${caption}`}
+              title={`Удалить: ${caption}`}
               onClick={() =>
                 onChange(items.filter((_: any, j: number) => i !== j))
               }
             >
               ×
             </button>
-          </div>
-        ))}
+          );
+          return complex ? (
+            <div className="array-card-wrap" key={i}>
+              <details className="array-card" open>
+                <summary>{caption}</summary>
+                <div className="array-card-body">{control}</div>
+              </details>
+              {remove}
+            </div>
+          ) : (
+            <div className="array-row" key={i}>
+              {control}
+              {remove}
+            </div>
+          );
+        })}
         <button
           className="subtle"
           onClick={() =>
@@ -400,7 +647,16 @@ export function FieldForm({
             ])
           }
         >
-          + Добавить
+          + Добавить:{" "}
+          {(
+            {
+              variants: root.title === "RecipeDocument" ? "способ" : "вид",
+              ingredients: "ингредиент",
+              items: "альтернативный материал",
+              result: "результат",
+              stations: "группу станций",
+            } as Record<string, string>
+          )[label] ?? fieldLabel(label, root).toLowerCase()}
         </button>
       </fieldset>
     );
@@ -408,20 +664,22 @@ export function FieldForm({
   let input;
   if (category)
     input = (
-      <select
-        aria-label={title}
+      <ContentSelect
+        entries={entries}
+        category={category}
+        label={title || "Выбор объекта"}
         value={value ?? ""}
+        onChange={onChange}
+      />
+    );
+  else if (root.title === "RecipeDocument" && label === "category")
+    input = (
+      <input
+        aria-label={title}
+        list="craft-categories"
+        value={value ?? "basic"}
         onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="">Выберите объект</option>
-        {entries
-          .filter((e) => e.category === category)
-          .map((e) => (
-            <option key={e.ref} value={e.ref}>
-              {e.name} · {e.ref}
-            </option>
-          ))}
-      </select>
+      />
     );
   else if (s.enum)
     input = (
@@ -435,6 +693,27 @@ export function FieldForm({
             {(
               {
                 ...damageLabels,
+                liquid: "Обработка жидкости",
+                repair_item: "Ремонт предмета",
+                repair_object: "Ремонт объекта",
+                place_object: "Создание объекта",
+                place_trap: "Установка ловушки",
+                coat_weapon: "Нанесение яда",
+                appraise_item: "Оценка предмета",
+                dismantle: "Разбор",
+                butcher: "Разделка",
+                harvest: "Сбор растений",
+                chop: "Рубка дерева",
+                remove_barricade: "Снятие баррикады",
+                clean_water: "Чистая вода",
+                dirty_water: "Грязная вода",
+                swamp_water: "Болотная вода",
+                salt_water: "Солёная вода",
+                poisoned_water: "Отравленная вода",
+                holy_water: "Святая вода",
+                healing_broth: "Лечебный отвар",
+                healing_potion: "Лечебное зелье",
+                antidote: "Противоядный отвар",
                 wood: "Деревянная",
                 bars: "Прутья",
                 steel: "Стальная",
@@ -453,6 +732,7 @@ export function FieldForm({
                 armor: "Доспехи",
                 consumables: "Расходники",
                 tools: "Инструменты",
+                materials: "Материалы",
                 dexterity: "Ловкость",
                 constitution: "Телосложение",
                 intelligence: "Интеллект",
@@ -491,6 +771,7 @@ export function FieldForm({
                 elementalism: "Элементализм",
                 noise: "Шум",
                 enter: "Вход на клетку",
+                ...(label === "map_category" ? mapCategoryNames : {}),
               } as Record<string, string>
             )[v] ?? v}
           </option>
@@ -529,11 +810,14 @@ export function FieldForm({
         )}
       </div>
     );
-  else if (["description", "text"].includes(label))
+  else if (
+    ["description", "text"].includes(label) ||
+    /(?:^|\.)pages\[\d+\]$/.test(path)
+  )
     input = (
       <textarea
         aria-label={title}
-        rows={3}
+        rows={path.includes("pages[") ? 8 : 3}
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -548,13 +832,342 @@ export function FieldForm({
       />
     );
   return (
-    <div className="field">
+    <div className={"field " + (s.type === "boolean" ? "boolean-field" : "")}>
       <label>{title}</label>
       <div className="field-input">
         {input}
         {clear}
       </div>
       {s.description && <small>{s.description}</small>}
+    </div>
+  );
+}
+
+type Section = {
+  id: string;
+  title: string;
+  description: string;
+  fields: string[];
+};
+export function propertySections(category: string, keys: string[]): Section[] {
+  const layout: [string, string, string[]][] = [
+    [
+      "Основное",
+      "Название, назначение и поиск в библиотеке",
+      ["id", "name", "description", "category", "group", "tags", "basic_known"],
+    ],
+    ...(category === "recipes"
+      ? ([
+          [
+            "Способы изготовления",
+            "У каждого способа свои ингредиенты, условия и длительность",
+            ["variants"],
+          ],
+          [
+            "Результат",
+            "Что получит персонаж после завершения работы",
+            ["result", "operation", "learn_recipes"],
+          ],
+          [
+            "Рискованная работа",
+            "Необязательная проверка; обычное изготовление проходит без броска",
+            ["check"],
+          ],
+        ] as [string, string, string[]][])
+      : []),
+    [
+      "Внешний вид",
+      "Отображение на карте и варианты оформления",
+      ["glyph", "foreground", "background", "art", "variants", "underlay"],
+    ],
+    [
+      "Характеристики",
+      "Числовые параметры, нагрузка и защита",
+      [
+        "stats",
+        "ability_bonuses",
+        "hit_points",
+        "armor_class",
+        "speed",
+        "initiative_bonus",
+        "damage_profile",
+        "weight",
+        "durability",
+        "slot",
+        "hands",
+        "charges",
+        "vessel",
+        "carry_per_strength",
+        "hp_per_level",
+        "order",
+      ],
+    ],
+    [
+      "Применение и эффекты",
+      "Правила использования и последствия",
+      [
+        "level",
+        "school",
+        "modes",
+        "range",
+        "target",
+        "resolution",
+        "save_ability",
+        "concentration",
+        "cantrip_scaling",
+        "wounded_dice",
+        "max_targets",
+        "weapon_damage",
+        "weapon_ability",
+        "damage_type",
+        "kind",
+        "ability",
+        "bonus",
+        "damage",
+        "difficulty",
+        "properties",
+        "effects",
+        "check_aids",
+        "world_effect",
+        "world_parameters",
+        "pending_effects",
+      ],
+    ],
+    [
+      "Снаряжение и знания",
+      "Предметы, действия, заклинания и владения",
+      [
+        "inventory",
+        "starting_items",
+        "actions",
+        "special_actions",
+        "spells",
+        "spell_slots",
+        "spellcasting_ability",
+        "cantrip_choices",
+        "cantrips_known",
+        "racial_spell",
+        "racial_uses",
+        "tool_proficiencies",
+        "starting_recipes",
+        "learn_recipes",
+        "learn_on_proficiency",
+        "classes",
+        "skills",
+      ],
+    ],
+    [
+      "Окружение и взаимодействия",
+      "Свет, движение, контейнеры и доступные действия",
+      [
+        "map_category",
+        "walkable",
+        "blocks_sight",
+        "light",
+        "map_light",
+        "brush",
+        "storage",
+        "light_fixture",
+        "destruction",
+        "water_source",
+        "campfire",
+        "dismantle",
+        "door_remains",
+        "movable",
+        "reading",
+        "challenge",
+        "text",
+        "choices",
+        "hidden",
+        "trigger",
+        "repeatable",
+      ],
+    ],
+  ];
+  const remaining = new Set(keys.filter((k) => k !== "schema_version"));
+  const result = layout
+    .map(([title, description, fields], i) => {
+      const chosen = fields.filter((k) => remaining.delete(k));
+      return { id: `section-${i}`, title, description, fields: chosen };
+    })
+    .filter((section) => section.fields.length);
+  if (remaining.size)
+    result.push({
+      id: "section-extra",
+      title: "Дополнительные свойства",
+      description: "Параметры этого типа контента",
+      fields: [...remaining],
+    });
+  return result;
+}
+export function propertySearchText(
+  key: string,
+  schema: Doc,
+  root: Doc,
+  seen = new Set<string>(),
+): string {
+  let text = fieldLabel(key, root) + " " + key;
+  if (schema.$ref) {
+    if (seen.has(schema.$ref)) return text;
+    seen = new Set(seen).add(schema.$ref);
+  }
+  const resolved = resolve(schema, root);
+  if (resolved.properties)
+    text +=
+      " " +
+      Object.entries(resolved.properties)
+        .map(([k, s]) => propertySearchText(k, s as Doc, root, seen))
+        .join(" ");
+  if (resolved.items)
+    text += " " + propertySearchText("", resolved.items, root, seen);
+  if (resolved.anyOf)
+    text +=
+      " " +
+      resolved.anyOf
+        .map((s: Doc) => propertySearchText("", s, root, seen))
+        .join(" ");
+  return text;
+}
+export function DocumentForm({
+  category,
+  ...props
+}: Props & { category: string }) {
+  const [query, setQuery] = useState("");
+  const groups = propertySections(
+    category,
+    Object.keys(props.schema.properties),
+  );
+  const matches = (key: string) => {
+    const params =
+      key === "world_parameters"
+        ? props.schema.properties.world_effect?.world_schemas?.[
+            props.value.world_effect
+          ]
+        : null;
+    return (
+      !query.trim() ||
+      propertySearchText(
+        key,
+        params ?? props.schema.properties[key],
+        params ?? props.root,
+      )
+        .toLocaleLowerCase("ru")
+        .includes(query.trim().toLocaleLowerCase("ru"))
+    );
+  };
+  const shown = groups
+    .map((g) => ({ ...g, fields: g.fields.filter(matches) }))
+    .filter((g) => g.fields.length);
+  return (
+    <div className="document-form">
+      <div className="property-toolbar">
+        <label>
+          Найти свойство
+          <input
+            type="search"
+            aria-label="Поиск свойств"
+            placeholder="Например: ингредиенты, свет, урон…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </label>
+        <span>
+          {groups.reduce((n, g) => n + g.fields.length, 0)} свойств ·{" "}
+          {groups.length} разделов
+        </span>
+      </div>
+      <nav className="property-nav" aria-label="Разделы свойств">
+        {shown.map((g) => (
+          <a href={`#${g.id}`} key={g.id}>
+            {g.title}
+            <span>{g.fields.length}</span>
+          </a>
+        ))}
+      </nav>
+      {shown.map((g) => (
+        <section
+          id={g.id}
+          className="property-section"
+          key={g.id}
+          aria-label={g.title}
+        >
+          <header>
+            <h2>{g.title}</h2>
+            <p>{g.description}</p>
+          </header>
+          <div className="property-fields">
+            {g.fields.map((key) => {
+              const params =
+                key === "world_parameters"
+                  ? props.schema.properties.world_effect?.world_schemas?.[
+                      props.value.world_effect
+                    ]
+                  : null;
+              const field =
+                params ??
+                (key === "world_parameters"
+                  ? { type: "object", properties: {} }
+                  : props.schema.properties[key]);
+              const fieldRoot = params ?? props.root;
+              const expanded = resolve(field, fieldRoot);
+              const type =
+                expanded.type ??
+                resolve(
+                  expanded.anyOf?.find((x: Doc) => x.type !== "null") ?? {},
+                  fieldRoot,
+                ).type;
+              return (
+                <div
+                  key={key}
+                  className={
+                    "property-control " +
+                    (["array", "object"].includes(type) ||
+                    ["description", "text"].includes(key)
+                      ? "wide"
+                      : "")
+                  }
+                >
+                  <FieldForm
+                    {...props}
+                    schema={field}
+                    root={fieldRoot}
+                    label={key}
+                    lockedId={props.lockedId && key === "id"}
+                    value={props.value[key]}
+                    path={key}
+                    onChange={(value) => {
+                      const next = { ...props.value, [key]: value };
+                      if (key === "world_effect")
+                        next.world_parameters = value
+                          ? defaultFor(
+                              props.schema.properties.world_effect
+                                .world_schemas[value],
+                              props.schema.properties.world_effect
+                                .world_schemas[value],
+                            )
+                          : {};
+                      props.onChange(next);
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+      {!shown.length && (
+        <p className="content-empty">
+          Нет свойств с таким названием.{" "}
+          <button onClick={() => setQuery("")}>Сбросить</button>
+        </p>
+      )}
+      <datalist id="craft-categories">
+        {Object.entries(craftNames).map(([id, name]) => (
+          <option value={id} key={id}>
+            {name}
+          </option>
+        ))}
+      </datalist>
     </div>
   );
 }

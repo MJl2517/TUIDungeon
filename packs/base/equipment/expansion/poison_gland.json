@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "poison_gland",
+  "name": "Ядовитая железа",
+  "description": "Ядовитая железа.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "materials",
+  "group": "Ремёсла и добыча",
+  "weight": 0.1,
+  "tags": [
+    "organic",
+    "poison",
+    "reagent"
+  ]
+}

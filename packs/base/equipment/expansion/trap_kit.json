@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "trap_kit",
+  "name": "Импровизированная ловушка (набор)",
+  "description": "Устанавливается через рецепт на свободной соседней клетке. При входе наносит колющий урон.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "tools",
+  "group": "Ремёсла и добыча",
+  "weight": 1,
+  "tags": [
+    "metal",
+    "trap",
+    "tool"
+  ],
+  "durability": null
+}

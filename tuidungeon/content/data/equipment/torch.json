@@ -11,11 +11,13 @@
     "light_source",
     "поджог",
     "flammable",
-    "wooden"
+    "wooden",
+    "ignite"
   ],
   "light": {
     "radius": 6,
     "bright_radius": 3,
     "burn_minutes": 60
-  }
+  },
+  "durability": null
 }

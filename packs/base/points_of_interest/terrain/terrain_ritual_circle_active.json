@@ -9,7 +9,8 @@
   "art": null,
   "tags": [
     "shrines",
-    "transparent"
+    "transparent",
+    "magic"
   ],
   "challenge": "base:terrain_ritual_circle_active",
   "group": "Алтари и святыни",

@@ -17,7 +17,6 @@ from tuidungeon.domain.actors import Hero
 from tuidungeon.domain.rules import Dice
 from tuidungeon.domain.stats import Stats
 from tuidungeon.presentation.tui import Controller, View, render
-from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.world.maps import Position
 
 
@@ -180,7 +179,7 @@ class BackgroundEventsTests(unittest.TestCase):
         self.store = PackStore()
         self.factory = SessionFactory(self.store)
 
-    def test_event_choices_are_identical_in_browser_and_tui_and_cannot_be_bypassed(
+    def test_event_choices_in_tui_cannot_be_bypassed(
         self,
     ):
         for cls, background in (
@@ -188,30 +187,22 @@ class BackgroundEventsTests(unittest.TestCase):
             ("wizard", "sage"),
             ("rogue", "thief"),
         ):
-            session = TestSession(
-                self.store,
-                dict(
-                    map_ref="base:crypt",
-                    character_class="base:" + cls,
-                    background="base:" + background,
-                    seed=42,
-                ),
+            engine = SessionFactory(self.store).session(
+                map_ref="base:crypt",
+                character_class="base:" + cls,
+                background="base:" + background,
+                seed=42,
             )
-            engine = session.engine
             point = next(
                 p
                 for p in engine.state.level.points
                 if p.challenge.definition.id == "ruined_shrine"
             )
             engine.state.position = Position(point.placement.x, point.placement.y)
-            browser = next(
-                p for p in session.snapshot()["nearby"] if p["id"] == point.placement.id
-            )
             available = [
                 choice.id
                 for choice in point.challenge.available_choices(engine.state.hero)
             ]
-            self.assertEqual([c["id"] for c in browser["choices"]], available)
             self.assertIn(background + "_knowledge", available)
             forbidden = "thief_knowledge" if background != "thief" else "sage_knowledge"
             rng = engine.dice.rng.getstate()

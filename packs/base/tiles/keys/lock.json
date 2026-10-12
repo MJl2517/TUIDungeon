@@ -11,7 +11,8 @@
   "tags": [
     "keys",
     "walkable",
-    "transparent"
+    "transparent",
+    "metal"
   ],
   "walkable": true,
   "blocks_sight": false

@@ -23,13 +23,14 @@
   "art": null,
   "group": "Декорации: припасы",
   "category": "consumables",
-  "weight": 0.2,
+  "weight": 0.1,
   "tags": [
     "artifacts",
     "consumable",
     "potion",
     "supplies_decor",
-    "transparent"
+    "transparent",
+    "glass"
   ],
   "durability": null,
   "slot": null,
@@ -48,5 +49,11 @@
   "weapon_ability": "strength",
   "charges": 1,
   "hands": 0,
-  "light": null
+  "light": null,
+  "vessel": {
+    "fragile": true,
+    "initial_kind": "healing_potion",
+    "capacity_portions": 1,
+    "initial_portions": 1
+  }
 }

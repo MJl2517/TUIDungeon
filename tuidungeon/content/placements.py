@@ -46,6 +46,10 @@ def resolve_placement(documents, category, placement):
 
 
 def resolve_challenge(documents, point, placement):
+    if point.challenge is None:
+        if placement.challenge_overrides:
+            raise ValueError("У этого объекта нет испытания для переопределения")
+        return None
     return override_document(
         "challenges",
         documents["challenges", point.challenge],

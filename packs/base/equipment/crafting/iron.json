@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "iron",
+  "name": "Железо",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.5,
+  "tags": [
+    "metal",
+    "iron"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "craft_iron_blade",
+  "name": "Железный клинок",
+  "description": "Железный клинок.",
+  "category": "smith",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "smith_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:iron"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 4,
+      "tools": [
+        "smith_tools"
+      ],
+      "proficiencies": [
+        "smith_tools"
+      ],
+      "stations": [
+        [
+          "forge"
+        ],
+        [
+          "anvil"
+        ]
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:dagger",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

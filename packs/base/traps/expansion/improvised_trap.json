@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "improvised_trap",
+  "name": "Импровизированная ловушка",
+  "description": "Обезвредьте перед разбором; провал обезвреживания вызывает колющий урон.",
+  "glyph": "^",
+  "foreground": 6,
+  "tags": [
+    "trap",
+    "mechanism",
+    "metal"
+  ],
+  "hidden": false,
+  "difficulty": 12,
+  "ability": "dexterity",
+  "repeatable": true,
+  "failure": [
+    {
+      "kind": "damage",
+      "amount": 3,
+      "damage_type": "piercing"
+    }
+  ],
+  "disarm": {
+    "ability": "dexterity",
+    "difficulty": 10
+  },
+  "dismantle": {
+    "turns": 2,
+    "fast_tool": null,
+    "tools": [
+      "tinker_tools",
+      "lockpicks"
+    ],
+    "loot": [
+      {
+        "item": "base:mechanical_part",
+        "quantity": 1
+      },
+      {
+        "item": "base:wood",
+        "quantity": 1
+      }
+    ]
+  }
+}

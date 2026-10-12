@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
+from pydantic import field_validator
+from ..content.schemas import StrictModel, ReadingText, Ref, LocalId, title_text
 
 if TYPE_CHECKING:
     from .level import Level
@@ -14,10 +16,19 @@ from .clock import GameClock
 from .maps import DungeonMap, Position
 
 
+class ReadNote(StrictModel):
+    map_ref: Ref
+    placement_id: LocalId
+    location: str
+    text: ReadingText
+    _location = field_validator("location")(title_text)
+
+
 @dataclass(frozen=True)
 class MonsterPlacement:
     monster: Monster
     position: Position
+    corpse_created: bool = False
 
 
 @dataclass(frozen=True)
@@ -42,11 +53,13 @@ class GameState:
     oil: dict[Position, int] = field(default_factory=dict)
 
     def walkable(self, position):
-        if not self.dungeon.walkable(position):
-            return False
         if self.level:
-            return bool(self.level.terrain.walkability[position.y][position.x])
-        return True
+            return bool(
+                0 <= position.x < self.dungeon.width
+                and 0 <= position.y < self.dungeon.height
+                and self.level.terrain.walkability[position.y][position.x]
+            )
+        return self.dungeon.walkable(position)
 
     def __setattr__(self, name, value):
         if name in ("monsters", "ground_items") and not isinstance(value, TrackedList):
@@ -88,6 +101,14 @@ class GameState:
                 (placement.position, i)
                 for i in placement.monster.light_items
                 if i.equipped
+            )
+        if self.level:
+            sources.extend(
+                (Position(c.placement.x, c.placement.y), i)
+                for c in self.level.containers
+                if getattr(c.definition, "light_fixture", None)
+                for i in c.items
+                if i.definition.light
             )
         return tuple((p, i) for p, i in sources if (i.shining if shining else i.lit))
 

@@ -1,3 +1,4 @@
+from scripts.testing import lay_bedroll
 from collections import Counter, deque
 import random
 import unittest
@@ -5,9 +6,16 @@ import unittest
 from tuidungeon.creation import CharacterCreation, CreationStep
 from tuidungeon.engine import Action, Engine, test_dungeon
 from tuidungeon.models import (
-    DETECT_MAGIC, MAGIC_MISSILE, DungeonMap, GameClock, GameState, Hero, Position, Stats,
+    DETECT_MAGIC,
+    MAGIC_MISSILE,
+    DungeonMap,
+    GameClock,
+    GameState,
+    Hero,
+    Position,
+    Stats,
 )
-from tuidungeon.rules import Ability, CharacterClass, Dice, Race, modifier
+from tuidungeon.rules import CharacterClass, Dice, Race, modifier
 
 
 class DiceTests(unittest.TestCase):
@@ -29,7 +37,15 @@ class DiceTests(unittest.TestCase):
                 self.assertTrue(3 <= roll.total <= 18)
 
     def test_modifiers_round_negative_values_down(self):
-        for score, expected in ((3, -4), (8, -1), (9, -1), (10, 0), (11, 0), (18, 4), (19, 4)):
+        for score, expected in (
+            (3, -4),
+            (8, -1),
+            (9, -1),
+            (10, 0),
+            (11, 0),
+            (18, 4),
+            (19, 4),
+        ):
             self.assertEqual(modifier(score), expected)
 
     def test_check_threshold_has_no_automatic_criticals(self):
@@ -54,19 +70,37 @@ class DiceTests(unittest.TestCase):
 class HeroTests(unittest.TestCase):
     def test_all_nine_combinations_have_correct_stats_hp_and_resources(self):
         base = Stats((12, 13, 13, 15, 10, 8))
-        hit_dice = {CharacterClass.WARRIOR: 10, CharacterClass.WIZARD: 6, CharacterClass.ROGUE: 8}
+        hit_dice = {
+            CharacterClass.WARRIOR: 10,
+            CharacterClass.WIZARD: 6,
+            CharacterClass.ROGUE: 8,
+        }
         for race in Race:
             for character_class in CharacterClass:
                 with self.subTest(race=race, character_class=character_class):
                     hero = Hero.create(race, character_class, base)
-                    expected_stats = tuple(value + int(race is Race.HUMAN) for value in base.values)
+                    expected_stats = tuple(
+                        value + int(race is Race.HUMAN) for value in base.values
+                    )
                     self.assertEqual(hero.stats.values, expected_stats)
-                    expected_hp = hit_dice[character_class] + modifier(expected_stats[2]) + int(race is Race.DWARF)
-                    self.assertEqual((hero.hp, hero.max_hp, hero.level), (expected_hp, expected_hp, 1))
+                    expected_hp = (
+                        hit_dice[character_class]
+                        + modifier(expected_stats[2])
+                        + int(race is Race.DWARF)
+                    )
+                    self.assertEqual(
+                        (hero.hp, hero.max_hp, hero.level),
+                        (expected_hp, expected_hp, 1),
+                    )
                     self.assertEqual((hero.gold, hero.experience), (0, 0))
                     self.assertEqual(len(hero.inventory), 6)
-                    self.assertEqual(hero.spell_slots, {1: 2} if character_class is CharacterClass.WIZARD else {})
-                    self.assertEqual(hero.racial_spell, DETECT_MAGIC if race is Race.ELF else None)
+                    self.assertEqual(
+                        hero.spell_slots,
+                        {1: 2} if character_class is CharacterClass.WIZARD else {},
+                    )
+                    self.assertEqual(
+                        hero.racial_spell, DETECT_MAGIC if race is Race.ELF else None
+                    )
                     self.assertEqual(hero.racial_uses, int(race is Race.ELF))
         self.assertEqual(base.values, (12, 13, 13, 15, 10, 8))
 
@@ -79,7 +113,10 @@ class HeroTests(unittest.TestCase):
 
     def test_elf_wizard_uses_independent_pools_without_duplicate_knowledge(self):
         hero = Hero.create(Race.ELF, CharacterClass.WIZARD, Stats((10,) * 6))
-        self.assertEqual(tuple(s for s in hero.known_spells if s.level > 0), (MAGIC_MISSILE, DETECT_MAGIC))
+        self.assertEqual(
+            tuple(s for s in hero.known_spells if s.level > 0),
+            (MAGIC_MISSILE, DETECT_MAGIC),
+        )
         self.assertEqual(len([s for s in hero.known_spells if s.level == 0]), 3)
         self.assertTrue(hero.consume_racial_spell())
         self.assertFalse(hero.consume_racial_spell())
@@ -130,7 +167,9 @@ class CreationTests(unittest.TestCase):
         hero = creation.select(1)
         expected = tuple(creation.rolls[index - 1].total for index in order)
         self.assertEqual(hero.stats.values, expected)
-        self.assertEqual(Counter(hero.stats.values), Counter(roll.total for roll in creation.rolls))
+        self.assertEqual(
+            Counter(hero.stats.values), Counter(roll.total for roll in creation.rolls)
+        )
 
     def test_duplicate_values_are_distinct_but_indices_cannot_repeat(self):
         creation = self.prepare()
@@ -190,18 +229,32 @@ class EngineTests(unittest.TestCase):
     def setUp(self):
         hero = Hero.create(Race.ELF, CharacterClass.WIZARD, Stats((10,) * 6))
         dungeon = DungeonMap(("#####", "#...#", "#.#.#", "#...#", "#####"))
-        self.engine = Engine(GameState(hero, dungeon, Position(1, 1)), random.Random(42))
+        self.engine = Engine(
+            GameState(hero, dungeon, Position(1, 1)), random.Random(42)
+        )
 
     def test_four_directions_wait_and_blocked_moves(self):
         state = self.engine.state
         for action in (Action.NORTH, Action.WEST):
             self.assertEqual(self.engine.apply(action).minutes, 0)
-        self.assertEqual((state.position, state.turns, state.clock.elapsed_minutes), (Position(1, 1), 0, 480))
-        for action in (Action.EAST, Action.WEST, Action.SOUTH, Action.NORTH, Action.WAIT):
+        self.assertEqual(
+            (state.position, state.turns, state.clock.elapsed_minutes),
+            (Position(1, 1), 0, 480),
+        )
+        for action in (
+            Action.EAST,
+            Action.WEST,
+            Action.SOUTH,
+            Action.NORTH,
+            Action.WAIT,
+        ):
             result = self.engine.apply(action)
             self.assertTrue(result.performed)
             self.assertEqual(result.minutes, 1)
-        self.assertEqual((state.position, state.turns, state.clock.elapsed_minutes), (Position(1, 1), 5, 485))
+        self.assertEqual(
+            (state.position, state.turns, state.clock.elapsed_minutes),
+            (Position(1, 1), 5, 485),
+        )
         self.engine.apply(Action.EAST)
         blocked = self.engine.apply(Action.SOUTH)
         self.assertFalse(blocked.performed)
@@ -223,9 +276,14 @@ class EngineTests(unittest.TestCase):
         state.hero.consume_class_slot(MAGIC_MISSILE.id)
         state.hero.consume_racial_spell()
         state.clock = GameClock(23 * 60 + 30)
+        lay_bedroll(self.engine)
         result = self.engine.apply(Action.REST)
-        self.assertEqual((result.performed, result.minutes, state.turns), (True, 480, 1))
-        self.assertEqual((state.clock.day, state.clock.hour, state.clock.minute), (2, 7, 30))
+        self.assertEqual(
+            (result.performed, result.minutes, state.turns), (True, 480, 1)
+        )
+        self.assertEqual(
+            (state.clock.day, state.clock.hour, state.clock.minute), (2, 7, 30)
+        )
         self.assertEqual(state.hero.hp, state.hero.max_hp)
         self.assertEqual(state.hero.spell_slots, {1: 2})
         self.assertEqual(state.hero.racial_uses, 1)
@@ -234,14 +292,29 @@ class EngineTests(unittest.TestCase):
         clock = GameClock(23 * 60 + 59)
         clock.advance(1)
         self.assertEqual((clock.day, clock.hour, clock.minute), (2, 0, 0))
-        for hour, label in ((0, "Ночь"), (5, "Ночь"), (6, "Утро"), (11, "Утро"), (12, "День"), (17, "День"), (18, "Вечер"), (21, "Вечер"), (22, "Ночь")):
+        for hour, label in (
+            (0, "Ночь"),
+            (5, "Ночь"),
+            (6, "Утро"),
+            (11, "Утро"),
+            (12, "День"),
+            (17, "День"),
+            (18, "Вечер"),
+            (21, "Вечер"),
+            (22, "Ночь"),
+        ):
             self.assertEqual(GameClock(hour * 60).time_of_day, label)
         with self.assertRaises(ValueError):
             clock.advance(-1)
 
     def test_fixed_dungeon_all_floors_reachable_and_boundary_is_walled(self):
         dungeon = test_dungeon()
-        floors = {Position(x, y) for y, row in enumerate(dungeon.rows) for x, cell in enumerate(row) if cell == "."}
+        floors = {
+            Position(x, y)
+            for y, row in enumerate(dungeon.rows)
+            for x, cell in enumerate(row)
+            if cell == "."
+        }
         visited = {Position(3, 3)}
         queue = deque(visited)
         while queue:
@@ -267,4 +340,3 @@ class EngineTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

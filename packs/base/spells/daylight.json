@@ -9,5 +9,8 @@
   "art": null,
   "level": 3,
   "effects": [],
-  "target": "other"
+  "target": "other",
+  "tags": [
+    "magic"
+  ]
 }

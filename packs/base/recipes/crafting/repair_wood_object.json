@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "repair_wood_object",
+  "name": "Ремонт деревянного объекта",
+  "description": "",
+  "category": "carpenter",
+  "basic_known": false,
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 1
+        }
+      ],
+      "stations": [],
+      "tools": [
+        "carpenter_tools"
+      ],
+      "proficiencies": [],
+      "turns": 3
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "repair_object",
+    "target_tags": [
+      "wooden"
+    ],
+    "repair_amount": 10
+  }
+}

@@ -1,5 +1,6 @@
-from scripts.testing import fixture_store
+from scripts.testing import fixture_store, lay_bedroll
 import unittest
+from dataclasses import replace
 from pathlib import Path
 import tempfile
 
@@ -16,7 +17,66 @@ def created_controller(seed=42):
     return controller
 
 
+def gameplay_hero(hero):
+    # Item UUIDs identify ownership; they deliberately do not use the game RNG.
+    return replace(hero, inventory=[replace(i, instance_id="") for i in hero.inventory])
+
+
 class ControllerTests(unittest.TestCase):
+    def test_inventory_menu_magic_and_building_shortcuts_do_not_spend_turns(self):
+        from tuidungeon.presentation.menus import ActionMenu
+        from tuidungeon.presentation.tui import popup_layout
+
+        c = Controller(42, test_profile="wizard")
+        state = c.engine.state
+        before = state.position, state.turns, state.clock.elapsed_minutes
+        c.handle("escape")
+        self.assertEqual(c.action_menu, ActionMenu.META)
+        c.handle("escape")
+        self.assertEqual(c.action_menu, ActionMenu.ROOT)
+        c.handle("i")
+        self.assertEqual((c.view, c.sheet_section), (View.CHARACTER, 1))
+        c.handle("enter")
+        self.assertEqual(c.view, View.ITEM)
+        c.handle("escape")
+        self.assertEqual(c.view, View.CHARACTER)
+        c.handle("escape")
+        c.handle("m")
+        self.assertEqual(c.action_menu, ActionMenu.MAGIC)
+        self.assertEqual(popup_layout(c, 100, 28)[0], "Заклинания")
+        c.handle("escape")
+        self.assertEqual(c.action_menu, ActionMenu.ROOT)
+        c.handle("b")
+        self.assertEqual(c.view, View.BUILD)
+        for width, height in ((80, 24), (100, 28), (140, 40)):
+            title, rect, _, _ = popup_layout(c, width, height)
+            self.assertEqual(title, "Строительство")
+            self.assertGreaterEqual(rect.x, 0)
+            self.assertLessEqual(rect.x + rect.width, width)
+            self.assertTrue(all(len(row) == width for row in render(c, width, height)))
+        c.handle("d")
+        self.assertEqual(c.view, View.BUILD)
+        c.handle("escape")
+        self.assertEqual((c.view, c.action_menu), (View.EXPLORE, ActionMenu.ROOT))
+        self.assertEqual(
+            (state.position, state.turns, state.clock.elapsed_minutes), before
+        )
+
+    def test_inventory_search_keeps_shortcuts_as_text_and_escape_cancels_search(self):
+        from tuidungeon.presentation.menus import ActionMenu
+
+        c = Controller(42, test_map=True)
+        c.handle("i")
+        c.handle("f")
+        for key in "mib":
+            c.handle(key)
+        self.assertEqual(c.inventory.query, "mib")
+        c.handle("escape")
+        self.assertEqual(c.inventory.query, "")
+        self.assertEqual((c.view, c.action_menu), (View.CHARACTER, ActionMenu.ROOT))
+        c.handle("escape")
+        self.assertEqual(c.view, View.EXPLORE)
+
     def test_inspect_and_sneaking_shortcuts_are_scoped_to_exploration(self):
         c = Controller(42, test_map=True)
         state = c.engine.state
@@ -158,12 +218,16 @@ class ControllerTests(unittest.TestCase):
         for key in "11121234561":
             controller.handle(key)
         self.assertEqual(
-            controller.engine.state.hero, created_controller().engine.state.hero
+            gameplay_hero(controller.engine.state.hero),
+            gameplay_hero(created_controller().engine.state.hero),
         )
 
     def test_creation_is_reproducible_with_seed(self):
         first, second = created_controller(), created_controller()
-        self.assertEqual(first.engine.state.hero, second.engine.state.hero)
+        self.assertEqual(
+            gameplay_hero(first.engine.state.hero),
+            gameplay_hero(second.engine.state.hero),
+        )
 
     def test_menus_tab_backspace_and_unknown_keys_do_not_advance_time(self):
         controller = created_controller()
@@ -196,12 +260,13 @@ class ControllerTests(unittest.TestCase):
 
     def test_game_controls_apply_actions_and_exit(self):
         controller = created_controller()
+        lay_bedroll(controller.engine)
         for key in ("D", "S", "A", "W", "3", "3", "backspace", "4", "2"):
             controller.handle(key)
         self.assertEqual(controller.engine.state.position, Position(3, 3))
         self.assertEqual(controller.engine.state.turns, 6)
         self.assertEqual(controller.engine.state.clock.elapsed_minutes, 965)
-        controller.handle("m")
+        controller.handle("escape")
         controller.handle("4")
         controller.handle("2")
         self.assertFalse(controller.running)
@@ -309,8 +374,8 @@ class RenderingTests(unittest.TestCase):
                 self.assertTrue(all(len(row) == width for row in rows))
                 controller.handle("down")
 
-    def assert_borders(self, rows):
-        layout = Layout.for_size(len(rows[0]), len(rows))
+    def assert_borders(self, rows, *, creation=False):
+        layout = Layout.for_size(len(rows[0]), len(rows), creation=creation)
         for rect in (layout.main, layout.actions, layout.sidebar, layout.status):
             self.assertEqual(rows[rect.y][rect.x], "+")
             self.assertEqual(rows[rect.y][rect.x + rect.width - 1], "+")
@@ -321,13 +386,29 @@ class RenderingTests(unittest.TestCase):
     def test_all_creation_screens_fit_at_minimum_size(self):
         controller = Controller(42)
         controller.handle("enter")
-        for key in (None, "3", "2", "1", "2", "1", "2", "3", "4", "5", "6", "1", "2", "3", "7"):
+        for key in (
+            None,
+            "3",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "1",
+            "2",
+            "3",
+            "7",
+        ):
             if key:
                 controller.handle(key)
             rows = render(controller, 80, 24)
             self.assertEqual(len(rows), 24)
             self.assertTrue(all(len(row) == 80 for row in rows))
-            self.assert_borders(rows)
+            self.assert_borders(rows, creation=True)
         self.assertIn("Подтверждение", "\n".join(rows))
         self.assertIn("Бонусы уже учтены", "\n".join(rows))
 
@@ -340,10 +421,9 @@ class RenderingTests(unittest.TestCase):
             "Подземелье",
             "Инвентарь",
             "Действия",
-            "Время и средства",
+            "Журнал событий",
             "08:00",
-            "Деньги: 0",
-            "Опыт: 0",
+            "Золото: 0 (0 кг)",
         ):
             self.assertIn(label, text)
         self.assertEqual(text.count("@"), 1)
@@ -355,7 +435,24 @@ class RenderingTests(unittest.TestCase):
     def test_elf_wizard_displays_both_magic_pools_without_truncation(self):
         controller = Controller(42)
         controller.handle("enter")
-        for key in ("3", "2", "1", "2", "1", "2", "3", "4", "5", "6", "1", "2", "3", "7", "1", "tab"):
+        for key in (
+            "3",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "1",
+            "2",
+            "3",
+            "7",
+            "1",
+            "tab",
+        ):
             controller.handle(key)
         text = "\n".join(render(controller, 80, 24))
         for label in (

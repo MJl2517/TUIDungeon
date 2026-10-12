@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "wood",
+  "name": "Древесина",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.5,
+  "tags": [
+    "wooden",
+    "flammable",
+    "fuel"
+  ]
+}

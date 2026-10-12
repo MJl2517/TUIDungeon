@@ -12,7 +12,8 @@ from wcwidth import wcwidth
 
 from scripts.import_tileset import PROJECT_ROOT, curated_tiles, install
 from tuidungeon.content.packs import DEFAULT_PACKS, PackStore
-from tuidungeon.content.schemas import TileDocument
+from tuidungeon.content.schemas import TileDocument, WorldObjectDocument
+from pydantic import ValidationError
 from tuidungeon.content.migrations import door_alias, compatibility
 from tuidungeon.tooling.server import create_app
 
@@ -37,8 +38,14 @@ class TileLibraryTests(unittest.TestCase):
                     continue
                 ref = f"base:{doc.id}"
                 alias = compatibility()["tiles"].get(ref)
-                loaded = self.store.get(alias["category"], alias["ref"]) if alias else self.store.get("tiles", ref)
-                self.assertNotIn(("tiles", ref), self.store.documents) if alias else self.assertEqual(loaded.id, doc.id)
+                loaded = (
+                    self.store.get(alias["category"], alias["ref"])
+                    if alias
+                    else self.store.get("tiles", ref)
+                )
+                self.assertNotIn(
+                    ("tiles", ref), self.store.documents
+                ) if alias else self.assertEqual(loaded.id, doc.id)
                 self.assertEqual(wcwidth(loaded.glyph), 1)
                 self.assertNotEqual(loaded.glyph, "@")
         self.assertEqual(self.store.get("tiles", "base:water_calm").glyph, "∿")
@@ -62,8 +69,39 @@ class TileLibraryTests(unittest.TestCase):
             with self.subTest(tile=identifier):
                 ref = f"base:{identifier}"
                 alias = compatibility()["tiles"].get(ref)
-                doc = self.store.get(alias["category"], alias["ref"]) if alias else self.store.get("tiles", ref)
-                self.assertEqual((getattr(doc, "walkable", True), getattr(doc, "blocks_sight", False)), expected)
+                doc = (
+                    self.store.get(alias["category"], alias["ref"])
+                    if alias
+                    else self.store.get("tiles", ref)
+                )
+                self.assertEqual(
+                    (
+                        getattr(doc, "walkable", True),
+                        getattr(doc, "blocks_sight", False),
+                    ),
+                    expected,
+                )
+
+    def test_explicit_map_categories_round_trip_without_changing_physics(self):
+        for model in (TileDocument, WorldObjectDocument):
+            legacy = model(
+                id="example", name="Пример", walkable=False, blocks_sight=False
+            )
+            self.assertEqual(legacy.map_category, "auto")
+            for category in ("floor", "wall", "destructible", "furniture", "special"):
+                doc = model.model_validate(
+                    {**legacy.model_dump(), "map_category": category}
+                )
+                self.assertEqual(
+                    model.model_validate_json(doc.model_dump_json()).map_category,
+                    category,
+                )
+                self.assertEqual((doc.walkable, doc.blocks_sight), (False, False))
+            with self.assertRaises(ValidationError):
+                model(id="invalid", name="Ошибка", map_category="unknown")
+        self.assertEqual(
+            self.store.get("tiles", "base:wall_damaged").map_category, "destructible"
+        )
 
     def test_library_exposes_group_and_search_tags_and_old_tiles_still_load(self):
         with TestClient(
@@ -79,6 +117,9 @@ class TileLibraryTests(unittest.TestCase):
         self.assertEqual(entries["base:door_bars"]["group"], "Двери")
         self.assertIn("transparent", entries["base:door_bars"]["tags"])
         self.assertEqual(entries["base:wall"]["group"], "Прочее")
+        self.assertEqual(
+            entries["base:wall_damaged"]["details"]["map_category"], "destructible"
+        )
         self.assertEqual(self.store.get("tiles", "base:cave_wall").background, 0)
 
 

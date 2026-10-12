@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "arcane_dust",
+  "name": "Связанный реагент",
+  "description": "Связанный реагент.",
+  "weight": 0.05,
+  "category": "materials",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "*",
+  "foreground": 13,
+  "tags": [
+    "magic"
+  ]
+}

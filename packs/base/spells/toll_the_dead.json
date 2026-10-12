@@ -35,5 +35,7 @@
   "world_parameters": {},
   "concentration": false,
   "pending_effects": [],
-  "tags": []
+  "tags": [
+    "magic"
+  ]
 }

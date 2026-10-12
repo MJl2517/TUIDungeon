@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "club",
+  "name": "Простая дубинка",
+  "description": "Простая деревянная дубинка.",
+  "glyph": "/",
+  "foreground": 6,
+  "category": "weapons",
+  "group": "Вооружение",
+  "weight": 1.0,
+  "tags": [
+    "weapon",
+    "wooden",
+    "flammable"
+  ],
+  "durability": 20,
+  "slot": "weapon",
+  "hands": 1,
+  "weapon_damage": "1d4"
+}

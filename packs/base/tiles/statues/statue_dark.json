@@ -11,7 +11,8 @@
   "tags": [
     "statues",
     "obstacle",
-    "opaque"
+    "opaque",
+    "stone"
   ],
   "walkable": false,
   "blocks_sight": true

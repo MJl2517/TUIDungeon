@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "tangled_branches",
+  "name": "Спутанные ветви",
+  "description": "Спутанные ветви.",
+  "glyph": "#",
+  "foreground": 6,
+  "group": "Ремёсла и окружение",
+  "map_category": "destructible",
+  "tags": [
+    "wooden",
+    "flammable",
+    "pole_reachable"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "destruction": {
+    "max_hp": 8,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "pole",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 1
+        },
+        {
+          "item": "base:plant_fiber",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": []
+  }
+}

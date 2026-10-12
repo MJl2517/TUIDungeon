@@ -8,12 +8,14 @@
   "slot": "hand",
   "hands": 1,
   "tags": [
-    "light_source"
+    "light_source",
+    "metal"
   ],
   "light": {
     "radius": 8,
     "bright_radius": 4,
     "burn_minutes": 60,
     "fuel_tag": "lamp_oil"
-  }
+  },
+  "durability": null
 }

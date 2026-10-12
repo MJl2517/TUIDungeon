@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "soil",
+  "name": "Земля",
+  "glyph": ".",
+  "foreground": 3,
+  "group": "Земля",
+  "map_category": "floor",
+  "walkable": true,
+  "tags": [
+    "soil"
+  ]
+}

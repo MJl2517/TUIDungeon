@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "battering_ram",
+  "name": "Переносной таран",
+  "description": "В руках даёт преимущество при выламывании двери.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "weapons",
+  "group": "Ремёсла и добыча",
+  "weight": 8,
+  "tags": [
+    "wooden",
+    "flammable",
+    "battering_ram",
+    "weapon"
+  ],
+  "slot": "weapon",
+  "hands": 2,
+  "durability": 30,
+  "weapon_damage": "1d6"
+}

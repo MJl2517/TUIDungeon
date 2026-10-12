@@ -106,7 +106,8 @@ def build_documents(store):
                 placements["doors"].append(
                     dict(id=f"tile_doors_{x}_{y}", ref=ref, x=x, y=y)
                 )
-            if brush.light:
+            obj = store.documents.get(("objects", ref))
+            if brush.light and not (obj and obj.light_fixture):
                 placements["lights"].append(
                     dict(
                         id=f"tile_lights_{x}_{y}",

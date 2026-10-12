@@ -1,7 +1,11 @@
 """Loopback-only Studio API. No shell commands or arbitrary paths are accepted."""
 
 from pathlib import Path
+import json
+import socket
 from typing import Literal
+from urllib.error import URLError
+from urllib.request import urlopen
 import threading
 import sys
 import webbrowser
@@ -9,12 +13,18 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError, BaseModel, ConfigDict, Field
-from ..content.packs import PackStore, ContentError, Conflict, Referenced, PROJECT_ROOT
-from ..content.schemas import MODELS, Scores
+from ..content.packs import (
+    PackStore,
+    ContentError,
+    Conflict,
+    Referenced,
+    PROJECT_ROOT,
+    DEFAULT_PACKS,
+)
+from ..content.schemas import MODELS
 from ..content.migrations import migrate_map, migrate_document
 from ..domain.mechanics import mechanics
 from ..presentation.art import import_txt, export_txt
-from .sessions import TestSession
 from .launcher import open_test_map
 
 
@@ -32,39 +42,10 @@ class VersionRequest(RequestModel):
     version: str
 
 
-class SessionRequest(RequestModel):
-    cantrips: list[str] | None = None
-    model_config = ConfigDict(extra="forbid", strict=True)
-    map_ref: str
-    race: str = "base:human"
-    character_class: str = "base:warrior"
-    seed: int = 0
-    scores: list[int] = Field(
-        default_factory=lambda: [14, 12, 13, 10, 10, 8], min_length=6, max_length=6
-    )
-    background: str | None = None
-    viewport_width: int | None = Field(default=None, ge=1, le=256)
-    viewport_height: int | None = Field(default=None, ge=1, le=256)
-
-
 class GameRequest(RequestModel):
     map_ref: str
     seed: int = 42
     character_class: str = "base:warrior"
-
-
-class CommandRequest(RequestModel):
-    spell_id: str | None = None
-    source: Literal["class", "racial"] = "class"
-    option: str | None = None
-    command: str
-    placement: str | None = None
-    choice: str | None = None
-    x: int | None = Field(default=None, ge=0)
-    y: int | None = Field(default=None, ge=0)
-    item: str | None = None
-    quantity: int = Field(default=1, ge=1, le=10000)
-    deposit: bool = False
 
 
 class SandboxRequest(RequestModel):
@@ -77,6 +58,7 @@ class SandboxRequest(RequestModel):
 
 
 LABELS = {
+    "recipes": "Рецепты",
     "art": "Графика",
     "tiles": "Поверхности",
     "objects": "Объекты окружения",
@@ -125,6 +107,7 @@ def template(store, category):
                 tiles=[[None] * 20 for _ in range(12)],
                 walkability=[[True] * 20 for _ in range(12)],
                 blocks_sight=[[False] * 20 for _ in range(12)],
+                roof=[[False] * 20 for _ in range(12)],
             )
         elif category == "art":
             raw.update(
@@ -176,6 +159,7 @@ def template(store, category):
             tiles=[[None] * 20 for _ in range(12)],
             walkability=[[True] * 20 for _ in range(12)],
             blocks_sight=[[False] * 20 for _ in range(12)],
+            roof=[[False] * 20 for _ in range(12)],
             spawn={"x": 1, "y": 1},
             decorations=[],
             objects=[],
@@ -191,10 +175,12 @@ def template(store, category):
 
 def create_app(root=None, dist=None):
     store = PackStore(root) if root else PackStore()
-    sessions = {}
     app = FastAPI(title="TUI Dungeon Studio", docs_url=None, redoc_url=None)
     app.state.store = store
-    app.state.sessions = sessions
+
+    @app.get("/api/status")
+    def status():
+        return {"studio": "TUI Dungeon Studio", "packs_dir": str(store.root.resolve())}
 
     @app.middleware("http")
     async def local_only(request: Request, call_next):
@@ -255,6 +241,33 @@ def create_app(root=None, dist=None):
                     "classes": getattr(d, "classes", []),
                     "group": getattr(d, "group", None),
                     "tags": getattr(d, "tags", []),
+                    "details": {
+                        key: getattr(d, key)
+                        for key in (
+                            "category",
+                            "map_category",
+                            "level",
+                            "school",
+                            "hit_points",
+                            "armor_class",
+                            "speed",
+                            "kind",
+                            "basic_known",
+                            "walkable",
+                            "blocks_sight",
+                            "ambient_light",
+                            "width",
+                            "height",
+                        )
+                        if getattr(d, key, None) is not None
+                    },
+                    "features": {
+                        key: bool(getattr(d, key, None))
+                        for key in ("reading", "storage", "map_light")
+                    },
+                    "search_text": d.model_dump_json()
+                    if c not in ("maps", "art")
+                    else "",
                 }
                 for (c, r), d in store.documents.items()
             ],
@@ -321,6 +334,18 @@ def create_app(root=None, dist=None):
     def create_pack(raw: dict):
         return store.create_pack(raw).model_dump()
 
+    @app.get("/api/packs/{pack}")
+    def get_pack(pack):
+        return store.pack_envelope(pack)
+
+    @app.put("/api/packs/{pack}")
+    def save_pack(pack, request: SaveRequest):
+        return store.save_pack(pack, request.document, request.version)
+
+    @app.delete("/api/packs/{pack}")
+    def delete_pack(pack, request: VersionRequest):
+        return store.delete_pack(pack, request.version)
+
     @app.post("/api/art/import")
     def import_art(raw: dict):
         return import_txt(
@@ -369,37 +394,6 @@ def create_app(root=None, dist=None):
                 503, f"Не удалось открыть игровое окно: {error}"
             ) from error
         return {"started": True, "map_ref": request.map_ref}
-
-    @app.post("/api/sessions")
-    def create_session(request: SessionRequest):
-        store.reload()
-        if len(sessions) >= 32:
-            raise HTTPException(429, "Закройте одну из тестовых сессий")
-        Scores.model_validate(dict(zip(Scores.model_fields, request.scores)))
-        session = TestSession(store, request.model_dump())
-        sessions[session.id] = session
-        return session.snapshot()
-
-    def session(identifier):
-        if identifier not in sessions:
-            raise HTTPException(404, "Сессия не найдена")
-        return sessions[identifier]
-
-    @app.post("/api/sessions/{identifier}/commands")
-    def command(identifier, request: CommandRequest):
-        return session(identifier).command(**request.model_dump())
-
-    @app.post("/api/sessions/{identifier}/reset")
-    def reset(identifier):
-        s = session(identifier)
-        s.reset()
-        return s.snapshot()
-
-    @app.delete("/api/sessions/{identifier}")
-    def close(identifier):
-        session(identifier)
-        del sessions[identifier]
-        return {"closed": True}
 
     @app.post("/api/sandbox")
     def sandbox(request: SandboxRequest):
@@ -468,6 +462,26 @@ def create_app(root=None, dist=None):
 
 def serve(port=8765, open_browser=True, root=None):
     import uvicorn
+
+    url = f"http://127.0.0.1:{port}"
+    packs_dir = Path(root).resolve() if root else Path(DEFAULT_PACKS).resolve()
+    with socket.socket() as probe:
+        probe.settimeout(1)
+        occupied = probe.connect_ex(("127.0.0.1", port)) == 0
+    if occupied:
+        try:
+            with urlopen(url + "/api/status", timeout=2) as response:
+                status = json.load(response)
+        except (URLError, OSError, ValueError):
+            status = None
+        if status != {"studio": "TUI Dungeon Studio", "packs_dir": str(packs_dir)}:
+            raise OSError(
+                f"Порт {port} занят другим сервером. Выберите другой: --port {port + 1 if port < 65535 else 8765}"
+            )
+        print(f"Студия уже запущена: {url}", flush=True)
+        if open_browser:
+            webbrowser.open(url)
+        return
 
     app = create_app(root)
     if (

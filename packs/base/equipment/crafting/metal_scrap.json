@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "metal_scrap",
+  "name": "Металлический лом",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.3,
+  "tags": [
+    "metal"
+  ]
+}

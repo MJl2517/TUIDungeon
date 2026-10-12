@@ -11,7 +11,8 @@
   "tags": [
     "water",
     "walkable",
-    "transparent"
+    "transparent",
+    "liquid"
   ],
   "walkable": true,
   "blocks_sight": false

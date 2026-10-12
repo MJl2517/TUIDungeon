@@ -1,6 +1,6 @@
 """Exploration commands, navigation, keyboard protocols and save round trips."""
 
-from scripts.testing import fixture_store
+from scripts.testing import fixture_store, lay_bedroll
 
 import json
 from pathlib import Path
@@ -75,6 +75,7 @@ class ExplorationTests(unittest.TestCase):
         self.assertEqual(hero.hp, 1 + hero.max_hp // 2)
         self.assertEqual((hero.spell_slots[1], hero.racial_uses), (0, 0))
         self.assertFalse(hero.sneaking)
+        lay_bedroll(self.engine)
         self.assertEqual(self.engine.apply(Action.REST).minutes, 480)
         self.assertEqual(
             (hero.hp, hero.spell_slots[1], hero.racial_uses), (hero.max_hp, 2, 1)
@@ -124,7 +125,7 @@ class ExplorationTests(unittest.TestCase):
         point = self.engine.state.level.points[0]
         self.engine.state.position = Position(point.placement.x, point.placement.y)
         self.assertIn(
-            point.challenge.text,
+            point.definition.description,
             "\n".join(
                 self.engine.inspect_cell(Position(point.placement.x, point.placement.y))
             ),
@@ -254,22 +255,22 @@ class NavigationTests(unittest.TestCase):
         before = c.engine.state.clock.elapsed_minutes
         c.handle("1")
         self.assertEqual(c.engine.state.clock.elapsed_minutes, before + 60)
-        c.handle("m")
+        c.handle("escape")
         self.assertIn("Игровое меню", "\n".join(render(c, 80, 24)))
         c.handle("1")
         self.assertTrue(c.saves.path.exists())
         c.handle("escape")
         c.handle("d")
-        c.handle("m")
+        c.handle("escape")
         c.handle("2")
         self.assertEqual(c.engine.state.turns, 1)
-        c.handle("m")
+        c.handle("escape")
         c.handle("5")
         c.handle("2")
         c.handle("backspace")
         self.assertEqual(c.view, View.EXPLORE)
         c.handle("backspace")
-        c.handle("m")
+        c.handle("escape")
         c.handle("4")
         c.handle("1")
         self.assertEqual(c.view, View.MAIN_MENU)
@@ -333,12 +334,12 @@ class NavigationTests(unittest.TestCase):
     def test_missing_or_corrupt_save_keeps_current_session(self):
         c = self.controller
         original = c.engine
-        c.handle("m")
+        c.handle("escape")
         c.handle("2")
         self.assertIs(c.engine, original)
         c.saves.path.write_text("{broken")
         c.handle("escape")
-        c.handle("m")
+        c.handle("escape")
         c.handle("2")
         self.assertIs(c.engine, original)
         self.assertIn("Не удалось загрузить", c.message)

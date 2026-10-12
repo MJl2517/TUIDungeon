@@ -9,7 +9,9 @@
   "art": null,
   "tags": [
     "shrines",
-    "transparent"
+    "transparent",
+    "holy",
+    "stone"
   ],
   "challenge": "base:terrain_shrine",
   "group": "Алтари и святыни"

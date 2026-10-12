@@ -15,7 +15,8 @@
     "blade",
     "transparent",
     "weapon",
-    "weapon_decor"
+    "weapon_decor",
+    "metal"
   ],
   "durability": 30,
   "slot": "weapon",

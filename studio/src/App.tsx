@@ -8,12 +8,12 @@ import {
   compose,
   color,
   assetVersionsMatch,
-  libraryResults,
 } from "./model";
-import { FieldForm } from "./Form";
+import { DocumentForm } from "./Form";
+import { ContentBrowser, ContentPicker, ContentSelect } from "./ContentBrowser";
 import { ArtEditor } from "./ArtEditor";
 import { MapEditor } from "./MapEditor";
-import { Playtest } from "./Playtest";
+import { PackManager } from "./PackManager";
 import { Grid } from "./Grid";
 import { Home } from "./Home";
 import { sections } from "./catalog";
@@ -24,11 +24,11 @@ const icons = Object.fromEntries(
 export default function App() {
   const [screen, setScreen] = useState<"home" | "library" | "editor">("home");
   const [navCollapsed, setNavCollapsed] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [library, setLibrary] = useState<Doc | null>(null),
     [meta, setMeta] = useState<Doc | null>(null),
     [category, setCategory] = useState("maps"),
     [pack, setPack] = useState("all"),
-    [query, setQuery] = useState(""),
     [active, setActive] = useState<{
       category: string;
       ref: string;
@@ -43,13 +43,6 @@ export default function App() {
     [assets, setAssets] = useState<Record<string, Doc>>({}),
     [creating, setCreating] = useState<Doc | null>(null),
     [packDialog, setPackDialog] = useState(false),
-    [newPack, setNewPack] = useState({
-      id: "",
-      name: "",
-      version: "1.0.0",
-      dependencies: ["base"],
-    }),
-    [play, setPlay] = useState<string | null>(null),
     [source, setSource] = useState(false),
     [sourceText, setSourceText] = useState(""),
     [saving, setSaving] = useState(false),
@@ -168,7 +161,10 @@ export default function App() {
   useEffect(() => {
     const handle = (e: KeyboardEvent) => {
       if (!(e.ctrlKey || e.metaKey)) return;
-      if (e.key === "s") {
+      if (e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      } else if (e.key === "s") {
         e.preventDefault();
         void save();
       } else if (
@@ -343,7 +339,6 @@ export default function App() {
     active?.version &&
     entries.find((e) => e.category === active.category && e.ref === active.ref)
       ?.version !== active.version;
-  const filtered = libraryResults(entries, query, category, pack, assets);
   const art = draft?.art ? assets["art/" + draft.art] : null;
   const availableActions =
     draft && active?.category === "monsters"
@@ -360,7 +355,6 @@ export default function App() {
       : [];
   function browse(c: string) {
     setCategory(c);
-    setQuery("");
     setScreen("library");
   }
   return (
@@ -390,6 +384,12 @@ export default function App() {
           </div>
         </div>
         <div className="header-meta">
+          <button
+            className="global-search-button"
+            onClick={() => setSearchOpen(true)}
+          >
+            ⌕ Поиск по проекту <kbd>Ctrl K</kbd>
+          </button>
           <button className="subtle" onClick={() => setScreen("home")}>
             Главная
           </button>
@@ -448,9 +448,15 @@ export default function App() {
             <br />
             Один игровой движок.
           </p>
-          <button className="subtle" onClick={() => setPackDialog(true)}>
-            <span>+</span>
-            <span className="nav-label"> Пакет контента</span>
+          <button
+            className="subtle"
+            aria-label="Пакеты контента"
+            title="Пакеты контента"
+            disabled={!library}
+            onClick={() => setPackDialog(true)}
+          >
+            <span>▣</span>
+            <span className="nav-label"> Пакеты контента</span>
           </button>
         </div>
       </aside>
@@ -493,61 +499,14 @@ export default function App() {
                 + Создать
               </button>
             </div>
-            <select
-              aria-label="Пакет библиотеки"
-              value={pack}
-              onChange={(e) => setPack(e.target.value)}
-            >
-              <option value="all">Все пакеты</option>
-              {library?.packs.map((p: Doc) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} · {p.id}
-                </option>
-              ))}
-            </select>
-            <input
-              className="search"
-              aria-label="Поиск по всей библиотеке"
-              placeholder="Имя, ID, символ, группа или тег"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+            <ContentBrowser
+              key={category}
+              entries={entries}
+              assets={assets}
+              category={category}
+              selected={active ? active.category + "/" + active.ref : undefined}
+              onChoose={(e) => void open(e.category, e.ref)}
             />
-            {query.trim() && (
-              <p className="hint">
-                Поиск по всем категориям и пакетам; фильтры временно не
-                применяются.
-              </p>
-            )}
-            <div className="library-list">
-              {filtered.map((e) => (
-                <button
-                  className={
-                    "library-entry " +
-                    (active?.ref === e.ref && active.category === e.category
-                      ? "selected"
-                      : "")
-                  }
-                  key={e.category + "/" + e.ref}
-                  onClick={() => void open(e.category, e.ref)}
-                >
-                  <span className="entry-glyph">
-                    {e.glyph ?? icons[e.category]}
-                  </span>
-                  <span>
-                    <strong>{e.name}</strong>
-                    <small>
-                      {e.ref} · {sections[e.category]?.name ?? e.category}
-                    </small>
-                  </span>
-                </button>
-              ))}
-              {!filtered.length && (
-                <p className="hint">
-                  Пока нет объектов. Создайте первый шаблон.
-                </p>
-              )}
-            </div>
-            <footer>{filtered.length} объектов · файлы в packs/</footer>
           </section>
         ) : (
           <>
@@ -657,29 +616,15 @@ export default function App() {
                   </button>
                   {active.category === "maps" && (
                     <>
-                      <button
-                        className="test-button"
-                        disabled={!active.version || !!dirty}
-                        title={dirty ? "Сначала сохраните карту" : ""}
-                        onClick={() => setPlay(active.ref)}
-                      >
-                        ▶ Тестировать карту
-                      </button>
                       <label className="game-class-picker">
                         Класс
-                        <select
-                          aria-label="Класс для запуска игры"
+                        <ContentSelect
+                          entries={gameClasses}
                           value={selectedGameClass}
-                          onChange={(e) => setGameClass(e.target.value)}
+                          onChange={setGameClass}
                           disabled={launchingGame || !gameClasses.length}
-                          title="Волшебник знает все заклинания и заговоры подключённых пакетов"
-                        >
-                          {gameClasses.map((entry) => (
-                            <option key={entry.ref} value={entry.ref}>
-                              {entry.name} ({entry.ref})
-                            </option>
-                          ))}
-                        </select>
+                          label="Класс для запуска игры"
+                        />
                       </label>
                       <button
                         className="test-button"
@@ -748,14 +693,16 @@ export default function App() {
                     warnings={active.warnings}
                     notify={notify}
                     shortcutsEnabled={
-                      !creating && !packDialog && !play && !source
+                      !creating && !packDialog && !source && !searchOpen
                     }
                     documentRef={active.ref}
                   />
                 ) : (
                   <div className="mechanics-layout">
                     <div className="mechanics-form">
-                      <FieldForm
+                      <DocumentForm
+                        key={active.ref}
+                        category={active.category}
                         schema={meta.schemas[active.category]}
                         root={meta.schemas[active.category]}
                         value={draft}
@@ -845,21 +792,17 @@ export default function App() {
                             <option value="self">Сам монстр</option>
                           </select>
                           {draft.spells.length > 0 && (
-                            <select
-                              aria-label="Заклинание песочницы"
+                            <ContentSelect
+                              entries={entries.filter(
+                                (e) =>
+                                  e.category === "spells" &&
+                                  draft.spells.includes(e.ref),
+                              )}
                               value={sandboxSpell}
-                              onChange={(e) => setSandboxSpell(e.target.value)}
-                            >
-                              <option value="">Выберите заклинание</option>
-                              {draft.spells.map((ref: string) => (
-                                <option key={ref} value={ref}>
-                                  {entries.find(
-                                    (e) =>
-                                      e.category === "spells" && e.ref === ref,
-                                  )?.name ?? ref}
-                                </option>
-                              ))}
-                            </select>
+                              onChange={setSandboxSpell}
+                              label="Заклинание песочницы"
+                              empty="Выберите заклинание"
+                            />
                           )}
                           <button
                             disabled={
@@ -1023,67 +966,38 @@ export default function App() {
           </div>
         </div>
       )}
-      {packDialog && (
-        <div className="modal-backdrop">
-          <div className="modal creation-modal">
-            <h2>Новый пакет контента</h2>
-            {(["id", "name", "version"] as const).map((k) => (
-              <label key={k}>
-                {k}
-                <input
-                  value={newPack[k]}
-                  onChange={(e) =>
-                    setNewPack({ ...newPack, [k]: e.target.value })
-                  }
-                />
-              </label>
-            ))}
-            <h3>Зависимости</h3>
-            {library?.packs.map((p: Doc) => (
-              <label className="toggle" key={p.id}>
-                <input
-                  type="checkbox"
-                  checked={newPack.dependencies.includes(p.id)}
-                  onChange={(e) =>
-                    setNewPack({
-                      ...newPack,
-                      dependencies: e.target.checked
-                        ? [...newPack.dependencies, p.id]
-                        : newPack.dependencies.filter((d) => d !== p.id),
-                    })
-                  }
-                />
-                {p.name}
-              </label>
-            ))}
-            <div className="toolbar">
-              <button onClick={() => setPackDialog(false)}>Отмена</button>
-              <button
-                className="primary"
-                onClick={async () => {
-                  try {
-                    await api("/packs", newPack);
-                    await refresh();
-                    setPackDialog(false);
-                    setPack(newPack.id);
-                    notify("Пакет создан");
-                  } catch (e) {
-                    setError(String(e));
-                  }
-                }}
-              >
-                Создать пакет
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {play && (
-        <Playtest
-          map={play}
+      {packDialog && library && (
+        <PackManager
+          packs={library.packs}
           entries={entries}
-          onClose={() => setPlay(null)}
-          notify={(s) => setError(s)}
+          initialPack={pack === "all" ? active?.ref.split(":")[0] : pack}
+          unsavedPack={dirty ? active?.ref.split(":")[0] : undefined}
+          onClose={() => setPackDialog(false)}
+          onChanged={async (id, deleted) => {
+            if (deleted) {
+              if (active?.ref.startsWith(id + ":")) {
+                ++openSequence.current;
+                setActive(null);
+                history.current = null;
+                setRevision((n) => n + 1);
+                setScreen("library");
+              }
+              if (pack === id) setPack("all");
+            } else setPack(id);
+            await refresh();
+            notify(
+              deleted
+                ? "Пакет перемещён в архив"
+                : "Настройки пакета сохранены",
+            );
+          }}
+        />
+      )}
+      {searchOpen && (
+        <ContentPicker
+          entries={entries}
+          onChoose={(e) => void open(e.category, e.ref)}
+          onClose={() => setSearchOpen(false)}
         />
       )}
       <span hidden>{revision}</span>

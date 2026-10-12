@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "arcane_focus",
+  "name": "Рунный фокус",
+  "description": "В руке усиливает атаку заклинанием и сложность спасброска на 1. Несколько фокусов не складываются.",
+  "weight": 0.2,
+  "category": "tools",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "!",
+  "foreground": 13,
+  "tags": [
+    "magic",
+    "stone"
+  ],
+  "slot": "hand",
+  "hands": 1,
+  "durability": 10,
+  "spell_bonus": 1
+}

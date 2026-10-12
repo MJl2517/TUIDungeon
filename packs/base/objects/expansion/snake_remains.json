@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "snake_remains",
+  "name": "Останки змеи",
+  "description": "Разделка: 5 ходов вручную, 2 исправным ножом. Добыча выдаётся один раз.",
+  "glyph": "%",
+  "foreground": 6,
+  "group": "Ремёсла и окружение",
+  "map_category": "destructible",
+  "tags": [
+    "containers",
+    "organic",
+    "remains",
+    "storage"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "destruction": {
+    "max_hp": 10,
+    "dismantle": {
+      "turns": 5,
+      "fast_tool": "blade",
+      "fast_turns": 2,
+      "loot": [
+        {
+          "item": "base:raw_meat",
+          "quantity": 1
+        },
+        {
+          "item": "base:raw_leather",
+          "quantity": 1
+        },
+        {
+          "item": "base:poison_gland",
+          "quantity": 1
+        }
+      ],
+      "verb": "butcher"
+    },
+    "remains": []
+  },
+  "storage": {
+    "capacity": 1000000,
+    "personal": false,
+    "contents": []
+  }
+}

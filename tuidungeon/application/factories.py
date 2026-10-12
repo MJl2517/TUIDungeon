@@ -61,9 +61,7 @@ def create_test_wizard(catalog: ContentCatalog | None = None) -> Hero:
         raise ValueError("Для тестового волшебника нужны раса и класс wizard")
     race = catalog.races.get("human") or catalog.ordered_races[0]
     return prepare_test_wizard(
-        Hero.create(
-            race, "wizard", Stats((10, 12, 14, 18, 12, 10)), catalog=catalog
-        )
+        Hero.create(race, "wizard", Stats((10, 12, 14, 18, 12, 10)), catalog=catalog)
     )
 
 
@@ -96,8 +94,9 @@ class SessionFactory:
         )
         return hero
 
-    def state(self, map_ref, hero):
-        definition = self.store.get("maps", map_ref)
+    def state(self, map_ref, hero, *, definition=None):
+        restoring = definition is not None
+        definition = definition or self.store.get("maps", map_ref)
         level = Level(map_ref, definition, self.store)
         for p in door_placements(self.store, definition):
             tile = self.store.resolve(door_category(self.store, p.ref), p)
@@ -106,14 +105,18 @@ class SessionFactory:
             level.doors.append(DoorInstance(p, tile, Door.from_spec(tile.brush.door)))
         # DungeonMap keeps underlying terrain; mutable doors are a separate overlay.
         level.terrain
-        base = level._base_terrain
-        rows = tuple(
-            "".join("." if c else "#" for c in row) for row in base.walkability
-        )
+        base = definition
+        masks = [list(row) for row in base.walkability]
+        for door in level.doors:
+            masks[door.placement.y][door.placement.x] = True
+        rows = tuple("".join("." if c else "#" for c in row) for row in masks)
         state = GameState(
             hero, DungeonMap(rows), Position(definition.spawn.x, definition.spawn.y)
         )
-        if not level.terrain.walkability[state.position.y][state.position.x]:
+        if (
+            not restoring
+            and not level.terrain.walkability[state.position.y][state.position.x]
+        ):
             raise ValueError("Старт героя закрыт объектом")
         effects = EffectRegistry.default()
         for p in definition.traps:
@@ -121,11 +124,17 @@ class SessionFactory:
         for p in definition.points_of_interest:
             point = self.store.resolve("points_of_interest", p)
             challenge_document = resolve_challenge(self.store.documents, point, p)
-            challenge = TextChallenge(
-                compile_definition("challenges", point.challenge, challenge_document)
-                if p.challenge_overrides
-                else self.catalog.challenges[runtime_key(point.challenge)],
-                effects,
+            challenge = (
+                TextChallenge(
+                    compile_definition(
+                        "challenges", point.challenge, challenge_document
+                    )
+                    if p.challenge_overrides
+                    else self.catalog.challenges[runtime_key(point.challenge)],
+                    effects,
+                )
+                if challenge_document is not None
+                else None
             )
             level.points.append(PointInstance(p, point, challenge))
         for p in definition.equipment:
@@ -134,6 +143,13 @@ class SessionFactory:
                 item.template = self.store.resolve("equipment", p).model_dump(
                     mode="json"
                 )
+            if p.item_state:
+                item.contaminated = p.item_state.contaminated
+                if (
+                    p.item_state.durability is not None
+                    and item.definition.durability is not None
+                ):
+                    item.durability = p.item_state.durability
             level.items.append((p, item))
         for category in ("objects", "points_of_interest"):
             for p in getattr(definition, category):
@@ -150,9 +166,14 @@ class SessionFactory:
                     raise ValueError(
                         "Начальное содержимое превышает вместимость контейнера"
                     )
+                if getattr(obj, "light_fixture", None):
+                    for item in container.items:
+                        if item.definition.light:
+                            item.fuel_minutes = item.definition.light.burn_minutes
+                        item.lit = bool(item.definition.light and item.fuel_minutes)
                 level.containers.append(container)
         for p in definition.monsters:
-            if not level.terrain.walkability[p.y][p.x]:
+            if not restoring and not level.terrain.walkability[p.y][p.x]:
                 raise ValueError("Существо размещено на непроходимой клетке")
             monster = Monster.create(
                 runtime_key(p.ref),

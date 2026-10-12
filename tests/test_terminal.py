@@ -324,7 +324,7 @@ class WizardTerminalTests(TerminalSession):
         self.key(b"2", "2")
         self.key(b"\x7f", "backspace")
         self.key(b"\x7f", "backspace")
-        self.key(b"m", "m")
+        self.key(b"\x1b", "escape")
         self.key(b"1", "1")
         saved = json.loads(self.save_path.read_text())
         self.assertEqual(saved["test_profile"], "wizard")
@@ -358,7 +358,7 @@ class TerminalTests(TerminalSession):
         self.assertEqual(
             (hero.cantrip_uses, self.controller.engine.state.turns), (maximum - 1, 1)
         )
-        self.key(b"m", "m")
+        self.key(b"\x1b", "escape")
         self.key(b"1", "1")
         saved = json.loads(self.save_path.read_text())
         self.assertEqual(saved["hero"]["cantrip_uses"], maximum - 1)
@@ -553,6 +553,49 @@ class MapTerminalTests(TerminalSession):
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
 
 
+class CraftingTerminalTests(TerminalSession):
+    map_ref = "dev:crafting_lab"
+    test_map = True
+
+    def test_manual_steps_pause_save_load_and_resize(self):
+        self.key(b"c", "c")
+        self.key(b"f", "f")
+        for char in "base:craft_torch":
+            self.key(char.encode(), char)
+        self.key(b"\r", "enter")
+        self.key(b"\r", "enter")
+        self.key(b"\x1bOC", "right")
+        identifier = self.controller.engine.active_craft
+        self.assertEqual(self.controller.engine.workpiece(identifier).work.progress, 1)
+        self.resize(100, 30)
+        self.expect_frame()
+        self.key(b"\x1b", "escape")
+        self.assertIsNone(self.controller.engine.active_craft)
+        self.key(b"\x1b", "escape")
+        self.key(b"1", "1")
+        self.assertTrue(self.save_path.is_file())
+        self.key(b"2", "2")
+        # The actual process owns its own instance IDs; loading restores those.
+        identifier = next(
+            i.instance_id for i in self.controller.engine.state.hero.inventory if i.work
+        )
+        self.assertEqual(self.controller.engine.workpiece(identifier).work.progress, 1)
+        self.key(b"f", "f")
+        for key in b"craft_workpiece":
+            self.key(bytes([key]), chr(key))
+        self.key(b"\r", "enter")
+        self.key(b"\r", "enter")
+        self.key(b"1", "1")
+        self.key(b"\r", "enter")
+        self.key(b" ", "space")
+        self.assertIsNone(self.controller.engine.workpiece(identifier))
+        self.assertEqual(self.controller.engine.state.turns, 2)
+        self.key(b"q", "q")
+        self.key(b"2", "2")
+        self.assertEqual(self.process.wait(timeout=3), 0)
+        self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
+
+
 class StorageTerminalTests(TerminalSession):
     map_ref = "dev:storage_lab"
     test_map = True
@@ -607,11 +650,11 @@ class TestMapTerminalTests(TerminalSession):
         self.assertIn("Руки заняты: 2/2", "\n".join(self.screen.lines()))
         self.key(b"d", "d")
         self.assertIn("Свет: 58м", "\n".join(self.screen.lines()))
-        self.key(b"m", "m")
+        self.key(b"\x1b", "escape")
         self.key(b"1", "1")
         self.key(b"\x1b", "escape")
         self.key(b"d", "d")
-        self.key(b"m", "m")
+        self.key(b"\x1b", "escape")
         self.key(b"2", "2")
         self.assertIn("Свет: 58м", "\n".join(self.screen.lines()))
         self.resize(100, 30)
@@ -708,22 +751,49 @@ class TestMapTerminalTests(TerminalSession):
         self.key(b"\x7f", "backspace")
         self.key(b"\x1b[57443;3u", "alt_press")
         self.key(b"\x1b[57443;1:3u", "alt_release")
-        self.key(b"m", "m")
+        self.key(b"\x1b", "escape")
         self.key(b"1", "1")
         self.key(b"\x1b", "escape")
         self.assertTrue(self.save_path.exists())
         self.key(b"d", "d")
-        self.key(b"m", "m")
+        self.key(b"\x1b", "escape")
         self.key(b"2", "2")
         self.assertEqual(self.controller.engine.state.turns, 0)
         self.key(b"4", "4")
         self.key(b"1", "1")
         self.assertEqual(self.controller.engine.state.clock.elapsed_minutes, 540)
-        self.key(b"m", "m")
+        self.key(b"\x1b", "escape")
         self.key(b"4", "4")
         self.key(b"1", "1")
         self.key(b"2", "2")
         self.assertEqual(self.controller.engine.state.clock.elapsed_minutes, 480)
+        self.key(b"q", "q")
+        self.key(b"2", "2")
+        self.assertEqual(self.process.wait(timeout=3), 0)
+        self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
+
+    def test_journal_step_stack_pages_and_return_to_inspection(self):
+        for key in b"dad":
+            self.key(bytes([key]), chr(key))
+        self.assertIn("Вы сделали шаг (3).", "\n".join(self.screen.lines()))
+        for _ in range(25):
+            self.key(b"z", "z")
+        turns = self.controller.engine.state.turns
+        self.key(b"e", "e")
+        self.key(b"l", "l")
+        self.assertEqual(self.controller.view, View.JOURNAL)
+        self.assertGreater(self.controller.log_pages, 1)
+        self.key(b"\x1bOA", "up")
+        self.assertEqual(self.controller.log_page, 1)
+        self.key(b"\x1b[5~", "pageup")
+        self.key(b"\x1b[6~", "pagedown")
+        self.key(b"\x1bOB", "down")
+        self.resize(100, 30)
+        self.expect_frame()
+        self.key(b"l", "l")
+        self.assertEqual(self.controller.view, View.LOOK)
+        self.assertEqual(self.controller.engine.state.turns, turns)
+        self.key(b"\x1b", "escape")
         self.key(b"q", "q")
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)

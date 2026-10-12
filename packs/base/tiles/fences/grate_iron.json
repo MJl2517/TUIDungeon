@@ -11,7 +11,9 @@
   "tags": [
     "fences",
     "obstacle",
-    "transparent"
+    "transparent",
+    "iron",
+    "metal"
   ],
   "walkable": false,
   "blocks_sight": false

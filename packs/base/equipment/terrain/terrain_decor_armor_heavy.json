@@ -12,7 +12,9 @@
   "tags": [
     "armor_decor",
     "decor_armor_heavy",
-    "transparent"
+    "transparent",
+    "armor",
+    "metal"
   ],
   "durability": null,
   "slot": "armor",

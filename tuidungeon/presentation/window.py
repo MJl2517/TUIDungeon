@@ -22,12 +22,16 @@ from .tui import (
     popup_layout,
     handle_click,
     map_symbols,
+    map_status,
     MIN_WIDTH,
     MIN_HEIGHT,
     render,
     draw_colors,
     draw_emphasis,
 )
+
+from ..world.maps import Position
+from .tilesets import load_kenney_tileset, load_map_style, save_map_style
 
 FONT_DIR = Path(__file__).resolve().parents[2] / "assets" / "fonts"
 TILE_SIZE = (12, 24)
@@ -127,7 +131,7 @@ def map_area(width, height):
     return Rect(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 3)
 
 
-def render_map(controller, width, height, tile_size):
+def render_map(controller, width, height, tile_size, *, sprites=None):
     view = background_view(controller)
     if (
         not controller.engine
@@ -147,7 +151,10 @@ def render_map(controller, width, height, tile_size):
         else state.position
     )
     # Keep the focus centered even at world edges; off-map cells stay empty.
-    cx, cy = focus.x - columns // 2, focus.y - rows // 2
+    if view is View.LOOK and controller.look_camera is not None:
+        cx, cy = controller.look_camera.x, controller.look_camera.y
+    else:
+        cx, cy = focus.x - columns // 2, focus.y - rows // 2
     x0, y0 = max(0, cx), max(0, cy)
     x1, y1 = (
         min(state.dungeon.width, cx + columns),
@@ -164,6 +171,12 @@ def render_map(controller, width, height, tile_size):
                 if cell is None:
                     continue
                 char = map_symbols(controller, cell.char)
+                if sprites:
+                    visual_ref = getattr(cell, "visual_ref", None)
+                    char = sprites.get(
+                        visual_ref,
+                        char if visual_ref else sprites.get(("glyph", cell.char), char),
+                    )
                 attribute = screen.attribute(cell.foreground, cell.background)
                 if light.cells[y0 + y][x0 + x] == 1:
                     attribute |= STYLE.A_DIM
@@ -191,7 +204,7 @@ def render_map(controller, width, height, tile_size):
         columns * tile_size,
         rows * tile_size,
     )
-    return console, destination
+    return console, destination, Position(cx, cy)
 
 
 def map_zoom(tile_size, event):
@@ -213,18 +226,7 @@ def map_zoom(tile_size, event):
 def draw_map_hint(console, controller):
     """Replace the full hint row so shorter hints never leave old letters."""
     area = map_area(console.width, console.height)
-    view = background_view(controller)
-    hint = (
-        "WASD: цель | Enter: применить"
-        if view in (View.SPELL_TARGET, View.HAND_TARGET)
-        else "WASD: цель | Enter: бросить"
-        if view is View.THROW
-        else "WASD: цель | Enter: поджечь"
-        if view is View.IGNITE
-        else "WASD: курсор | Enter: осмотр"
-        if view is View.LOOK
-        else "WASD: шаг | G: подобрать"
-    )
+    hint = map_status(controller)
     suffix = " | +/-: масштаб"
     text = hint[: max(0, area.width - len(suffix))] + suffix
     CellScreen(console).addnstr(
@@ -232,9 +234,13 @@ def draw_map_hint(console, controller):
     )
 
 
-def present(renderer, ui_render, map_render, console, controller, map_size):
+def present(
+    renderer, ui_render, map_render, console, controller, map_size, *, sprites=None
+):
     draw(console, controller)
-    frame = render_map(controller, console.width, console.height, map_size)
+    frame = render_map(
+        controller, console.width, console.height, map_size, sprites=sprites
+    )
     area = map_area(console.width, console.height)
     popup = popup_layout(controller, console.width, console.height)
     if frame and not popup:
@@ -281,6 +287,51 @@ def present(renderer, ui_render, map_render, console, controller, map_size):
     return frame
 
 
+def handle_mouse(controller, event, frame, map_size, console, window_size, output_size):
+    click = (
+        isinstance(event, tcod.event.MouseButtonDown)
+        and event.button == tcod.event.MouseButton.LEFT
+    )
+    if not click and not isinstance(event, tcod.event.MouseMotion):
+        return False
+    # SDL uses logical window pixels; the framebuffer may have a HiDPI scale and margins.
+    px = (
+        event.position.x * output_size[0] / window_size[0]
+        - (output_size[0] - console.width * TILE_SIZE[0]) // 2
+    )
+    py = (
+        event.position.y * output_size[1] / window_size[1]
+        - (output_size[1] - console.height * TILE_SIZE[1]) // 2
+    )
+    if (
+        frame
+        and controller.view is View.LOOK
+        and not popup_layout(controller, console.width, console.height)
+    ):
+        rect, origin = frame[1], frame[2]
+        if rect.x <= px < rect.x + rect.width and rect.y <= py < rect.y + rect.height:
+            position = Position(
+                origin.x + int((px - rect.x) // map_size),
+                origin.y + int((py - rect.y) // map_size),
+            )
+            if controller.can_target_cell(position):
+                changed = position != controller.look_position
+                controller.look_camera = origin
+                controller.look_position = position
+                if click:
+                    controller.handle("enter")
+                return click or changed
+    if click:
+        return handle_click(
+            controller,
+            int(px // TILE_SIZE[0]),
+            int(py // TILE_SIZE[1]),
+            console.width,
+            console.height,
+        )
+    return False
+
+
 def handle_event(controller, event):
     """Commands use physical keys; text entry uses SDL's Unicode input."""
     if isinstance(event, tcod.event.Quit):
@@ -291,7 +342,9 @@ def handle_event(controller, event):
             controller.running = False
         return True
     if isinstance(event, tcod.event.TextInput):
-        if controller.inventory.editing:
+        if controller.inventory.editing or (
+            controller.view is View.CRAFT and controller.craft.editing
+        ):
             for char in event.text:
                 controller.handle(char)
             return True
@@ -324,12 +377,22 @@ def handle_event(controller, event):
         tcod.event.KeySym.F4: "f4",
     }
     key = names.get(event.sym, "")
-    if not key and not controller.inventory.editing:
+    if not key and not (
+        controller.inventory.editing
+        or (controller.view is View.CRAFT and controller.craft.editing)
+    ):
         if tcod.event.Scancode.A <= event.scancode <= tcod.event.Scancode.Z:
             key = chr(ord("a") + event.scancode - tcod.event.Scancode.A)
         elif 32 <= event.sym < 127:
             key = chr(event.sym)
     if key:
+        if (
+            controller.engine
+            and controller.engine.active_craft
+            and event.repeat
+            and key in ("right", " ")
+        ):
+            return False
         controller.handle(key)
         return True
     return False
@@ -357,6 +420,8 @@ def run(
         test_profile=test_profile,
         test_class=test_class,
     )
+    controller.windowed = True
+    controller.map_style = saved_style = load_map_style()
     tileset = load_tileset()
     with tcod.context.new(
         columns=100,
@@ -375,6 +440,7 @@ def run(
         atlas = tcod.render.SDLTilesetAtlas(renderer, tileset)
         ui_render = tcod.render.SDLConsoleRender(atlas)
         map_render = tcod.render.SDLConsoleRender(atlas)
+        kenney_render, map_sprites = None, None
         map_size = 36
         frame = None
         editing = False
@@ -392,11 +458,37 @@ def run(
                 )
                 and blink != last_blink
             ):
+                if controller.map_style == "kenney_1bit" and kenney_render is None:
+                    try:
+                        map_tileset, map_sprites = load_kenney_tileset(tileset)
+                        kenney_atlas = tcod.render.SDLTilesetAtlas(
+                            renderer, map_tileset
+                        )
+                        kenney_render = tcod.render.SDLConsoleRender(kenney_atlas)
+                    except (OSError, ValueError, RuntimeError) as error:
+                        controller.map_style = "text"
+                        controller.message = f"Не удалось загрузить Kenney: {error}"
+                if controller.map_style != saved_style:
+                    try:
+                        save_map_style(controller.map_style)
+                    except OSError as error:
+                        controller.message = f"Не удалось сохранить оформление: {error}"
+                    saved_style = controller.map_style
                 console = context.new_console(
                     min_columns=MIN_WIDTH, min_rows=MIN_HEIGHT
                 )
                 frame = present(
-                    renderer, ui_render, map_render, console, controller, map_size
+                    renderer,
+                    ui_render,
+                    kenney_render
+                    if controller.map_style == "kenney_1bit"
+                    else map_render,
+                    console,
+                    controller,
+                    map_size,
+                    sprites=map_sprites
+                    if controller.map_style == "kenney_1bit"
+                    else None,
                 )
                 dirty = False
             last_blink = blink
@@ -409,25 +501,18 @@ def run(
                         window.fullscreen = not window.fullscreen
                         dirty = True
                     continue
-                if (
-                    isinstance(event, tcod.event.MouseButtonDown)
-                    and event.button == tcod.event.MouseButton.LEFT
+                if isinstance(
+                    event, (tcod.event.MouseMotion, tcod.event.MouseButtonDown)
                 ):
-                    output_width, output_height = renderer.output_size
-                    offset_x = (output_width - console.width * TILE_SIZE[0]) // 2
-                    offset_y = (output_height - console.height * TILE_SIZE[1]) // 2
-                    # SDL pointer coordinates are logical window pixels; the renderer may use a HiDPI framebuffer.
-                    cell_x = int(
-                        (event.position.x * output_width / window.size[0] - offset_x)
-                        // TILE_SIZE[0]
-                    )
-                    cell_y = int(
-                        (event.position.y * output_height / window.size[1] - offset_y)
-                        // TILE_SIZE[1]
-                    )
                     dirty = (
-                        handle_click(
-                            controller, cell_x, cell_y, console.width, console.height
+                        handle_mouse(
+                            controller,
+                            event,
+                            frame,
+                            map_size,
+                            console,
+                            window.size,
+                            renderer.output_size,
                         )
                         or dirty
                     )
@@ -440,10 +525,14 @@ def run(
                     new_size = map_zoom(map_size, event)
                     if new_size != map_size:
                         map_size, dirty = new_size, True
+                        controller.look_camera = None
                         continue
                 dirty = handle_event(controller, event) or dirty
-                if editing != controller.inventory.editing:
-                    editing = controller.inventory.editing
+                text_editing = controller.inventory.editing or (
+                    controller.view is View.CRAFT and controller.craft.editing
+                )
+                if editing != text_editing:
+                    editing = text_editing
                     if editing:
                         window.start_text_input()
                     else:

@@ -30,7 +30,8 @@
     }
   ],
   "tags": [
-    "undead"
+    "undead",
+    "bone"
   ],
   "art": "skeleton",
   "damage_profile": {

@@ -42,7 +42,7 @@ class StorageBrowser:
                 ),
                 None,
             )
-            if point and point.challenge.available_choices(engine.state.hero):
+            if point and point.available_choices(engine.state.hero):
                 controller.point_id = self.container_id
                 controller.view = View.INTERACTION
             return
@@ -189,7 +189,7 @@ def storage_layout(controller, width, height):
     )
     event_hint = (
         " | F4: событие"
-        if point and point.challenge.available_choices(hero) and not browser.pending
+        if point and point.available_choices(hero) and not browser.pending
         else ""
     )
     rows += [

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "craft_ram",
+  "name": "Переносной таран",
+  "description": "Переносной таран.",
+  "category": "carpenter",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "carpenter_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 4
+        },
+        {
+          "items": [
+            "base:leather_strip"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 4,
+      "tools": [
+        "carpenter_tools"
+      ],
+      "proficiencies": [
+        "carpenter_tools"
+      ],
+      "stations": [
+        [
+          "workbench"
+        ]
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:battering_ram",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

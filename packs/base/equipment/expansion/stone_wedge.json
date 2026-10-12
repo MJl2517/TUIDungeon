@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "stone_wedge",
+  "name": "Каменный клин",
+  "description": "Фиксирует открытую или закрытую дверь. Подпорку можно забрать обратно.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "tools",
+  "group": "Ремёсла и добыча",
+  "weight": 0.5,
+  "tags": [
+    "stone",
+    "door_brace"
+  ],
+  "durability": null
+}

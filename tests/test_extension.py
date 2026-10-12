@@ -8,7 +8,13 @@ import unittest
 from tuidungeon.application.creation import CharacterCreation, CreationStep
 from tuidungeon.application.engine import Action, Engine
 from tuidungeon.content.catalog import ContentCatalog
-from tuidungeon.domain.actions import ActionContext, ActionRegistry, CharacterAction, ActionOutcome, SpellSource
+from tuidungeon.domain.actions import (
+    ActionContext,
+    ActionRegistry,
+    CharacterAction,
+    ActionOutcome,
+    SpellSource,
+)
 from tuidungeon.domain.actors import Character, Hero, Monster
 from tuidungeon.domain.challenges import Challenge, TextChallenge
 from tuidungeon.domain.definitions import EffectSpec
@@ -16,6 +22,7 @@ from tuidungeon.domain.effects import EffectHandler, EffectOutcome, EffectRegist
 from tuidungeon.domain.equipment import Equipment
 from tuidungeon.domain.rules import Ability, Dice
 from tuidungeon.domain.stats import Stats
+from tuidungeon.domain.tags import interaction_tags
 from tuidungeon.world.maps import Position
 
 
@@ -36,7 +43,13 @@ class ExtensionTests(unittest.TestCase):
         cls.catalog = ContentCatalog.load()
 
     def hero(self, character_class="warrior", race="human", **kwargs):
-        return Hero.create(race, character_class, Stats((12, 14, 12, 14, 12, 14)), catalog=self.catalog, **kwargs)
+        return Hero.create(
+            race,
+            character_class,
+            Stats((12, 14, 12, 14, 12, 14)),
+            catalog=self.catalog,
+            **kwargs,
+        )
 
     def item(self, content_id):
         return Equipment.create(self.catalog.equipment[content_id])
@@ -50,7 +63,10 @@ class ExtensionTests(unittest.TestCase):
     def test_monster_instances_share_template_but_not_runtime_state(self):
         first = Monster.create("goblin", catalog=self.catalog)
         second = Monster.create("goblin", catalog=self.catalog)
-        self.assertEqual((first.hp, first.max_hp, first.armor_class, first.speed, first.initiative), (7, 7, 13, 2, 3))
+        self.assertEqual(
+            (first.hp, first.max_hp, first.armor_class, first.speed, first.initiative),
+            (7, 7, 13, 2, 3),
+        )
         self.assertEqual(first.modifiers[Ability.STRENGTH], -1)
         self.assertEqual(first.roll_initiative(Dice(FixedRng(10))), 13)
         first.take_damage(3)
@@ -69,7 +85,13 @@ class ExtensionTests(unittest.TestCase):
         armor.wear(100)
         self.assertTrue(armor.broken)
         self.assertEqual(hero.armor_class, 14)  # Natural 12 plus shield 2.
-        self.assertNotIn("metal", hero.tags)
+        self.assertNotIn(
+            "metal", armor.tags
+        )  # Broken equipment grants no tool permissions.
+        self.assertIn(
+            "metal", interaction_tags(armor)
+        )  # Its material survives breakage.
+        self.assertNotIn("metal", interaction_tags(hero))  # Inventory is not the body.
         armor.repair(100)
         self.assertEqual(armor.durability, 80)
         self.assertEqual(hero.armor_class, 18)
@@ -91,7 +113,10 @@ class ExtensionTests(unittest.TestCase):
         hero.inventory.append(potion)
         hero.hp -= 2
         result = hero.use_item(potion, Dice(FixedRng(4, 4)))
-        self.assertEqual((result.performed, result.effects[0].amount, hero.hp), (True, 2, hero.max_hp))
+        self.assertEqual(
+            (result.performed, result.effects[0].amount, hero.hp),
+            (True, 2, hero.max_hp),
+        )
         self.assertEqual(potion.charges, 0)
         self.assertFalse(potion.usable)
         self.assertFalse(hero.use_item(potion, Dice(FixedRng())).performed)
@@ -135,7 +160,9 @@ class ExtensionTests(unittest.TestCase):
         self.assertTrue(hit.success)
         self.assertEqual(hit.effects[0].amount, 4)  # Sword 3 plus STR modifier 1.
         self.assertEqual(monster.hp, 3)
-        self.assertFalse(hero.attack(monster, Dice(FixedRng()), weapon_id="missing").performed)
+        self.assertFalse(
+            hero.attack(monster, Dice(FixedRng()), weapon_id="missing").performed
+        )
 
     def test_monster_special_attack_applies_condition_only_on_hit(self):
         monster = Monster.create("goblin", catalog=self.catalog)
@@ -166,15 +193,25 @@ class ExtensionTests(unittest.TestCase):
         self.assertFalse(hero.cast("missing", Dice(FixedRng())).performed)
         self.assertFalse(hero.cast("magic_missile", Dice(FixedRng())).performed)
         self.assertEqual(hero.spell_slots[1], 2)
-        self.assertTrue(hero.cast("detect_magic", Dice(FixedRng()), source=SpellSource.RACIAL).performed)
+        self.assertTrue(
+            hero.cast(
+                "detect_magic", Dice(FixedRng()), source=SpellSource.RACIAL
+            ).performed
+        )
         self.assertEqual(hero.racial_uses, 0)
         self.assertEqual(hero.spell_slots[1], 2)
-        self.assertFalse(hero.cast("detect_magic", Dice(FixedRng()), source=SpellSource.RACIAL).performed)
+        self.assertFalse(
+            hero.cast(
+                "detect_magic", Dice(FixedRng()), source=SpellSource.RACIAL
+            ).performed
+        )
         result = hero.cast("magic_missile", Dice(FixedRng(1, 1, 1)), monster)
         self.assertEqual(result.effects[0].amount, 6)
         self.assertEqual((hero.spell_slots[1], monster.hp), (1, 1))
         hero.restore_after_rest()
-        self.assertEqual((hero.spell_slots[1], hero.racial_uses, hero.conditions), (2, 1, {}))
+        self.assertEqual(
+            (hero.spell_slots[1], hero.racial_uses, hero.conditions), (2, 1, {})
+        )
 
     def test_background_adds_tags_and_equipment_without_mutating_definitions(self):
         hero = self.hero("wizard", background="scholar")
@@ -187,7 +224,10 @@ class ExtensionTests(unittest.TestCase):
         hero = self.hero()
         challenge = TextChallenge(self.catalog.challenges["locked_chest"])
         result = challenge.resolve("pick_lock", hero, Dice(FixedRng()))
-        self.assertEqual((result.performed, result.minutes, hero.gold, hero.hp), (False, 0, 0, hero.max_hp))
+        self.assertEqual(
+            (result.performed, result.minutes, hero.gold, hero.hp),
+            (False, 0, 0, hero.max_hp),
+        )
         self.assertFalse(challenge.completed)
         self.assertFalse(challenge.resolve("missing", hero, Dice(FixedRng())).performed)
 
@@ -198,10 +238,12 @@ class ExtensionTests(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertFalse(result.check.advantage)
         self.assertEqual((hero.gold, hero.experience), (10, 15))
-        self.assertFalse(challenge.resolve("pick_lock", hero, Dice(FixedRng())).performed)
+        self.assertFalse(
+            challenge.resolve("pick_lock", hero, Dice(FixedRng())).performed
+        )
         self.assertEqual((hero.gold, hero.experience), (10, 15))
 
-    def test_automatic_tools_skip_dice_and_broken_tools_grant_nothing(self):
+    def test_automatic_tools_skip_dice_and_cannot_break(self):
         hero = self.hero()
         tool = self.item("master_lockpicks")
         hero.inventory.append(tool)
@@ -210,6 +252,11 @@ class ExtensionTests(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertIsNone(result.check)
         tool.wear(100)
+        challenge = TextChallenge(self.catalog.challenges["locked_chest"])
+        result = challenge.resolve("pick_lock", hero, Dice(FixedRng()))
+        self.assertTrue(result.success)
+        self.assertIsNone(tool.durability)
+        hero.inventory.remove(tool)
         challenge = TextChallenge(self.catalog.challenges["locked_chest"])
         result = challenge.resolve("pick_lock", hero, Dice(FixedRng()))
         self.assertFalse(result.performed)
@@ -225,7 +272,9 @@ class ExtensionTests(unittest.TestCase):
     def test_challenge_tag_benefits_and_automatic_key_choice(self):
         hero = self.hero(background="scholar")
         challenge = TextChallenge(self.catalog.challenges["ruined_shrine"])
-        self.assertTrue(challenge.resolve("read", hero, Dice(FixedRng(1, 20))).check.advantage)
+        self.assertTrue(
+            challenge.resolve("read", hero, Dice(FixedRng(1, 20))).check.advantage
+        )
         hero.inventory.append(self.item("chest_key"))
         challenge = TextChallenge(self.catalog.challenges["locked_chest"])
         result = challenge.resolve("use_key", hero, Dice(FixedRng()))
@@ -241,23 +290,33 @@ class ExtensionTests(unittest.TestCase):
             engine.add_monster("goblin", Position(4, 3))
         with self.assertRaises(ValueError):
             engine.add_monster("goblin", Position(0, 0))
-        self.assertFalse(engine.resolve_challenge("locked_chest", "pick_lock").performed)
+        self.assertFalse(
+            engine.resolve_challenge("locked_chest", "pick_lock").performed
+        )
         self.assertEqual(engine.state.turns, 0)
         engine.state.hero.inventory.append(self.item("chest_key"))
         self.assertTrue(engine.resolve_challenge("locked_chest", "use_key").performed)
-        self.assertEqual((engine.state.turns, engine.state.clock.elapsed_minutes), (1, 481))
+        self.assertEqual(
+            (engine.state.turns, engine.state.clock.elapsed_minutes), (1, 481)
+        )
         self.assertFalse(engine.resolve_challenge("locked_chest", "use_key").performed)
         monster.monster.hp = 0
         self.assertTrue(engine.apply(Action.EAST).performed)
 
     def test_engine_action_preserves_new_dodge_until_next_turn(self):
         engine = Engine.new_game(self.hero(), random.Random(42))
-        self.assertTrue(engine.perform_character_action("dodge", ActionContext(engine.dice)).performed)
+        self.assertTrue(
+            engine.perform_character_action(
+                "dodge", ActionContext(engine.dice)
+            ).performed
+        )
         self.assertEqual(engine.state.hero.conditions, {"dodging": 1})
         self.assertEqual(engine.state.turns, 1)
         engine.apply(Action.WAIT)
         self.assertEqual(engine.state.hero.conditions, {})
-        result = engine.perform_character_action("magic", ActionContext(engine.dice, spell_id="missing"))
+        result = engine.perform_character_action(
+            "magic", ActionContext(engine.dice, spell_id="missing")
+        )
         self.assertFalse(result.performed)
         self.assertEqual(engine.state.turns, 2)
 
@@ -269,14 +328,18 @@ class ExtensionTests(unittest.TestCase):
         engine.state.hero.inventory.append(potion)
         engine.state.hero.take_damage(4)
         self.assertTrue(engine.use_item(potion).performed)
-        self.assertEqual((engine.state.turns, engine.state.clock.elapsed_minutes), (1, 481))
+        self.assertEqual(
+            (engine.state.turns, engine.state.clock.elapsed_minutes), (1, 481)
+        )
         self.assertFalse(engine.use_item(potion).performed)
         self.assertEqual(engine.state.turns, 1)
 
     def test_new_conditions_are_preserved_on_actual_target(self):
         engine = Engine.new_game(self.hero(), random.Random(42))
         monster = Monster.create("goblin", catalog=self.catalog)
-        result = engine.perform_character_action("dodge", ActionContext(engine.dice, monster))
+        result = engine.perform_character_action(
+            "dodge", ActionContext(engine.dice, monster)
+        )
         self.assertTrue(result.performed)
         self.assertEqual(engine.state.hero.conditions, {"dodging": 1})
         self.assertEqual(monster.conditions, {})
@@ -287,14 +350,22 @@ class ExtensionTests(unittest.TestCase):
         engine.state.hero.inventory.append(potion)
         engine.state.hero.hp = 0
         self.assertFalse(engine.apply(Action.WAIT).performed)
-        self.assertFalse(engine.perform_character_action("dodge", ActionContext(engine.dice)).performed)
+        self.assertFalse(
+            engine.perform_character_action(
+                "dodge", ActionContext(engine.dice)
+            ).performed
+        )
         self.assertFalse(engine.use_item(potion).performed)
         self.assertEqual((engine.state.turns, potion.charges), (0, 1))
 
     def test_content_defined_class_and_race_appear_in_creation_without_enum_edits(self):
         catalog = ContentCatalog.load()
-        catalog.races["halfling"] = replace(catalog.races["human"], id="halfling", name="Полурослик", order=3)
-        catalog.classes["ranger"] = replace(catalog.classes["rogue"], id="ranger", name="Следопыт", order=3)
+        catalog.races["halfling"] = replace(
+            catalog.races["human"], id="halfling", name="Полурослик", order=3
+        )
+        catalog.classes["ranger"] = replace(
+            catalog.classes["rogue"], id="ranger", name="Следопыт", order=3
+        )
         creation = CharacterCreation(Dice(random.Random(42)), catalog)
         creation.select(4)
         creation.select(4)
@@ -303,13 +374,17 @@ class ExtensionTests(unittest.TestCase):
         for number in range(1, 7):
             creation.select(number)
         hero = creation.select(1)
-        self.assertEqual((hero.race.id, hero.character_class.id), ("halfling", "ranger"))
+        self.assertEqual(
+            (hero.race.id, hero.character_class.id), ("halfling", "ranger")
+        )
 
     def test_large_content_selection_pages_are_navigable(self):
         catalog = ContentCatalog.load()
         for index in range(10):
             content_id = f"new_class_{index}"
-            catalog.classes[content_id] = replace(catalog.classes["warrior"], id=content_id, order=10 + index)
+            catalog.classes[content_id] = replace(
+                catalog.classes["warrior"], id=content_id, order=10 + index
+            )
         creation = CharacterCreation(Dice(random.Random(42)), catalog)
         creation.select(1)
         self.assertEqual(creation.page_count, 3)
@@ -337,16 +412,26 @@ class ExtensionTests(unittest.TestCase):
         effects = EffectRegistry.default()
         effects.register("spark", SparkEffect())
         hero = self.hero()
-        self.assertEqual(effects.apply_all((EffectSpec("spark", 2),), hero, Dice(FixedRng()))[0].amount, 2)
+        self.assertEqual(
+            effects.apply_all((EffectSpec("spark", 2),), hero, Dice(FixedRng()))[
+                0
+            ].amount,
+            2,
+        )
         registry = ActionRegistry.default(effects)
         registry.register("salute", SaluteAction())
         definition = replace(self.catalog.actions["dodge"], kind="salute")
-        self.assertEqual(registry.execute(definition, hero, ActionContext(Dice(FixedRng()))).message, "Салют!")
+        self.assertEqual(
+            registry.execute(definition, hero, ActionContext(Dice(FixedRng()))).message,
+            "Салют!",
+        )
         with self.assertRaises(ValueError):
             effects.register("spark", SparkEffect())
         old_hp = hero.hp
         with self.assertRaises(ValueError):
-            effects.apply_all((EffectSpec("damage", 2), EffectSpec("unknown")), hero, Dice(FixedRng()))
+            effects.apply_all(
+                (EffectSpec("damage", 2), EffectSpec("unknown")), hero, Dice(FixedRng())
+            )
         self.assertEqual(hero.hp, old_hp)
 
 

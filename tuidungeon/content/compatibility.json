@@ -7905,6 +7905,434 @@
           "door": null
         }
       }
+    },
+    "base:tree": {
+      "category": "objects",
+      "ref": "base:tree",
+      "legacy": {
+        "schema_version": 1,
+        "id": "tree",
+        "name": "Обычное дерево",
+        "description": "Растительность. Обычное дерево. Преграда движению. Закрывает обзор и свет.",
+        "glyph": "Y",
+        "foreground": 2,
+        "background": null,
+        "art": null,
+        "group": "Растительность",
+        "tags": [
+          "plants",
+          "obstacle",
+          "opaque",
+          "flammable",
+          "wooden",
+          "organic"
+        ],
+        "walkable": false,
+        "blocks_sight": true,
+        "brush": {
+          "underlay": "base:soil"
+        }
+      }
+    },
+    "base:tree_young": {
+      "category": "objects",
+      "ref": "base:tree_young",
+      "legacy": {
+        "schema_version": 1,
+        "id": "tree_young",
+        "name": "Молодое дерево",
+        "description": "Растительность. Молодое дерево. Преграда движению. Пропускает обзор и свет.",
+        "glyph": "t",
+        "foreground": 2,
+        "background": null,
+        "art": null,
+        "group": "Растительность",
+        "tags": [
+          "plants",
+          "obstacle",
+          "transparent",
+          "flammable",
+          "wooden",
+          "organic"
+        ],
+        "walkable": false,
+        "blocks_sight": false,
+        "brush": {
+          "underlay": "base:soil"
+        }
+      }
+    },
+    "base:tree_large": {
+      "category": "objects",
+      "ref": "base:tree_large",
+      "legacy": {
+        "schema_version": 1,
+        "id": "tree_large",
+        "name": "Крупное дерево",
+        "description": "Растительность. Крупное дерево. Преграда движению. Закрывает обзор и свет.",
+        "glyph": "T",
+        "foreground": 2,
+        "background": null,
+        "art": null,
+        "group": "Растительность",
+        "tags": [
+          "plants",
+          "obstacle",
+          "opaque",
+          "flammable",
+          "wooden",
+          "organic"
+        ],
+        "walkable": false,
+        "blocks_sight": true,
+        "brush": {
+          "underlay": "base:soil"
+        }
+      }
+    },
+    "base:tree_clover": {
+      "category": "objects",
+      "ref": "base:tree_clover",
+      "legacy": {
+        "schema_version": 1,
+        "id": "tree_clover",
+        "name": "Дерево",
+        "description": "Растительность. Дерево. Преграда движению. Закрывает обзор и свет.",
+        "glyph": "♣",
+        "foreground": 2,
+        "background": null,
+        "art": null,
+        "group": "Растительность",
+        "tags": [
+          "plants",
+          "obstacle",
+          "opaque",
+          "flammable",
+          "wooden",
+          "organic"
+        ],
+        "walkable": false,
+        "blocks_sight": true,
+        "brush": {
+          "underlay": "base:soil"
+        }
+      }
+    },
+    "base:tree_dead": {
+      "category": "objects",
+      "ref": "base:tree_dead",
+      "legacy": {
+        "schema_version": 1,
+        "id": "tree_dead",
+        "name": "Мёртвое дерево",
+        "description": "Растительность. Мёртвое дерево. Преграда движению. Пропускает обзор и свет.",
+        "glyph": "♠",
+        "foreground": 2,
+        "background": null,
+        "art": null,
+        "group": "Растительность",
+        "tags": [
+          "plants",
+          "obstacle",
+          "transparent",
+          "flammable",
+          "wooden",
+          "organic"
+        ],
+        "walkable": false,
+        "blocks_sight": false,
+        "brush": {
+          "underlay": "base:soil"
+        }
+      }
+    },
+    "base:tree_branches": {
+      "category": "objects",
+      "ref": "base:tree_branches",
+      "legacy": {
+        "schema_version": 1,
+        "id": "tree_branches",
+        "name": "Дерево с ветвями",
+        "description": "Растительность. Дерево с ветвями. Преграда движению. Закрывает обзор и свет.",
+        "glyph": "¥",
+        "foreground": 2,
+        "background": null,
+        "art": null,
+        "group": "Растительность",
+        "tags": [
+          "plants",
+          "obstacle",
+          "opaque",
+          "flammable",
+          "wooden",
+          "organic"
+        ],
+        "walkable": false,
+        "blocks_sight": true,
+        "brush": {
+          "underlay": "base:soil"
+        }
+      }
+    },
+    "base:bones": {
+      "category": "objects",
+      "ref": "base:bones",
+      "legacy": {
+        "schema_version": 1,
+        "id": "bones",
+        "name": "Кости",
+        "description": "Кости и останки. Кости. Проходимая клетка. Пропускает обзор и свет.",
+        "glyph": "x",
+        "foreground": 250,
+        "background": null,
+        "art": null,
+        "group": "Кости и останки",
+        "tags": [
+          "remains",
+          "walkable",
+          "transparent",
+          "bone",
+          "organic"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:bones_pile": {
+      "category": "objects",
+      "ref": "base:bones_pile",
+      "legacy": {
+        "schema_version": 1,
+        "id": "bones_pile",
+        "name": "Груда костей",
+        "description": "Кости и останки. Груда костей. Проходимая клетка. Пропускает обзор и свет.",
+        "glyph": "X",
+        "foreground": 250,
+        "background": null,
+        "art": null,
+        "group": "Кости и останки",
+        "tags": [
+          "remains",
+          "walkable",
+          "transparent",
+          "bone",
+          "organic"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:carcass": {
+      "category": "objects",
+      "ref": "base:carcass",
+      "legacy": {
+        "schema_version": 1,
+        "id": "carcass",
+        "name": "Туша монстра",
+        "description": "Кости и останки. Туша монстра. Проходимая клетка. Пропускает обзор и свет.",
+        "glyph": "m",
+        "foreground": 250,
+        "background": null,
+        "art": null,
+        "group": "Кости и останки",
+        "tags": [
+          "remains",
+          "walkable",
+          "transparent",
+          "flammable",
+          "organic"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:corpse": {
+      "category": "objects",
+      "ref": "base:corpse",
+      "legacy": {
+        "schema_version": 1,
+        "id": "corpse",
+        "name": "Труп",
+        "description": "Кости и останки. Труп. Проходимая клетка. Пропускает обзор и свет.",
+        "glyph": "&",
+        "foreground": 250,
+        "background": null,
+        "art": null,
+        "group": "Кости и останки",
+        "tags": [
+          "remains",
+          "walkable",
+          "transparent",
+          "flammable",
+          "organic"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:remains": {
+      "category": "objects",
+      "ref": "base:remains",
+      "legacy": {
+        "schema_version": 1,
+        "id": "remains",
+        "name": "Останки",
+        "description": "Кости и останки. Останки. Проходимая клетка. Пропускает обзор и свет.",
+        "glyph": "%",
+        "foreground": 250,
+        "background": null,
+        "art": null,
+        "group": "Кости и останки",
+        "tags": [
+          "remains",
+          "walkable",
+          "transparent",
+          "bone"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:skeleton_large": {
+      "category": "objects",
+      "ref": "base:skeleton_large",
+      "legacy": {
+        "schema_version": 1,
+        "id": "skeleton_large",
+        "name": "Крупный скелет",
+        "description": "Кости и останки. Крупный скелет. Проходимая клетка. Пропускает обзор и свет.",
+        "glyph": "‡",
+        "foreground": 250,
+        "background": null,
+        "art": null,
+        "group": "Кости и останки",
+        "tags": [
+          "remains",
+          "walkable",
+          "transparent",
+          "bone",
+          "organic"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:skeleton_remains": {
+      "category": "objects",
+      "ref": "base:skeleton_remains",
+      "legacy": {
+        "schema_version": 1,
+        "id": "skeleton_remains",
+        "name": "Скелет",
+        "description": "Кости и останки. Скелет. Проходимая клетка. Пропускает обзор и свет.",
+        "glyph": "†",
+        "foreground": 250,
+        "background": null,
+        "art": null,
+        "group": "Кости и останки",
+        "tags": [
+          "remains",
+          "walkable",
+          "transparent",
+          "bone",
+          "organic"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:skull": {
+      "category": "objects",
+      "ref": "base:skull",
+      "legacy": {
+        "schema_version": 1,
+        "id": "skull",
+        "name": "Череп",
+        "description": "Кости и останки. Череп. Проходимая клетка. Пропускает обзор и свет.",
+        "glyph": "☠",
+        "foreground": 250,
+        "background": null,
+        "art": null,
+        "group": "Кости и останки",
+        "tags": [
+          "remains",
+          "walkable",
+          "transparent",
+          "bone",
+          "organic"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:puddle": {
+      "category": "objects",
+      "ref": "base:puddle",
+      "legacy": {
+        "schema_version": 1,
+        "id": "puddle",
+        "name": "Лужа",
+        "description": "Вода. Лужа. Проходимая клетка. Пропускает обзор и свет. Плавание и перемещение течением не рассчитываются рисунком.",
+        "glyph": "○",
+        "foreground": 4,
+        "background": null,
+        "art": null,
+        "group": "Вода",
+        "tags": [
+          "water",
+          "walkable",
+          "transparent",
+          "liquid"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:puddle_small": {
+      "category": "objects",
+      "ref": "base:puddle_small",
+      "legacy": {
+        "schema_version": 1,
+        "id": "puddle_small",
+        "name": "Мелкая лужа",
+        "description": "Вода. Мелкая лужа. Проходимая клетка. Пропускает обзор и свет. Плавание и перемещение течением не рассчитываются рисунком.",
+        "glyph": "◌",
+        "foreground": 4,
+        "background": null,
+        "art": null,
+        "group": "Вода",
+        "tags": [
+          "water",
+          "walkable",
+          "transparent",
+          "liquid"
+        ],
+        "walkable": true,
+        "blocks_sight": false
+      }
+    },
+    "base:rubble_large": {
+      "category": "objects",
+      "ref": "base:rubble_large",
+      "legacy": {
+        "schema_version": 1,
+        "id": "rubble_large",
+        "name": "Крупный завал",
+        "description": "Руины и мусор. Крупный завал. Преграда движению. Закрывает обзор и свет.",
+        "glyph": "X",
+        "foreground": 8,
+        "background": null,
+        "art": null,
+        "group": "Руины и мусор",
+        "tags": [
+          "ruins",
+          "obstacle",
+          "opaque",
+          "stone"
+        ],
+        "walkable": false,
+        "blocks_sight": true
+      }
     }
   }
 }

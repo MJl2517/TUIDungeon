@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "appraise_gem",
+  "name": "Оценить самоцвет",
+  "category": "jeweler",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "jeweler_tools"
+  ],
+  "variants": [
+    {
+      "name": "Оценка ювелира",
+      "ingredients": [],
+      "tools": [
+        "jeweler_tools"
+      ],
+      "proficiencies": [
+        "jeweler_tools"
+      ],
+      "turns": 1
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "appraise_item",
+    "target_tags": [
+      "stone"
+    ]
+  }
+}

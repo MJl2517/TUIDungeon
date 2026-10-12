@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "blow_glass_flask",
+  "name": "Выдуть флакон",
+  "description": "Выдуть флакон.",
+  "category": "glassblower",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "glassblower_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:glass_material"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 3,
+      "tools": [
+        "glassblower_tools"
+      ],
+      "proficiencies": [
+        "glassblower_tools"
+      ],
+      "stations": [
+        [
+          "forge",
+          "oven"
+        ]
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:glass_flask",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

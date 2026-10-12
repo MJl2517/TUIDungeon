@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "cook_ration",
+  "name": "Приготовить рацион",
+  "description": "",
+  "category": "cook",
+  "basic_known": false,
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:mushroom"
+          ],
+          "quantity": 2
+        }
+      ],
+      "stations": [
+        [
+          "heat"
+        ]
+      ],
+      "tools": [],
+      "proficiencies": [],
+      "turns": 3
+    }
+  ],
+  "result": [
+    {
+      "item": "base:rations",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

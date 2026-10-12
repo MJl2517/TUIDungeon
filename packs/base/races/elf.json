@@ -19,5 +19,10 @@
   "racial_spell": "base:detect_magic",
   "racial_uses": 1,
   "speed": 1,
-  "order": 2
+  "order": 2,
+  "tags": [
+    "humanoid",
+    "living",
+    "organic"
+  ]
 }

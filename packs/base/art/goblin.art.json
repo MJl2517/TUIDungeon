@@ -3,8 +3,8 @@
   "id": "goblin",
   "name": "Goblin",
   "description": "",
-  "width": 15,
-  "height": 9,
+  "width": 10,
+  "height": 10,
   "layers": [
     {
       "id": "base",
@@ -14,111 +14,61 @@
       "cells": [
         [
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": " ",
+            "char": "█",
             "foreground": 7,
             "background": null
           },
           {
-            "char": " ",
+            "char": "█",
             "foreground": 7,
             "background": null
           },
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": " ",
+            "char": "█",
             "foreground": 7,
             "background": null
           },
           {
-            "char": " ",
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
             "foreground": 7,
             "background": null
           }
         ],
         [
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           },
           null,
           {
@@ -157,41 +107,16 @@
             "background": 0
           },
           {
-            "char": " ",
+            "char": "█",
             "foreground": 7,
             "background": null
           }
         ],
         [
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           },
           {
             "char": " ",
@@ -234,41 +159,16 @@
             "background": null
           },
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           }
         ],
         [
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           },
           {
             "char": " ",
@@ -311,41 +211,16 @@
             "background": null
           },
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           }
         ],
         [
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           },
           {
             "char": "*",
@@ -380,41 +255,16 @@
           },
           null,
           {
-            "char": " ",
+            "char": "█",
             "foreground": 7,
             "background": null
           }
         ],
         [
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           },
           {
             "char": "*",
@@ -457,41 +307,16 @@
             "background": null
           },
           {
-            "char": " ",
+            "char": "█",
             "foreground": 7,
             "background": null
           }
         ],
         [
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           },
           {
             "char": "█",
@@ -534,41 +359,16 @@
             "background": 22
           },
           {
-            "char": " ",
+            "char": "█",
             "foreground": 7,
             "background": null
           }
         ],
         [
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           },
           {
             "char": "║",
@@ -611,41 +411,16 @@
             "background": null
           },
           {
-            "char": " ",
+            "char": "█",
             "foreground": 7,
             "background": null
           }
         ],
         [
           {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
-          },
-          {
-            "char": "*",
-            "foreground": 0,
-            "background": 0
+            "char": "█",
+            "foreground": 7,
+            "background": null
           },
           {
             "char": "*",
@@ -662,16 +437,8 @@
             "foreground": 94,
             "background": null
           },
-          {
-            "char": "_",
-            "foreground": 7,
-            "background": null
-          },
-          {
-            "char": "_",
-            "foreground": 7,
-            "background": null
-          },
+          null,
+          null,
           {
             "char": "█",
             "foreground": 94,
@@ -688,7 +455,59 @@
             "background": null
           },
           {
-            "char": " ",
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          }
+        ],
+        [
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
+            "foreground": 7,
+            "background": null
+          },
+          {
+            "char": "█",
             "foreground": 7,
             "background": null
           }

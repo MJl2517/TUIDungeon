@@ -13,7 +13,8 @@
   "tags": [
     "containers",
     "storage",
-    "transparent"
+    "transparent",
+    "ceramic"
   ],
   "challenge": "base:terrain_pot",
   "storage": {

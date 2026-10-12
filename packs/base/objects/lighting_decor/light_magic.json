@@ -11,7 +11,8 @@
   "tags": [
     "lighting_decor",
     "transparent",
-    "walkable"
+    "walkable",
+    "magic"
   ],
   "walkable": true,
   "blocks_sight": false,

@@ -9,9 +9,10 @@
   "art": null,
   "group": "Лава и огонь",
   "tags": [
-    "fire",
     "transparent",
-    "walkable"
+    "walkable",
+    "liquid",
+    "water"
   ],
   "walkable": true,
   "blocks_sight": false,

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "torch_decor",
   "name": "Стационарный факел",
-  "description": "Факел. Источник света: радиус 6 клеток.",
+  "description": "Источник света можно снять; состояние и остаток топлива сохраняются. В пустую подставку можно установить факел.",
   "variants": [],
   "glyph": "!",
   "foreground": 11,
@@ -10,10 +10,11 @@
   "art": null,
   "group": "Источники света: рисунки",
   "tags": [
+    "flammable",
     "lighting_decor",
+    "storage",
     "transparent",
     "walkable",
-    "flammable",
     "wooden"
   ],
   "walkable": true,
@@ -29,5 +30,19 @@
     },
     "transition": false,
     "door": null
+  },
+  "light_fixture": {
+    "item": "base:torch",
+    "stays_when_empty": true
+  },
+  "storage": {
+    "capacity": 1000,
+    "personal": false,
+    "contents": [
+      {
+        "item": "base:torch",
+        "quantity": 1
+      }
+    ]
   }
 }

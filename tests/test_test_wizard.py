@@ -51,7 +51,9 @@ class TestWizardTests(unittest.TestCase):
             repository.save(engine)
             restored = repository.load().state.hero
         self.assertEqual(restored.test_profile, "wizard")
-        self.assertEqual({s.id for s in restored.known_spells}, set(hero.catalog.spells))
+        self.assertEqual(
+            {s.id for s in restored.known_spells}, set(hero.catalog.spells)
+        )
         self.assertEqual(restored.spell_slots, hero.spell_slots)
         self.assertEqual(restored.cantrip_uses, hero.cantrip_uses)
 

@@ -18,5 +18,8 @@
       "params": {}
     }
   ],
-  "target": "self"
+  "target": "self",
+  "tags": [
+    "magic"
+  ]
 }

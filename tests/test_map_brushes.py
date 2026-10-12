@@ -10,8 +10,9 @@ from pydantic import ValidationError
 from tuidungeon.content.packs import DEFAULT_PACKS, ContentError, PackStore
 from tuidungeon.content.schemas import TileDocument
 from tuidungeon.content.migrations import compatibility
-from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.tooling.server import template
+from tuidungeon.application.factories import SessionFactory
+from tuidungeon.application.engine import Action
 
 
 class BrushContractTests(unittest.TestCase):
@@ -74,6 +75,7 @@ class FunctionalBrushTests(unittest.TestCase):
             tiles=[["base:floor"] * 10 for _ in range(5)],
             walkability=[[True] * 10 for _ in range(5)],
             blocks_sight=[[False] * 10 for _ in range(5)],
+            roof=[[False] * 10 for _ in range(5)],
             spawn={"x": 1, "y": 1},
             decorations=[],
             traps=[],
@@ -90,7 +92,9 @@ class FunctionalBrushTests(unittest.TestCase):
             (5, "portal"),
             (7, "torch_wall"),
         ]:
-            tile = TileDocument.model_validate(compatibility()["tiles"]["base:" + ref]["legacy"])
+            tile = TileDocument.model_validate(
+                compatibility()["tiles"]["base:" + ref]["legacy"]
+            )
             raw["tiles"][1][x] = "base:" + ref
             raw["walkability"][1][x] = tile.walkable
             raw["blocks_sight"][1][x] = tile.blocks_sight
@@ -123,42 +127,44 @@ class FunctionalBrushTests(unittest.TestCase):
                         "target": "base:dungeon",
                     }
                 )
+        for p in raw["points_of_interest"]:
+            p["overrides"] = {"storage": {"search_contents": True}}
         self.store.save("maps", "base:brush_test", raw, None)
         self.options = {"map_ref": "base:brush_test", "seed": 99}
 
     def test_drawn_recipe_objects_trigger_interact_pickup_and_transition(self):
-        session = TestSession(self.store, self.options)
-        snapshot = session.command("d")
-        self.assertTrue(snapshot["traps"][0]["triggered"])
-        self.assertEqual(snapshot["events"][0]["kind"], "trap")
-        session.command("d")
-        before = len(session.snapshot()["hero"]["inventory"])
-        snapshot = session.command("pickup")
-        self.assertEqual(len(snapshot["hero"]["inventory"]), before + 1)
-        self.assertEqual(snapshot["ground"], [])
-        point = snapshot["nearby"][0]
-        snapshot = session.command("interact", point["id"], point["choices"][0]["id"])
-        self.assertGreater(snapshot["hero"]["gold"], 0)
-        self.assertTrue(snapshot["points"][0]["completed"])
-        session.command("d")
-        self.assertEqual(session.command("d")["map"], "base:dungeon")
+        engine = SessionFactory(self.store).session(**self.options)
+        engine.apply(Action.EAST)
+        self.assertTrue(engine.state.level.traps[0].triggered)
+        self.assertEqual(engine.events[0]["kind"], "trap")
+        engine.apply(Action.EAST)
+        before = len(engine.state.hero.inventory)
+        self.assertTrue(engine.pickup_item().performed)
+        self.assertEqual(len(engine.state.hero.inventory), before + 1)
+        self.assertFalse(engine.state.items)
+        point = engine.nearby_points()[0]
+        choice = point.available_choices(engine.state.hero)[0]
+        self.assertTrue(engine.interact(point.placement.id, choice.id).performed)
+        self.assertGreater(engine.state.hero.gold, 0)
+        self.assertTrue(engine.state.level.points[0].completed)
+        engine.apply(Action.EAST)
+        engine.apply(Action.EAST)
+        self.assertEqual(engine.state.level.ref, "base:dungeon")
 
-    def test_reset_and_second_session_restore_resources_and_placement_state(self):
-        session = TestSession(self.store, self.options)
-        original = session.snapshot()
-        session.command("d")
-        session.command("d")
-        session.command("pickup")
-        session.reset()
-        reset = session.snapshot()
-        self.assertEqual(reset["traps"], original["traps"])
-        self.assertEqual(len(reset["ground"]), 1)
-        second = TestSession(self.store, self.options)
+    def test_fresh_games_restore_resources_and_placement_state(self):
+        factory = SessionFactory(self.store)
+        engine = factory.session(**self.options)
+        engine.apply(Action.EAST)
+        engine.apply(Action.EAST)
+        engine.pickup_item()
+        fresh = factory.session(**self.options)
+        self.assertFalse(fresh.state.level.traps[0].triggered)
+        self.assertEqual(len(fresh.state.items), 1)
         self.assertNotEqual(
-            session.engine.state.level.traps[0].instance_id,
-            second.engine.state.level.traps[0].instance_id,
+            engine.state.level.traps[0].instance_id,
+            fresh.state.level.traps[0].instance_id,
         )
-        self.assertEqual(session.engine.state.level.definition.lights[0].radius, 6)
+        self.assertEqual(fresh.state.light_sources()[0][1].definition.light.radius, 6)
         self.assertEqual(
             PackStore(self.root).get("maps", "base:brush_test").equipment[0].ref,
             "base:dagger",
@@ -176,11 +182,11 @@ class FunctionalBrushTests(unittest.TestCase):
             raw,
             self.store.versions[("maps", "base:brush_test")],
         )
-        session = TestSession(self.store, self.options)
+        engine = SessionFactory(self.store).session(**self.options)
         name = self.store.get("traps", "base:terrain_spikes_hidden").name
-        self.assertNotIn(name, " ".join(session.engine.inspect_cell(Position(2, 1))))
-        session.command("d")
-        self.assertIn(name, " ".join(session.engine.inspect_cell(Position(2, 1))))
+        self.assertNotIn(name, " ".join(engine.inspect_cell(Position(2, 1))))
+        engine.apply(Action.EAST)
+        self.assertIn(name, " ".join(engine.inspect_cell(Position(2, 1))))
 
 
 if __name__ == "__main__":

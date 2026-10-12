@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "craft_parts",
+  "name": "Детали из лома",
+  "description": "Детали из лома.",
+  "category": "tinker",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "tinker_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:metal_scrap"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 2,
+      "tools": [
+        "tinker_tools"
+      ],
+      "proficiencies": [
+        "tinker_tools"
+      ],
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "base:mechanical_part",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

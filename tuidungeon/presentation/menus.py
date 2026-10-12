@@ -30,6 +30,20 @@ PAGE_SIZE = 6
 
 
 def action_lines(controller, menu=None):
+    workpiece = (
+        controller.engine.workpiece(controller.engine.active_craft)
+        if controller.engine and controller.engine.active_craft
+        else None
+    )
+    if workpiece:
+        work = workpiece.work
+        return [
+            f"{work.recipe.name[:25]}: {work.progress}/{work.total}",
+            f"[{'#' * min(20, work.progress * 20 // work.total)}{'-' * (20 - min(20, work.progress * 20 // work.total))}]",
+            "Space / →: ход | Esc: пауза",
+            "Один ход работы = 1 минута.",
+            controller.message,
+        ]
     attempt = getattr(controller.engine, "lockpick_attempt", None)
     if attempt:
         return [
@@ -47,7 +61,7 @@ def action_lines(controller, menu=None):
             "1) Сохранить | 2) Загрузить",
             "3) Справка | 4) Выход",
             "5) Настройки",
-            "M/Esc: закрыть меню",
+            "Esc: закрыть меню",
             controller.message,
         ]
     if menu is ActionMenu.EXIT:
@@ -65,35 +79,36 @@ def action_lines(controller, menu=None):
             "2) Магия",
             "3) Ждать минуту",
             "4) Волшебная рука" if controller.engine.active_hand else "",
-            "Backspace: действия | M: меню",
+            "Esc / Backspace: действия",
             controller.message,
         ]
     if menu is ActionMenu.REST:
         return [
             "1) Короткий отдых: 1 час",
             "2) Долгий отдых: 8 часов",
+            "Нужна кровать, лежанка или разложенный спальный мешок."
+            if not controller.engine.can_long_rest()
+            else "Место для сна доступно.",
             "Короткий: 1/2 HP, заговоры +мод.; долгий: всё.",
-            "Backspace: действия | M: меню",
+            "Esc / Backspace: действия",
             controller.message,
         ]
     if menu in (ActionMenu.MAGIC, ActionMenu.TARGET):
         return [
             "1-6) Заклинание" if menu is ActionMenu.MAGIC else "1-6) Живая цель",
             "PgUp/PgDn: страницы",
-            "Backspace: назад | M: меню",
+            "Esc / Backspace: назад",
             "Применение, включая промах: ход и ресурс.",
             controller.message,
         ]
-    hint = (
-        " | Enter: взаимодействие"
-        if controller.engine.nearby_points() and not controller.inventory_focus
-        else ""
-    )
+    nearby = controller.engine.nearby_points() and not controller.inventory_focus
     return [
-        "1) Осмотр [E]" + hint,
-        "2) Персонаж | Z: скрытность "
-        + ("ВКЛ" if controller.engine.state.hero.sneaking else "ВЫКЛ"),
-        "3) Действия | 4) Отдых",
-        "WASD: шаг | ↑↓/Enter/F: вещи | M: меню",
+        "1/E: Осмотр | 2: Герой | J: журнал",
+        "3: Действия | 4: Отдых | L: логи",
+        ("Enter: окружение" if nearby else "Enter: предмет") + " | G: подобрать",
+        "I: вещи | M: магия | B: строительство",
+        "Z: Скрытность "
+        + ("ВКЛ" if controller.engine.state.hero.sneaking else "ВЫКЛ")
+        + " | WASD: шаг",
         controller.message,
     ]

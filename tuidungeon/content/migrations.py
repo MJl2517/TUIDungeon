@@ -273,4 +273,19 @@ def migrate_map(raw):
     for category in ("equipment", "traps", "points_of_interest"):
         for placement in result.get(category, []):
             _placement_alias(category, placement)
+    # Old brushes generated a second, permanent light on top of these fixtures.
+    # Keep separately authored service lights, remove only generated duplicates.
+    fixtures = {
+        (p["x"], p["y"])
+        for p in result.get("objects", [])
+        if p["ref"]
+        in {"base:torch_wall", "base:torch_decor", "base:lantern", "base:candle"}
+    }
+    if fixtures and "lights" in result:
+        result["lights"] = [
+            p
+            for p in result["lights"]
+            if (p["x"], p["y"]) not in fixtures
+            or not p["id"].startswith(("tile_lights_", "sample_light_"))
+        ]
     return result

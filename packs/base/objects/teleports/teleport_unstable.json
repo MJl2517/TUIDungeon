@@ -11,7 +11,9 @@
   "tags": [
     "teleports",
     "transparent",
-    "walkable"
+    "walkable",
+    "magic",
+    "portal"
   ],
   "walkable": true,
   "blocks_sight": false,

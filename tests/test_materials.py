@@ -17,7 +17,11 @@ class MaterialTests(unittest.TestCase):
     def visual(self, ref):
         key = "base:" + ref
         alias = compatibility()["tiles"].get(key)
-        return self.store.get(alias["category"], alias["ref"]) if alias else self.store.get("tiles", key)
+        return (
+            self.store.get(alias["category"], alias["ref"])
+            if alias
+            else self.store.get("tiles", key)
+        )
 
     @classmethod
     def setUpClass(cls):
@@ -49,9 +53,7 @@ class MaterialTests(unittest.TestCase):
             "floor_planks",
             "tree_dead",
         ):
-            self.assertTrue(
-                MATERIAL_TAGS <= set(self.visual(ref).tags), ref
-            )
+            self.assertTrue(MATERIAL_TAGS <= set(self.visual(ref).tags), ref)
         for ref in ("book", "scroll", "sack", "web", "grass_dry", "bedroll"):
             tags = self.visual(ref).tags
             self.assertIn(FLAMMABLE, tags, ref)
@@ -68,9 +70,7 @@ class MaterialTests(unittest.TestCase):
             "water_calm",
             "bones",
         ):
-            self.assertFalse(
-                MATERIAL_TAGS & set(self.visual(ref).tags), ref
-            )
+            self.assertFalse(MATERIAL_TAGS & set(self.visual(ref).tags), ref)
         for ref in (
             "oil",
             "robe",

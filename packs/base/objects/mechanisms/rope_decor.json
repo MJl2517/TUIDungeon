@@ -13,7 +13,8 @@
     "mechanisms",
     "walkable",
     "transparent",
-    "flammable"
+    "flammable",
+    "fiber"
   ],
   "walkable": true,
   "blocks_sight": false,

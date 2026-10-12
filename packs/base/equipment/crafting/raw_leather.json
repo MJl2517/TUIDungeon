@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "raw_leather",
+  "name": "Кожа",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.3,
+  "tags": [
+    "leather",
+    "flammable",
+    "organic"
+  ]
+}

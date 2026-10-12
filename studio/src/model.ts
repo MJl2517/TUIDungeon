@@ -17,6 +17,9 @@ export type Entry = {
   tags?: string[];
   description?: string;
   asset?: boolean;
+  details?: Doc;
+  features?: Record<string, boolean>;
+  search_text?: string;
 };
 
 export const materialTagLabels: Record<string, string> = {
@@ -35,6 +38,8 @@ export function matchesEntry(
     entry.glyph ?? "",
     entry.group ?? "",
     entry.description ?? "",
+    entry.search_text ?? "",
+    JSON.stringify(entry.details ?? {}),
     JSON.stringify(assets[entry.category + "/" + entry.ref] ?? {}),
     ...(entry.tags ?? []),
     ...(entry.tags ?? []).map((tag) => materialTagLabels[tag] ?? ""),
@@ -64,11 +69,11 @@ export function libraryResults(
   pack: string,
   assets: Record<string, Doc> = {},
 ): Entry[] {
-  return entries.filter((e) =>
-    query.trim()
-      ? matchesEntry(e, query, assets)
-      : e.category === category &&
-        (pack === "all" || e.ref.startsWith(pack + ":")),
+  return entries.filter(
+    (e) =>
+      (category === "all" || e.category === category) &&
+      (pack === "all" || e.ref.startsWith(pack + ":")) &&
+      matchesEntry(e, query, assets),
   );
 }
 export const clone = <T>(value: T): T => structuredClone(value);
@@ -272,12 +277,13 @@ export function resizeMap(doc: Doc, width: number, height: number): Doc {
   const next = clone(doc);
   next.width = width;
   next.height = height;
-  for (const key of ["tiles", "walkability", "blocks_sight"])
+  for (const key of ["tiles", "walkability", "blocks_sight", "roof"])
     next[key] = Array.from({ length: height }, (_, y) =>
       Array.from(
         { length: width },
         (_, x) =>
-          doc[key][y]?.[x] ?? (key === "tiles" ? null : key === "walkability"),
+          doc[key]?.[y]?.[x] ??
+          (key === "tiles" ? null : key === "walkability"),
       ),
     );
   for (const key of placements)

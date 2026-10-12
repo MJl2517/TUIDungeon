@@ -13,7 +13,9 @@
     "armor_decor",
     "decor_armor_light",
     "flammable",
-    "transparent"
+    "transparent",
+    "armor",
+    "leather"
   ],
   "durability": null,
   "slot": "armor",

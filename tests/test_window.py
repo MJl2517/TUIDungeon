@@ -2,7 +2,7 @@
 
 import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import tcod.console
 import tcod.event as events
@@ -34,6 +34,42 @@ from tuidungeon.__main__ import main
 
 
 class WindowTests(unittest.TestCase):
+    def test_new_shortcuts_use_physical_sdl_keys(self):
+        c = Controller(42, test_map=True)
+        for sym, scan, view, menu in (
+            (events.KeySym.I, events.Scancode.I, View.CHARACTER, ActionMenu.ROOT),
+            (events.KeySym.M, events.Scancode.M, View.EXPLORE, ActionMenu.MAGIC),
+            (events.KeySym.B, events.Scancode.B, View.BUILD, ActionMenu.ROOT),
+            (
+                events.KeySym.ESCAPE,
+                events.Scancode.ESCAPE,
+                View.EXPLORE,
+                ActionMenu.META,
+            ),
+        ):
+            with self.subTest(scan=scan):
+                self.assertTrue(
+                    handle_event(
+                        c,
+                        events.KeyDown(
+                            sym=sym, scancode=scan, mod=events.Modifier.NONE
+                        ),
+                    )
+                )
+                self.assertEqual((c.view, c.action_menu), (view, menu))
+                handle_event(
+                    c,
+                    events.KeyDown(
+                        sym=events.KeySym.ESCAPE,
+                        scancode=events.Scancode.ESCAPE,
+                        mod=events.Modifier.NONE,
+                    ),
+                )
+                self.assertEqual(
+                    (c.view, c.action_menu), (View.EXPLORE, ActionMenu.ROOT)
+                )
+        self.assertEqual(c.engine.state.turns, 0)
+
     def test_sneaking_shortcut_recolors_cached_hero_without_spending_a_turn(self):
         store = fixture_store()
         c = Controller(
@@ -52,7 +88,7 @@ class WindowTests(unittest.TestCase):
         handle_event(c, event)
         after = c.engine.render_cells((p.x, p.y, 1, 1))
         self.assertEqual(after[0][0].foreground, 244)
-        console, _ = render_map(c, 100, 28, 36)
+        console, _, _ = render_map(c, 100, 28, 36)
         self.assertEqual(
             tuple(console.fg[console.height // 2, console.width // 2]), PALETTE[244]
         )
@@ -156,7 +192,7 @@ class WindowTests(unittest.TestCase):
                     "render_cells",
                     wraps=controller.engine.render_cells,
                 ) as render_cells:
-                    console, rect = render_map(controller, 100, 28, size)
+                    console, rect, _ = render_map(controller, 100, 28, size)
                 self.assertEqual(
                     console.ch[console.height // 2, console.width // 2], ord("@")
                 )
@@ -178,7 +214,7 @@ class WindowTests(unittest.TestCase):
                 self.assertLessEqual(y + height, state.dungeon.height)
         controller.view = View.LOOK
         controller.look_position = Position(0, 0)
-        console, _ = render_map(controller, 100, 28, 36)
+        console, _, _ = render_map(controller, 100, 28, 36)
         self.assertEqual(console.ch[console.height // 2, console.width // 2], ord("X"))
         self.assertIsNone(render_map(controller, 79, 23, 36))
         plus = events.KeyDown(
@@ -241,6 +277,12 @@ class WindowTests(unittest.TestCase):
 
     def test_modal_keyboard_mouse_and_menu_resume_preserve_game_state(self):
         store = fixture_store()
+        point = store.get("points_of_interest", "base:chest")
+        store.documents["points_of_interest", "base:chest"] = point.model_copy(
+            update={
+                "storage": point.storage.model_copy(update={"search_contents": True})
+            }
+        )
         c = Controller(
             42,
             store=store,
@@ -263,7 +305,8 @@ class WindowTests(unittest.TestCase):
         self.assertEqual(c.view, View.ITEM_INSPECT)
         self.assertIsNotNone(render_map(c, 100, 28, 36))
         c.handle("escape")
-        c.handle("m")
+        c.handle("escape")
+        c.handle("escape")
         self.assertEqual(popup_layout(c, 100, 28)[0], "Игровое меню")
         c.handle("w")
         c.handle("down")
@@ -274,9 +317,10 @@ class WindowTests(unittest.TestCase):
         self.assertEqual(popup_layout(c, 100, 28)[0], "Выход")
         c.handle("escape")
         c.handle("escape")
-        self.assertEqual(c.view, View.ITEM)
+        self.assertEqual(c.view, View.EXPLORE)
         self.assertIs(c.selected_item, item)
         self.assertEqual(c.action_menu, ActionMenu.ROOT)
+        c.open_item(item)
         _, rect, _, hits = popup_layout(c, 100, 28)
         inspect_row = next(row for index, row in hits if index == 1)
         self.assertFalse(handle_click(c, 0, 0, 100, 28))
@@ -292,12 +336,39 @@ class WindowTests(unittest.TestCase):
         c.handle("escape")
         c.handle("escape")
         c.handle("3")
-        c.handle("m")
-        c.handle("m")
+        c.handle("escape")
+        c.handle("escape")
+        c.handle("escape")
+        c.handle("3")
         self.assertEqual(c.action_menu, ActionMenu.ACTIONS)
         c.handle("escape")
         state.position = Position(6, 3)
         c.open_interaction()
+        if c.view is View.INTERACTION and c.point_id is None:
+            c.handle(
+                str(
+                    next(
+                        i + 1
+                        for i, p in enumerate(c.engine.nearby_points())
+                        if p.placement.id == "chest_1"
+                    )
+                )
+            )
+        if c.view is View.INTERACTION:
+            point = next(
+                p for p in c.engine.nearby_points() if p.placement.id == c.point_id
+            )
+            c.handle(
+                str(
+                    next(
+                        i + 1
+                        for i, choice in enumerate(
+                            point.available_choices(c.engine.state.hero)
+                        )
+                        if choice.id == "open_storage"
+                    )
+                )
+            )
         self.assertEqual(c.view, View.STORAGE)
         c.handle("f4")
         self.assertEqual(c.view, View.INTERACTION)
@@ -321,7 +392,7 @@ class WindowTests(unittest.TestCase):
         self.assertEqual(c.view, View.EXPLORE)
         self.assertEqual(state.turns, 1)
         for width, height in ((80, 24), (100, 28), (140, 40)):
-            c.handle("m")
+            c.handle("escape")
             _, rect, rows, _ = popup_layout(c, width, height)
             self.assertGreater(rect.x, 0)
             self.assertGreater(rect.y, 0)
@@ -329,6 +400,52 @@ class WindowTests(unittest.TestCase):
             self.assertLess(rect.y + rect.height, height)
             self.assertLessEqual(len(rows), rect.height - 2)
             c.handle("escape")
+
+    def test_craft_search_enables_sdl_unicode_text_input(self):
+        from tuidungeon.presentation.window import run
+
+        store = fixture_store()
+        controller = Controller(
+            42,
+            store=store,
+            catalog=store.runtime_catalog(),
+            map_ref="dev:crafting_lab",
+            test_map=True,
+        )
+        context = MagicMock()
+        window = context.sdl_window
+
+        def events_with_text():
+            for sym, scan in (
+                (events.KeySym.C, events.Scancode.C),
+                (events.KeySym.F, events.Scancode.F),
+            ):
+                yield events.KeyDown(sym=sym, scancode=scan, mod=events.Modifier.NONE)
+            window.start_text_input.assert_called_once()
+            yield events.TextInput(text="факел")
+            self.assertEqual(controller.craft.query, "факел")
+            yield events.KeyDown(
+                sym=events.KeySym.RETURN,
+                scancode=events.Scancode.RETURN,
+                mod=events.Modifier.NONE,
+            )
+            self.assertFalse(controller.craft.editing)
+            self.assertEqual(window.stop_text_input.call_count, 2)
+            yield events.Quit()
+
+        with (
+            patch("tuidungeon.presentation.window.Controller", return_value=controller),
+            patch("tuidungeon.presentation.window.load_map_style", return_value="text"),
+            patch("tuidungeon.presentation.window.load_tileset"),
+            patch("tcod.context.new") as create_context,
+            patch("tcod.render.SDLTilesetAtlas"),
+            patch("tcod.render.SDLConsoleRender"),
+            patch("tuidungeon.presentation.window.present", return_value=None),
+            patch("tcod.event.wait", side_effect=lambda _: events_with_text()),
+        ):
+            create_context.return_value.__enter__.return_value = context
+            run()
+        self.assertEqual(controller.engine.state.turns, 0)
 
     def test_default_cli_opens_window_without_tty_and_validation_stays_headless(self):
         with (

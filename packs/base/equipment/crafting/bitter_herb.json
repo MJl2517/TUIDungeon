@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "bitter_herb",
+  "name": "Горькая трава",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.05,
+  "tags": [
+    "organic",
+    "flammable",
+    "plants"
+  ]
+}

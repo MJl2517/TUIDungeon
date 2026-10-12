@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import shutil
+import os
 import socket
 import tempfile
 import threading
@@ -45,7 +46,8 @@ def run():
                     browser = playwright.chromium.launch(
                         headless=True,
                         executable_path=shutil.which("google-chrome")
-                        or shutil.which("chromium"),
+                        or shutil.which("chromium")
+                        or os.environ.get("PLAYWRIGHT_BROWSER_EXECUTABLE"),
                         args=["--no-sandbox"],
                     )
                     page = browser.new_page(viewport={"width": 1280, "height": 900})
@@ -53,11 +55,10 @@ def run():
                     page.on("pageerror", lambda error: errors.append(str(error)))
                     page.goto(f"http://127.0.0.1:{port}")
                     page.locator('.navigation [data-category="maps"]').click()
-                    page.get_by_label("Поиск по всей библиотеке").fill("base:crypt")
-                    page.locator(".library-entry").click()
+                    page.get_by_label("Поиск контента").fill("base:crypt")
+                    page.locator(".content-entry").click()
                     selector = page.get_by_label("Класс для запуска игры")
-                    expect(selector).to_have_value("base:warrior")
-                    expect(selector.locator("option")).to_have_count(4)
+                    expect(selector).to_contain_text("base:warrior")
                     button = page.get_by_role(
                         "button", name="▶ В игровом окне", exact=True
                     )
@@ -67,7 +68,12 @@ def run():
                         "base:wizard",
                         "dev:studio_scout",
                     ):
-                        selector.select_option(character_class)
+                        selector.click()
+                        picker = page.get_by_role(
+                            "dialog", name="Класс для запуска игры", exact=True
+                        )
+                        picker.get_by_label("Поиск контента").fill(character_class)
+                        picker.locator(".content-entry").click()
                         with page.expect_response(
                             lambda response: response.url.endswith("/api/game")
                         ) as result:
@@ -81,9 +87,13 @@ def run():
                             root.resolve(), "base:crypt", 42, character_class
                         )
                         expect(button).to_be_enabled()
-                    selector.select_option("base:wizard")
+                    expect(selector).to_contain_text("dev:studio_scout")
                     page.screenshot(
-                        path="/tmp/tuidungeon-class-selector.png", full_page=True
+                        path=str(
+                            Path(tempfile.gettempdir())
+                            / "tuidungeon-class-selector.png"
+                        ),
+                        full_page=True,
                     )
                     assert not errors, errors
                     assert page.evaluate(

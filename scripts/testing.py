@@ -28,3 +28,15 @@ def fixture_store():
         PackStore.read_json(CRYPT_FIXTURE)
     )
     return store
+
+
+def lay_bedroll(engine):
+    """Set up a real sleeping place without spending the tested action's turn."""
+    from tuidungeon.domain.equipment import Equipment
+    from tuidungeon.world.state import ItemPlacement
+
+    item = Equipment.create(engine.catalog.equipment["bedroll"])
+    p = engine.state.position
+    engine.state.items.append(
+        (ItemPlacement(item.instance_id, "base:bedroll", p.x, p.y), item)
+    )

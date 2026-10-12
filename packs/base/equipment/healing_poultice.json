@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "healing_poultice",
+  "name": "Лечебная припарка",
+  "description": "Восстанавливает 4 HP при использовании.",
+  "category": "consumables",
+  "weight": 0.1,
+  "glyph": "!",
+  "charges": 1,
+  "properties": [
+    {
+      "kind": "heal",
+      "amount": 4
+    }
+  ],
+  "tags": [
+    "medicinal",
+    "organic"
+  ]
+}

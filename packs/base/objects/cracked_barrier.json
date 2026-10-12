@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "cracked_barrier",
+  "name": "Потрескавшаяся преграда",
+  "description": "Хрупкая каменная преграда. Её можно разрушить или разобрать.",
+  "glyph": "#",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "group": "Разрушаемые преграды",
+  "tags": [
+    "obstacle",
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "movable": false,
+  "weight": 0,
+  "destruction": {
+    "max_hp": 12,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:stone",
+          "quantity": 3
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:stone",
+        "quantity": 3
+      }
+    ]
+  },
+  "map_category": "destructible"
+}

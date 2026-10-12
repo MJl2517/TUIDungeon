@@ -5,7 +5,8 @@
   "weight": 20,
   "tags": [
     "armor",
-    "metal"
+    "metal",
+    "iron"
   ],
   "slot": "armor",
   "durability": 80,

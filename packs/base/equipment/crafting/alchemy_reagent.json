@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "alchemy_reagent",
+  "name": "Алхимический реагент",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.1,
+  "tags": []
+}

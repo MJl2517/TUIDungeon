@@ -12,7 +12,8 @@
     "fungi",
     "obstacle",
     "transparent",
-    "flammable"
+    "flammable",
+    "organic"
   ],
   "walkable": false,
   "blocks_sight": false

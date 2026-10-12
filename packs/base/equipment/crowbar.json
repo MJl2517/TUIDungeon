@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "crowbar",
   "name": "Ломик",
-  "description": "В руке даёт преимущество только на выламывание двери. Каждая попытка тратит 1 прочность из 5. Сломанный ломик не даёт преимущества.",
+  "description": "Открывает закрытые ящики, ускоряет разбор мебели и снимает баррикады. В руке даёт преимущество на выламывание двери. Не изнашивается.",
   "glyph": "/",
   "foreground": 7,
   "background": null,
@@ -10,9 +10,11 @@
   "category": "tools",
   "weight": 2.0,
   "tags": [
-    "lever"
+    "lever",
+    "metal",
+    "tool"
   ],
-  "durability": 5,
+  "durability": null,
   "slot": "hand",
   "properties": [],
   "check_aids": [],

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "candle",
   "name": "Свеча",
-  "description": "Свеча. Источник света: радиус 3 клеток.",
+  "description": "Свечу можно подобрать; остаток топлива сохраняется.",
   "glyph": "i",
   "foreground": 11,
   "background": null,
@@ -27,5 +27,17 @@
     },
     "transition": false,
     "door": null
+  },
+  "light_fixture": {
+    "item": "base:candle",
+    "stays_when_empty": false
+  },
+  "storage": {
+    "contents": [
+      {
+        "item": "base:candle",
+        "quantity": 1
+      }
+    ]
   }
 }

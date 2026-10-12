@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "bones_pile",
+  "name": "Груда костей",
+  "description": "Груда костей. Можно осмотреть и обыскать.",
+  "variants": [],
+  "glyph": "X",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "map_category": "special",
+  "group": "Кости и останки",
+  "tags": [
+    "bone",
+    "containers",
+    "organic",
+    "remains",
+    "storage",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": null,
+    "max_hp": 10,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": null,
+    "remains": []
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": {
+    "capacity": 1000000.0,
+    "personal": false,
+    "contents": []
+  }
+}

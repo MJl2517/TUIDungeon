@@ -6,7 +6,9 @@
   "category": "consumables",
   "tags": [
     "food",
-    "flammable"
+    "flammable",
+    "edible",
+    "organic"
   ],
   "description": "Запас еды на день. Механика голода пока не добавлена."
 }

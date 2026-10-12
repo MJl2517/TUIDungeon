@@ -7,11 +7,12 @@
     "tool",
     "lockpicks"
   ],
-  "durability": 40,
+  "durability": null,
   "check_aids": [
     {
       "check_tag": "lockpicking",
       "mode": "automatic"
     }
-  ]
+  ],
+  "description": "Инструмент для взлома замков. Не изнашивается."
 }

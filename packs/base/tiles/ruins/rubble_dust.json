@@ -11,7 +11,8 @@
   "tags": [
     "ruins",
     "walkable",
-    "transparent"
+    "transparent",
+    "stone"
   ],
   "walkable": true,
   "blocks_sight": false

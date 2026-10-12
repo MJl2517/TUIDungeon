@@ -6,7 +6,9 @@
   "category": "tools",
   "tags": [
     "rope",
-    "flammable"
+    "flammable",
+    "fiber"
   ],
-  "description": "Прочная верёвка для спуска и подъёма."
+  "description": "Прочная верёвка для спуска и подъёма.",
+  "durability": null
 }

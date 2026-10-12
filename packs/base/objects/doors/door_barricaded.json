@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "door_barricaded",
   "name": "Забаррикадированная дверь",
-  "description": "Двери и проходы. Забаррикадированная дверь. Преграда движению. Закрывает обзор и свет. Закрытые двери неподвижны; открывание и смена состояния требуют отдельной механики.",
+  "description": "Баррикаду можно снять монтировкой за один ход и забрать древесину.",
   "glyph": "B",
   "foreground": 130,
   "background": null,
@@ -25,5 +25,25 @@
     "light": null,
     "transition": false,
     "door": null
+  },
+  "map_category": "destructible",
+  "destruction": {
+    "max_hp": 30,
+    "dismantle": {
+      "verb": "remove_barricade",
+      "turns": 1,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "tools": [
+        "lever"
+      ],
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 2
+        }
+      ]
+    },
+    "remains": []
   }
 }

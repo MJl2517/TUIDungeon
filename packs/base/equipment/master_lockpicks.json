@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "master_lockpicks",
   "name": "Мастерские отмычки",
-  "description": "",
+  "description": "Инструмент для взлома замков. Не изнашивается.",
   "glyph": "?",
   "foreground": 7,
   "background": null,
@@ -13,7 +13,7 @@
     "tool",
     "lockpicks"
   ],
-  "durability": 40,
+  "durability": null,
   "slot": null,
   "properties": [],
   "check_aids": [

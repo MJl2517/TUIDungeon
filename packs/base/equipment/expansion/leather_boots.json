@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "leather_boots",
+  "name": "Кожаные сапоги",
+  "description": "Кожаные сапоги.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "armor",
+  "group": "Ремёсла и добыча",
+  "weight": 0.5,
+  "tags": [
+    "leather",
+    "flammable"
+  ],
+  "slot": "feet",
+  "durability": 20
+}

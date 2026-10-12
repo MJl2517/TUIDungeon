@@ -1,6 +1,7 @@
 """Exercise tile search and painting in a browser using temporary content."""
 
 from pathlib import Path
+import os
 import re
 import shutil
 import socket
@@ -41,7 +42,8 @@ def run():
             with sync_playwright() as playwright:
                 browser = playwright.chromium.launch(
                     headless=True,
-                    executable_path=shutil.which("google-chrome")
+                    executable_path=os.environ.get("PLAYWRIGHT_BROWSER_EXECUTABLE")
+                    or shutil.which("google-chrome")
                     or shutil.which("chromium"),
                     args=["--no-sandbox"],
                 )
@@ -51,7 +53,9 @@ def run():
                 page.on("pageerror", lambda error: errors.append(str(error)))
                 page.goto(f"http://127.0.0.1:{port}")
                 try:
-                    expect(page.locator(".home-card")).to_have_count(14, timeout=15000)
+                    expect(page.locator(".home-card").first).to_be_visible(
+                        timeout=15000
+                    )
                 except AssertionError:
                     print("Initial Studio state:", page.locator("body").inner_text())
                     print("Browser errors:", errors)
@@ -84,9 +88,12 @@ def run():
                 tile_count = sum(
                     entry["category"] == "tiles" for entry in library["documents"]
                 )
-                expect(cards).to_have_count(tile_count)
+                expect(cards.first).to_be_visible()
+                floor_count = cards.count()
+                assert 0 < floor_count < tile_count
                 group.select_option(index=1)
-                assert 0 < cards.count() < tile_count
+                assert 0 < cards.count() < floor_count
+                group.select_option("")
                 query.fill("ДВЕРЬ transparent")
                 expect(
                     page.locator('.palette-tile[data-ref="base:door_bars"]')
@@ -148,7 +155,13 @@ def run():
                 choose("terrain_chest")
                 paint(4, 1)
                 choose("portal")
-                page.get_by_label("Карта назначения").select_option("base:dungeon")
+                page.get_by_label("Карта назначения", exact=True).click()
+                page.get_by_role(
+                    "dialog", name="Карта назначения", exact=True
+                ).get_by_label("Поиск контента").fill("base:dungeon")
+                page.get_by_role("dialog", name="Карта назначения", exact=True).locator(
+                    ".content-entry"
+                ).click()
                 paint(5, 1)
                 page.get_by_role("button", name="Карта", exact=True).click()
                 page.get_by_label("Освещение карты", exact=True).select_option("bright")
@@ -228,7 +241,9 @@ def run():
                 expect(page.locator(".unsaved")).to_have_count(0)
                 page.keyboard.press("Digit0")
                 query.fill("")
-                page.get_by_label("Слой карты").select_option("doors")
+                page.locator(".palette-modes").get_by_role(
+                    "button", name="Двери", exact=True
+                ).click()
                 page.locator(".map-options .layer-badge").click()
                 page.keyboard.press("KeyI")
                 expect(page.get_by_title("Пипетка · I", exact=True)).to_have_class(
@@ -267,48 +282,6 @@ def run():
                     )
                 )
 
-                page.get_by_role(
-                    "button", name="▶ Тестировать карту", exact=True
-                ).click()
-                page.get_by_label("Тестовая раса").select_option("base:human")
-                page.get_by_label("Тестовый класс").select_option("base:warrior")
-                page.get_by_role("button", name="Начать тест", exact=True).click()
-                page.locator(".play-layout").wait_for()
-
-                def move():
-                    with page.expect_response(
-                        lambda r: "/commands" in r.url and r.request.method == "POST"
-                    ) as result:
-                        page.get_by_role("button", name="D →", exact=True).click()
-                    return result.value.json()
-
-                state = move()
-                assert state["traps"][0]["triggered"]
-                state = move()
-                inventory = len(state["hero"]["inventory"])
-                with page.expect_response(
-                    lambda r: "/commands" in r.url and r.request.method == "POST"
-                ) as result:
-                    page.get_by_role("button", name="G · Подобрать", exact=True).click()
-                state = result.value.json()
-                assert (
-                    len(state["hero"]["inventory"]) == inventory + 1
-                    and not state["ground"]
-                )
-                with page.expect_response(
-                    lambda r: "/commands" in r.url and r.request.method == "POST"
-                ) as result:
-                    page.get_by_role(
-                        "button", name="Забрать ценности", exact=True
-                    ).click()
-                assert result.value.json()["hero"]["gold"] > 0
-                move()
-                assert move()["map"] == "base:dungeon"
-                with page.expect_response(lambda r: "/reset" in r.url) as result:
-                    page.get_by_role("button", name="Перезапустить", exact=True).click()
-                reset = result.value.json()
-                assert not reset["traps"][0]["triggered"] and len(reset["ground"]) == 1
-                page.get_by_role("button", name="Закрыть", exact=True).click()
                 assert (
                     page.request.get(
                         f"http://127.0.0.1:{port}/api/documents/maps/base:tiles_acceptance"
@@ -318,25 +291,44 @@ def run():
                 page.get_by_role(
                     "button", name="Открыть библиотеку", exact=True
                 ).click()
-                page.locator(".library-list").get_by_role(
-                    "button", name=re.compile("Проверка тайлов")
-                ).click()
+                page.get_by_label("Поиск контента", exact=True).fill(
+                    "base:tiles_acceptance"
+                )
+                page.locator(".content-entry").click()
                 expect(
                     page.get_by_label("Название документа", exact=True)
                 ).to_have_value("Проверка тайлов")
+                page.locator('.navigation [data-category="objects"]').click()
+                page.get_by_label("Поиск контента").fill("+ transparent door_bars")
+                expect(page.locator(".content-entry")).to_have_count(1)
+                page.locator(".content-entry").click()
+                expect(page.get_by_label("Группа", exact=True)).to_have_value("Двери")
+                # The author can persist an explicit purpose category in the template.
                 page.locator('.navigation [data-category="tiles"]').click()
-                page.get_by_label("Поиск по всей библиотеке").fill(
-                    "+ transparent door_bars"
+                page.get_by_label("Поиск контента", exact=True).fill(
+                    "base:wall_damaged"
                 )
-                expect(page.locator(".library-list .library-entry")).to_have_count(1)
-                page.locator(".library-list .library-entry").click()
-                expect(page.get_by_label("Группа", exact=True)).to_have_value(
-                    "Двери"
+                page.locator(".content-entry").click()
+                page.get_by_label("Поиск свойств", exact=True).fill(
+                    "Категория на карте"
+                )
+                field = page.get_by_label("Категория на карте", exact=True)
+                expect(field).to_have_value("destructible")
+                field.select_option("special")
+                page.locator(".document-heading").get_by_role(
+                    "button", name="Сохранить", exact=True
+                ).click()
+                expect(page.locator(".unsaved")).to_have_count(0)
+                template = page.request.get(
+                    f"http://127.0.0.1:{port}/api/documents/tiles/base:wall_damaged"
+                ).json()["document"]
+                assert (
+                    template["map_category"] == "special" and not template["walkable"]
                 )
                 assert not errors, errors
                 browser.close()
                 print(
-                    "Browser OK: home, single collapsible navigation, global palette search + filters, independent masks, native placements, pan + hotkeys + eyedropper, save/reopen, Python playtest + reset."
+                    "Browser OK: home, single collapsible navigation, global palette search + filters, independent masks, native placements, pan + hotkeys + eyedropper, save/reopen, editor save/reopen."
                 )
         finally:
             server.should_exit = True

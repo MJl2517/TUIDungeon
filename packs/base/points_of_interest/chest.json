@@ -29,5 +29,27 @@
     "capacity": 1000.0,
     "personal": false,
     "contents": []
+  },
+  "movable": true,
+  "weight": 12,
+  "destruction": {
+    "max_hp": 15,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      }
+    ]
   }
 }

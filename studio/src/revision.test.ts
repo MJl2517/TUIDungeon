@@ -75,15 +75,19 @@ const blank = () =>
   }) as any;
 
 describe("global content search and asset refresh", () => {
-  it("finds content outside the selected category and pack, including nested fields", () => {
+  it("searches all content explicitly and preserves category and pack filters", () => {
     expect(
-      libraryResults(entries, "кинжал", "tiles", "base", assets).map(
-        (e) => e.ref,
-      ),
+      libraryResults(entries, "кинжал", "all", "all", assets).map((e) => e.ref),
     ).toEqual(["other:dagger"]);
     expect(
       libraryResults(entries, "", "tiles", "base", assets).map((e) => e.ref),
     ).toEqual(["base:wall"]);
+    expect(libraryResults(entries, "кинжал", "tiles", "all", assets)).toEqual(
+      [],
+    );
+    expect(libraryResults(entries, "кинжал", "all", "base", assets)).toEqual(
+      [],
+    );
     expect(matchesEntry(entries[2], "церемониальный 1d4", assets)).toBe(true);
     expect(matchesEntry(entries[1], "деревянная", assets)).toBe(true);
     expect(paletteLayer(entries[2], assets)).toBe("equipment");
@@ -174,5 +178,23 @@ describe("native object painting", () => {
     expect(
       doc.transitions.some((p: any) => p.id === parent + "_transition"),
     ).toBe(false);
+  });
+});
+
+describe("dismantlable object foundations", () => {
+  it("requires an explicit floor without changing placements", () => {
+    const doc = blank();
+    doc.tiles[1][1] = null;
+    const before = clone(doc);
+    expect(() =>
+      paintObject(
+        doc,
+        "objects",
+        "base:table",
+        { ...assets["objects/base:table"], movable: true },
+        { x: 1, y: 1 },
+      ),
+    ).toThrow("пол");
+    expect(doc).toEqual(before);
   });
 });

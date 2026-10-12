@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "glass_material",
+  "name": "Стекольное сырьё",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.3,
+  "tags": [
+    "glass"
+  ]
+}

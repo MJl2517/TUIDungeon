@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { ContentSelect } from "./ContentBrowser";
 import { Doc, Entry, color, matchesEntry } from "./model";
 import {
   brushDescription,
   paletteEntry,
   paletteLayer,
   tileFamily,
+  contentGroup,
+  paletteCategory,
+  paletteSections,
 } from "./catalog";
 
 export const layerNames: Record<string, string> = {
@@ -16,6 +20,7 @@ export const layerNames: Record<string, string> = {
   points_of_interest: "Взаимодействия",
   monsters: "Существа",
   equipment: "Предметы",
+  roof: "Крыша",
   lights: "Источники света",
   spawn: "Старт героя",
   transitions: "Переходы",
@@ -26,6 +31,8 @@ type Props = {
   entries: Entry[];
   assets: Record<string, Doc>;
   layer: string;
+  section: string;
+  onSection: (section: string) => void;
   onLayer: (layer: string) => void;
   chosen: string;
   onChoose: (ref: string, layer?: string) => void;
@@ -39,6 +46,8 @@ export function MapPalette({
   entries,
   assets,
   layer,
+  section,
+  onSection,
   onLayer,
   chosen,
   onChoose,
@@ -47,6 +56,7 @@ export function MapPalette({
   documentRef,
   onEmpty,
 }: Props) {
+  const [searchAcross, setSearchAcross] = useState(true);
   const [query, setQuery] = useState(""),
     [family, setFamily] = useState(""),
     [group, setGroup] = useState(""),
@@ -62,17 +72,21 @@ export function MapPalette({
         : layer === "doors"
           ? "objects"
           : layer;
-  const searching = !!query.trim() && layer !== "transitions";
+  const searching = searchAcross && !!query.trim() && layer !== "transitions";
   const all = searching
     ? entries.filter((e) => paletteLayer(e, assets))
-    : entries.filter(
-        (e) =>
-          e.category === category &&
-          (layer !== "doors" || assets["objects/" + e.ref]?.brush?.door) &&
-          (layer !== "objects" || !assets["objects/" + e.ref]?.brush?.door),
+    : entries.filter((e) =>
+        section === "service"
+          ? layer === "transitions"
+            ? e.category === "maps"
+            : paletteCategory(e, assets) === "service" &&
+              paletteLayer(e, assets) === layer
+          : paletteCategory(e, assets) === section,
       );
-  const groups = [...new Set(all.map((e) => e.group ?? "Прочее"))].sort(
-    (a, b) => a.localeCompare(b, "ru"),
+  const groupOf = (e: Entry) =>
+    e.category === "tiles" ? (e.group ?? "Прочее") : contentGroup(e, assets);
+  const groups = [...new Set(all.map(groupOf))].sort((a, b) =>
+    a.localeCompare(b, "ru"),
   );
   const families = [
     ...new Set(all.map((e) => tileFamily(paletteEntry(e, assets)))),
@@ -83,13 +97,12 @@ export function MapPalette({
     .filter((e) => {
       const tile = paletteEntry(e, assets);
       if (!matchesEntry(e, query, assets)) return false;
-      if (searching) return true;
       return (
         (!pack || e.ref.startsWith(pack + ":")) &&
-        (!group || (e.group ?? "Прочее") === group) &&
-        (layer !== "tiles" ||
+        (!group || groupOf(e) === group) &&
+        (e.category !== "tiles" ||
           ((!family || tileFamily(tile) === family) &&
-            (!group || (e.group ?? "Прочее") === group) &&
+            (!group || groupOf(e) === group) &&
             (filter === "all" ||
               (filter === "mechanics" && hasMechanics(tile)) ||
               (filter === "blocking" && !tile.walkable) ||
@@ -106,7 +119,7 @@ export function MapPalette({
         if (priority) return priority;
       }
       if (sort === "group") {
-        const comparison = (a.group ?? "").localeCompare(b.group ?? "", "ru");
+        const comparison = groupOf(a).localeCompare(groupOf(b), "ru");
         if (comparison) return comparison;
       }
       return a.name.localeCompare(b.name, "ru");
@@ -114,18 +127,15 @@ export function MapPalette({
   const selected = all.find(
     (e) => e.ref === chosen && paletteLayer(e, assets) === layer,
   );
+  const unavailable = !options.some(
+    (e) => e.ref === chosen && (paletteLayer(e, assets) ?? layer) === layer,
+  );
   useEffect(() => {
-    onEmpty(options.length === 0);
-  }, [options.length, onEmpty]);
+    onEmpty(unavailable);
+  }, [unavailable, onEmpty]);
   const detail = hovered ?? selected;
   const detailDoc = detail ? paletteEntry(detail, assets) : null;
-  const service = [
-    "lights",
-    "spawn",
-    "transitions",
-    "walkability",
-    "blocks_sight",
-  ].includes(layer);
+  const service = section === "service";
   const changeLayer = (next: string) => {
     setQuery("");
     setGroup("");
@@ -136,58 +146,87 @@ export function MapPalette({
   return (
     <div className="map-palette">
       <div className="palette-modes" aria-label="Разделы палитры">
-        <button
-          className={layer === "tiles" ? "selected" : ""}
-          onClick={() => changeLayer("tiles")}
-        >
-          Поверхности
-        </button>
-        <button
-          className={!service && layer !== "tiles" ? "selected" : ""}
-          onClick={() => changeLayer("objects")}
-        >
-          Объекты
-        </button>
-        <button
-          className={service ? "selected" : ""}
-          onClick={() => changeLayer("spawn")}
-        >
-          Служебные
-        </button>
+        {Object.entries(paletteSections).map(([id, value], index) => (
+          <button
+            key={id}
+            aria-label={value.name}
+            aria-pressed={section === id}
+            className={section === id ? "selected" : ""}
+            onClick={() => {
+              setQuery("");
+              setGroup("");
+              setFamily("");
+              setFilter("all");
+              setHovered(null);
+              onSection(id);
+            }}
+          >
+            <span>
+              {index + 1}. {value.name}
+            </span>
+            {id !== "service" && (
+              <small>
+                {
+                  entries.filter((e) => paletteCategory(e, assets) === id)
+                    .length
+                }
+              </small>
+            )}
+          </button>
+        ))}
       </div>
       <p className="palette-explanation">
-        {layer === "tiles"
-          ? "Пол, стены, вода и природные поверхности. Объекты размещайте из их собственных шаблонов."
-          : service
-            ? "Свет, старт, переходы и независимые маски карты."
-            : "Один шаблон хранит рисунок и свойства. Выберите объект и рисуйте; локальные настройки доступны через V."}
+        {paletteSections[section].description}
       </p>
-      <label className="palette-label">
-        Слой карты
-        <select
-          aria-label="Слой карты"
-          value={layer}
-          onChange={(e) => changeLayer(e.target.value)}
-        >
-          {Object.entries(layerNames).map(([id, name]) => (
-            <option key={id} value={id}>
-              {name}
-            </option>
-          ))}
-        </select>
-      </label>
-      {!["lights", "spawn", "walkability", "blocks_sight"].includes(layer) && (
+      {service && (
+        <label className="palette-label">
+          Слой карты
+          <select
+            aria-label="Слой карты"
+            value={layer}
+            onChange={(e) => changeLayer(e.target.value)}
+          >
+            {Object.entries(layerNames)
+              .filter(([id]) =>
+                [
+                  "roof",
+                  "lights",
+                  "spawn",
+                  "transitions",
+                  "walkability",
+                  "blocks_sight",
+                  "objects",
+                ].includes(id),
+              )
+              .map(([id, name]) => (
+                <option key={id} value={id}>
+                  {id === "objects" ? "Лестницы и выходы" : name}
+                </option>
+              ))}
+          </select>
+        </label>
+      )}
+      {!["lights", "spawn", "walkability", "blocks_sight", "roof"].includes(
+        layer,
+      ) && (
         <>
           <input
-            aria-label={layer === "tiles" ? "Поиск тайлов" : "Поиск объектов"}
+            aria-label="Поиск кистей"
             placeholder="Поиск: имя, символ, ID, тег"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          <label className="toggle">
+            <input
+              type="checkbox"
+              checked={searchAcross}
+              onChange={(e) => setSearchAcross(e.target.checked)}
+            />{" "}
+            Искать во всех слоях
+          </label>
           {searching && (
             <p className="hint">
-              Поиск по всем поверхностям и объектам, независимо от категории,
-              пакета и фильтров.
+              Поиск по всем слоям. Выбранные фильтры продолжают действовать.
             </p>
           )}
           <div className="palette-filters">
@@ -262,6 +301,18 @@ export function MapPalette({
               </>
             )}
           </div>
+          <button
+            className="subtle"
+            onClick={() => {
+              setQuery("");
+              setPack("");
+              setGroup("");
+              setFamily("");
+              setFilter("all");
+            }}
+          >
+            Сбросить поиск и фильтры
+          </button>
           <div className="palette-count">
             Найдено: {options.length}
             <span>● механика &nbsp; ▪ преграда</span>
@@ -334,7 +385,14 @@ export function MapPalette({
                   </span>
                   <span className="tile-name">
                     {e.name}
-                    {searching && <small>{layerNames[entryLayer]}</small>}
+                    {searching && (
+                      <small>
+                        {
+                          paletteSections[paletteCategory(e, assets) ?? section]
+                            .name
+                        }
+                      </small>
+                    )}
                   </span>
                   <span className="tile-sign">
                     {mechanics
@@ -360,21 +418,32 @@ export function MapPalette({
           assets[category + "/" + chosen]?.brush?.transition)) && (
         <label className="palette-label">
           Карта назначения
-          <select
-            aria-label="Карта назначения"
+          <ContentSelect
+            entries={entries.filter(
+              (e) => e.category === "maps" && e.ref !== documentRef,
+            )}
+            label="Карта назначения"
             value={target}
-            onChange={(e) => onTarget(e.target.value)}
-          >
-            <option value="">Выберите карту…</option>
-            {entries
-              .filter((e) => e.category === "maps" && e.ref !== documentRef)
-              .map((e) => (
-                <option key={e.ref} value={e.ref}>
-                  {e.name} · {e.ref}
-                </option>
-              ))}
-          </select>
+            onChange={onTarget}
+          />
         </label>
+      )}
+      {layer === "roof" && (
+        <>
+          <button
+            className="palette-tile selected"
+            aria-label="Крыша"
+            aria-pressed="true"
+            onClick={() => changeLayer("roof")}
+          >
+            <span className="tile-glyph">⌂</span>
+            <span className="tile-name">Крыша</span>
+          </button>
+          <p className="hint">
+            Рисуйте над пещерой или зданием. Крыша убирает общий свет, сохраняя
+            пол и объекты. Факелы и лампы работают. E — убрать крышу.
+          </p>
+        </>
       )}
       {layer === "lights" && (
         <p className="hint">

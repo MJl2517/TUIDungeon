@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "craft_metal_shield",
+  "name": "Металлический щит",
+  "description": "Металлический щит.",
+  "category": "smith",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "smith_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:iron"
+          ],
+          "quantity": 3
+        }
+      ],
+      "turns": 5,
+      "tools": [
+        "smith_tools"
+      ],
+      "proficiencies": [
+        "smith_tools"
+      ],
+      "stations": [
+        [
+          "forge"
+        ],
+        [
+          "anvil"
+        ]
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:metal_shield",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

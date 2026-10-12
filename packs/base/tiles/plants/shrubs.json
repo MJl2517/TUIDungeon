@@ -12,7 +12,8 @@
     "plants",
     "walkable",
     "transparent",
-    "flammable"
+    "flammable",
+    "organic"
   ],
   "walkable": true,
   "blocks_sight": false

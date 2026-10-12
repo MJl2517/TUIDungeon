@@ -91,7 +91,9 @@ class SurfaceCommands:
                 )
             )
         damage = amount + bonus
-        actual = 0
+        actual = self.damage_world_objects(target, damage, kind)
+        if kind == "fire" and (ignite or bonus):
+            self.ignite_world_objects(target)
         if state.level:
             for instance in state.level.index("doors").at(target.x, target.y):
                 actual += instance.door.take_damage(
@@ -99,6 +101,7 @@ class SurfaceCommands:
                 )
                 if kind == "fire" and (ignite or bonus):
                     instance.door.ignite()
+        self.collect_door_remains()
         for p in state.actor_index.at(target.x, target.y):
             applied = self._damage_creature(p.monster, damage, kind, outcomes)
             actual += applied
@@ -150,6 +153,7 @@ class SurfaceCommands:
         state = self.state
         if (
             self.lockpick_attempt
+            or self.active_craft
             or state.hero.hp <= 0
             or item is None
             or not any(i is item for i in state.hero.inventory)
@@ -168,16 +172,39 @@ class SurfaceCommands:
             return ActionResult(
                 False, 0, "Поджечь можно только одну из 8 соседних клеток."
             )
+        if not self._clear_throw_path(target, allow_target_door=True):
+            return ActionResult(False, 0, "Поджог преграждает стена.")
+        camp = next(
+            (
+                o
+                for o in self.world_objects()
+                if (o.placement.x, o.placement.y) == (target.x, target.y)
+                and getattr(o.definition, "campfire", None)
+            ),
+            None,
+        )
+        fire_lit = bool(camp and not camp.state.lit and camp.state.fuel_minutes)
+        if fire_lit:
+            camp.state.lit = True
         doors = state.level.index("doors").at(target.x, target.y) if state.level else ()
         ignited = any(d.door.ignite() for d in doors)
+        object_lit = self.ignite_world_objects(target)
         oiled = target in state.oil
-        if not ignited and not oiled:
+        if not ignited and not oiled and not fire_lit and not object_lit:
             return ActionResult(
-                False, 0, "Здесь нечего поджигать: нужны деревянная дверь или масло."
+                False,
+                0,
+                "Здесь нечего поджигать: нужны костёр с топливом, горючий объект, деревянная дверь или масло.",
             )
         damage = self.damage_cell(target, 0, "fire") if oiled else 0
         message = (
-            "Дверь загорелась: 5 урона в минуту." if ignited else "Масло подожжено."
+            "Костёр зажжён."
+            if fire_lit
+            else "Дверь загорелась: 5 урона в минуту."
+            if ignited
+            else "Объект загорелся: 5 урона огнём за минуту."
+            if object_lit
+            else "Масло подожжено."
         )
         if oiled:
             message += f" Масло сгорело: +5 урона огнём (нанесено {damage})."

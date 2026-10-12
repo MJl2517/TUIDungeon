@@ -11,8 +11,10 @@
   "tags": [
     "walls",
     "obstacle",
-    "opaque"
+    "opaque",
+    "stone"
   ],
   "walkable": false,
-  "blocks_sight": true
+  "blocks_sight": true,
+  "map_category": "destructible"
 }

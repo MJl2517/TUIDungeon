@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "craft_tinder",
+  "name": "Растопка",
+  "description": "Базовый рецепт. Требуется хотя бы тусклый свет.",
+  "category": "basic",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Вручную",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 1
+    }
+  ],
+  "result": [
+    {
+      "item": "base:tinder",
+      "quantity": 2
+    }
+  ]
+}

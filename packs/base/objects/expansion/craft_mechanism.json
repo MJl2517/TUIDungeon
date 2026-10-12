@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "craft_mechanism",
+  "name": "Разбираемый механизм",
+  "description": "Разбираемый механизм.",
+  "glyph": "#",
+  "foreground": 6,
+  "group": "Ремёсла и окружение",
+  "map_category": "destructible",
+  "tags": [
+    "metal",
+    "mechanism"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:mechanical_part",
+          "quantity": 2
+        }
+      ],
+      "tools": [
+        "tinker_tools",
+        "lockpicks"
+      ]
+    },
+    "remains": []
+  }
+}

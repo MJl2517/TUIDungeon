@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "carve_staff",
+  "name": "Вырезать посох",
+  "description": "Вырезать посох.",
+  "category": "woodcarver",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "woodcarver_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 3,
+      "tools": [
+        "woodcarver_tools"
+      ],
+      "proficiencies": [
+        "woodcarver_tools"
+      ],
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "base:carved_staff",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

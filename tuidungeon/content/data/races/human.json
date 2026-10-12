@@ -11,5 +11,10 @@
     "wisdom": 1,
     "charisma": 1
   },
-  "description": "+1 ко всем характеристикам"
+  "description": "+1 ко всем характеристикам",
+  "tags": [
+    "humanoid",
+    "living",
+    "organic"
+  ]
 }

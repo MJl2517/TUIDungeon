@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "dry_herbs",
+  "name": "Сушка трав",
+  "description": "",
+  "category": "basic",
+  "basic_known": false,
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:medicinal_herb"
+          ],
+          "quantity": 1
+        }
+      ],
+      "stations": [
+        [
+          "heat"
+        ]
+      ],
+      "tools": [],
+      "proficiencies": [],
+      "turns": 2
+    }
+  ],
+  "result": [
+    {
+      "item": "base:dried_herbs",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "craft_workshop_torch",
+  "name": "Факел плотника",
+  "description": "Профессиональная сборка факела по чертежу. Требуется полный свет.",
+  "category": "carpenter",
+  "basic_known": false,
+  "variants": [
+    {
+      "name": "По чертежу",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 1
+        },
+        {
+          "items": [
+            "base:cloth"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 1,
+      "proficiencies": [
+        "carpenter_tools"
+      ],
+      "tools": [
+        "carpenter_tools"
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:torch",
+      "quantity": 1
+    }
+  ],
+  "learn_on_proficiency": [
+    "carpenter_tools"
+  ]
+}

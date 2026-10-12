@@ -13,7 +13,9 @@
     "armor_decor",
     "decor_boots",
     "flammable",
-    "transparent"
+    "transparent",
+    "clothing",
+    "leather"
   ],
   "durability": null,
   "slot": "feet",

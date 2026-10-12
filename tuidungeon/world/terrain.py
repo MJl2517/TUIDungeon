@@ -22,8 +22,14 @@ class Terrain:
         for p in door_placements(store, definition):
             tile = store.get(door_category(store, p.ref), p.ref)
             candidates = (p.ref.split(":")[0] + ":floor", "base:floor")
-            tiles[p.y][p.x] = tile.brush.underlay or next(
-                (ref for ref in candidates if ("tiles", ref) in store.documents), None
+            tiles[p.y][p.x] = (
+                tiles[p.y][p.x]
+                if tiles[p.y][p.x] and tiles[p.y][p.x] != p.ref
+                else tile.brush.underlay
+                or next(
+                    (ref for ref in candidates if ("tiles", ref) in store.documents),
+                    None,
+                )
             )
             walkability[p.y][p.x] = True
             sight[p.y][p.x] = False

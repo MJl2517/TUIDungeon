@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "dragon_leather",
+  "name": "Доспех из драконьей кожи",
+  "description": "КД 13 и постоянное сопротивление огню, пока доспех надет и исправен.",
+  "weight": 3.0,
+  "category": "armor",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "!",
+  "foreground": 7,
+  "tags": [
+    "leather",
+    "organic",
+    "armor",
+    "flammable"
+  ],
+  "durability": 30,
+  "slot": "armor",
+  "properties": [
+    {
+      "kind": "armor_class",
+      "amount": 13
+    }
+  ],
+  "damage_profile": {
+    "resistances": [
+      "fire"
+    ]
+  }
+}

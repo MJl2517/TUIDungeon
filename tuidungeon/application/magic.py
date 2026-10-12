@@ -57,7 +57,8 @@ class Repair(WorldSpell):
         ):
             return "Выберите предмет в своём инвентаре."
         if (
-            target.durability is None
+            target.definition.durability is None
+            or target.durability is None
             or target.durability >= target.definition.durability
         ):
             return "У предмета нет повреждений, которые можно починить."
@@ -281,6 +282,33 @@ for _kind, _handler in (
 
 
 class MagicCommands:
+    def scroll_item(self, source):
+        if not isinstance(source, str) or not source.startswith("scroll:"):
+            return None
+        return next(
+            (
+                i
+                for i in self.state.hero.inventory
+                if i.instance_id == source[7:] and i.usable and i.definition.cast_spell
+            ),
+            None,
+        )
+
+    def spell_options(self):
+        hero = self.state.hero
+        return (
+            [(s, SpellSource.CLASS) for s in hero.class_spells]
+            + ([(hero.racial_spell, SpellSource.RACIAL)] if hero.racial_spell else [])
+            + [
+                (
+                    self.catalog.spells[i.definition.cast_spell],
+                    "scroll:" + i.instance_id,
+                )
+                for i in hero.inventory
+                if i.usable and i.definition.cast_spell
+            ]
+        )
+
     def spell_item_targets(self, spell):
         """Use the cast validator for item menus, without spending time or resources."""
         if spell.target != "item":
@@ -294,11 +322,15 @@ class MagicCommands:
         return [
             item
             for item in self.state.hero.inventory
-            if handler.validate(self, spell, item, None, params) is None
+            if not item.definition.cast_spell
+            and handler.validate(self, spell, item, None, params) is None
         ]
 
     def known_spell(self, spell_id, source):
         hero = self.state.hero
+        scroll = self.scroll_item(source)
+        if scroll and scroll.definition.cast_spell == spell_id:
+            return self.catalog.spells[spell_id]
         if source is SpellSource.CLASS:
             return next((s for s in hero.class_spells if s.id == spell_id), None)
         if (
@@ -353,7 +385,7 @@ class MagicCommands:
 
     def cast_world_spell(self, spell, source, target=None, option=None):
         hero = self.state.hero
-        if self.lockpick_attempt or hero.hp <= 0:
+        if self.lockpick_attempt or self.active_craft or hero.hp <= 0:
             return ActionOutcome(False, False, "Магия сейчас недоступна.")
         if "exploration" not in spell.modes:
             return ActionOutcome(
@@ -372,7 +404,12 @@ class MagicCommands:
         error = handler.validate(self, spell, target, option, params)
         if error:
             return ActionOutcome(False, False, error)
-        available = (
+        scroll = self.scroll_item(source)
+        if scroll is not None and target is scroll:
+            return ActionOutcome(
+                False, False, "Выберите другой предмет: свиток будет израсходован."
+            )
+        available = bool(scroll) or (
             hero.cantrip_uses > 0
             if spell.level == 0
             else (
@@ -383,11 +420,20 @@ class MagicCommands:
         )
         if not available:
             return ActionOutcome(False, False, "Магический ресурс исчерпан.")
-        if source is SpellSource.RACIAL:
+        if scroll:
+            scroll.charges -= 1
+            if scroll.charges == 0:
+                hero.inventory.remove(scroll)
+        elif source is SpellSource.RACIAL:
             hero.consume_racial_spell()
         else:
             hero.consume_class_slot(spell.id)
+        previous_effects = {m.instance_id for m in self.magic_effects}
         result = handler.apply(self, spell, target, option, params)
+        if scroll:
+            for effect in self.magic_effects:
+                if effect.instance_id not in previous_effects:
+                    effect.scroll_definition = scroll.id
         self.events.append(
             dict(
                 kind="spell",

@@ -27,7 +27,11 @@ class ContentTests(unittest.TestCase):
     def test_loaded_definitions_cover_all_categories_and_art_references(self):
         catalog = ContentCatalog.load(self.root)
         for field in catalog.__dataclass_fields__:
-            self.assertTrue(getattr(catalog, field), field)
+            if (
+                field != "recipes"
+            ):  # Recipes are pack content, absent from the legacy archive.
+                self.assertTrue(getattr(catalog, field), field)
+        self.assertEqual(catalog.recipes, {})
         for monster in catalog.monsters.values():
             if monster.art:
                 self.assertGreater(ArtLibrary().load(monster.art).width, 0)

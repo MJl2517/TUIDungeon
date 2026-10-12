@@ -15,6 +15,7 @@ import {
   mapMasks,
 } from "./model";
 import { MapPalette, layerNames } from "./MapPalette";
+import { paletteCategory, paletteLayer } from "./catalog";
 import { paintTile, paintObject, sampleMap } from "./mapTools";
 import { InstanceInspector } from "./InstanceInspector";
 import { instanceDocument } from "./model";
@@ -43,7 +44,8 @@ export function MapEditor({
   schemas,
   mechanics,
 }: Props) {
-  const [layer, setLayer] = useState("tiles"),
+  const [section, setSection] = useState("floor"),
+    [layer, setLayer] = useState("tiles"),
     [tool, setTool] = useState("brush"),
     [ref, setRef] = useState("base:floor"),
     [transitionTarget, setTransitionTarget] = useState(""),
@@ -68,6 +70,7 @@ export function MapEditor({
     [visibility, setVisibility] = useState<Record<string, boolean>>({
       walkability: true,
       blocks_sight: false,
+      roof: false,
     }),
     [preview, setPreview] = useState<Doc | null>(null);
   useEffect(() => {
@@ -91,8 +94,9 @@ export function MapEditor({
   const options = entries.filter(
     (e) =>
       e.category === category &&
-      (layer !== "doors" || assets["objects/" + e.ref]?.brush?.door) &&
-      (layer !== "objects" || !assets["objects/" + e.ref]?.brush?.door),
+      (layer === "transitions" ||
+        (paletteLayer(e, assets) === layer &&
+          paletteCategory(e, assets) === section)),
   );
   const chosen =
     layer === "transitions"
@@ -156,7 +160,7 @@ export function MapEditor({
             transitionTarget,
             erase,
           );
-        } else if (layer === "walkability" || layer === "blocks_sight")
+        } else if (["walkability", "blocks_sight", "roof"].includes(layer))
           n[layer][p.y][p.x] = erase ? !maskValue : maskValue;
         else if (layer === "spawn") {
           if (
@@ -216,7 +220,7 @@ export function MapEditor({
       w = Math.max(...selection.map((p) => p.x)) - x + 1,
       h = Math.max(...selection.map((p) => p.y)) - y + 1;
     const clip: Doc = { x, y, width: w, height: h };
-    for (const key of ["tiles", "walkability", "blocks_sight"])
+    for (const key of ["tiles", "walkability", "blocks_sight", "roof"])
       clip[key] = doc[key]
         .slice(y, y + h)
         .map((r: any[]) => clone(r.slice(x, x + w)));
@@ -253,13 +257,14 @@ export function MapEditor({
         n.tiles[pt.y][pt.x] = null;
         n.walkability[pt.y][pt.x] = true;
         n.blocks_sight[pt.y][pt.x] = false;
+        n.roof[pt.y][pt.x] = false;
       }
       for (const key of placements)
         n[key] = (n[key] ?? []).filter(
           (e: Point) => !selection.some((pt) => pt.x === e.x && pt.y === e.y),
         );
     }
-    for (const key of ["tiles", "walkability", "blocks_sight"])
+    for (const key of ["tiles", "walkability", "blocks_sight", "roof"])
       clip[key].forEach((r: any[], y: number) =>
         r.forEach((v: any, x: number) => {
           if (inBounds(n, { x: p.x + x, y: p.y + y }))
@@ -285,9 +290,15 @@ export function MapEditor({
       return;
     }
     setLayer(sample.layer);
+    const sampled = entries.find(
+      (e) => e.ref === sample.ref && paletteLayer(e, assets) === sample.layer,
+    );
+    setSection(
+      sampled ? (paletteCategory(sampled, assets) ?? "service") : "service",
+    );
     setRef(sample.ref);
     if (sample.layer === "transitions") setTransitionTarget(sample.ref);
-    if (["walkability", "blocks_sight"].includes(sample.layer))
+    if (["walkability", "blocks_sight", "roof"].includes(sample.layer))
       setMaskValue(doc[sample.layer][p.y][p.x]);
     if (sample.placement?.id && sample.layer === "lights") {
       setSelected({ category: "lights", id: sample.placement.id });
@@ -317,7 +328,7 @@ export function MapEditor({
       return;
     }
     if (tool === "fill") {
-      if (!["tiles", "walkability", "blocks_sight"].includes(layer)) {
+      if (!["tiles", "walkability", "blocks_sight", "roof"].includes(layer)) {
         notify("Заливка доступна для тайлов и масок");
         return;
       }
@@ -414,6 +425,7 @@ export function MapEditor({
         n.tiles[p.y][p.x] = null;
         n.walkability[p.y][p.x] = true;
         n.blocks_sight[p.y][p.x] = false;
+        n.roof[p.y][p.x] = false;
       }
       for (const key of placements)
         n[key] = (n[key] ?? []).filter(
@@ -427,7 +439,7 @@ export function MapEditor({
     const keydown = (e: KeyboardEvent) => {
       if (
         !shortcutsEnabled ||
-        document.querySelector(".modal-backdrop") ||
+        document.querySelector(".modal-backdrop, dialog[open]") ||
         (e.target as HTMLElement).closest(
           "input,textarea,select,[contenteditable=true]",
         )
@@ -547,6 +559,8 @@ export function MapEditor({
       });
     if (visibility.blocks_sight)
       result.push({ cells: masks.blocks_sight, color: "#8bb7ee55" });
+    if (visibility.roof || layer === "roof")
+      result.push({ cells: shown.roof, color: "#a890d980" });
     const isolated = warnings.flatMap((w) => w.cells ?? []);
     const isolatedSet = new Set(isolated.map((p: Point) => `${p.x},${p.y}`));
     if (isolated.length)
@@ -559,7 +573,7 @@ export function MapEditor({
         color: "#edc87555",
       });
     return result;
-  }, [masks, visibility, warnings, doc.height, doc.width]);
+  }, [masks, visibility, warnings, doc.height, doc.width, shown.roof, layer]);
   return (
     <div className="editor-layout map-editor">
       <div className="workspace">
@@ -600,7 +614,7 @@ export function MapEditor({
         </div>
         <div className="toolbar map-options">
           <span className="layer-badge">{names[layer]}</span>
-          {["walkability", "blocks_sight"].includes(layer) && (
+          {["walkability", "blocks_sight", "roof"].includes(layer) && (
             <label>
               <input
                 type="checkbox"
@@ -609,7 +623,9 @@ export function MapEditor({
               />
               {layer === "walkability"
                 ? "Разрешить проход"
-                : "Преграждать обзор"}
+                : layer === "roof"
+                  ? "Крыша над клеткой"
+                  : "Преграждать обзор"}
             </label>
           )}
           {layer === "tiles" && (
@@ -789,13 +805,49 @@ export function MapEditor({
             entries={entries}
             assets={assets}
             layer={layer}
+            section={section}
+            onSection={(next) => {
+              setSection(next);
+              const candidates = entries.filter(
+                (e) => paletteCategory(e, assets) === next,
+              );
+              const first =
+                candidates.find(
+                  (e) =>
+                    e.ref ===
+                    (
+                      { floor: "base:floor", wall: "base:wall" } as Record<
+                        string,
+                        string
+                      >
+                    )[next],
+                ) ?? candidates[0];
+              setLayer(
+                next === "service"
+                  ? "spawn"
+                  : first
+                    ? paletteLayer(first, assets)!
+                    : "objects",
+              );
+              setRef(first?.ref ?? "");
+              setTool("brush");
+            }}
             onLayer={(next) => {
               setLayer(next);
               setRef("");
+              setTool("brush");
+              if (next === "roof") setMaskValue(true);
             }}
             chosen={chosen}
             onChoose={(next, nextLayer) => {
               if (nextLayer) setLayer(nextLayer);
+              const selectedEntry = entries.find(
+                (e) =>
+                  e.ref === next &&
+                  paletteLayer(e, assets) === (nextLayer ?? layer),
+              );
+              if (selectedEntry)
+                setSection(paletteCategory(selectedEntry, assets) ?? "service");
               if ((nextLayer ?? layer) === "transitions")
                 setTransitionTarget(next);
               else setRef(next);
@@ -825,7 +877,8 @@ export function MapEditor({
                 <p className="hint">
                   Слой «Источники света»: рисуйте стационарные огни. Маска
                   преград обзору перекрывает свет; в тесте свет также дают
-                  факелы и лампы в руках.
+                  факелы и лампы в руках. Слой «Крыша» убирает общий свет на
+                  закрытых клетках, не перекрывая свет от источников.
                 </p>
                 <h3>Оверлеи</h3>
                 {Object.entries(names)
@@ -847,7 +900,8 @@ export function MapEditor({
                   ))}
                 <p className="hint">
                   Красный — нет прохода. Синий — преграда обзору. Жёлтый —
-                  недостижимые участки. Графика не определяет эти маски.
+                  недостижимые участки. Фиолетовый — крыша (при рисовании крыши
+                  виден всегда). Графика не определяет эти маски.
                 </p>
               </>
             )}
@@ -976,6 +1030,8 @@ export function MapEditor({
                 <dl>
                   <dt>Тайл</dt>
                   <dd>{doc.tiles[hover.y]?.[hover.x] ?? "Нет"}</dd>
+                  <dt>Крыша</dt>
+                  <dd>{doc.roof[hover.y]?.[hover.x] ? "Да" : "Нет"}</dd>
                   <dt>Проход</dt>
                   <dd>
                     {masks.walkability[hover.y]?.[hover.x] ? "Да" : "Нет"}

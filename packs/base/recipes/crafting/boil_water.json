@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "boil_water",
+  "name": "Кипячение воды",
+  "description": "3 порции в нагреваемом сосуде. Не опресняет и не удаляет произвольные яды.",
+  "category": "basic",
+  "basic_known": false,
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [],
+      "stations": [
+        [
+          "heat"
+        ]
+      ],
+      "tools": [],
+      "proficiencies": [],
+      "turns": 3
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "liquid",
+    "liquids": [
+      "dirty_water",
+      "swamp_water"
+    ],
+    "liquid_result": "clean_water",
+    "heat_safe": true,
+    "portions": 3
+  }
+}

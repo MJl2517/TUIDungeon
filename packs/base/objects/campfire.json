@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "campfire",
+  "name": "Костёр",
+  "description": "Свет и тепло; древесина добавляет час топлива.",
+  "glyph": "*",
+  "foreground": 3,
+  "map_category": "special",
+  "group": "Станции",
+  "walkable": false,
+  "blocks_sight": false,
+  "tags": [
+    "heat",
+    "campfire"
+  ],
+  "destruction": {
+    "max_hp": 30
+  },
+  "campfire": {
+    "fuel_minutes": 60,
+    "fuel_tag": "wooden",
+    "radius": 5,
+    "bright_radius": 3
+  }
+}

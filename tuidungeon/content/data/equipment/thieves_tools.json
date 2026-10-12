@@ -7,6 +7,7 @@
     "tool",
     "lockpicks"
   ],
-  "durability": 10,
-  "check_aids": []
+  "durability": null,
+  "check_aids": [],
+  "description": "Необходимы для взлома замков. Не изнашиваются, в том числе при неудачных попытках."
 }

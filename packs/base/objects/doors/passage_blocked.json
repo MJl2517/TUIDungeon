@@ -23,5 +23,6 @@
     "light": null,
     "transition": false,
     "door": null
-  }
+  },
+  "map_category": "destructible"
 }

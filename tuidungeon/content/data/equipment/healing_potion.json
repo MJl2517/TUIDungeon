@@ -5,7 +5,8 @@
   "weight": 0.2,
   "tags": [
     "potion",
-    "consumable"
+    "consumable",
+    "glass"
   ],
   "charges": 1,
   "properties": [

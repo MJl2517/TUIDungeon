@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "mithril_shield",
+  "name": "Мифриловый щит",
+  "description": "Прочный лёгкий щит из мифрила. Бонус КД +2.",
+  "weight": 1.0,
+  "category": "armor",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "!",
+  "foreground": 7,
+  "tags": [
+    "metal"
+  ],
+  "durability": 35,
+  "slot": "hand",
+  "hands": 1,
+  "properties": [
+    {
+      "kind": "armor_bonus",
+      "amount": 2
+    }
+  ]
+}

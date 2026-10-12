@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "terrain_crate_closed",
   "name": "Закрытый ящик",
-  "description": "Доступно по Enter с клетки или по соседству. Награда однократная.",
+  "description": "Закрытый ящик. Откройте монтировкой или разберите, чтобы достать содержимое.",
   "variants": [],
   "glyph": "■",
   "foreground": 136,
@@ -21,6 +21,29 @@
   "storage": {
     "capacity": 1000.0,
     "personal": false,
-    "contents": []
+    "contents": [],
+    "open_tool": "lever"
+  },
+  "movable": true,
+  "weight": 12,
+  "destruction": {
+    "max_hp": 15,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      }
+    ]
   }
 }

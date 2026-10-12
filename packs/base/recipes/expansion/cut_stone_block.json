@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "cut_stone_block",
+  "name": "Обтесать каменный блок",
+  "description": "Обтесать каменный блок.",
+  "category": "mason",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "mason_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:stone"
+          ],
+          "quantity": 3
+        }
+      ],
+      "turns": 3,
+      "tools": [
+        "mason_tools"
+      ],
+      "proficiencies": [
+        "mason_tools"
+      ],
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "base:stone_block",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

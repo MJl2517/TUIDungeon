@@ -10,7 +10,8 @@
   "tags": [
     "books",
     "flammable",
-    "transparent"
+    "transparent",
+    "paper"
   ],
   "challenge": "base:terrain_note",
   "group": "Книги и документы"

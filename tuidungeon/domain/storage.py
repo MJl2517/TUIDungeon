@@ -2,12 +2,14 @@
 
 from dataclasses import dataclass
 import json
+from math import fsum
 
 from .equipment import Equipment
 
 
 def stack_key(item):
     return (
+        item.instance_id if item.work or item.furniture else None,
         item.definition,
         item.durability,
         item.charges,
@@ -16,6 +18,12 @@ def stack_key(item):
         item.lit,
         json.dumps(item.template, sort_keys=True, ensure_ascii=False),
         item.glow,
+        item.liquid_kind,
+        item.liquid_portions,
+        item.contaminated,
+        item.poison_damage,
+        item.appraised,
+        repr(item.liquid_effects),
     )
 
 
@@ -33,7 +41,7 @@ class ItemStack:
 
     @property
     def weight(self):
-        return sum(item.weight for item in self.items)
+        return fsum(item.weight for item in self.items)
 
     @property
     def label(self):
@@ -54,7 +62,7 @@ def item_stacks(items):
         # Definitions contain nested fields: equality is sufficient; hash the
         # serialized mutable signature plus the definition ID for bucketing.
         key = stack_key(item)
-        bucket = (item.id, *key[1:])
+        bucket = (item.id, key[0], *key[2:])
         candidates = keys.setdefault(bucket, [])
         stack = next(
             (s for s in candidates if s.first.definition == item.definition), None

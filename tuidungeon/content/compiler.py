@@ -18,7 +18,7 @@ def runtime_key(ref):
 
 
 REFERENCE_FIELDS = {
-    "equipment": ("art",),
+    "equipment": ("art", "cast_spell"),
     "spells": ("art",),
     "actions": (),
     "races": ("art", "racial_spell"),
@@ -79,6 +79,9 @@ def compile_definition(category, ref, doc):
 def compile_catalog(documents):
     result, sources = CompiledCatalog(), {}
     for (category, ref), doc in documents.items():
+        if category == "recipes":
+            result.recipes[ref] = doc
+            continue
         if category not in REFERENCE_FIELDS:
             continue
         definition = compile_definition(category, ref, doc)

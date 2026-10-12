@@ -4,6 +4,13 @@ export const sections: Record<
   string,
   { icon: string; name: string; description: string; family: string }
 > = {
+  recipes: {
+    icon: "⚒",
+    name: "Рецепты",
+    description:
+      "Материалы, инструменты, владения, станции и пошаговое изготовление.",
+    family: "Правила",
+  },
   maps: {
     icon: "⌗",
     name: "Карты",
@@ -54,7 +61,7 @@ export const sections: Record<
     icon: "$",
     name: "Взаимодействия",
     description:
-      "Сундуки, алтари и события: объект карты с текстовым испытанием.",
+      "Сундуки, алтари, записки и доски: испытания и тексты для чтения.",
     family: "Объекты",
   },
   challenges: {
@@ -95,6 +102,124 @@ export const sections: Record<
     family: "Персонаж",
   },
 };
+
+// Palette sections describe purpose; paletteLayer still owns storage/painting.
+export const paletteSections: Record<
+  string,
+  { name: string; description: string }
+> = {
+  floor: {
+    name: "Пол",
+    description:
+      "Основание клетки: пол, земля, вода и рельеф. Не разбирается; строительство сможет заменить покрытие.",
+  },
+  wall: {
+    name: "Стены",
+    description:
+      "Постоянные преграды движению. Прозрачность задаётся отдельно: решётки и ограды могут пропускать свет.",
+  },
+  destructible: {
+    name: "Разрушаемые тайлы",
+    description:
+      "Специально отмеченные преграды и ресурсы: потресканные стены, баррикады, руда, завалы и растительность.",
+  },
+  doors: {
+    name: "Двери",
+    description:
+      "Открываются, закрываются и выламываются. Разбор не предусмотрен; остатки после разрушения — будущий источник материалов.",
+  },
+  traps: {
+    name: "Ловушки",
+    description:
+      "Настоящие ловушки с условиями обнаружения и срабатывания. Базовый разбор обнаруженной ловушки — следующий этап.",
+  },
+  furniture: {
+    name: "Мебель",
+    description:
+      "Мебель и контейнеры. Назначение: разбор, подъём в пределах переносимого веса и перемещение на одну из 8 клеток вокруг героя.",
+  },
+  equipment: {
+    name: "Предметы",
+    description:
+      "Подбираются в инвентарь и исчезают с карты; брошенные предметы снова появляются на земле.",
+  },
+  special: {
+    name: "Особое",
+    description:
+      "Порталы, статуи, механизмы, записки и декорации. Защищены от уничтожения, пока автор явно не назначит другую возможность.",
+  },
+  monsters: {
+    name: "Существа",
+    description:
+      "Монстры и другие существа. Полноценные NPC подключаются к этому же разделу.",
+  },
+  service: {
+    name: "Служебные",
+    description:
+      "Источники света, старт героя, переходы между уровнями и независимые маски карты.",
+  },
+};
+export const mapCategoryNames: Record<string, string> = {
+  auto: "Автоматически",
+  ...Object.fromEntries(
+    Object.entries(paletteSections)
+      .filter(([id]) =>
+        ["floor", "wall", "destructible", "furniture", "special"].includes(id),
+      )
+      .map(([id, value]) => [id, value.name]),
+  ),
+};
+
+export function paletteCategory(
+  entry: Entry,
+  assets: Record<string, Doc> = {},
+): string | null {
+  const doc: Doc = {
+    ...entry,
+    ...(entry.details ?? {}),
+    ...(assets[entry.category + "/" + entry.ref] ?? {}),
+  };
+  const tags: string[] = doc.tags ?? [];
+  if (doc.brush?.door) return "doors";
+  if (
+    entry.category === "equipment" ||
+    entry.category === "monsters" ||
+    entry.category === "traps"
+  )
+    return entry.category;
+  if (entry.category === "art") return "special";
+  if (!["tiles", "objects", "points_of_interest"].includes(entry.category))
+    return null;
+  if (doc.map_category && doc.map_category !== "auto") return doc.map_category;
+  if (tags.includes("furniture") || doc.storage || entry.features?.storage)
+    return "furniture";
+  if (
+    tags.some((t) =>
+      ["portals", "teleports", "statues", "magic", "shrines", "runes"].includes(
+        t,
+      ),
+    )
+  )
+    return "special";
+  if (tags.includes("stairs") && doc.brush?.transition) return "service";
+  if (
+    tags.some((t) =>
+      ["destructible", "plants", "fungi", "ruins", "webs"].includes(t),
+    )
+  )
+    return "destructible";
+  if (entry.category !== "tiles") return "special";
+  if (tags.some((t) => ["walls", "fences"].includes(t))) return "wall";
+  if (
+    tags.some((t) =>
+      ["floors", "water", "height", "ice", "blood", "tracks"].includes(t),
+    )
+  )
+    return "floor";
+  if (tags.some((t) => ["gas", "trap_decor", "keys"].includes(t)))
+    return "special";
+  return doc.walkable === false ? "wall" : "floor";
+}
 
 export function tileFamily(tile: Doc): string {
   const tags: string[] = tile.tags ?? [];
@@ -308,4 +433,124 @@ export function paletteLayer(
   ].includes(entry.category)
     ? entry.category
     : null;
+}
+
+export const craftNames: Record<string, string> = {
+  basic: "Базовые",
+  herbalist: "Травник",
+  alchemist: "Алхимик",
+  smith: "Кузнец",
+  carpenter: "Плотник",
+  tinker: "Жестянщик",
+  leatherworker: "Кожевник",
+  weaver: "Ткач",
+  woodcarver: "Резчик",
+  cook: "Повар",
+  poisoner: "Отравитель",
+  mason: "Каменщик",
+  glassblower: "Стеклодув",
+  potter: "Гончар",
+  jeweler: "Ювелир",
+  cobbler: "Сапожник",
+  brewer: "Пивовар",
+  cartographer: "Картограф",
+  calligrapher: "Каллиграф",
+  magic: "Магический крафт",
+  experiment: "Эксперименты",
+  other: "Прочее",
+};
+export const schoolNames: Record<string, string> = {
+  abjuration: "Ограждение",
+  conjuration: "Вызов",
+  divination: "Прорицание",
+  enchantment: "Очарование",
+  evocation: "Воплощение",
+  illusion: "Иллюзия",
+  necromancy: "Некромантия",
+  transmutation: "Преобразование",
+};
+export const itemNames: Record<string, string> = {
+  weapons: "Оружие",
+  armor: "Доспехи",
+  consumables: "Расходники",
+  tools: "Инструменты",
+  materials: "Материалы",
+};
+export function contentGroup(
+  entry: Entry,
+  assets: Record<string, Doc> = {},
+): string {
+  const d = assets[entry.category + "/" + entry.ref] ?? entry.details ?? {};
+  const tags = entry.tags ?? [];
+  if (entry.category === "recipes")
+    return craftNames[d.category] ?? d.category ?? "Прочее";
+  if (entry.category === "spells") return schoolNames[d.school] ?? "Заклинания";
+  if (entry.category === "monsters") {
+    const hp = Number(d.hit_points);
+    return !hp
+      ? "Живучесть не указана"
+      : hp <= 10
+        ? "1–10 HP"
+        : hp <= 30
+          ? "11–30 HP"
+          : hp <= 100
+            ? "31–100 HP"
+            : "101+ HP";
+  }
+  if (entry.category === "equipment")
+    return itemNames[d.category] ?? entry.group ?? "Снаряжение";
+  if (entry.category === "tiles") return tileFamily({ ...entry, ...d });
+  if (entry.category === "maps")
+    return (
+      (
+        {
+          dark: "Тёмные локации",
+          dim: "Тусклое освещение",
+          bright: "Светлые локации",
+        } as Doc
+      )[d.ambient_light] ?? "Локации"
+    );
+  if (entry.category === "objects" || entry.category === "points_of_interest") {
+    if (d.reading || entry.features?.reading || tags.includes("reading"))
+      return "Тексты для чтения";
+    if (d.brush?.door || tags.includes("doors") || tags.includes("door"))
+      return "Двери";
+    if (d.storage || entry.features?.storage || tags.includes("storage"))
+      return "Контейнеры";
+    if (d.map_light || entry.features?.map_light || tags.includes("light"))
+      return "Освещение";
+    if (tags.includes("furniture")) return "Мебель";
+  }
+  if (entry.category === "actions")
+    return (
+      (
+        {
+          attack: "Атаки",
+          dodge: "Защита",
+          magic: "Магия",
+          stealth: "Скрытность",
+          influence: "Влияние",
+          special: "Особые действия",
+        } as Doc
+      )[d.kind] ?? "Действия"
+    );
+  return entry.group ?? sections[entry.category]?.name ?? "Прочее";
+}
+export function contentRank(entry: Entry): number {
+  return Number(entry.details?.level ?? entry.details?.hit_points ?? 0);
+}
+export function contentBadges(entry: Entry): string[] {
+  const d = entry.details ?? {};
+  return [
+    contentGroup(entry),
+    ...(entry.category === "spells" && d.level != null
+      ? [d.level === 0 ? "Заговор" : `${d.level} уровень`]
+      : []),
+    ...(entry.category === "monsters" && d.hit_points
+      ? [`HP ${d.hit_points}`, `КД ${d.armor_class}`]
+      : []),
+    ...(entry.category === "recipes"
+      ? [d.basic_known ? "Известен сразу" : "Нужно изучить"]
+      : []),
+  ];
 }

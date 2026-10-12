@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "craft_focus",
+  "name": "Рунный фокус",
+  "description": "Рунный фокус.",
+  "category": "magic",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "jeweler_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:stone"
+          ],
+          "quantity": 1
+        },
+        {
+          "items": [
+            "base:alchemy_reagent"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 3,
+      "tools": [
+        "jeweler_tools"
+      ],
+      "proficiencies": [
+        "jeweler_tools"
+      ],
+      "spells": [
+        "base:light"
+      ]
+    },
+    {
+      "name": "Золотая оправа",
+      "ingredients": [
+        {
+          "items": [
+            "base:gold"
+          ],
+          "quantity": 10
+        },
+        {
+          "items": [
+            "base:alchemy_reagent"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 3,
+      "tools": [
+        "jeweler_tools"
+      ],
+      "proficiencies": [
+        "jeweler_tools"
+      ],
+      "spells": [
+        "base:light"
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:arcane_focus",
+      "quantity": 1
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "painter_tools",
+  "name": "Принадлежности художника",
+  "description": "Наличие набора не даёт владения им. Нужен исправный инструмент в инвентаре.",
+  "glyph": "t",
+  "foreground": 7,
+  "category": "tools",
+  "group": "Ремесленные инструменты",
+  "weight": 1.0,
+  "durability": null,
+  "tags": [
+    "painter_tools",
+    "tool"
+  ]
+}

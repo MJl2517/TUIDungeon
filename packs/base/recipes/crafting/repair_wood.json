@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "repair_wood",
+  "name": "Ремонт деревянного предмета",
+  "description": "Прочность восстанавливается только по завершении.",
+  "category": "carpenter",
+  "basic_known": false,
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 1
+        }
+      ],
+      "stations": [],
+      "tools": [
+        "carpenter_tools"
+      ],
+      "proficiencies": [],
+      "turns": 3
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "repair_item",
+    "target_tags": [
+      "wooden"
+    ],
+    "repair_amount": 10
+  }
+}

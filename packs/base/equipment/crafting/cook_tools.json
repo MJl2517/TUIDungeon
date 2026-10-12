@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "cook_tools",
+  "name": "Кухонные принадлежности",
+  "description": "Наличие набора не даёт владения им. Нужен исправный инструмент в инвентаре.",
+  "glyph": "t",
+  "foreground": 7,
+  "category": "tools",
+  "group": "Ремесленные инструменты",
+  "weight": 1.0,
+  "durability": null,
+  "tags": [
+    "cook_tools",
+    "tool"
+  ]
+}

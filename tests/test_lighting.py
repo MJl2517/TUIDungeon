@@ -1,6 +1,6 @@
 """Shared visibility, hand occupancy and fuel measured in game minutes."""
 
-from scripts.testing import fixture_store
+from scripts.testing import fixture_store, lay_bedroll
 
 from dataclasses import replace
 import json
@@ -22,7 +22,6 @@ from tuidungeon.domain.actions import SpellSource
 from tuidungeon.domain.equipment import Equipment
 from tuidungeon.presentation.inventory import item_details
 from tuidungeon.presentation.tui import Controller, Layout, draw_colors, render
-from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.world.lighting import DIM_LIGHT_HINT, LightField, line_of_sight
 from tuidungeon.world.maps import DungeonMap, Position
 from tuidungeon.world.state import GameState
@@ -102,6 +101,7 @@ class FuelTests(LightingFixture):
         self.engine.manage_equipment(lamp, True)
         self.engine.manage_equipment(lamp, False)
         self.assertEqual(lamp.fuel_minutes, 59)
+        lay_bedroll(self.engine)
         self.engine.apply(Action.REST)
         self.assertEqual(lamp.fuel_minutes, 59)
         self.engine.manage_equipment(lamp, True)
@@ -113,6 +113,56 @@ class FuelTests(LightingFixture):
         self.hero.inventory.append(second_oil)
         self.assertTrue(self.engine.manage_equipment(lamp, True).performed)
         self.assertEqual((second_oil.charges, lamp.fuel_minutes), (0, 59))
+
+    def test_lamp_consumes_portions_and_relights_in_hand_after_save(self):
+        from tuidungeon.presentation.tui import popup_layout
+
+        c = Controller(
+            42,
+            store=self.store,
+            catalog=self.factory.catalog,
+            map_ref="base:crypt",
+            test_map=True,
+        )
+        engine, hero = c.engine, c.engine.state.hero
+        lamp, oil, shield = (
+            next(i for i in hero.inventory if i.id == ref)
+            for ref in ("lamp", "oil", "shield")
+        )
+        hero.unequip(shield)
+        c.open_item(lamp)
+        c.handle("1")
+        self.assertEqual((oil.charges, lamp.fuel_minutes), (0, 59))
+        self.assertFalse(any(i is oil for i in hero.inventory))
+        self.assertIn("порция масла", c.message)
+        for _ in range(59):
+            engine.apply(Action.WAIT)
+        self.assertEqual((lamp.equipped, lamp.lit, lamp.fuel_minutes), (True, False, 0))
+        before = engine.state.turns
+        c.handle("1")
+        self.assertEqual(engine.state.turns, before)
+        self.assertTrue(lamp.equipped)
+        self.assertIn("масло", c.message)
+        second_oil = Equipment.create(oil.definition)
+        hero.inventory.append(second_oil)
+        with tempfile.TemporaryDirectory() as directory:
+            repository = SaveRepository(Path(directory) / "lamp.json")
+            repository.save(engine)
+            c.engine = repository.load(store=self.store)
+        lamp = next(i for i in c.engine.state.hero.inventory if i.id == "lamp")
+        c.open_item(lamp)
+        self.assertIn("Заправить и зажечь", " ".join(popup_layout(c, 100, 28)[2]))
+        c.handle("1")
+        self.assertEqual((lamp.equipped, lamp.lit, lamp.fuel_minutes), (True, True, 59))
+        self.assertEqual(c.engine.state.turns, before + 1)
+        self.assertFalse(any(i.id == "oil" for i in c.engine.state.hero.inventory))
+        c.handle("1")  # Extinguishing preserves the remaining fuel.
+        c.handle("1")  # Relighting a partly filled lamp needs no more oil.
+        self.assertEqual((lamp.lit, lamp.fuel_minutes), (True, 58))
+        c.engine.apply(Action.SHORT_REST)
+        self.assertIn("Снять из руки", " ".join(popup_layout(c, 100, 28)[2]))
+        c.handle("5")
+        self.assertFalse(lamp.equipped)
 
     def test_sneaking_and_failed_actions_use_game_minutes_not_turns(self):
         self.free_hand()
@@ -171,6 +221,53 @@ class VisibilityTests(LightingFixture):
             ),
             random.Random(42),
         )
+
+    def test_look_range_uses_wisdom_and_visible_walls_block_inspection(self):
+        from tuidungeon.domain.stats import Stats
+
+        self.hero.stats = Stats((10, 10, 10, 10, 3, 10))
+        engine = self.open_room()
+        self.free_hand()
+        engine.manage_equipment(self.item("torch"), True)
+        self.assertEqual(engine.look_range, 3)
+        self.assertTrue(engine.can_look_at(Position(13, 6)))
+        self.assertTrue(engine.can_look_at(Position(13, 9)))
+        self.assertFalse(engine.can_look_at(Position(14, 6)))
+        self.assertNotIn("Пол.", engine.inspect_cell(Position(14, 6)))
+        engine = Engine(
+            GameState(
+                self.hero, DungeonMap((".......", "...#...", ".......")), Position(1, 1)
+            ),
+            random.Random(42),
+        )
+        self.assertTrue(engine.can_look_at(Position(3, 1)))
+        self.assertFalse(engine.can_look_at(Position(4, 1)))
+        self.assertIn("не видна", " ".join(engine.inspect_cell(Position(4, 1))))
+        before = engine.state.turns, engine.state.clock.elapsed_minutes
+        for y in range(engine.state.dungeon.height):
+            for x in range(engine.state.dungeon.width):
+                engine.can_look_at(Position(x, y))
+        self.assertEqual(
+            (engine.state.turns, engine.state.clock.elapsed_minutes), before
+        )
+
+    def test_dark_wall_floor_and_cells_behind_them_are_indistinguishable(self):
+        self.hero.inventory.clear()
+        for rows in (
+            (".......", ".......", "......."),
+            (".......", "..#....", "......."),
+        ):
+            engine = Engine(
+                GameState(self.hero, DungeonMap(rows), Position(1, 1)),
+                random.Random(42),
+            )
+            for x in range(2, 7):
+                position = Position(x, 1)
+                self.assertTrue(engine.can_look_at(position))
+                self.assertEqual(
+                    engine.inspect_cell(position)[1:],
+                    ["Клетка не видна: темно или обзор закрыт."],
+                )
 
     def test_radius_follows_hero_and_bright_dim_hidden_have_distinct_cells(self):
         engine = self.open_room()
@@ -240,6 +337,67 @@ class VisibilityTests(LightingFixture):
             self.assertTrue(line_of_sight(Position(3, 3), Position(1, y), blocks))
             self.assertFalse(line_of_sight(Position(3, 3), Position(0, y), blocks))
 
+    def test_wall_light_is_visible_only_on_the_illuminated_side(self):
+        for rows, dark, lit, wall, adjacent in (
+            (
+                ("....#....",) * 9,
+                Position(1, 2),
+                Position(7, 2),
+                Position(4, 4),
+                Position(3, 4),
+            ),
+            (
+                (".........",) * 4 + ("#########",) + (".........",) * 4,
+                Position(2, 1),
+                Position(2, 7),
+                Position(4, 4),
+                Position(4, 3),
+            ),
+        ):
+            with self.subTest(rows=rows):
+                engine = Engine(
+                    GameState(self.hero, DungeonMap(rows), dark), random.Random(42)
+                )
+                torch = Equipment.create(self.item("torch").definition)
+                torch.lit = True
+                engine.state.items.append((lit, torch))
+                hidden = engine.lighting
+                self.assertEqual(hidden.at(wall), 0)
+                self.assertEqual(hidden.level_at(wall), 0)
+                self.assertEqual(engine.render_cells()[wall.y][wall.x].char, " ")
+                self.assertIn("не видна", " ".join(engine.inspect_cell(wall)))
+                # Moving the observer must reuse physical light, but select the other face.
+                engine.state.position = lit
+                visible = engine.lighting
+                self.assertIs(visible.illumination, hidden.illumination)
+                self.assertIs(visible.wall_illumination, hidden.wall_illumination)
+                self.assertGreater(visible.at(wall), 0)
+                self.assertGreater(visible.level_at(wall), 0)
+                self.assertEqual(engine.render_cells()[wall.y][wall.x].char, "#")
+                engine.state.position = dark
+                self.assertEqual(engine.lighting.at(wall), 0)
+                engine.state.position = adjacent
+                # Touch-range navigation is dim, never light from the other room.
+                self.assertEqual(engine.lighting.at(wall), 1)
+                self.assertEqual(engine.lighting.level_at(wall), 0)
+                self.assertIn("не видна", " ".join(engine.inspect_cell(wall)))
+
+    def test_different_wall_faces_keep_their_own_light_strength(self):
+        state = GameState(self.hero, DungeonMap(("....#....",) * 9), Position(1, 4))
+        sources = ((Position(2, 4), 6, 3), (Position(7, 4), 6, 1))
+        wall = Position(4, 4)
+        bright = LightField.calculate(state, sources=(), magic_sources=sources)
+        self.assertEqual(bright.level_at(wall), 2)
+        state.position = Position(7, 4)
+        dim = LightField.calculate(
+            state,
+            sources=(),
+            illumination=bright.illumination,
+            wall_illumination=bright.wall_illumination,
+        )
+        self.assertEqual(dim.at(wall), 1)
+        self.assertEqual(dim.level_at(wall), 1)
+
     def test_dim_background_art_and_black_backgrounds_are_preserved(self):
         original = [Cell(char=" ", background=c) for c in (7, 8, 15, 255, 196, 0, None)]
         shaded = LightField([[1] * len(original)]).shade([original])[0]
@@ -257,15 +415,18 @@ class VisibilityTests(LightingFixture):
         engine = self.open_room()
         self.assertEqual(engine.lighting.at(engine.state.position), 2)
         self.assertEqual(engine.lighting.level_at(engine.state.position), 0)
-        for position in (engine.state.position, Position(11, 6), Position(20, 6)):
-            self.assertIn("Освещение: полная тьма", engine.inspect_cell(position))
+        self.assertIn(
+            "Освещение: полная тьма", engine.inspect_cell(engine.state.position)
+        )
+        for position in (Position(11, 6), Position(20, 6)):
+            self.assertIn("не видна", " ".join(engine.inspect_cell(position)))
         self.free_hand()
         engine.manage_equipment(self.item("torch"), True)
         self.assertIn("Освещение: яркий свет", engine.inspect_cell(Position(13, 6)))
         dim = engine.inspect_cell(Position(16, 6))
         self.assertIn("Освещение: тусклый свет", dim)
         self.assertIn(DIM_LIGHT_HINT, dim)
-        self.assertIn("Освещение: полная тьма", engine.inspect_cell(Position(17, 6)))
+        self.assertIn("не видна", " ".join(engine.inspect_cell(Position(17, 6))))
         self.assertIn("Пол.", dim)
         turns, time = engine.state.turns, engine.state.clock.elapsed_minutes
         engine.inspect_cell(Position(16, 6))
@@ -273,7 +434,7 @@ class VisibilityTests(LightingFixture):
             (engine.state.turns, engine.state.clock.elapsed_minutes), (turns, time)
         )
 
-    def test_hidden_but_lit_cell_reports_light_without_disclosing_objects(self):
+    def test_hidden_lit_cell_discloses_neither_light_nor_objects(self):
         engine = self.factory.session("base:crypt")
         engine.state.level.definition = engine.state.level.definition.model_copy(
             update={"ambient_light": "bright"}
@@ -281,7 +442,8 @@ class VisibilityTests(LightingFixture):
         monster = engine.state.monsters[0]
         self.assertEqual(engine.lighting.at(monster.position), 0)
         text = engine.inspect_cell(monster.position)
-        self.assertIn("Освещение: яркий свет", text)
+        self.assertIn("не видна", " ".join(text))
+        self.assertNotIn("Освещение:", " ".join(text))
         self.assertNotIn(monster.monster.name, " ".join(text))
 
     def test_map_ambient_and_static_lights_use_sight_mask_not_walkability(self):
@@ -323,6 +485,83 @@ class VisibilityTests(LightingFixture):
         self.assertEqual(
             engine.render_cells()[monster.position.y][monster.position.x].char, " "
         )
+
+
+class RoofTests(LightingFixture):
+    def covered_room(self, ambient="bright", lights=(), wall=False):
+        doc = MapDocument(
+            id="crypt",
+            name="Дом в деревне",
+            width=12,
+            height=8,
+            spawn={"x": 2, "y": 3},
+            ambient_light=ambient,
+            tiles=[["base:floor"] * 12 for _ in range(8)],
+            walkability=[[True] * 12 for _ in range(8)],
+            blocks_sight=[[wall and x == 4 for x in range(12)] for _ in range(8)],
+            roof=[[x < 8 for x in range(12)] for _ in range(8)],
+            lights=list(lights),
+        )
+        self.store.documents[("maps", "base:crypt")] = doc
+        self.factory = SessionFactory(self.store)
+        return self.factory.session("base:crypt", seed=42)
+
+    def test_roof_removes_only_ambient_light_and_preserves_floor_and_movement(self):
+        for ambient, strength in (("dim", 1), ("bright", 2)):
+            engine = self.covered_room(ambient)
+            self.assertEqual(engine.lighting.level_at(Position(5, 3)), 0)
+            self.assertEqual(engine.lighting.level_at(engine.state.position), 0)
+            self.assertEqual(engine.lighting.level_at(Position(8, 3)), strength)
+            self.assertEqual(engine.lighting.at(Position(5, 3)), 0)
+            self.assertEqual(engine.state.level.definition.tiles[3][5], "base:floor")
+            self.assertTrue(engine.state.dungeon.walkable(Position(5, 3)))
+            self.assertTrue(engine.apply(Action.EAST).performed)
+
+    def test_static_and_carried_light_work_under_roof_on_bright_map(self):
+        source = {"id": "lantern", "x": 1, "y": 3, "radius": 6, "bright_radius": 2}
+        engine = self.covered_room(lights=[source])
+        self.assertEqual(engine.lighting.level_at(Position(3, 3)), 2)
+        self.assertEqual(engine.lighting.level_at(Position(5, 3)), 1)
+        engine = self.covered_room()
+        hero = engine.state.hero
+        hero.unequip(next(i for i in hero.inventory if i.id == "shield"))
+        torch = next(i for i in hero.inventory if i.id == "torch")
+        self.assertTrue(engine.manage_equipment(torch, True).performed)
+        self.assertEqual(engine.lighting.level_at(engine.state.position), 2)
+        self.assertEqual(torch.fuel_minutes, 59)
+        engine.manage_equipment(torch, False)
+        self.assertEqual(engine.lighting.level_at(engine.state.position), 0)
+
+    def test_roof_keeps_wall_sides_dark_and_light_cannot_cross_wall(self):
+        engine = self.covered_room(
+            wall=True,
+            lights=[{"id": "lantern", "x": 1, "y": 3, "radius": 8, "bright_radius": 4}],
+        )
+        self.assertEqual(engine.lighting.level_at(Position(4, 3)), 2)
+        self.assertEqual(engine.lighting.level_at(Position(5, 3)), 0)
+        engine.state.position = Position(6, 3)
+        self.assertEqual(engine.lighting.level_at(Position(4, 3)), 0)
+
+    def test_roof_roundtrips_in_save_and_invalid_dimensions_are_rejected(self):
+        engine = self.covered_room()
+        with tempfile.TemporaryDirectory() as directory:
+            repo = SaveRepository(Path(directory) / "save.json")
+            repo.save(engine)
+            restored = repo.load(self.factory.catalog, self.store)
+            self.assertEqual(
+                restored.state.level.definition.roof, engine.state.level.definition.roof
+            )
+            self.assertEqual(restored.lighting.level_at(Position(5, 3)), 0)
+            self.assertEqual(restored.lighting.level_at(Position(8, 3)), 2)
+        raw = engine.state.level.definition.model_dump(mode="json")
+        raw["roof"] = [[True]]
+        with self.assertRaises(ValidationError):
+            MapDocument.model_validate(raw)
+        raw.pop("roof")
+        old = MapDocument.model_validate(raw)
+        self.assertEqual(old.roof, [[False] * 12 for _ in range(8)])
+        with self.assertRaises(TypeError):
+            old.roof[0][0] = True
 
 
 class LightingPersistenceTests(LightingFixture):
@@ -398,11 +637,14 @@ class LightingPersistenceTests(LightingFixture):
                 (torch.fuel_minutes, True),
             )
             self.assertEqual(restored.render_cells(), self.engine.render_cells())
+            lay_bedroll(restored)
             restored.apply(Action.REST)
             self.assertFalse(loaded_lamp.lit or loaded_torch.lit)
             self.assertTrue(lamp.lit and torch.lit)
             # Saves produced before lighting had neither these fields nor map defaults.
             data = json.loads(repo.path.read_text())
+            for level in data["levels"]:
+                level["definition"].pop("roof", None)
             for item in data["hero"]["inventory"]:
                 item.pop("lit")
                 item.pop("fuel_minutes")
@@ -427,43 +669,6 @@ class LightingPersistenceTests(LightingFixture):
                 repo.path.write_text(json.dumps(data))
                 with self.assertRaises(ValueError):
                     repo.load(self.factory.catalog, self.store)
-
-    def test_frontends_same_commands_fuel_visibility_and_reset(self):
-        browser = TestSession(self.store, {"map_ref": "base:crypt", "seed": 42})
-        for name, equipped in (("shield", False), ("lamp", True)):
-            item = self.item(name)
-            other = next(i for i in browser.engine.state.hero.inventory if i.id == name)
-            self.engine.manage_equipment(item, equipped)
-            browser.command("equip" if equipped else "unequip", other.instance_id)
-        for command, action in (
-            ("d", Action.EAST),
-            ("wait", Action.WAIT),
-            ("rest", Action.REST),
-        ):
-            self.engine.apply(action)
-            snapshot = browser.command(command)
-            self.assertEqual(
-                snapshot["cells"],
-                [
-                    [c.model_dump() if c else None for c in row]
-                    for row in self.engine.render_cells()
-                ],
-            )
-            self.assertEqual(snapshot["lighting"], self.engine.lighting.cells)
-            self.assertEqual(
-                snapshot["clock"]["elapsed"], self.engine.state.clock.elapsed_minutes
-            )
-        browser.reset()
-        lamp = next(i for i in browser.engine.state.hero.inventory if i.id == "lamp")
-        self.assertEqual(
-            (lamp.fuel_minutes, lamp.lit, lamp.equipped), (0, False, False)
-        )
-        self.assertEqual(
-            next(
-                i for i in browser.engine.state.hero.inventory if i.id == "oil"
-            ).charges,
-            1,
-        )
 
     def test_tui_item_controls_and_menus_do_not_burn_fuel(self):
         controller = Controller(

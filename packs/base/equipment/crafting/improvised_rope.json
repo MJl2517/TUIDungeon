@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "improvised_rope",
+  "name": "Импровизированная верёвка",
+  "description": "Верёвка низкого качества из ткани или волокна. Поддерживает проверки, требующие верёвки.",
+  "glyph": "~",
+  "foreground": 6,
+  "category": "tools",
+  "group": "Снаряжение",
+  "weight": 0.3,
+  "tags": [
+    "rope",
+    "flammable",
+    "fiber"
+  ],
+  "durability": null
+}

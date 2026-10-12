@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "stake",
+  "name": "Кол",
+  "description": "Заострённый деревянный кол; подходит как импровизированное оружие.",
+  "glyph": "/",
+  "foreground": 6,
+  "category": "weapons",
+  "group": "Вооружение",
+  "weight": 0.5,
+  "tags": [
+    "weapon",
+    "wooden",
+    "flammable",
+    "stake",
+    "door_brace"
+  ],
+  "durability": 10,
+  "slot": "weapon",
+  "hands": 1,
+  "weapon_damage": "1d4",
+  "damage_type": "piercing"
+}

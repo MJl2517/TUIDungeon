@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "writing_paper",
+  "name": "Лист пергамента",
+  "description": "Лист пергамента.",
+  "weight": 0.02,
+  "category": "materials",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "*",
+  "foreground": 7,
+  "tags": [
+    "paper",
+    "flammable"
+  ]
+}

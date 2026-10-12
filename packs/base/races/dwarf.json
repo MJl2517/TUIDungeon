@@ -19,5 +19,10 @@
   "racial_spell": null,
   "racial_uses": 0,
   "speed": 1,
-  "order": 1
+  "order": 1,
+  "tags": [
+    "humanoid",
+    "living",
+    "organic"
+  ]
 }

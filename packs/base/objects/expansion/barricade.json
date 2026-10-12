@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "barricade",
+  "name": "Деревянная баррикада",
+  "description": "Деревянная баррикада.",
+  "glyph": "#",
+  "foreground": 6,
+  "group": "Ремёсла и окружение",
+  "map_category": "destructible",
+  "tags": [
+    "wooden",
+    "flammable",
+    "obstacle"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "destruction": {
+    "max_hp": 30,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 2
+        }
+      ],
+      "verb": "remove_barricade"
+    },
+    "remains": []
+  }
+}

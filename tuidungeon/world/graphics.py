@@ -4,20 +4,33 @@ from ..content.schemas import ArtDocument, Cell
 from functools import lru_cache
 
 
+class MapCell(Cell):
+    """Runtime appearance identity; authored art still uses plain Cell."""
+
+    visual_ref: str
+
+
 @lru_cache(maxsize=4096)
-def glyph_cell(char, foreground=7, background=None):
+def glyph_cell(char, foreground=7, background=None, visual_ref=None):
+    if visual_ref:
+        return MapCell(
+            char=char,
+            foreground=foreground,
+            background=background,
+            visual_ref=visual_ref,
+        )
     return Cell(char=char, foreground=foreground, background=background)
 
 
 def overlay(lower: Cell | None, upper: Cell | None):
     if upper is None:
         return lower
-    return Cell(
-        char=upper.char,
-        foreground=upper.foreground,
-        background=upper.background
-        if upper.background is not None
-        else (lower.background if lower else None),
+    return upper.model_copy(
+        update={
+            "background": upper.background
+            if upper.background is not None
+            else (lower.background if lower else None)
+        }
     )
 
 
@@ -75,17 +88,20 @@ def map_cells(store, definition, tiles=None):
             if ref:
                 if ref not in palette:
                     tile = store.get("tiles", ref)
-                    palette[ref] = Cell(
-                        char=tile.glyph,
-                        foreground=tile.foreground,
-                        background=tile.background,
+                    palette[ref] = glyph_cell(
+                        tile.glyph,
+                        tile.foreground,
+                        tile.background,
+                        "tiles/" + ref,
                     )
                 cells[y][x] = palette[ref]
     for placement in definition.objects:
         obj = store.resolve("objects", placement)
         cells[placement.y][placement.x] = overlay(
             cells[placement.y][placement.x],
-            glyph_cell(obj.glyph, obj.foreground, obj.background),
+            glyph_cell(
+                obj.glyph, obj.foreground, obj.background, "objects/" + placement.ref
+            ),
         )
     for placement in definition.decorations:
         from ..content.placements import resolve_placement

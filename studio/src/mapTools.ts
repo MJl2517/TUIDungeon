@@ -134,7 +134,7 @@ export function sampleMap(
   p: Point,
   preferredLayer: string,
 ): { layer: string; ref: string; placement?: Doc } | null {
-  if (preferredLayer === "walkability" || preferredLayer === "blocks_sight")
+  if (["walkability", "blocks_sight", "roof"].includes(preferredLayer))
     return { layer: preferredLayer, ref: "" };
   if (placements.includes(preferredLayer)) {
     const placement = (doc[preferredLayer] ?? []).find(
@@ -162,6 +162,12 @@ export function paintObject(
   erase = false,
 ) {
   if (!erase && !definition) throw new Error("Сначала выберите объект.");
+  if (
+    !erase &&
+    (definition?.movable || definition?.destruction) &&
+    !doc.tiles[p.y][p.x]
+  )
+    throw new Error("Сначала нарисуйте пол под разбираемым объектом.");
   if (!erase && layer === "objects" && definition?.brush?.door)
     throw new Error("Дверь размещается в слое дверей.");
   if (

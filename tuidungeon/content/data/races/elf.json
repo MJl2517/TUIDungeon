@@ -5,5 +5,10 @@
   "order": 2,
   "racial_spell": "detect_magic",
   "racial_uses": 1,
-  "description": "Обнаружение магии: раз за отдых"
+  "description": "Обнаружение магии: раз за отдых",
+  "tags": [
+    "humanoid",
+    "living",
+    "organic"
+  ]
 }

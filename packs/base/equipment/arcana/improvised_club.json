@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "improvised_club",
+  "name": "Связанная дубинка",
+  "description": "Импровизированное оружие: 1d4 урона, прочность 4; изготавливается дольше обычной дубинки.",
+  "weight": 2.0,
+  "category": "weapons",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "!",
+  "foreground": 7,
+  "tags": [
+    "wooden",
+    "organic",
+    "flammable",
+    "weapon"
+  ],
+  "durability": 4,
+  "slot": "hand",
+  "hands": 1,
+  "weapon_damage": "1d4"
+}

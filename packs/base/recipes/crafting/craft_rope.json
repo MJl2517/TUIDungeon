@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "craft_rope",
+  "name": "Импровизированная верёвка",
+  "description": "Базовый рецепт. Требуется хотя бы тусклый свет.",
+  "category": "basic",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Вручную",
+      "ingredients": [
+        {
+          "items": [
+            "base:cloth",
+            "base:plant_fiber"
+          ],
+          "quantity": 3
+        }
+      ],
+      "turns": 3
+    }
+  ],
+  "result": [
+    {
+      "item": "base:improvised_rope",
+      "quantity": 1
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "crafting_workshop",
+  "name": "Мастерская плотника",
+  "description": "Чертежи и образцы сборки факела.",
+  "glyph": "W",
+  "foreground": 6,
+  "learn_recipes": [
+    "base:craft_workshop_torch",
+    "base:build_campfire",
+    "base:boil_water",
+    "base:dry_herbs",
+    "base:cook_ration",
+    "base:make_poultice",
+    "base:healing_broth",
+    "base:antidote_broth",
+    "base:repair_wood",
+    "base:repair_metal",
+    "base:repair_wood_object"
+  ]
+}

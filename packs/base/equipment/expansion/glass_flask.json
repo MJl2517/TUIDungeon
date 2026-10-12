@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "glass_flask",
+  "name": "Стеклянный флакон",
+  "description": "Стеклянный флакон.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "tools",
+  "group": "Ремёсла и добыча",
+  "weight": 0.1,
+  "tags": [
+    "glass"
+  ],
+  "vessel": {
+    "heat_safe": false,
+    "fragile": true,
+    "capacity_portions": 1
+  },
+  "durability": null
+}

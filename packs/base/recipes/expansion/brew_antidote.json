@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "brew_antidote",
+  "name": "Противоядный напиток",
+  "description": "Противоядный напиток.",
+  "category": "brewer",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "brewer_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:bitter_herb"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 3,
+      "tools": [
+        "brewer_tools"
+      ],
+      "proficiencies": [
+        "brewer_tools"
+      ],
+      "stations": [
+        [
+          "heat"
+        ]
+      ]
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "liquid",
+    "liquids": [
+      "clean_water"
+    ],
+    "heat_safe": true,
+    "liquid_result": "antidote",
+    "portions": 3
+  }
+}

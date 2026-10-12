@@ -25,5 +25,27 @@
     "light": null,
     "transition": false,
     "door": null
+  },
+  "movable": true,
+  "weight": 2,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      }
+    ]
   }
 }

@@ -7,7 +7,9 @@
   "foreground": 14,
   "background": null,
   "art": null,
-  "tags": [],
+  "tags": [
+    "stone"
+  ],
   "challenge": "base:ruined_shrine",
   "group": "События"
 }

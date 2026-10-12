@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "rune_leather",
+  "name": "Рунный кожаный доспех",
+  "description": "Кожаный доспех с постоянной руной защиты: КД 12 + 1.",
+  "weight": 4.0,
+  "category": "armor",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "!",
+  "foreground": 13,
+  "tags": [
+    "magic",
+    "leather",
+    "organic",
+    "armor",
+    "flammable"
+  ],
+  "slot": "armor",
+  "durability": 25,
+  "properties": [
+    {
+      "kind": "armor_class",
+      "amount": 12
+    },
+    {
+      "kind": "armor_bonus",
+      "amount": 1
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 """Validated packs, references, optimistic concurrency and atomic document writes."""
 
+from ..domain.liquids import PORTION_WEIGHT
 from hashlib import sha256
 from functools import lru_cache
 import json
@@ -8,6 +9,7 @@ from pathlib import Path
 import re
 import tempfile
 import threading
+from uuid import uuid4
 from .schemas import MODELS, Manifest, MapDocument
 from .migrations import migrate_map, migrate_document
 from .catalog import ContentError, no_duplicate_fields
@@ -16,6 +18,12 @@ from .placements import PLACEMENT_CATEGORIES, resolve_placement, resolve_challen
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PACKS = PROJECT_ROOT / "packs"
 REF_FIELDS = {
+    "cast_spell": "spells",
+    "place_object": "objects",
+    "place_trap": "traps",
+    "items": "equipment",
+    "starting_recipes": "recipes",
+    "learn_recipes": "recipes",
     "underlay": "tiles",
     "art": "art",
     "racial_spell": "spells",
@@ -98,7 +106,16 @@ def validate_storage(document, documents):
             "Начальное содержимое контейнера ограничено 10000 предметами"
         )
     weight = sum(
-        documents["equipment", entry.item].weight * entry.quantity
+        (
+            documents["equipment", entry.item].weight
+            + (
+                documents["equipment", entry.item].vessel.initial_portions
+                * PORTION_WEIGHT
+                if documents["equipment", entry.item].vessel
+                else 0
+            )
+        )
+        * entry.quantity
         for entry in spec.contents
     )
     if weight > spec.capacity + 1e-9:
@@ -253,6 +270,24 @@ class PackStore:
                     raise ContentError(
                         f"{ref}: пакет ссылки {target} не указан в зависимостях"
                     )
+            if (
+                category == "recipes"
+                and doc.operation
+                and doc.operation.kind == "place_object"
+            ):
+                obj = documents["objects", doc.operation.place_object]
+                if obj.storage or obj.brush.door or obj.brush.transition:
+                    raise ContentError(
+                        "Создание объектов с дверью, контейнером или переходом ещё не поддерживается"
+                    )
+                if doc.operation.ignition and not obj.campfire:
+                    raise ContentError("Зажигание при создании требует свойств костра")
+            if category == "equipment" and doc.cast_spell:
+                spell = documents["spells", doc.cast_spell]
+                if not spell.world_effect or "exploration" not in spell.modes:
+                    raise ContentError(
+                        "Свиток требует рабочую механику заклинания исследования"
+                    )
             validate_storage(doc, documents)
             if category == "classes" and any(
                 documents[("spells", ref)].level != 0 for ref in doc.cantrip_choices
@@ -265,14 +300,26 @@ class PackStore:
                     for entry in getattr(doc, layer):
                         try:
                             resolved = resolve_placement(documents, destination, entry)
+                            if (
+                                entry.item_state
+                                and entry.item_state.durability is not None
+                                and "tool" not in resolved.tags
+                            ):
+                                maximum = resolved.durability
+                                if (
+                                    maximum is None
+                                    or entry.item_state.durability > maximum
+                                ):
+                                    raise ValueError(
+                                        "Начальная прочность требует ломаемый предмет и не превышает максимум"
+                                    )
                             effective = [(destination, resolved)]
                             if destination == "points_of_interest":
-                                effective.append(
-                                    (
-                                        "challenges",
-                                        resolve_challenge(documents, resolved, entry),
-                                    )
+                                challenge = resolve_challenge(
+                                    documents, resolved, entry
                                 )
+                                if challenge is not None:
+                                    effective.append(("challenges", challenge))
                             for effective_category, definition in effective:
                                 for target_category, target, path in references(
                                     definition.model_dump(mode="json"),
@@ -385,7 +432,24 @@ class PackStore:
             for x in range(doc.width)
             if doc.walkability[y][x] and (x, y) not in reachable
         ]
+        snapshot = self.snapshot()
+        missing_floor = [
+            {"x": p.x, "y": p.y}
+            for category in ("objects", "points_of_interest")
+            for p in getattr(doc, category)
+            if not doc.tiles[p.y][p.x]
+            and ((d := snapshot.resolve(category, p)).movable or d.destruction)
+        ]
         return (
+            [
+                {
+                    "message": "У разбираемых объектов не задан пол. Нарисуйте основание перед игрой.",
+                    "cells": missing_floor,
+                }
+            ]
+            if missing_floor
+            else []
+        ) + (
             [{"message": f"Недостижимых клеток: {len(isolated)}", "cells": isolated}]
             if isolated
             else []
@@ -444,6 +508,7 @@ class PackStore:
 
     def create_pack(self, raw):
         with self.lock:
+            self.reload()
             manifest = Manifest.model_validate(raw)
             if manifest.id in self.manifests:
                 raise Conflict("Пакет уже существует")
@@ -458,6 +523,71 @@ class PackStore:
                 (self.root / manifest.id / category).mkdir(exist_ok=True)
             self.reload()
             return manifest
+
+    def pack_envelope(self, pack):
+        with self.lock:
+            self.reload()
+            if pack not in self.manifests:
+                raise ContentError("Неизвестный пакет")
+            return dict(
+                document=self.manifests[pack].model_dump(mode="json"),
+                version=self.version(self.root / pack / "manifest.json"),
+                document_count=sum(
+                    ref.startswith(pack + ":") for _, ref in self.documents
+                ),
+                dependents=[
+                    dict(id=m.id, name=m.name)
+                    for m in self.manifests.values()
+                    if pack in m.dependencies
+                ],
+            )
+
+    def save_pack(self, pack, raw, expected_version):
+        with self.lock:
+            current = self.pack_envelope(pack)
+            if current["version"] != expected_version:
+                raise Conflict("Пакет изменён другим редактором. Откройте его заново.")
+            manifest = Manifest.model_validate(raw)
+            if manifest.id != pack:
+                raise ContentError("ID пакета зафиксирован; измените его название.")
+            candidate = dict(self.manifests)
+            candidate[pack] = manifest
+            self.validate_dependencies(candidate)
+            self.validate_references(self.documents, candidate)
+            path = self.root / pack / "manifest.json"
+            if self.version(path) != expected_version:
+                raise Conflict("Пакет изменён во время проверки")
+            self.atomic_json(path, manifest.model_dump(mode="json"))
+            return self.pack_envelope(pack)
+
+    def delete_pack(self, pack, expected_version):
+        with self.lock:
+            current = self.pack_envelope(pack)
+            if current["version"] != expected_version:
+                raise Conflict("Пакет изменён другим редактором. Откройте его заново.")
+            if pack == "base":
+                raise ContentError("Базовый пакет необходим для работы студии и игры.")
+            if current["dependents"]:
+                raise Referenced(
+                    "От пакета зависят: "
+                    + ", ".join(
+                        p["name"] + " (" + p["id"] + ")" for p in current["dependents"]
+                    )
+                )
+            source = (self.root / pack).resolve()
+            archive = (self.root / ".trash" / f"{pack}-{uuid4().hex}").resolve()
+            if not source.is_relative_to(self.root) or not archive.is_relative_to(
+                self.root
+            ):
+                raise ContentError(
+                    "Пакет и архив должны находиться внутри каталога пакетов."
+                )
+            archive.parent.mkdir(exist_ok=True)
+            if self.version(source / "manifest.json") != expected_version:
+                raise Conflict("Пакет изменён во время проверки")
+            os.replace(source, archive)
+            self.reload()
+            return dict(deleted=True, archive=str(archive))
 
     @staticmethod
     def atomic_json(path, raw):

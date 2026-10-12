@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "craft_workpiece",
+  "name": "Заготовка",
+  "description": "Хранит материалы и прогресс. Можно продолжить работу или вернуть все вложения.",
+  "glyph": "?",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.0
+}

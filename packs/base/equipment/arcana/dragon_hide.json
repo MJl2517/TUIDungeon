@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "dragon_hide",
+  "name": "Драконья кожа",
+  "description": "Драконья кожа.",
+  "weight": 1.0,
+  "category": "materials",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "*",
+  "foreground": 7,
+  "tags": [
+    "leather",
+    "organic",
+    "flammable"
+  ]
+}

@@ -1,22 +1,65 @@
 """Atomic item ownership changes shared by the terminal and browser clients."""
 
 from ..domain.storage import item_stacks
-from ..world.maps import Position
 
 
 class StorageCommands:
-    def nearby_containers(self):
+    def nearby_containers(self, *, include_closed=False):
         level = self.state.level
         if not level:
             return []
         p = self.state.position
-        light = self.lighting
         return [
             container
-            for dx, dy in ((0, 0), (0, -1), (0, 1), (-1, 0), (1, 0))
+            for dx, dy in (
+                (0, 0),
+                (0, -1),
+                (0, 1),
+                (-1, 0),
+                (1, 0),
+                (-1, -1),
+                (1, -1),
+                (-1, 1),
+                (1, 1),
+            )
             for container in level.index("containers").at(p.x + dx, p.y + dy)
-            if light.at(Position(container.placement.x, container.placement.y))
+            if self._within_reach(container.placement)
+            and not getattr(container.definition, "light_fixture", None)
+            and (include_closed or container.spec.open_tool is None)
         ]
+
+    def open_container(self, identifier):
+        from .engine import ActionResult
+
+        container = next(
+            (
+                c
+                for c in self.nearby_containers(include_closed=True)
+                if c.placement.id == identifier
+            ),
+            None,
+        )
+        if (
+            not container
+            or self.active_craft
+            or self.lockpick_attempt
+            or self.state.hero.hp <= 0
+        ):
+            return ActionResult(False, 0, "Контейнер недоступен.")
+        if container.spec.open_tool:
+            if not any(
+                i.usable and container.spec.open_tool in i.tags
+                for i in self.state.hero.inventory
+            ):
+                return ActionResult(
+                    False,
+                    0,
+                    "Закрытый ящик: нужна исправная монтировка или разберите мебель.",
+                )
+            container.spec = container.spec.model_copy(update={"open_tool": None})
+            self._advance(1)
+            return ActionResult(True, 1, "Ящик открыт монтировкой.")
+        return ActionResult(True, 0, "Контейнер открыт.")
 
     def storage_at(self, placement_id):
         return next(
@@ -31,7 +74,7 @@ class StorageCommands:
             return ActionResult(False, 0, message)
 
         hero = self.state.hero
-        if self.lockpick_attempt or hero.hp <= 0:
+        if self.lockpick_attempt or self.active_craft or hero.hp <= 0:
             return denied("Сейчас нельзя перемещать вещи.")
         container = self.storage_at(placement_id)
         if container is None:

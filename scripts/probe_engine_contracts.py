@@ -12,7 +12,6 @@ from tuidungeon.application.engine import Action
 from tuidungeon.application.factories import SessionFactory
 from tuidungeon.content.packs import PackStore
 from tuidungeon.content.schemas import MapDocument
-from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.world.maps import Position
 
 
@@ -42,16 +41,15 @@ def probe():
         }
     ]
 
-    a = TestSession(store, {"map_ref": "base:benchmark"})
-    b = TestSession(store, {"map_ref": "base:benchmark"})
+    a = SessionFactory(store).session("base:benchmark")
+    b = SessionFactory(store).session("base:benchmark")
     rejected = False
     try:
         store.get("maps", "base:benchmark").walkability[2][2] = False
     except (TypeError, ValueError):
         rejected = True  # A deeply immutable definition also satisfies isolation.
     leaked = any(
-        not session.engine.state.level.definition.walkability[2][2]
-        for session in (a, b)
+        not session.state.level.definition.walkability[2][2] for session in (a, b)
     )
     checks.append(
         {
@@ -59,8 +57,8 @@ def probe():
             "ok": rejected or not leaked,
             "mutation_rejected": rejected,
             "mutation_leaked": leaked,
-            "runtime_walkable": a.engine.state.dungeon.walkable(Position(2, 2)),
-            "definition_walkable": a.engine.state.level.definition.walkability[2][2],
+            "runtime_walkable": a.state.dungeon.walkable(Position(2, 2)),
+            "definition_walkable": a.state.level.definition.walkability[2][2],
         }
     )
 

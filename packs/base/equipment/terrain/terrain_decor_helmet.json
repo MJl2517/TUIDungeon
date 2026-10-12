@@ -12,7 +12,8 @@
   "tags": [
     "armor_decor",
     "decor_helmet",
-    "transparent"
+    "transparent",
+    "metal"
   ],
   "durability": null,
   "slot": "head",

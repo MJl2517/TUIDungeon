@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "bandage",
+  "name": "Бинт",
+  "description": "Перевязочный материал для обработки ран.",
+  "glyph": "~",
+  "foreground": 7,
+  "category": "consumables",
+  "group": "Припасы",
+  "weight": 0.2,
+  "charges": 1,
+  "tags": [
+    "cloth",
+    "consumable",
+    "flammable"
+  ],
+  "properties": [
+    {
+      "kind": "heal",
+      "amount": 4
+    }
+  ]
+}

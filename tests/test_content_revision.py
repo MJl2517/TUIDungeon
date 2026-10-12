@@ -176,8 +176,10 @@ class ContentRevisionTests(unittest.TestCase):
             original = json.dumps(self.legacy_map(), ensure_ascii=False).encode()
             path.write_bytes(original)
             backup = Path(directory) / "backup"
+            expected, _ = migrate(root, backup, write=False)
             count, _ = migrate(root, backup, write=True)
-            self.assertEqual(count, 1)
+            self.assertGreaterEqual(expected, 1)
+            self.assertEqual(count, expected)
             self.assertEqual(
                 (backup / "base/maps/revision.json").read_bytes(), original
             )

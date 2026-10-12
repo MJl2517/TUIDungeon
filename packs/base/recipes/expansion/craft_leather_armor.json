@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "craft_leather_armor",
+  "name": "Кожаный доспех",
+  "description": "Кожаный доспех.",
+  "category": "leatherworker",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "leatherworker_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:raw_leather"
+          ],
+          "quantity": 4
+        },
+        {
+          "items": [
+            "base:leather_strip"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 5,
+      "tools": [
+        "leatherworker_tools"
+      ],
+      "proficiencies": [
+        "leatherworker_tools"
+      ],
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "base:leather",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

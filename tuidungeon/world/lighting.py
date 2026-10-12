@@ -16,7 +16,7 @@ DIM_LIGHT_HINT = (
 def line_of_sight(start: Position, target: Position, blocks) -> bool:
     """An opaque target is visible, but walls behind it and closed corners are not."""
     if blocks[target.y][target.x] and start != target:
-        return wall_face_visible(start, target, blocks)
+        return bool(visible_wall_faces(start, target, blocks))
     x, y = start.x, start.y
     dx, dy = abs(target.x - x), abs(target.y - y)
     sx, sy = (1 if x < target.x else -1), (1 if y < target.y else -1)
@@ -38,13 +38,15 @@ def line_of_sight(start: Position, target: Position, blocks) -> bool:
     return True
 
 
-def wall_face_visible(start: Position, target: Position, blocks) -> bool:
-    """Trace to the facing surface, not a center buried inside a solid wall.
+def visible_wall_faces(start: Position, target: Position, blocks) -> int:
+    """Return a mask of visible faces/corners, rather than the buried wall center.
 
     At shallow angles a center-to-center ray enters the neighboring wall first.
     A ray to the near face/corner correctly exposes the entire first wall face.
     Grid traversal still stops at intervening walls and closed diagonal gaps.
     """
+    if start == target:
+        return 255  # A light mounted inside this cell emits from every surface.
     center_x, center_y = target.x + 0.5, target.y + 0.5
     # Stop immediately outside the face. Looking just inside a corner would
     # hit an adjacent cell of the same wall before reaching the target tile.
@@ -90,10 +92,17 @@ def wall_face_visible(start: Position, target: Position, blocks) -> bool:
             if (x, y) != (target.x, target.y) and blocks[y][x]:
                 return False
 
-    return any(
-        trace(x, y)
-        for x, y in ((near_x, near_y), (near_x, center_y), (center_x, near_y))
-    )
+    faces = []
+    if start.x != target.x:
+        faces.append((int(start.x > target.x), near_x, center_y))
+    if start.y != target.y:
+        faces.append((2 + int(start.y > target.y), center_x, near_y))
+    if start.x != target.x and start.y != target.y:
+        # Corners are separate: opposite sides of a straight wall must never
+        # share light merely because both observers are north of this cell.
+        corner = 4 + int(start.x > target.x) + 2 * int(start.y > target.y)
+        faces.append((corner, near_x, near_y))
+    return sum(1 << face for face, x, y in faces if trace(x, y))
 
 
 @dataclass(frozen=True)
@@ -101,10 +110,16 @@ class LightField:
     # 0: unseen; 1: dim; 2: bright. No unexplored contents leak through a frontend.
     cells: list[list[int]]
     illumination: list[list[int]] | None = None
+    # Cached physical light on W/E/N/S faces and NW/NE/SW/SE corners.
+    wall_illumination: dict[Position, list[int]] | None = None
+    # Physical light on the surfaces facing the current observer (no nav cues).
+    wall_light: dict[Position, int] | None = None
 
     def __post_init__(self):
         object.__setattr__(self, "cells", freeze(self.cells))
         object.__setattr__(self, "illumination", freeze(self.illumination))
+        object.__setattr__(self, "wall_illumination", freeze(self.wall_illumination))
+        object.__setattr__(self, "wall_light", freeze(self.wall_light))
 
     def at(self, position: Position) -> int:
         if 0 <= position.y < len(self.cells) and 0 <= position.x < len(self.cells[0]):
@@ -113,6 +128,8 @@ class LightField:
 
     def level_at(self, position: Position) -> int:
         """Physical illumination, separate from visibility and navigation cues."""
+        if self.wall_light is not None and position in self.wall_light:
+            return self.wall_light[position]
         grid = self.illumination if self.illumination is not None else self.cells
         if 0 <= position.y < len(grid) and 0 <= position.x < len(grid[0]):
             return grid[position.y][position.x]
@@ -128,7 +145,15 @@ class LightField:
         return lines
 
     @classmethod
-    def calculate(cls, state, *, sources=None, illumination=None, magic_sources=()):
+    def calculate(
+        cls,
+        state,
+        *,
+        sources=None,
+        illumination=None,
+        wall_illumination=None,
+        magic_sources=(),
+    ):
         level = state.level
         ambient = level.definition.ambient_light if level else "dark"
         blocks = (
@@ -141,11 +166,17 @@ class LightField:
             level.terrain.no_occluders if level else not any(any(r) for r in blocks)
         )
         value = {"dark": 0, "dim": 1, "bright": 2}[ambient]
+        roof = (
+            level.definition.roof if level else [[False] * width for _ in range(height)]
+        )
+        needs_light = value < 2 or any(any(row) for row in roof)
         cells = (
             [list(row) for row in illumination]
             if illumination is not None
-            else [[value] * width for _ in range(height)]
+            else [[0 if covered else value for covered in row] for row in roof]
         )
+
+        wall_illumination = wall_illumination if illumination is not None else {}
 
         def illuminate(position, radius, bright_radius):
             reach = ceil(radius)
@@ -156,17 +187,29 @@ class LightField:
                     max(0, position.x - reach), min(width, position.x + reach + 1)
                 ):
                     distance = (x - position.x) ** 2 + (y - position.y) ** 2
-                    if distance <= radius**2 and (
-                        no_occluders or line_of_sight(position, Position(x, y), blocks)
-                    ):
-                        cells[y][x] = max(
-                            cells[y][x],
-                            2
-                            if bright_radius > 0 and distance <= bright_radius**2
-                            else 1,
+                    if distance > radius**2:
+                        continue
+                    target = Position(x, y)
+                    strength = (
+                        2 if bright_radius > 0 and distance <= bright_radius**2 else 1
+                    )
+                    if blocks[y][x]:
+                        faces = visible_wall_faces(position, target, blocks)
+                        if not faces:
+                            continue
+                        levels = wall_illumination.setdefault(
+                            target, [0 if roof[y][x] else value] * 8
                         )
+                        for face in range(8):
+                            if faces & (1 << face):
+                                levels[face] = max(levels[face], strength)
+                    elif not no_occluders and not line_of_sight(
+                        position, target, blocks
+                    ):
+                        continue
+                    cells[y][x] = max(cells[y][x], strength)
 
-        if illumination is None and level and value < 2:
+        if illumination is None and level and needs_light:
             for instance in level.doors:
                 if instance.door.burning:
                     illuminate(
@@ -183,7 +226,7 @@ class LightField:
                     )
         sources = sources if sources is not None else state.light_sources()
         for position, item in sources:
-            if illumination is None and value < 2 and item.shining:
+            if illumination is None and needs_light and item.shining:
                 illuminate(
                     position,
                     item.definition.light.radius,
@@ -193,6 +236,14 @@ class LightField:
             for position, radius, bright_radius in magic_sources:
                 illuminate(position, radius, bright_radius)
         illumination = illumination if illumination is not None else freeze(cells)
+        wall_light = {}
+        for position, levels in (wall_illumination or {}).items():
+            faces = visible_wall_faces(state.position, position, blocks)
+            strength = max(
+                (level for face, level in enumerate(levels) if faces & (1 << face)),
+                default=0,
+            )
+            wall_light[position] = cells[position.y][position.x] = strength
         # These are navigation cues, not physical light. Inspection of a dark
         # adjacent cell (or the hero's own cell) must still report darkness.
         for dx, dy in ((0, 0), (0, -1), (0, 1), (-1, 0), (1, 0)):
@@ -208,7 +259,7 @@ class LightField:
                 ):
                     cells[y][x] = 0
         cells[state.position.y][state.position.x] = 2
-        return cls(cells, illumination)
+        return cls(cells, illumination, wall_illumination, wall_light)
 
     def shade(self, cells, origin=(0, 0)):
         x0, y0 = origin
@@ -229,8 +280,8 @@ def shaded_cell(cell, strength):
     if not strength:
         return DARK_CELL
     if strength == 1 and cell:
-        return Cell(
-            char=cell.char, foreground=8, background=dim_background(cell.background)
+        return cell.model_copy(
+            update={"foreground": 8, "background": dim_background(cell.background)}
         )
     return cell
 

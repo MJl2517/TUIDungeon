@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "mechanical_part",
+  "name": "Механическая деталь",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.1,
+  "tags": [
+    "metal"
+  ]
+}

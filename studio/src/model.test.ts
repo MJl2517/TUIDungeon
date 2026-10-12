@@ -228,6 +228,21 @@ describe("document editing", () => {
       ],
     };
     const n = resizeMap(d, 1, 1);
+    expect(n.roof).toEqual([[false]]);
+    d.roof = [
+      [true, false],
+      [false, true],
+    ];
+    const expanded = resizeMap(d, 3, 3);
+    expect(expanded.roof).toEqual([
+      [true, false, false],
+      [false, true, false],
+      [false, false, false],
+    ]);
+    expect(d.roof).toEqual([
+      [true, false],
+      [false, true],
+    ]);
     expect(n.spawn).toEqual({ x: 0, y: 0 });
     expect(n.traps).toHaveLength(0);
     expect(n.lights).toHaveLength(0);

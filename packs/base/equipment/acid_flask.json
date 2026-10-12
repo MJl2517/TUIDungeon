@@ -12,7 +12,9 @@
   "tags": [
     "acid",
     "consumable",
-    "throwable"
+    "throwable",
+    "glass",
+    "liquid"
   ],
   "durability": null,
   "slot": null,

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "bitter_flower",
+  "name": "Золототысячник",
+  "description": "Горькое растение для противоядных отваров. После сбора восстанавливается через сутки.",
+  "variants": [],
+  "glyph": "✿",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Растения: сбор",
+  "tags": [
+    "flammable",
+    "organic",
+    "plants"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": 1440,
+    "max_hp": 3,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "harvest",
+      "tools": [],
+      "turns": 1,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:bitter_herb",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": []
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null
+}

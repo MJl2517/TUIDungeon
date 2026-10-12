@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "repair_mechanism",
+  "name": "Ремонт механизма",
+  "description": "Ремонт механизма.",
+  "category": "tinker",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "tinker_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:mechanical_part"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 3,
+      "tools": [
+        "tinker_tools"
+      ],
+      "proficiencies": [
+        "tinker_tools"
+      ],
+      "stations": []
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "repair_object",
+    "target_tags": [
+      "mechanism"
+    ],
+    "repair_amount": 10
+  }
+}

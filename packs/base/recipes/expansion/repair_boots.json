@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "repair_boots",
+  "name": "Ремонт обуви",
+  "description": "Ремонт обуви.",
+  "category": "cobbler",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "cobbler_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:leather_strip"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 2,
+      "tools": [
+        "cobbler_tools"
+      ],
+      "proficiencies": [
+        "cobbler_tools"
+      ],
+      "stations": []
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "repair_item",
+    "target_tags": [
+      "leather"
+    ],
+    "repair_amount": 10
+  }
+}

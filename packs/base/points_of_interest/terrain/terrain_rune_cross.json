@@ -9,7 +9,8 @@
   "art": null,
   "tags": [
     "runes",
-    "transparent"
+    "transparent",
+    "magic"
   ],
   "challenge": "base:terrain_rune_cross",
   "group": "Руны"

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "scroll_light",
+  "name": "Свиток света",
+  "description": "Содержит одно применение заклинания. Не требует знания, ячеек или зарядов заговоров. Цель выбирается через меню магии; неверная цель не расходует свиток.",
+  "weight": 0.02,
+  "category": "consumables",
+  "group": "Каллиграфия и магическое ремесло",
+  "glyph": "!",
+  "foreground": 13,
+  "tags": [
+    "magic",
+    "paper",
+    "flammable"
+  ],
+  "charges": 1,
+  "cast_spell": "base:light"
+}

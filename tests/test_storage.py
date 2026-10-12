@@ -17,7 +17,6 @@ from tuidungeon.domain.actions import SpellSource
 from tuidungeon.domain.storage import item_stacks
 from tuidungeon.presentation.storage import storage_layout, storage_click
 from tuidungeon.presentation.tui import Controller, View, render
-from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.world.maps import Position
 from scripts.prepare_storage import CONTAINERS
 
@@ -98,17 +97,25 @@ class StorageTests(unittest.TestCase):
         )
         item = next(i for i in engine.state.hero.inventory if i.id == "spellbook")
         self.assertTrue(engine.cast_spell("light", SpellSource.CLASS, item).performed)
-        self.assertTrue(engine.transfer_storage("private", item.instance_id, deposit=True).performed)
+        self.assertTrue(
+            engine.transfer_storage("private", item.instance_id, deposit=True).performed
+        )
         self.assertIn("glowing", item.tags)
         self.assertEqual(engine.magic_lights(), ())
         with tempfile.TemporaryDirectory() as folder:
             repo = SaveRepository(Path(folder) / "glowing-container.json")
             repo.save(engine)
             loaded = repo.load(store=self.store)
-        restored = next(i for i in loaded.storage_at("private").items if i.instance_id == item.instance_id)
+        restored = next(
+            i
+            for i in loaded.storage_at("private").items
+            if i.instance_id == item.instance_id
+        )
         self.assertEqual(restored.glow, item.glow)
         self.assertEqual(loaded.magic_lights(), ())
-        self.assertTrue(loaded.transfer_storage("private", restored.instance_id).performed)
+        self.assertTrue(
+            loaded.transfer_storage("private", restored.instance_id).performed
+        )
         self.assertIn("glowing", restored.tags)
         self.assertEqual(loaded.magic_lights()[0][0], loaded.state.position)
         for _ in range(restored.glow.remaining_turns):
@@ -326,6 +333,21 @@ class StorageTests(unittest.TestCase):
         c.engine, c.view = self.engine, View.EXPLORE
         self.engine.state.position = Position(4, 2)
         c.open_interaction()
+        if c.view is View.INTERACTION:
+            point = next(
+                p for p in c.engine.nearby_points() if p.placement.id == c.point_id
+            )
+            c.handle(
+                str(
+                    next(
+                        i + 1
+                        for i, choice in enumerate(
+                            point.available_choices(c.engine.state.hero)
+                        )
+                        if choice.id == "open_storage"
+                    )
+                )
+            )
         self.assertIs(c.view, View.STORAGE)
         c.handle("enter")
         _, rect, rows, _ = storage_layout(c, 100, 30)
@@ -333,25 +355,6 @@ class StorageTests(unittest.TestCase):
         start = rows[index].index("[") + 1
         storage_click(c, rect.x + 2 + start + 19, rect.y + 1 + index, 100, 30)
         self.assertEqual(c.storage.quantity, 4)
-
-    def test_browser_commands_match_engine_and_reset(self):
-        session = TestSession(self.store, dict(map_ref="base:storage_test", seed=42))
-        snap = session.snapshot()
-        c = next(c for c in snap["containers"] if c["id"] == "private")
-        snap = session.command(
-            "storage_transfer",
-            placement="private",
-            item=c["items"][0]["id"],
-            quantity=2,
-        )
-        self.assertTrue(snap["log"][-1]["performed"])
-        self.assertEqual(snap["turns"], 0)
-        session.reset()
-        self.assertEqual(len(session.engine.storage_at("private").items), 6)
-        self.assertNotEqual(
-            c["items"][0]["id"],
-            session.engine.storage_at("private").items[0].instance_id,
-        )
 
 
 if __name__ == "__main__":

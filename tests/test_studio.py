@@ -1,4 +1,4 @@
-"""Authoring contracts, pack transactions and browser/TUI engine parity."""
+"""Authoring contracts, pack transactions and native game launch."""
 
 from scripts.testing import install_test_maps
 from copy import deepcopy
@@ -21,7 +21,7 @@ from tuidungeon.content.schemas import ArtDocument, MonsterDocument, MapDocument
 from tuidungeon.presentation.art import compose, import_txt, export_txt
 from tuidungeon.application.factories import SessionFactory
 from tuidungeon.application.engine import Action
-from tuidungeon.presentation.tui import Controller, View, render
+from tuidungeon.presentation.tui import Controller
 from tuidungeon.tooling.server import create_app
 from tuidungeon.domain.mechanics import mechanics, Parameters
 from tuidungeon.domain.effects import EffectOutcome
@@ -273,6 +273,12 @@ class SessionTests(PackFixture):
         self.assertEqual(len(c.events), 2)
 
     def test_point_distance_choices_completion_and_resource_cost(self):
+        point = self.store.get("points_of_interest", "base:chest")
+        self.store.documents["points_of_interest", "base:chest"] = point.model_copy(
+            update={
+                "storage": point.storage.model_copy(update={"search_contents": True})
+            }
+        )
         game = SessionFactory(self.store).session("base:crypt", seed=42)
         self.assertFalse(game.interact("chest_1", "force").performed)
         for _ in range(3):
@@ -352,6 +358,42 @@ class ApiTests(PackFixture):
         super().setUp()
         self.client = TestClient(create_app(self.root), base_url="http://127.0.0.1")
 
+    def test_recipe_authoring_validates_ingredients_and_result_references(self):
+        meta = self.client.get("/api/schemas").json()
+        raw = meta["templates"]["recipes"]
+        raw.update(id="studio_recipe", name="Рецепт из студии")
+        response = self.client.put(
+            "/api/documents/recipes/base:studio_recipe",
+            json={"document": raw, "version": None},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        loaded = PackStore(self.root).runtime_catalog()
+        self.assertIn("base:studio_recipe", loaded.recipes)
+        raw["variants"][0]["ingredients"][0]["items"] = ["base:absent_material"]
+        response = self.client.put(
+            "/api/documents/recipes/base:studio_recipe",
+            json={"document": raw, "version": response.json()["version"]},
+        )
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertNotEqual(
+            PackStore(self.root)
+            .get("recipes", "base:studio_recipe")
+            .variants[0]
+            .ingredients[0]
+            .items,
+            ["base:absent_material"],
+        )
+
+    def test_browser_game_routes_are_removed(self):
+        self.assertFalse(hasattr(self.client.app.state, "sessions"))
+        for path in (
+            "/api/sessions",
+            "/api/sessions/old/commands",
+            "/api/sessions/old/reset",
+        ):
+            self.assertEqual(self.client.post(path, json={}).status_code, 404)
+        self.assertEqual(self.client.delete("/api/sessions/old").status_code, 404)
+
     def test_game_map_launch_validation_origin_and_errors(self):
         with patch("tuidungeon.tooling.server.open_test_map") as launch:
             for body in (
@@ -380,14 +422,18 @@ class ApiTests(PackFixture):
             self.assertEqual(
                 response.json(), {"started": True, "map_ref": "base:crypt"}
             )
-            launch.assert_called_once_with(self.root.resolve(), "base:crypt", 7, "base:warrior")
+            launch.assert_called_once_with(
+                self.root.resolve(), "base:crypt", 7, "base:warrior"
+            )
             for character_class in ("base:warrior", "base:wizard", "base:rogue"):
                 response = self.client.post(
                     "/api/game",
                     json={"map_ref": "base:crypt", "character_class": character_class},
                 )
                 self.assertEqual(response.status_code, 200, response.text)
-                launch.assert_called_with(self.root.resolve(), "base:crypt", 42, character_class)
+                launch.assert_called_with(
+                    self.root.resolve(), "base:crypt", 42, character_class
+                )
             launch.side_effect = OSError("window unavailable")
             response = self.client.post("/api/game", json={"map_ref": "base:crypt"})
             self.assertEqual(response.status_code, 503)
@@ -396,6 +442,28 @@ class ApiTests(PackFixture):
     def test_full_authoring_api_schemas_save_usages_and_conflicts(self):
         lib = self.client.get("/api/library")
         self.assertEqual(lib.status_code, 200)
+        documents = lib.json()["documents"]
+        goblin = next(
+            d
+            for d in documents
+            if d["category"] == "monsters" and d["ref"] == "base:goblin"
+        )
+        self.assertEqual(
+            goblin["details"]["hit_points"],
+            self.store.get("monsters", "base:goblin").hit_points,
+        )
+        self.assertIn('"hit_points"', goblin["search_text"])
+        wall = next(
+            d for d in documents if d["category"] == "tiles" and d["ref"] == "base:wall"
+        )
+        self.assertTrue(wall["details"]["blocks_sight"])
+        self.assertTrue(
+            all(
+                not d["search_text"]
+                for d in documents
+                if d["category"] in ("maps", "art")
+            )
+        )
         assets = self.client.get("/api/assets").json()
         self.assertIn("art/base:goblin", assets["documents"])
         self.assertEqual(
@@ -428,57 +496,6 @@ class ApiTests(PackFixture):
             200,
         )
 
-    def test_browser_and_tui_same_commands_seed_and_reset(self):
-        # Creation and exploration have independent reproducible streams.
-        factory = SessionFactory(self.store)
-        controller = Controller(
-            99, catalog=factory.catalog, map_ref="base:crypt", store=self.store
-        )
-        controller.handle("enter")
-        for key in "11121234561":
-            controller.handle(key)
-        hero = controller.engine.state.hero
-        base_scores = [score - 1 for score in hero.stats.values]
-        response = self.client.post(
-            "/api/sessions",
-            json={"map_ref": "base:crypt", "seed": 99, "scores": base_scores},
-        )
-        self.assertEqual(response.status_code, 200, response.text)
-        state = response.json()
-        identifier = state["id"]
-        for key in "ddd":
-            controller.handle(key)
-            state = self.client.post(
-                f"/api/sessions/{identifier}/commands", json={"command": key}
-            ).json()
-            self.assertEqual(
-                (state["hero"]["hp"], state["turns"], state["clock"]["elapsed"]),
-                (
-                    hero.hp,
-                    controller.engine.state.turns,
-                    controller.engine.state.clock.elapsed_minutes,
-                ),
-            )
-        controller.handle("enter")
-        self.assertEqual(controller.view, View.STORAGE)
-        controller.handle("f4")
-        self.assertEqual(controller.view, View.INTERACTION)
-        self.assertIn("сундук", "\n".join(render(controller, 100, 30)).lower())
-        controller.handle("2")
-        state = self.client.post(
-            f"/api/sessions/{identifier}/commands",
-            json={"command": "interact", "placement": "chest_1", "choice": "force"},
-        ).json()
-        self.assertEqual(
-            (state["hero"]["hp"], state["hero"]["gold"], state["hero"]["experience"]),
-            (hero.hp, hero.gold, hero.experience),
-        )
-        self.assertEqual(state["events"], controller.engine.events)
-        reset = self.client.post(f"/api/sessions/{identifier}/reset").json()
-        self.assertFalse(reset["traps"][0]["triggered"])
-        self.assertFalse(reset["points"][0]["completed"])
-        self.assertEqual(reset["turns"], 0)
-
     def test_empty_pack_schemas_and_invalid_hero_refs(self):
         root = Path(self.temp.name) / "empty_packs"
         PackStore.atomic_json(
@@ -491,10 +508,6 @@ class ApiTests(PackFixture):
             response.json()["templates"]["points_of_interest"]["challenge"],
             "starter:new_challenge",
         )
-        bad = self.client.post(
-            "/api/sessions", json={"map_ref": "base:crypt", "race": "base:missing"}
-        )
-        self.assertEqual(bad.status_code, 422)
         self.assertEqual(
             self.client.post(
                 "/api/sandbox", json={"monster": "base:missing", "action": "attack"}

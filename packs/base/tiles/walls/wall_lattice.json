@@ -11,7 +11,8 @@
   "tags": [
     "walls",
     "obstacle",
-    "transparent"
+    "transparent",
+    "stone"
   ],
   "walkable": false,
   "blocks_sight": false

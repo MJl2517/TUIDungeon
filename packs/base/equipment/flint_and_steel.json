@@ -10,7 +10,10 @@
   "category": "tools",
   "weight": 0.5,
   "tags": [
-    "поджог"
+    "поджог",
+    "ignite",
+    "metal",
+    "tool"
   ],
   "durability": null,
   "slot": null,

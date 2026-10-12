@@ -11,13 +11,17 @@ from ..domain.rules import Ability, Dice
 from ..domain.equipment import Equipment
 from ..domain.materials import material_details
 from ..world.maps import DungeonMap, Position
-from ..world.state import GameState, MonsterPlacement, ItemPlacement
-from ..world.lighting import LightField
+from ..world.state import GameState, MonsterPlacement, ItemPlacement, ReadNote
+from ..world.lighting import LightField, line_of_sight
 from ..domain.collections import EventLog
 from ..world.graphics import glyph_cell
+from ..world.objects import WORK_NAMES, WorldObject, ObjectState
 from .doors import DoorCommands
 from .surfaces import SurfaceCommands
 from .storage import StorageCommands
+from .environment import EnvironmentCommands
+from .crafting import CraftCommands
+from .workshop import WorkshopCommands
 from .magic import MagicCommands
 from ..world.doors import DoorInstance
 
@@ -62,7 +66,27 @@ def test_dungeon() -> DungeonMap:
     return DungeonMap(tuple("".join(row) for row in cells))
 
 
-class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
+class Engine(
+    WorkshopCommands,
+    CraftCommands,
+    EnvironmentCommands,
+    DoorCommands,
+    SurfaceCommands,
+    StorageCommands,
+    MagicCommands,
+):
+    def light_denial(self, minimum=1):
+        strength = self.lighting.level_at(self.state.position)
+        if strength >= minimum:
+            return None
+        message = (
+            "Действие невозможно в кромешной тьме. Зажгите источник света."
+            if strength == 0
+            else "Для этого действия нужно яркое освещение. Тусклого света недостаточно."
+        )
+        self.events.append(dict(kind="light_denied", message=message))
+        return ActionResult(False, 0, message)
+
     def __init__(
         self,
         state: GameState,
@@ -76,7 +100,9 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         self.actions = actions or ActionRegistry.default()
         self.challenges: dict[str, Challenge] = {}
         self.events: list[dict] = EventLog()
+        self.read_notes: dict[tuple[str, str], ReadNote] = {}
         self.lockpick_attempt = None
+        self.active_craft = None
         self.magic_effects = []
         self._glowing_items = {}
         level = getattr(state, "level", None)
@@ -99,9 +125,15 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
             raise ValueError("Неизвестное игровое действие")
         if self.state.hero.hp <= 0:
             return ActionResult(False, 0, "Персонаж без сознания.")
-        if self.lockpick_attempt:
+        if self.lockpick_attempt or self.active_craft:
             return ActionResult(
                 False, 0, "Взлом: Space — следующий ход, Backspace — отменить."
+            )
+        if action is Action.REST and not self.can_long_rest():
+            return ActionResult(
+                False,
+                0,
+                "Длительный отдых доступен только у кровати, лежанки или разложенного спального мешка.",
             )
         if action in (Action.REST, Action.SHORT_REST):
             self.magic_effects.clear()
@@ -152,7 +184,9 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         self.state.hero.conditions.update(preserved)
         self.state.turns += 1
         self.state.clock.advance(minutes)
+        self.collect_door_remains()
         states = list(self.levels.values()) if self.levels else [self.state]
+        self.collect_corpses(states)
         items = [
             item for state in states for _, item in state.light_sources(shining=False)
         ]
@@ -170,10 +204,14 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
                     expired.append(message)
                     self.events.append({"kind": "light", "message": message})
         self.discard_consumed_lights()
+        self.advance_campfires(states, minutes)
+        self.advance_world_fires(states, minutes)
         expired.extend(self.advance_doors(states, minutes))
         self.advance_surfaces(states)
+        self.advance_regrowth(states)
         self.advance_magic()
         self.prune_magic_items()
+        self.collect_door_remains()
         return expired
 
     def discard_consumed_lights(self) -> None:
@@ -181,6 +219,26 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         states = list(self.levels.values()) if self.levels else [self.state]
         inventories = [self.state.hero.inventory]
         for state in states:
+            if state.level:
+                for c in tuple(state.level.containers):
+                    fixture = getattr(c.definition, "light_fixture", None)
+                    if (
+                        fixture
+                        and not fixture.stays_when_empty
+                        and c.items
+                        and all(i.consumed for i in c.items)
+                    ):
+                        self._detach_world(
+                            WorldObject(
+                                "objects", c.placement, c.definition, ObjectState()
+                            ),
+                            level=state.level,
+                        )
+                inventories.extend(
+                    c.items
+                    for c in state.level.containers
+                    if getattr(c.definition, "light_fixture", None)
+                )
             inventories.extend(
                 p.monster.inventory
                 for p in state.monsters
@@ -200,7 +258,7 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
     def lighting(self) -> LightField:
         state = self.state
         sources = state.light_sources()
-        magic_sources = self.magic_lights()
+        magic_sources = (*self.magic_lights(), *self.campfire_lights())
         geometry = state.level.terrain if state.level else state.dungeon
         key = (
             id(state),
@@ -237,6 +295,9 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
                 state,
                 sources=sources,
                 illumination=physical,
+                wall_illumination=self._light.wall_illumination
+                if physical is not None
+                else None,
                 magic_sources=magic_sources,
             )
             self._physical_key = physical_key
@@ -318,7 +379,10 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
             if x <= p.x < x + w and y <= p.y < y + h:
                 c = cells[p.y - y][p.x - x]
                 cells[p.y - y][p.x - x] = glyph_cell(
-                    c.char if c else "~", c.foreground if c else 11, 94
+                    c.char if c else "~",
+                    c.foreground if c else 11,
+                    94,
+                    getattr(c, "visual_ref", None),
                 )
         frame = light.shade(cells, (x, y))
         # Keep at most the full map and a small number of camera regions.
@@ -347,8 +411,10 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
     def perform_character_action(
         self, action_id: str, context: ActionContext
     ) -> ActionOutcome:
-        if self.lockpick_attempt:
-            return ActionOutcome(False, False, "Сначала отмените взлом.")
+        if self.lockpick_attempt or self.active_craft:
+            return ActionOutcome(
+                False, False, "Сначала приостановите работу или отмените взлом."
+            )
         from dataclasses import replace
 
         context = replace(context, mode="exploration")
@@ -367,8 +433,19 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
     def use_item(
         self, item: Equipment, target: Character | None = None
     ) -> ActionOutcome:
-        if self.lockpick_attempt:
-            return ActionOutcome(False, False, "Сначала отмените взлом.")
+        if self.lockpick_attempt or self.active_craft:
+            return ActionOutcome(
+                False, False, "Сначала приостановите работу или отмените взлом."
+            )
+        if item.definition.reading:
+            return self.read_item(item)
+        if item.definition.cast_spell:
+            spell = self.catalog.spells[item.definition.cast_spell]
+            if spell.target == "self":
+                return self.cast_spell(spell.id, "scroll:" + item.instance_id)
+            return ActionOutcome(
+                False, False, "Выберите свиток в меню магии и укажите цель."
+            )
         if "acid" in item.tags:
             return ActionOutcome(
                 False,
@@ -399,6 +476,32 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
             )
         return result
 
+    def read_item(self, item):
+        hero = self.state.hero
+        if (
+            hero.hp <= 0
+            or item not in hero.inventory
+            or not item.usable
+            or not item.definition.reading
+        ):
+            return ActionOutcome(False, False, "Текст недоступен.")
+        if denial := self.light_denial():
+            return ActionOutcome(False, False, denial.message)
+        level = self.state.level
+        if level is None:
+            return ActionOutcome(False, False, "Чтение доступно на карте.")
+        note = self.read_notes.setdefault(
+            (level.ref, "item_" + item.instance_id.replace("-", "_")),
+            ReadNote(
+                map_ref=level.ref,
+                placement_id="item_" + item.instance_id.replace("-", "_"),
+                location=level.definition.name,
+                text=item.definition.reading,
+            ),
+        )
+        self.learn_recipes(note.text.learn_recipes)
+        return ActionOutcome(True, True, "Прочитано: " + note.text.title + ".")
+
     @property
     def throw_range(self) -> int:
         return max(0, self.state.hero.stats.modifier(Ability.STRENGTH) + 1)
@@ -415,21 +518,37 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
             return ActionResult(False, 0, "Положить предмет можно только под ноги.")
         if throwing and distance > self.throw_range:
             return ActionResult(False, 0, f"Дальность броска: {self.throw_range} кл.")
-        if self.lockpick_attempt:
-            return ActionResult(False, 0, "Сначала отмените взлом.")
+        if self.lockpick_attempt or self.active_craft:
+            return ActionResult(
+                False, 0, "Сначала приостановите работу или отмените взлом."
+            )
         if throwing and "lamp_oil" in item.tags:
             return self.throw_oil_at(item, target)
         doors = state.level.index("doors").at(target.x, target.y) if state.level else ()
         if throwing and doors and "acid" in item.tags:
             return self.throw_acid_at(doors[0], item)
-        if not state.walkable(target) or any(
-            p.monster.hp > 0 for p in state.actor_index.at(target.x, target.y)
+        fragile_throw = bool(
+            throwing and item.definition.vessel and item.definition.vessel.fragile
+        )
+        if (
+            not self._inside(target)
+            or (not state.walkable(target) and not fragile_throw)
+            or any(p.monster.hp > 0 for p in state.actor_index.at(target.x, target.y))
         ):
             return ActionResult(False, 0, "Выберите клетку пола без существа.")
-        if throwing and not self._clear_throw_path(target):
+        if throwing and not self._clear_throw_path(
+            target, allow_target_door=fragile_throw
+        ):
             return ActionResult(False, 0, "Бросок преграждает стена.")
         index = next(i for i, owned in enumerate(hero.inventory) if owned is item)
         hero.inventory.pop(index)
+        if throwing and item.definition.vessel and item.definition.vessel.fragile:
+            from ..domain.liquids import WATER_KINDS
+
+            if item.liquid_kind in WATER_KINDS and item.liquid_portions >= 1:
+                self._water_cell(target)
+            self._advance(1)
+            return ActionResult(True, 1, "Сосуд разбился; содержимое вылилось.")
         item.equipped = False
         ref = item.id if ":" in item.id else "base:" + item.id
         state.items.append(
@@ -472,8 +591,10 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         return True
 
     def pickup_item(self) -> ActionResult:
-        if self.lockpick_attempt:
-            return ActionResult(False, 0, "Сначала отмените взлом.")
+        if self.lockpick_attempt or self.active_craft:
+            return ActionResult(
+                False, 0, "Сначала приостановите работу или отмените взлом."
+            )
         state = self.state
         if state.hero.hp <= 0:
             return ActionResult(False, 0, "Персонаж без сознания.")
@@ -488,8 +609,10 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         return ActionResult(False, 0, "Под ногами нет предметов.")
 
     def toggle_sneaking(self) -> ActionResult:
-        if self.lockpick_attempt:
-            return ActionResult(False, 0, "Сначала отмените взлом.")
+        if self.lockpick_attempt or self.active_craft:
+            return ActionResult(
+                False, 0, "Сначала приостановите работу или отмените взлом."
+            )
         if self.state.hero.hp <= 0:
             return ActionResult(False, 0, "Персонаж без сознания.")
         self.state.hero.sneaking = not self.state.hero.sneaking
@@ -502,8 +625,10 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         )
 
     def manage_equipment(self, item, equipped) -> ActionResult:
-        if self.lockpick_attempt:
-            return ActionResult(False, 0, "Сначала отмените взлом.")
+        if self.lockpick_attempt or self.active_craft:
+            return ActionResult(
+                False, 0, "Сначала приостановите работу или отмените взлом."
+            )
         hero = self.state.hero
         if hero.hp <= 0:
             return ActionResult(False, 0, "Персонаж без сознания.")
@@ -541,6 +666,10 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         if equipped and light:
             if fuel:
                 fuel.charges -= 1
+                if fuel.charges == 0:
+                    hero.inventory[:] = [
+                        owned for owned in hero.inventory if owned is not fuel
+                    ]
                 item.fuel_minutes = light.burn_minutes
             item.lit = True
         self._advance(1)
@@ -550,6 +679,7 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
             True,
             1,
             ("Надето: " + item.name if equipped else "Снято: " + item.name)
+            + (". Израсходована порция масла" if fuel else "")
             + (
                 f". Свет: осталось {item.fuel_minutes} мин."
                 if equipped and light
@@ -640,6 +770,47 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
             ),
         )
 
+    @property
+    def look_range(self) -> int:
+        return self.state.hero.stats.score(Ability.WISDOM)
+
+    def can_look_at(self, position: Position) -> bool:
+        state, origin = self.state, self.state.position
+        if (
+            not self._inside(position)
+            or max(abs(position.x - origin.x), abs(position.y - origin.y))
+            > self.look_range
+        ):
+            return False
+        if position == origin:
+            return True
+        light = self.lighting
+        terrain = state.level.terrain if state.level else None
+        x0, x1 = sorted((origin.x, position.x))
+        y0, y1 = sorted((origin.y, position.y))
+        # Only illuminated, visible occluders can stop the cursor. Unknown walls
+        # must behave like unknown floor, otherwise looking becomes a wall probe.
+        known_blocks = [
+            [
+                bool(
+                    (
+                        terrain.blocks_sight[y][x]
+                        if terrain
+                        else state.dungeon.rows[y][x] == "#"
+                    )
+                    and light.at(Position(x, y))
+                    and light.level_at(Position(x, y))
+                )
+                for x in range(x0, x1 + 1)
+            ]
+            for y in range(y0, y1 + 1)
+        ]
+        return line_of_sight(
+            Position(origin.x - x0, origin.y - y0),
+            Position(position.x - x0, position.y - y0),
+            known_blocks,
+        )
+
     def inspect_cell(self, position: Position) -> list[str]:
         """Visible information only; inspection never reveals an untriggered hidden trap."""
         state = self.state
@@ -649,7 +820,13 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         ):
             return ["За пределами карты."]
         light = self.lighting
-        lines = [f"Клетка ({position.x}, {position.y})", *light.inspection(position)]
+        lines = [f"Клетка ({position.x}, {position.y})"]
+        if not self.can_look_at(position) or (
+            position != state.position
+            and (not light.at(position) or not light.level_at(position))
+        ):
+            return lines + ["Клетка не видна: темно или обзор закрыт."]
+        lines += light.inspection(position)
         self.sync_magic()
         lines += [
             f"Магический эффект: {m.kind}, {m.turns} ходов"
@@ -657,8 +834,6 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
             if m.position == position
             and m.map_ref == (state.level.ref if state.level else None)
         ]
-        if not light.at(position):
-            return lines + ["Клетка не видна: темно или обзор закрыт."]
         details_start = len(lines)
         if position in state.oil:
             lines += [
@@ -669,7 +844,8 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
             lines += [state.hero.name, f"HP: {state.hero.hp}/{state.hero.max_hp}"]
             lines += [
                 f"{item.name}: {item.glow.description}"
-                for item in state.hero.inventory if item.glow
+                for item in state.hero.inventory
+                if item.glow
             ]
         for p, item in state.items:
             if (p.x, p.y) == (position.x, position.y):
@@ -678,10 +854,10 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
                     item.definition.description,
                     f"Вес: {item.weight:g} кг",
                     *material_details(item.definition.tags),
-                    *([item.glow.description, "Тег: glowing (свечение)"] if item.glow else []),
+                    *([item.glow.description] if item.glow else []),
                 ]
         for p in state.monsters:
-            if p.position == position:
+            if p.position == position and not p.corpse_created:
                 from ..domain.damage import profile_details
 
                 lines += [
@@ -693,6 +869,14 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         level = state.level
         if level:
             for container in level.index("containers").at(position.x, position.y):
+                if getattr(container.definition, "light_fixture", None):
+                    lines.extend(
+                        f"{i.name}: топливо {i.fuel_minutes} мин."
+                        for i in container.items
+                    )
+                    if not container.items:
+                        lines.append("Пустая подставка для света.")
+                    continue
                 lines += [
                     "Личный контейнер"
                     if container.spec.personal
@@ -703,6 +887,22 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
                 if (p.x, p.y) == (position.x, position.y):
                     obj = level.store.resolve("objects", p)
                     lines += [obj.name, obj.description, *material_details(obj.tags)]
+            for target in self.world_objects():
+                if (target.placement.x, target.placement.y) == (position.x, position.y):
+                    source = getattr(target.definition, "water_source", None)
+                    if source and source.portions is not None:
+                        remaining = target.state.water_portions
+                        lines.append(
+                            f"Запас воды: {source.portions if remaining is None else remaining} порц."
+                        )
+                    if target.state.hp is not None:
+                        lines.append(
+                            f"Прочность: {target.state.hp}/{target.definition.destruction.max_hp}"
+                        )
+                    if target.state.progress:
+                        lines.append(
+                            f"{WORK_NAMES[target.dismantle.verb]}: {target.state.progress}/{target.state.total}"
+                        )
             for instance in level.index("doors").at(position.x, position.y):
                 lines += instance.door.inspection()
             for p in level.points:
@@ -710,19 +910,23 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
                     lines += [
                         p.definition.name,
                         *material_details(p.definition.tags),
-                        p.challenge.text,
+                        p.text,
                         "Ситуация завершена."
-                        if p.challenge.completed
+                        if p.completed
                         else "Подойдите и нажмите Enter для взаимодействия.",
                     ]
             for trap in level.traps:
                 if (trap.placement.x, trap.placement.y) == (
                     position.x,
                     position.y,
-                ) and (not trap.definition.hidden or trap.triggered):
+                ) and (not trap.definition.hidden or trap.triggered or trap.discovered):
                     lines += [
                         trap.definition.name,
-                        "Сработавшая ловушка." if trap.triggered else "Ловушка.",
+                        "Обезвреженная ловушка."
+                        if trap.disabled
+                        else "Сработавшая ловушка."
+                        if trap.triggered
+                        else "Ловушка.",
                     ]
             tile_ref = level.terrain.tiles[position.y][position.x]
             if tile_ref:
@@ -730,6 +934,7 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
                 hidden_brush_trap = any(
                     trap.definition.hidden
                     and not trap.triggered
+                    and not trap.discovered
                     and (trap.placement.x, trap.placement.y) == (position.x, position.y)
                     and tile.brush.trap == trap.placement.ref
                     for trap in level.traps
@@ -776,7 +981,7 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         for trap in level.index("traps").at(
             self.state.position.x, self.state.position.y
         ):
-            if trap.triggered and not trap.definition.repeatable:
+            if trap.disabled or (trap.triggered and not trap.definition.repeatable):
                 continue
             definition = trap.definition
             check = self.dice.check(
@@ -790,6 +995,7 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
             )
             outcomes = self.actions.effects.apply_all(specs, self.state.hero, self.dice)
             trap.triggered = True
+            trap.discovered = True
             message = (
                 f"{definition.name}: d20 {check.roll} + {check.modifier} = {check.total}, СЛ {check.difficulty}. "
                 + ("Успех." if check.success else "Провал.")
@@ -841,33 +1047,112 @@ class Engine(DoorCommands, SurfaceCommands, StorageCommands, MagicCommands):
         level = getattr(self.state, "level", None)
         if not level:
             return []
-        light = self.lighting
         points = [
             p
             for p in level.nearby(self.state.position)
             + level.nearby_doors(self.state.position)
-            if light.at(Position(p.placement.x, p.placement.y))
+            if self._within_reach(p.placement)
             and (
                 not isinstance(p, DoorInstance) or p.available_choices(self.state.hero)
             )
         ]
+        objects = self.nearby_world_objects()
+        ids = {o.placement.id for o in objects}
+        points = [p for p in points if p.placement.id not in ids] + objects
         present = {p.placement.id for p in points}
         return points + [
             c for c in self.nearby_containers() if c.placement.id not in present
         ]
 
+    def learn_recipes(self, refs):
+        learned = self.state.hero.learn_recipes(refs)
+        if learned:
+            self.events.append(
+                dict(
+                    kind="learn_recipe",
+                    message="Изучено: "
+                    + ", ".join(self.catalog.recipes[r].name for r in learned)
+                    + ".",
+                )
+            )
+        return learned
+
     def interact(self, placement_id, choice_id):
+        if choice_id == "fill_water":
+            return self.fill_at_source(placement_id)
+        if choice_id in ("fire_ignite", "fire_extinguish", "fire_refuel"):
+            return self.campfire_action(placement_id, choice_id.removeprefix("fire_"))
+        if choice_id in (
+            "take_light",
+            "mount_light",
+            "dismantle",
+            "disarm",
+            "ignite_object",
+            "lift",
+            "move",
+            "break_object",
+        ):
+            return self.interact_world(placement_id, choice_id)
         if self._door(placement_id):
             return self.interact_door(placement_id, choice_id)
-        if self.lockpick_attempt:
-            return ChallengeResult(False, False, 0, "Сначала отмените взлом.")
+        if self.lockpick_attempt or self.active_craft:
+            return ChallengeResult(
+                False, False, 0, "Сначала приостановите работу или отмените взлом."
+            )
         for point in self.nearby_points():
             if point.placement.id == placement_id:
                 from ..world.storage import StorageInstance
 
-                if isinstance(point, StorageInstance):
+                if isinstance(point, StorageInstance) or choice_id == "open_storage":
                     return ChallengeResult(
                         False, False, 0, "Откройте содержимое контейнера."
+                    )
+                if choice_id == "study" and getattr(
+                    point.definition, "learn_recipes", []
+                ):
+                    if denial := self.light_denial():
+                        return denial
+                    learned = self.learn_recipes(point.definition.learn_recipes)
+                    return ChallengeResult(
+                        True, True, 0, "Изучено рецептов: " + str(len(learned)) + "."
+                    )
+                reading = getattr(point.definition, "reading", None)
+                if reading and choice_id == "read_note":
+                    if denial := self.light_denial():
+                        return denial
+                    level = self.state.level
+                    note = self.read_notes.setdefault(
+                        (level.ref, placement_id),
+                        ReadNote(
+                            map_ref=level.ref,
+                            placement_id=placement_id,
+                            location=level.definition.name,
+                            text=reading,
+                        ),
+                    )
+                    learned = self.learn_recipes(reading.learn_recipes)
+                    message = f"Прочитано: {note.text.title}."
+                    if learned:
+                        message += (
+                            " Изучено: "
+                            + ", ".join(self.catalog.recipes[r].name for r in learned)
+                            + "."
+                        )
+                    self.events.append(
+                        {"kind": "read", "placement": placement_id, "message": message}
+                    )
+                    return ChallengeResult(True, True, 0, message)
+                if point.challenge is None:
+                    return ChallengeResult(False, False, 0, "Нет такого действия.")
+                if getattr(point.definition, "storage", None) and (
+                    not point.definition.storage.search_contents
+                    or self.storage_at(placement_id) is None
+                ):
+                    return ChallengeResult(
+                        False,
+                        False,
+                        0,
+                        "Поиск ценностей недоступен; откройте содержимое контейнера.",
                     )
                 result = self.resolve_challenge(point.challenge, choice_id)
                 self.events.append(

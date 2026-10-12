@@ -3,11 +3,11 @@
 from itertools import combinations
 from copy import copy
 import unittest
+from tuidungeon.application.factories import SessionFactory
 
 from scripts.build_developer_tiles import build_documents
 from tuidungeon.application.engine import Action
 from tuidungeon.content.packs import PackStore
-from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.world.maps import Position
 
 
@@ -24,14 +24,17 @@ class DeveloperTileTests(unittest.TestCase):
         cls.level = cls.store.get("maps", "dev:all_interactive_tiles")
 
     def test_every_interactive_tile_appears_once_with_space_between_samples(self):
-        expected = {
-            ref for (category, ref), definition in self.store.documents.items()
-            if not ref.startswith("dev:") and (
-                category in ("equipment", "traps", "points_of_interest") or
-                category in ("tiles", "objects") and any(definition.brush.model_dump().values())
+        expected = [
+            ref
+            for (category, ref), definition in self.store.documents.items()
+            if not ref.startswith("dev:")
+            and (
+                category in ("equipment", "traps", "points_of_interest")
+                or category in ("tiles", "objects")
+                and any(definition.brush.model_dump().values())
             )
-        }
-        self.assertEqual({ref for _, ref, _, _, _ in self.samples}, expected)
+        ]
+        self.assertCountEqual([ref for _, ref, _, _, _ in self.samples], expected)
         self.assertEqual(len(self.samples), len(expected))
         for a, b in combinations(self.samples, 2):
             self.assertGreaterEqual(max(abs(a[3] - b[3]), abs(a[4] - b[4])), 4)
@@ -67,7 +70,11 @@ class DeveloperTileTests(unittest.TestCase):
                 ]
                 self.assertEqual(actual, [reference] if reference else [])
             lights = [p for p in level.lights if (p.x, p.y) == (x, y)]
-            self.assertEqual(len(lights), int(tile.brush.light is not None))
+            obj = self.store.documents.get(("objects", ref))
+            fixture = obj and obj.light_fixture and not tile.brush.item
+            self.assertEqual(
+                len(lights), int(tile.brush.light is not None and not fixture)
+            )
             if lights:
                 self.assertEqual(lights[0].radius, tile.brush.light.radius)
                 self.assertEqual(
@@ -80,10 +87,9 @@ class DeveloperTileTests(unittest.TestCase):
                 self.assertEqual(transitions[0].target, "dev:all_interactive_tiles")
 
     def test_pickup_light_and_return_transitions_use_the_game_engine(self):
-        session = TestSession(
-            self.store, {"map_ref": "dev:all_interactive_tiles", "seed": 42}
+        engine = SessionFactory(self.store).session(
+            "dev:all_interactive_tiles", seed=42
         )
-        engine = session.engine
         state = engine.state
         item = self.level.equipment[0]
         state.position = Position(item.x, item.y)
@@ -102,10 +108,10 @@ class DeveloperTileTests(unittest.TestCase):
             )
             self.assertEqual(engine.events[-1]["kind"], "transition")
             self.assertEqual(len(state.level.items), len(self.level.equipment) - 1)
-        session.reset()
-        self.assertEqual(
-            len(session.engine.state.level.items), len(self.level.equipment)
+        engine = SessionFactory(self.store).session(
+            "dev:all_interactive_tiles", seed=42
         )
+        self.assertEqual(len(engine.state.level.items), len(self.level.equipment))
 
 
 if __name__ == "__main__":

@@ -9,10 +9,12 @@
   "art": null,
   "group": "Мебель",
   "tags": [
+    "cloth",
+    "flammable",
     "furniture",
     "obstacle",
-    "transparent",
-    "flammable"
+    "rest_spot",
+    "transparent"
   ],
   "walkable": false,
   "blocks_sight": false,
@@ -24,5 +26,27 @@
     "light": null,
     "transition": false,
     "door": null
+  },
+  "movable": true,
+  "weight": 2,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:cloth",
+          "quantity": 2
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:cloth",
+        "quantity": 2
+      }
+    ]
   }
 }

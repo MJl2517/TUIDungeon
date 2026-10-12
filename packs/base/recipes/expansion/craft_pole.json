@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "craft_pole",
+  "name": "Деревянный шест",
+  "description": "Деревянный шест.",
+  "category": "carpenter",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "carpenter_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 2,
+      "tools": [
+        "carpenter_tools"
+      ],
+      "proficiencies": [
+        "carpenter_tools"
+      ],
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "base:wooden_pole",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

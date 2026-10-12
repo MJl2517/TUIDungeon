@@ -11,7 +11,8 @@
   "tags": [
     "webs",
     "walkable",
-    "transparent"
+    "transparent",
+    "sticky"
   ],
   "walkable": true,
   "blocks_sight": false

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "alchemy_table",
+  "name": "Алхимический стол",
+  "description": "Рабочая станция.",
+  "glyph": "T",
+  "foreground": 3,
+  "map_category": "furniture",
+  "group": "Станции",
+  "walkable": false,
+  "blocks_sight": false,
+  "tags": [
+    "alchemy_table",
+    "flammable",
+    "wooden"
+  ],
+  "destruction": {
+    "max_hp": 30
+  }
+}

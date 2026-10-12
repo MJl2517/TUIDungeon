@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "build_campfire",
+  "name": "Развести костёр",
+  "description": "Нужны зажигание и свободная соседняя клетка. Начальное топливо: 60 минут.",
+  "category": "basic",
+  "basic_known": false,
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 2
+        },
+        {
+          "items": [
+            "base:tinder"
+          ],
+          "quantity": 1
+        }
+      ],
+      "stations": [],
+      "tools": [],
+      "proficiencies": [],
+      "turns": 2
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "place_object",
+    "place_object": "base:campfire",
+    "ignition": true
+  }
+}

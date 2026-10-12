@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "crafting_expansion_manual",
+  "name": "Руководство ремесленника",
+  "description": "Рецепты ремёсел, строительства и добычи. Владения инструментами изучаются отдельно.",
+  "glyph": "?",
+  "foreground": 14,
+  "reading": {
+    "title": "Ремёсла: продолжение",
+    "pages": [
+      "Изучение открывает рецепты. Инструменты и отдельные владения ими по-прежнему необходимы.\nЛовушки обезвреживаются перед разбором.\nОстанки разделываются за пять ходов, нож сокращает работу до двух."
+    ],
+    "learn_recipes": [
+      "base:blow_glass_flask",
+      "base:brew_antidote",
+      "base:build_barricade",
+      "base:carve_staff",
+      "base:coat_weapon",
+      "base:cook_meat",
+      "base:craft_acid",
+      "base:craft_boots",
+      "base:craft_healing_potion",
+      "base:craft_iron_blade",
+      "base:craft_leather_armor",
+      "base:craft_leather_strip",
+      "base:craft_lockpicks",
+      "base:craft_metal_shield",
+      "base:craft_parts",
+      "base:craft_poison",
+      "base:craft_pole",
+      "base:craft_ram",
+      "base:craft_trap",
+      "base:craft_waterskin",
+      "base:craft_wedge",
+      "base:craft_wooden_shield",
+      "base:cut_stone_block",
+      "base:extract_venom",
+      "base:fire_clay_pot",
+      "base:install_trap",
+      "base:make_extract",
+      "base:repair_boots",
+      "base:repair_mechanism",
+      "base:repair_stone_object",
+      "base:weave_cloth",
+      "base:weave_rope",
+      "base:appraise_gem"
+    ]
+  }
+}

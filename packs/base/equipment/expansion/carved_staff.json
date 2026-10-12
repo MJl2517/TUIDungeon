@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "carved_staff",
+  "name": "Резной посох",
+  "description": "Резной посох.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "weapons",
+  "group": "Ремёсла и добыча",
+  "weight": 1.5,
+  "tags": [
+    "wooden",
+    "flammable",
+    "weapon"
+  ],
+  "slot": "weapon",
+  "hands": 2,
+  "weapon_damage": "1d6",
+  "durability": 25
+}

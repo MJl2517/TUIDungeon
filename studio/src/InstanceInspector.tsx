@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Doc,
   Entry,
@@ -35,13 +36,26 @@ function Properties({
   onChange: (patch: Doc) => void;
   door?: boolean;
 }) {
+  const [query, setQuery] = useState("");
   const effective = mergeProperties(base, patch);
   const fields = door ? schema.$defs.DoorSpec.properties : schema.properties;
   const values = door ? effective.brush.door : effective;
   return (
     <div className="instance-properties">
+      <input
+        type="search"
+        aria-label="Поиск свойств экземпляра"
+        placeholder="Найти свойство…"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
       {Object.entries(fields)
         .filter(([key]) => !["id", "schema_version"].includes(key))
+        .filter(([key]) =>
+          (fieldLabel(key) + " " + key)
+            .toLowerCase()
+            .includes(query.trim().toLowerCase()),
+        )
         .filter(
           ([key]) =>
             !(
@@ -166,6 +180,59 @@ export function InstanceInspector({
           </select>
         </label>
       )}
+      {layer === "equipment" && (
+        <details className="instance-field">
+          <summary>Начальное состояние предмета</summary>
+          <p className="hint">
+            Применяется при первом запуске карты. Сохранение хранит текущее
+            состояние.
+          </p>
+          {effective.durability != null && (
+            <label>
+              Начальная прочность
+              <input
+                type="number"
+                min={0}
+                max={effective.durability}
+                placeholder={String(effective.durability)}
+                value={placement.item_state?.durability ?? ""}
+                onChange={(event) =>
+                  onChange({
+                    item_state: {
+                      ...placement.item_state,
+                      durability:
+                        event.target.value === ""
+                          ? null
+                          : Number(event.target.value),
+                    },
+                  })
+                }
+              />
+            </label>
+          )}
+          <label>
+            <input
+              type="checkbox"
+              checked={placement.item_state?.contaminated ?? false}
+              onChange={(event) =>
+                onChange({
+                  item_state: {
+                    ...placement.item_state,
+                    contaminated: event.target.checked,
+                  },
+                })
+              }
+            />
+            Загрязнён
+          </label>
+          <button
+            className="subtle"
+            onClick={() => onChange({ item_state: null })}
+          >
+            Сбросить начальное состояние
+          </button>
+        </details>
+      )}
       <Properties
         base={base}
         patch={placement.overrides ?? {}}
@@ -192,7 +259,9 @@ export function InstanceInspector({
       )}
       <button
         className="subtle"
-        onClick={() => onChange({ overrides: {}, challenge_overrides: {} })}
+        onClick={() =>
+          onChange({ overrides: {}, challenge_overrides: {}, item_state: null })
+        }
       >
         Сбросить настройки экземпляра
       </button>

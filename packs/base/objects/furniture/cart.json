@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "cart",
+  "name": "Телега",
+  "description": "Деревянная телега. Можно передвинуть, поднять или разобрать.",
+  "glyph": "H",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Мебель",
+  "tags": [
+    "furniture",
+    "obstacle",
+    "transparent",
+    "flammable",
+    "wooden"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "movable": true,
+  "weight": 35,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 5
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 5
+      }
+    ]
+  }
+}

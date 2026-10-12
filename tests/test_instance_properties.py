@@ -11,7 +11,6 @@ from tuidungeon.application.saves import SaveRepository
 from tuidungeon.content.migrations import migrate_map
 from tuidungeon.content.packs import PackStore, ContentError
 from tuidungeon.content.schemas import MapDocument
-from tuidungeon.tooling.sessions import TestSession
 from tuidungeon.world.maps import Position
 
 
@@ -109,7 +108,11 @@ class InstancePropertiesTests(unittest.TestCase):
                 ref="base:chest",
                 x=3,
                 y=1,
-                overrides={"name": "Особый сундук", "glyph": "C"},
+                overrides={
+                    "name": "Особый сундук",
+                    "glyph": "C",
+                    "storage": {"search_contents": True},
+                },
                 challenge_overrides={
                     "text": "Только этот сундук",
                     "choices": [
@@ -154,7 +157,7 @@ class InstancePropertiesTests(unittest.TestCase):
         item = engine.state.items[0][1]
         self.assertEqual(
             (item.name, item.weight, item.durability),
-            ("Мастерские инструменты", 0.25, 30),
+            ("Мастерские инструменты", 0.25, None),
         )
         engine.pickup_item()
         item.wear(3)
@@ -166,7 +169,8 @@ class InstancePropertiesTests(unittest.TestCase):
             i for i in loaded.state.hero.inventory if i.instance_id == item.instance_id
         )
         self.assertEqual(
-            (restored.name, restored.weight, restored.durability), (item.name, 0.25, 27)
+            (restored.name, restored.weight, restored.durability),
+            (item.name, 0.25, None),
         )
         loaded.place_item(restored, Position(1, 1))
         loaded.state.position = Position(2, 1)
@@ -231,7 +235,7 @@ class InstancePropertiesTests(unittest.TestCase):
         self.raw["doors"][0]["overrides"] = {"brush": {"door": {"state": "open"}}}
         self.session()
 
-    def test_browser_and_engine_share_instance_properties_and_reset(self):
+    def test_instance_rewards_do_not_change_fresh_game_state(self):
         self.raw["points_of_interest"] = [
             dict(
                 id="chest",
@@ -247,16 +251,15 @@ class InstancePropertiesTests(unittest.TestCase):
                         }
                     ]
                 },
+                overrides={"storage": {"search_contents": True}},
             )
         ]
         engine = self.session()
-        browser = TestSession(self.store, {"map_ref": "base:instances", "seed": 42})
-        engine.interact("chest", "take")
-        browser.command("interact", "chest", "take")
-        self.assertEqual(browser.engine.state.hero.gold, engine.state.hero.gold)
-        browser.reset()
-        self.assertEqual(browser.engine.state.hero.gold, 0)
-        self.assertFalse(browser.engine.state.level.points[0].challenge.completed)
+        self.assertTrue(engine.interact("chest", "take").performed)
+        self.assertEqual(engine.state.hero.gold, 13)
+        fresh = SessionFactory(self.store).session("base:instances", seed=42)
+        self.assertEqual(fresh.state.hero.gold, 0)
+        self.assertFalse(fresh.state.level.points[0].challenge.completed)
 
     def test_old_map_migration_keeps_presets_and_custom_values_without_mutation(self):
         old = deepcopy(self.raw)

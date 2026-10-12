@@ -11,6 +11,8 @@
     "oil",
     "consumable",
     "throwable",
-    "flammable"
+    "flammable",
+    "fuel",
+    "liquid"
   ]
 }

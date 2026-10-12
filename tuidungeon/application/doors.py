@@ -20,11 +20,7 @@ class DoorCommands:
     def _door_available(self, instance, *, distance=1):
         if instance is None or self.state.hero.hp <= 0:
             return False
-        p = instance.placement
-        return (
-            abs(p.x - self.state.position.x) + abs(p.y - self.state.position.y)
-            <= distance
-        )
+        return self._within_reach(instance.placement, distance=distance)
 
     def _door_result(self, performed, minutes, message):
         from .engine import ActionResult
@@ -52,13 +48,50 @@ class DoorCommands:
 
     def interact_door(self, identifier, action):
         instance = self._door(identifier)
-        if self.lockpick_attempt:
+        if self.lockpick_attempt or self.active_craft:
             return self._door_result(False, 0, "Сначала завершите или отмените взлом.")
         if not self._door_available(instance):
             return self._door_result(False, 0, "Подойдите к двери.")
         door, hero = instance.door, self.state.hero
         if door.destroyed or door.bent:
             return self._door_result(False, 0, "Проход уже свободен.")
+        if action in ("brace", "unbrace"):
+            if denial := self.light_denial():
+                return denial
+            p = Position(instance.placement.x, instance.placement.y)
+            if not self.lighting.at(p) or not self.lighting.level_at(
+                self.state.position
+            ):
+                return self._door_result(
+                    False, 0, "Для подпорки нужен свет и видимая дверь."
+                )
+            if action == "unbrace":
+                if instance.brace is None:
+                    return self._door_result(False, 0, "Подпорки нет.")
+                item = instance.brace
+                instance.brace = None
+                if hero.carried_weight + item.weight <= hero.max_carry_weight:
+                    hero.inventory.append(item)
+                else:
+                    self._ground([item], instance.placement)
+                return self._finish_door(instance, action, "Подпорка убрана.")
+            item = next(
+                (
+                    i
+                    for i in hero.inventory
+                    if i.usable and not i.equipped and "door_brace" in i.tags
+                ),
+                None,
+            )
+            if instance.brace or item is None or door.material == "stone":
+                return self._door_result(
+                    False, 0, "Нужны доступный кол или клин и дверь без подпорки."
+                )
+            hero.inventory.remove(item)
+            instance.brace = item
+            return self._finish_door(instance, action, "Дверь зафиксирована подпоркой.")
+        if instance.brace and action not in ("attack", "ignite", "acid"):
+            return self._door_result(False, 0, "Сначала уберите подпорку.")
         if door.material == "stone" and action != "attack":
             return self._door_result(
                 False,
@@ -122,10 +155,15 @@ class DoorCommands:
             check = self.dice.check(
                 hero.stats.score(Ability.STRENGTH),
                 difficulty,
-                advantage=crowbar is not None,
+                advantage=crowbar is not None
+                or (
+                    action == "force"
+                    and any(
+                        i.usable and i.equipped and "battering_ram" in i.tags
+                        for i in hero.inventory
+                    )
+                ),
             )
-            if crowbar:
-                crowbar.wear(1)
             if check.success:
                 if action == "force":
                     door.force_open()
@@ -134,12 +172,6 @@ class DoorCommands:
             message = self._door_check_message(check) + (
                 " Проход открыт." if check.success else " Дверь не поддалась."
             )
-            if crowbar:
-                message += (
-                    f" Ломик: {crowbar.durability}/{crowbar.definition.durability}."
-                )
-                if crowbar.broken:
-                    message += " Ломик сломан."
             return self._finish_door(instance, action, message, check=check)
         if action == "attack":
             weapons = [
@@ -164,7 +196,11 @@ class DoorCommands:
             kind = weapon.damage_type if weapon else "bludgeoning"
             source_tags = weapon.tags if weapon else ()
             ignite = weapon.can_ignite if weapon else False
-            wear = sum(self.dice.roll(1, 4)) if weapon else 0
+            wear = (
+                sum(self.dice.roll(1, 4))
+                if weapon and weapon.definition.durability is not None
+                else 0
+            )
             if weapon:
                 weapon.wear(wear)
             damage = self.damage_cell(
@@ -175,7 +211,7 @@ class DoorCommands:
                 ignite=ignite,
             )
             message = f"Урон: {damage}. HP: {door.hp}/{door.max_hp}."
-            if weapon:
+            if weapon and weapon.definition.durability is not None:
                 message += f" {weapon.name}: −{wear} прочности ({weapon.durability}/{weapon.definition.durability})."
                 if weapon.broken:
                     message += " Оружие сломано."
@@ -261,8 +297,6 @@ class DoorCommands:
         )
         if check.success:
             instance.door.locked = False
-        else:
-            tools.wear(1)
         tool_message = (
             f" Воровские инструменты: {tools.durability}/{tools.definition.durability}."
             if tools.durability is not None
@@ -293,7 +327,11 @@ class DoorCommands:
 
     def damage_door(self, identifier, amount, kind="physical"):
         instance = self._door(identifier)
-        if self.lockpick_attempt or not self._door_available(instance):
+        if (
+            self.lockpick_attempt
+            or self.active_craft
+            or not self._door_available(instance)
+        ):
             return self._door_result(False, 0, "Дверь недоступна.")
         damage = self.damage_cell(
             Position(instance.placement.x, instance.placement.y), amount, kind

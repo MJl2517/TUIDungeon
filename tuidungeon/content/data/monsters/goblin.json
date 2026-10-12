@@ -40,7 +40,9 @@
   ],
   "tags": [
     "humanoid",
-    "goblin"
+    "goblin",
+    "living",
+    "organic"
   ],
   "art": "goblin",
   "description": "Проворный обитатель подземелий."

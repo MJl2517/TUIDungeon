@@ -26,6 +26,18 @@
   "group": "Ловушки: рисунки",
   "tags": [
     "transparent",
-    "trap_decor"
-  ]
+    "trap_decor",
+    "stone"
+  ],
+  "dismantle": {
+    "turns": 3,
+    "fast_tool": "lever",
+    "fast_turns": 1,
+    "loot": [
+      {
+        "item": "base:metal_scrap",
+        "quantity": 2
+      }
+    ]
+  }
 }

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "wooden_shield",
+  "name": "Деревянный щит",
+  "description": "Деревянный щит.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "armor",
+  "group": "Ремёсла и добыча",
+  "weight": 2,
+  "tags": [
+    "wooden",
+    "flammable",
+    "armor"
+  ],
+  "slot": "shield",
+  "hands": 1,
+  "durability": 20,
+  "properties": [
+    {
+      "kind": "armor_bonus",
+      "amount": 2
+    }
+  ]
+}

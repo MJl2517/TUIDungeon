@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "antidote_broth",
+  "name": "Противоядный отвар",
+  "description": "Одна порция снимает отравление.",
+  "category": "herbalist",
+  "basic_known": false,
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:bitter_herb"
+          ],
+          "quantity": 1
+        }
+      ],
+      "stations": [
+        [
+          "heat"
+        ]
+      ],
+      "tools": [],
+      "proficiencies": [],
+      "turns": 3
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "liquid",
+    "liquids": [
+      "clean_water"
+    ],
+    "liquid_result": "antidote",
+    "heat_safe": true,
+    "portions": 3
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "dried_herbs",
+  "name": "Сухие травы",
+  "description": "Высушенное сырьё для снадобий.",
+  "category": "materials",
+  "weight": 0.05,
+  "glyph": "!",
+  "tags": [
+    "organic",
+    "flammable",
+    "medicinal",
+    "plants"
+  ]
+}

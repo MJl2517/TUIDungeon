@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "uncut_gem",
+  "name": "Необработанный самоцвет",
+  "description": "Стоимость можно определить инструментами ювелира.",
+  "category": "materials",
+  "group": "Ремёсла и добыча",
+  "glyph": "*",
+  "weight": 0.05,
+  "tags": [
+    "stone"
+  ],
+  "value_gold": 25
+}

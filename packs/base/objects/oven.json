@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "oven",
+  "name": "Печь",
+  "description": "Рабочая станция.",
+  "glyph": "O",
+  "foreground": 3,
+  "map_category": "furniture",
+  "group": "Станции",
+  "walkable": false,
+  "blocks_sight": false,
+  "tags": [
+    "oven",
+    "heat",
+    "ceramic"
+  ],
+  "destruction": {
+    "max_hp": 30
+  }
+}

@@ -1,4 +1,4 @@
-"""Build a spaced, playable showcase from installed interactive content."""
+"""Build a spaced, playable showcase from all installed map elements."""
 
 import argparse
 from math import ceil
@@ -10,7 +10,7 @@ from tuidungeon.domain.equipment import Equipment
 
 PACK_ID = "dev"
 MAP_ID = "all_items"
-COLUMNS = 12
+COLUMNS = 16
 SPACING = 4  # Three empty cells between adjacent objects, including diagonals.
 
 
@@ -21,9 +21,13 @@ def build_documents(store):
         ("armor", "ARMOR", "Доспехи"),
         ("consumables", "CONSUMABLES", "Расходники"),
         ("tools", "TOOLS", "Инструменты"),
+        ("materials", "MATERIALS", "Материалы"),
     ]
     equipment = {key: [] for key, _, _ in groups}
-    other = {"points_of_interest": [], "traps": []}
+    other = {
+        key: []
+        for key in ("points_of_interest", "traps", "objects", "monsters", "tiles")
+    }
     for (category, ref), document in sorted(store.documents.items()):
         if ref.startswith(PACK_ID + ":"):
             continue
@@ -42,9 +46,30 @@ def build_documents(store):
             other["points_of_interest"],
         ),
         ("traps", "TRAPS - ENTER TO TRIGGER", "Ловушки", other["traps"]),
+        (
+            "objects",
+            "WORLD OBJECTS AND STATIONS",
+            "Объекты и станции",
+            other["objects"],
+        ),
+        ("monsters", "CREATURES", "Существа", other["monsters"]),
+        ("tiles", "SURFACES AND WALLS", "Поверхности и стены", other["tiles"]),
     ]
     width = 2 * 4 + (COLUMNS - 1) * SPACING + 1
-    placements = {"equipment": [], "points_of_interest": [], "traps": []}
+    placements = {
+        key: []
+        for key in (
+            "equipment",
+            "points_of_interest",
+            "traps",
+            "objects",
+            "monsters",
+            "doors",
+            "lights",
+            "transitions",
+        )
+    }
+    surfaces = []
     labels, entries, dependencies = [], [], {"base"}
     heading_y = 2
     for category, title, name, documents in sections:
@@ -55,9 +80,36 @@ def build_documents(store):
             x = 4 + index % COLUMNS * SPACING
             y = heading_y + 4 + index // COLUMNS * SPACING
             number = len(entries) + 1
-            placements[category].append(
-                dict(id=f"sample_{number:03d}", ref=ref, x=x, y=y)
-            )
+            placement = dict(id=f"sample_{number:03d}", ref=ref, x=x, y=y)
+            if category == "tiles":
+                surfaces.append((ref, document, x, y))
+            else:
+                layer = (
+                    "doors"
+                    if category == "objects" and document.brush.door
+                    else category
+                )
+                placements[layer].append(placement)
+            if category == "objects":
+                if document.brush.light and not document.light_fixture:
+                    placements["lights"].append(
+                        dict(
+                            id=f"sample_light_{number:03d}",
+                            x=x,
+                            y=y,
+                            **document.brush.light.model_dump(),
+                            enabled=True,
+                        )
+                    )
+                if document.brush.transition:
+                    placements["transitions"].append(
+                        dict(
+                            id=f"sample_transition_{number:03d}",
+                            x=x,
+                            y=y,
+                            target=f"{PACK_ID}:{MAP_ID}",
+                        )
+                    )
             labels.append((x - 1, y - 1, f"{number:03d}", 8))
             entries.append((number, name, document.name, ref, x, y))
             dependencies.add(ref.split(":", 1)[0])
@@ -73,6 +125,10 @@ def build_documents(store):
         tiles.append(["base:wall" if wall else "base:floor" for wall in border])
         walkability.append([not wall for wall in border])
         blocks_sight.append(border)
+    for ref, document, x, y in surfaces:
+        tiles[y][x] = ref
+        walkability[y][x] = document.walkable
+        blocks_sight[y][x] = document.blocks_sight
     cells = [[None] * width for _ in range(height)]
     for x, y, text, color in labels:
         for offset, char in enumerate(text):
@@ -90,10 +146,11 @@ def build_documents(store):
         dict(
             id=MAP_ID,
             name="Полигон разработчика: все предметы",
-            description="Все предметы, точки взаимодействия и ловушки установленных пакетов. "
+            description="Все размещаемые элементы установленных пакетов: предметы, точки взаимодействия, "
+            "ловушки, объекты, станции, двери, существа, поверхности и стены. "
             "Номера и координаты: packs/dev/README.md. Между объектами три пустые клетки. "
             "Предметы подбираются с их клетки, взаимодействия доступны по Enter рядом; "
-            "ловушки срабатывают при входе. Перезапуск восстанавливает экземпляры.",
+            "ловушки срабатывают при входе. Переходы возвращают к старту. Перезапуск восстанавливает экземпляры.",
             width=width,
             height=height,
             tiles=tiles,
@@ -127,7 +184,8 @@ def guide(entries, level):
     lines = [
         "# Полигон разработчика",
         "",
-        "Второй полигон: [все интерактивные тайлы](interactive_tiles.md).",
+        "Другие полигоны: [интерактивные тайлы и свет](interactive_tiles.md), [контейнеры](containers.md).",
+        "Единый сценарий roadmap: [dev:roadmap_lab](roadmap_lab.md). Старый полигон: `dev:crafting_lab`.",
         "",
         f"Карта `dev:all_items`, {level.width}×{level.height}. Яркий общий свет, внешние стены, открытые проходы.",
         "Между любыми размещёнными объектами не менее трёх пустых клеток.",
@@ -141,11 +199,16 @@ def guide(entries, level):
         "```",
         "",
         "В студии выберите пакет `dev`, раздел карт и «Полигон разработчика: все предметы».",
-        "Предметы: встать на клетку и нажать G (в браузерном тесте — «Подобрать»), затем тестировать в инвентаре.",
+        "Предметы: встать на клетку и нажать G, затем тестировать в инвентаре.",
         "Точки интереса: Enter с клетки или соседней клетки. Ловушки: вход на клетку.",
         "Скрытые ловушки сохраняют скрытость; найти их помогут номера ниже.",
-        "Ловушки наносят настоящий урон. Долгий отдых восстанавливает HP; перезапуск теста возвращает все объекты.",
-        "Декоративные тайлы без механики сюда не включены. Предметы лежат поверх пола и не оставляют рисунок после подбора.",
+        "Ловушки наносят настоящий урон. Долгий отдых требует кровати, лежанки или разложенного спального мешка; перезапуск теста возвращает все объекты.",
+        f"Всего {len(entries)} образцов: все предметы, точки интереса, ловушки, объекты, станции, двери, существа и поверхности установленных пакетов (кроме `dev`).",
+        "Мебель, станции и двери стоят поверх отдельного пола. После подбора или разборки пол сохраняется.",
+        "Двери открываются через Enter рядом. Источники воды, станции и разбираемая мебель используют обычные действия окружения.",
+        "Порталы и лестницы возвращают к старту этой же карты, сохраняя состояние образцов.",
+        "Для проверки динамического света используйте второй полигон с тусклым фоном: здесь общий свет яркий.",
+        "Рецепты, заклинания и способности не являются размещаемыми объектами: они доступны через соответствующие игровые меню.",
         "",
         "Добавили контент? Сохраните его в студии, остановите тест и пересоберите полигон:",
         "",

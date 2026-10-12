@@ -13,7 +13,9 @@
     "flammable",
     "food",
     "supplies_decor",
-    "transparent"
+    "transparent",
+    "edible",
+    "organic"
   ],
   "durability": null,
   "slot": null,

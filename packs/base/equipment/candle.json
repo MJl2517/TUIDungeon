@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "candle",
+  "name": "Свеча",
+  "description": "Небольшой переносной источник света. Гаснет при снятии, сгорает после расходования топлива.",
+  "glyph": "i",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "category": "tools",
+  "weight": 0.1,
+  "tags": [
+    "light_source",
+    "flammable",
+    "ignite",
+    "поджог"
+  ],
+  "durability": null,
+  "slot": "hand",
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 1,
+  "light": {
+    "radius": 3,
+    "bright_radius": 1,
+    "burn_minutes": 60,
+    "fuel_tag": null
+  },
+  "group": "Снаряжение"
+}

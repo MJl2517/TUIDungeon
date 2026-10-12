@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "wooden_pole",
+  "name": "Деревянный шест",
+  "description": "Позволяет разбирать поддерживаемую растительность через одну свободную клетку; нужно держать в руках.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "weapons",
+  "group": "Ремёсла и добыча",
+  "weight": 2,
+  "tags": [
+    "wooden",
+    "flammable",
+    "pole",
+    "weapon"
+  ],
+  "slot": "weapon",
+  "hands": 2,
+  "durability": 20,
+  "weapon_damage": "1d6"
+}

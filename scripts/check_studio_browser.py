@@ -119,7 +119,13 @@ def run():
                 page.get_by_label("ID нового документа").fill("smoke_monster")
                 page.get_by_label("Название нового документа").fill("Страж")
                 page.get_by_role("button", name="Создать документ", exact=True).click()
-                page.get_by_label("Рисунок", exact=True).select_option("base:smoke_art")
+                page.get_by_label("Рисунок", exact=True).click()
+                page.get_by_role("dialog", name="Рисунок", exact=True).get_by_label(
+                    "Поиск контента"
+                ).fill("base:smoke_art")
+                page.get_by_role("dialog", name="Рисунок", exact=True).locator(
+                    ".content-entry"
+                ).click()
                 page.screenshot(
                     path=str(artifacts / "tuidungeon-studio-form-before.png")
                 )
@@ -196,62 +202,10 @@ def run():
                     saved["ambient_light"] == "dark"
                     and saved["lights"][0]["radius"] == 6
                 )
-                page.get_by_role(
-                    "button", name="▶ Тестировать карту", exact=True
-                ).click()
-                page.get_by_label("Тестовая раса").select_option("base:human")
-                page.get_by_label("Тестовый класс").select_option("base:warrior")
-                page.locator(".playtest").get_by_label("Seed", exact=True).fill("99")
-                page.get_by_role("button", name="Начать тест", exact=True).click()
-                page.locator(".play-layout").wait_for()
-                lamp_row = page.locator(".playtest .inspector > div").filter(
-                    has=page.get_by_text(re.compile("Масляная лампа"))
-                )
-                lamp_row.get_by_role(
-                    "button", name="Взять и зажечь", exact=True
-                ).click()
-                page.get_by_text(
-                    "Нельзя экипировать: освободите руку", exact=False
-                ).wait_for()
-                shield_row = page.locator(".playtest .inspector > div").filter(
-                    has=page.get_by_text("[*] Щит", exact=True)
-                )
-                shield_row.get_by_role("button", name="Снять", exact=True).click()
-                page.wait_for_function(
-                    "!Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='D →').disabled"
-                )
-                lamp_row.get_by_role(
-                    "button", name="Взять и зажечь", exact=True
-                ).click()
-                lamp_row.get_by_text(re.compile("горит, 59 мин")).wait_for()
-                page.locator(".playtest").get_by_text(
-                    re.compile("Масло.*0 примен")
-                ).wait_for()
-                for _ in range(3):
-                    button = page.get_by_role("button", name="D →", exact=True)
-                    button.click()
-                    button.wait_for(state="visible")
-                    page.wait_for_function(
-                        "!Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='D →').disabled"
-                    )
-                page.get_by_role(
-                    "button", name="Выломать замок силой", exact=True
-                ).click()
-                page.locator(".playtest").get_by_text(
-                    "Испытание пройдено.", exact=False
-                ).first.wait_for()
-                page.screenshot(path=str(artifacts / "tuidungeon-studio-play.png"))
-                page.get_by_role("button", name="Перезапустить", exact=True).click()
-                page.locator(".playtest").get_by_text("Ход 0", exact=False).wait_for()
-                lamp_row.get_by_text(re.compile("погашен, 0 мин")).wait_for()
-                page.locator(".playtest").get_by_text(
-                    re.compile("Масло.*1 примен")
-                ).wait_for()
-                page.get_by_role("button", name="Закрыть", exact=True).click()
                 assert not errors, errors
                 browser.close()
                 print(
-                    "Browser OK: art layers + undo/redo + reopen, monster form + sandbox, map masks + placements, playtest + reset."
+                    "Browser OK: art layers + undo/redo + reopen, monster form + sandbox, map masks + placements."
                 )
         finally:
             server.should_exit = True

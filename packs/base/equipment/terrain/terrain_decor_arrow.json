@@ -15,7 +15,8 @@
     "flammable",
     "transparent",
     "weapon_decor",
-    "wooden"
+    "wooden",
+    "metal"
   ],
   "durability": null,
   "slot": null,

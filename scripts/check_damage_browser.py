@@ -60,8 +60,8 @@ def run():
                 page.on("pageerror", lambda error: errors.append(str(error)))
                 page.goto(f"http://127.0.0.1:{port}")
                 page.locator('.navigation [data-category="monsters"]').click()
-                page.get_by_label("Поиск по всей библиотеке").fill("base:goblin")
-                page.locator(".library-entry").filter(
+                page.get_by_label("Поиск контента").fill("base:goblin")
+                page.locator(".content-entry").filter(
                     has=page.get_by_text("Гоблин", exact=True)
                 ).click()
                 page.get_by_label("Тип урона", exact=True).last.select_option("fire")
@@ -72,7 +72,9 @@ def run():
                     )
                     .last
                 )
-                resistance.get_by_role("button", name="+ Добавить", exact=True).click()
+                resistance.get_by_role(
+                    "button", name="+ Добавить:", exact=False
+                ).click()
                 resistance.locator("select").select_option("fire")
                 page.get_by_role("button", name="Сохранить", exact=True).click()
                 expect(page.locator(".unsaved")).to_have_count(0)

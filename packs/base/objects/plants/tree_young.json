@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "tree_young",
+  "name": "Молодое дерево",
+  "description": "Молодое дерево. Можно срубить режущим инструментом; древесина остаётся на земле.",
+  "variants": [],
+  "glyph": "t",
+  "foreground": 2,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Растительность",
+  "tags": [
+    "flammable",
+    "obstacle",
+    "organic",
+    "plants",
+    "transparent",
+    "wooden"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": 4320,
+    "max_hp": 20,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "chop",
+      "tools": [
+        "blade"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 2
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 2
+      }
+    ]
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null
+}

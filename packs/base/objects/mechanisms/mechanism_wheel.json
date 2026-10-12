@@ -11,7 +11,8 @@
   "tags": [
     "mechanisms",
     "walkable",
-    "transparent"
+    "transparent",
+    "mechanism"
   ],
   "walkable": true,
   "blocks_sight": false,

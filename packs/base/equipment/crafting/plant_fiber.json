@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "plant_fiber",
+  "name": "Растительное волокно",
+  "description": "Материал для изготовления предметов.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.1,
+  "tags": [
+    "organic",
+    "flammable",
+    "fiber",
+    "plants"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "waterskin",
+  "name": "Бурдюк",
+  "description": "Вмещает 2 порции; не подходит для нагревания.",
+  "category": "tools",
+  "weight": 0.2,
+  "glyph": "!",
+  "vessel": {
+    "capacity_portions": 2
+  },
+  "tags": [
+    "flammable",
+    "leather",
+    "organic"
+  ],
+  "durability": null
+}

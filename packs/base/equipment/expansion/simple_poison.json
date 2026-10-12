@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "simple_poison",
+  "name": "Простой яд",
+  "description": "Порция для рецепта нанесения яда на колющее или рубящее оружие.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "consumables",
+  "group": "Ремёсла и добыча",
+  "weight": 0.1,
+  "tags": [
+    "poison",
+    "reagent"
+  ]
+}

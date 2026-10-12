@@ -29,5 +29,11 @@
       "lock_complexity": "simple",
       "hit_points": null
     }
-  }
+  },
+  "door_remains": [
+    {
+      "item": "base:stone",
+      "quantity": 2
+    }
+  ]
 }
