@@ -10,5 +10,6 @@
   "weight": 0.1,
   "tags": [
     "acid"
-  ]
+  ],
+  "symbol": "base:visual_equipment_acid_reagent"
 }

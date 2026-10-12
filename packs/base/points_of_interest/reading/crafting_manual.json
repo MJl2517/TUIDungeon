@@ -18,5 +18,6 @@
     "book",
     "flammable",
     "paper"
-  ]
+  ],
+  "symbol": "base:visual_points_of_interest_crafting_manual"
 }

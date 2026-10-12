@@ -50,7 +50,11 @@ function Properties({
         onChange={(e) => setQuery(e.target.value)}
       />
       {Object.entries(fields)
-        .filter(([key]) => !["id", "schema_version"].includes(key))
+        .filter(
+          ([key]) =>
+            !["id", "schema_version", "glyph", "char"].includes(key) &&
+            (key !== "state_symbols" || !!effective.brush?.door),
+        )
         .filter(([key]) =>
           (fieldLabel(key) + " " + key)
             .toLowerCase()
@@ -88,7 +92,19 @@ function Properties({
           const control = (
             <>
               <FieldForm
-                schema={field as Doc}
+                schema={
+                  key === "state_symbols"
+                    ? {
+                        ...(field as Doc),
+                        state_options:
+                          effective.brush?.door?.material === "stone"
+                            ? ["closed"]
+                            : effective.brush?.door?.material === "bars"
+                              ? ["closed", "locked", "open", "bent"]
+                              : ["closed", "locked", "open"],
+                      }
+                    : (field as Doc)
+                }
                 root={schema}
                 value={values[key]}
                 onChange={edit}
@@ -158,12 +174,22 @@ export function InstanceInspector({
             onChange={(event) => {
               const next = clone(placement.overrides ?? {});
               if (event.target.value === "default") {
-                for (const key of ["glyph", "foreground", "background"])
+                for (const key of [
+                  "symbol",
+                  "glyph",
+                  "foreground",
+                  "background",
+                ])
                   delete next[key];
               } else {
                 const variant = base.variants[Number(event.target.value)];
-                for (const key of ["glyph", "foreground", "background"])
-                  next[key] = variant[key];
+                for (const key of [
+                  "symbol",
+                  "glyph",
+                  "foreground",
+                  "background",
+                ])
+                  next[key] = variant[key] ?? null;
               }
               onChange({ overrides: next });
             }}

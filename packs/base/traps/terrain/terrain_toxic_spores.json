@@ -36,5 +36,6 @@
   "tags": [
     "poison",
     "transparent"
-  ]
+  ],
+  "symbol": "base:visual_traps_terrain_toxic_spores"
 }

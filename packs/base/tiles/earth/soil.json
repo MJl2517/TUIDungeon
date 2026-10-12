@@ -9,5 +9,6 @@
   "walkable": true,
   "tags": [
     "soil"
-  ]
+  ],
+  "symbol": "base:glyph_002e"
 }

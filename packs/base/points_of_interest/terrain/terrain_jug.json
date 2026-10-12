@@ -21,5 +21,6 @@
     "capacity": 1000.0,
     "personal": false,
     "contents": []
-  }
+  },
+  "symbol": "base:visual_points_of_interest_terrain_jug"
 }

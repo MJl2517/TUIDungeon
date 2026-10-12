@@ -16,5 +16,6 @@
   ],
   "walkable": false,
   "blocks_sight": true,
-  "map_category": "destructible"
+  "map_category": "destructible",
+  "symbol": "base:glyph_2592"
 }

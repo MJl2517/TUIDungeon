@@ -12,5 +12,6 @@
     "wooden",
     "organic",
     "flammable"
-  ]
+  ],
+  "symbol": "base:visual_equipment_ironwood"
 }

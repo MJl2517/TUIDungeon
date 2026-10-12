@@ -10,5 +10,6 @@
   "foreground": 7,
   "tags": [
     "metal"
-  ]
+  ],
+  "symbol": "base:visual_equipment_mithril"
 }

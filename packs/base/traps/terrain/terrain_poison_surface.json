@@ -37,5 +37,6 @@
     "poison",
     "transparent",
     "liquid"
-  ]
+  ],
+  "symbol": "base:visual_traps_terrain_poison_surface"
 }

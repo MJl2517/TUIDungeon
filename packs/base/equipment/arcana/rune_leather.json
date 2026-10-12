@@ -26,5 +26,6 @@
       "kind": "armor_bonus",
       "amount": 1
     }
-  ]
+  ],
+  "symbol": "base:visual_equipment_rune_leather"
 }

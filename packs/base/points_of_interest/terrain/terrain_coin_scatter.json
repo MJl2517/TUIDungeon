@@ -13,5 +13,6 @@
     "metal"
   ],
   "challenge": "base:terrain_coin_scatter",
-  "group": "Сокровища"
+  "group": "Сокровища",
+  "symbol": "base:visual_points_of_interest_terrain_coin_scatter"
 }

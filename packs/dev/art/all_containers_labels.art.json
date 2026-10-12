@@ -100,122 +100,146 @@
           {
             "char": "Л",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041b"
           },
           {
             "char": "У",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0423"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "В",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0412"
           },
           {
             "char": "Ы",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042b"
           },
           {
             "char": "Е",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0415"
           },
           {
             "char": ":",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_003a"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "Л",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041b"
           },
           {
             "char": "Ь",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042c"
           },
           {
             "char": "К",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041a"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "З",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0417"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Б",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0411"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": "Р",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0420"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "Ь",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042c"
           },
           null,
           null,
@@ -320,17 +344,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           null,
           null,
@@ -338,17 +365,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           null,
           null,
@@ -356,17 +386,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           null,
           null,
@@ -374,17 +407,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "4",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0034"
           },
           null,
           null,
@@ -392,17 +428,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "5",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0035"
           },
           null,
           null,
@@ -410,17 +449,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "6",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0036"
           },
           null,
           null,
@@ -638,17 +680,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "7",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0037"
           },
           null,
           null,
@@ -656,17 +701,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "8",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0038"
           },
           null,
           null,
@@ -674,17 +722,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "9",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0039"
           },
           null,
           null,
@@ -692,35 +743,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
-          },
-          null,
-          null,
-          null,
-          {
-            "char": "0",
-            "foreground": 8,
-            "background": null
-          },
-          {
-            "char": "1",
-            "foreground": 8,
-            "background": null
-          },
-          {
-            "char": "1",
-            "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           null,
           null,
@@ -728,17 +764,41 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
+          },
+          {
+            "char": "1",
+            "foreground": 8,
+            "background": null,
+            "symbol": "base:glyph_0031"
+          },
+          null,
+          null,
+          null,
+          {
+            "char": "0",
+            "foreground": 8,
+            "background": null,
+            "symbol": "base:glyph_0030"
+          },
+          {
+            "char": "1",
+            "foreground": 8,
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           null,
           null,
@@ -956,17 +1016,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           null,
           null,
@@ -974,17 +1037,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": "4",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0034"
           },
           null,
           null,
@@ -992,17 +1058,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": "5",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0035"
           },
           null,
           null,
@@ -1010,17 +1079,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": "6",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0036"
           },
           null,
           null,
@@ -1028,17 +1100,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": "7",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0037"
           },
           null,
           null,
@@ -1046,17 +1121,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": "8",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0038"
           },
           null,
           null,
@@ -1396,127 +1474,152 @@
           {
             "char": "Л",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041b"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": "Ч",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0427"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "Ы",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042b"
           },
           {
             "char": "Е",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0415"
           },
           {
             "char": ":",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_003a"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "К",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041a"
           },
           {
             "char": "Л",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041b"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "С",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0421"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "Ь",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042c"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "З",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0417"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Б",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0411"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": "Р",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0420"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "Ь",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042c"
           },
           null,
           null,
@@ -1620,17 +1723,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": "9",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0039"
           },
           null,
           null,
@@ -1638,17 +1744,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           null,
           null,
@@ -1656,17 +1765,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           null,
           null,
@@ -1674,17 +1786,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           null,
           null,
@@ -1692,17 +1807,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           null,
           null,
@@ -1710,17 +1828,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "4",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0034"
           },
           null,
           null,
@@ -1938,17 +2059,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "5",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0035"
           },
           null,
           null,
@@ -1956,17 +2080,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "6",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0036"
           },
           null,
           null,
@@ -1974,17 +2101,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "7",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0037"
           },
           null,
           null,
@@ -1992,17 +2122,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "8",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0038"
           },
           null,
           null,
@@ -2010,17 +2143,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": "9",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0039"
           },
           null,
           null,
@@ -2028,17 +2164,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           null,
           null,
@@ -2256,17 +2395,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           {
             "char": "1",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           null,
           null,
@@ -2274,17 +2416,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           {
             "char": "2",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           null,
           null,
@@ -2292,17 +2437,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           null,
           null,
@@ -2310,17 +2458,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           {
             "char": "4",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0034"
           },
           null,
           null,
@@ -2328,17 +2479,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           {
             "char": "5",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0035"
           },
           null,
           null,
@@ -2346,17 +2500,20 @@
           {
             "char": "0",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0030"
           },
           {
             "char": "3",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           {
             "char": "6",
             "foreground": 8,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0036"
           },
           null,
           null,

@@ -10,5 +10,6 @@
   "tags": [
     "stone"
   ],
-  "value_gold": 25
+  "value_gold": 25,
+  "symbol": "base:visual_equipment_uncut_gem"
 }

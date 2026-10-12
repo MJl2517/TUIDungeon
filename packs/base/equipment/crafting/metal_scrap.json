@@ -10,5 +10,6 @@
   "weight": 0.3,
   "tags": [
     "metal"
-  ]
+  ],
+  "symbol": "base:visual_equipment_metal_scrap"
 }

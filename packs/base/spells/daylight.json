@@ -12,5 +12,6 @@
   "target": "other",
   "tags": [
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_spells_daylight"
 }

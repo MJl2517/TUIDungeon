@@ -24,5 +24,6 @@
     "light": null,
     "transition": false,
     "door": null
-  }
+  },
+  "symbol": "base:visual_objects_lever"
 }

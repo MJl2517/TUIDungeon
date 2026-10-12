@@ -14,5 +14,6 @@
     "opaque"
   ],
   "walkable": true,
-  "blocks_sight": true
+  "blocks_sight": true,
+  "symbol": "base:glyph_2592"
 }

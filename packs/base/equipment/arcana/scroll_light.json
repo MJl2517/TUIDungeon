@@ -14,5 +14,6 @@
     "flammable"
   ],
   "charges": 1,
-  "cast_spell": "base:light"
+  "cast_spell": "base:light",
+  "symbol": "base:visual_equipment_scroll_light"
 }

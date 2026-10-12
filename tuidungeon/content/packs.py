@@ -18,6 +18,7 @@ from .placements import PLACEMENT_CATEGORIES, resolve_placement, resolve_challen
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PACKS = PROJECT_ROOT / "packs"
 REF_FIELDS = {
+    "symbol": "symbols",
     "cast_spell": "spells",
     "place_object": "objects",
     "place_trap": "traps",
@@ -90,7 +91,13 @@ def references(raw, category):
             for i, v in enumerate(value):
                 yield from visit(v, key, f"{path}[{i}]", placement_category)
         elif isinstance(value, str) and ":" in value:
-            destination = placement_category if key == "ref" else REF_FIELDS.get(key)
+            destination = (
+                "symbols"
+                if ".state_symbols." in "." + path
+                else placement_category
+                if key == "ref"
+                else REF_FIELDS.get(key)
+            )
             if destination:
                 yield destination, value, path
 
@@ -270,6 +277,13 @@ class PackStore:
                     raise ContentError(
                         f"{ref}: пакет ссылки {target} не указан в зависимостях"
                     )
+                if (
+                    destination == "symbols"
+                    and not documents[destination, target].reviewed
+                ):
+                    raise ContentError(
+                        f"{ref}.{path}: сначала согласуйте название, категорию и текстовый знак символа {target}"
+                    )
             if (
                 category == "recipes"
                 and doc.operation
@@ -396,7 +410,7 @@ class PackStore:
             "warnings": self.warnings(category, ref),
         }
 
-    def usages(self, category, ref):
+    def reference_index(self):
         key = tuple((k, id(v)) for k, v in self.documents.items())
         if getattr(self, "_references_key", None) != key:
             index = {}
@@ -407,11 +421,26 @@ class PackStore:
                     )
             self._references = index
             self._references_key = key
-        return [dict(entry) for entry in self._references.get((category, ref), ())]
+        return self._references
+
+    def usages(self, category, ref):
+        return [
+            dict(entry) for entry in self.reference_index().get((category, ref), ())
+        ]
 
     def warnings(self, category, ref):
         if category != "maps":
-            return []
+            doc = self.get(category, ref)
+            return (
+                [
+                    {
+                        "message": "Старый формат графики: выберите символ из библиотеки",
+                        "cells": [],
+                    }
+                ]
+                if hasattr(doc, "glyph") and category != "symbols" and not doc.symbol
+                else []
+            )
         doc = self.get(category, ref)
         reachable = {(doc.spawn.x, doc.spawn.y)}
         pending = list(reachable)

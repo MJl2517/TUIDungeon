@@ -1,0 +1,900 @@
+{
+  "changed": 0,
+  "assignments": 0,
+  "methods": {},
+  "backup": null,
+  "entries": [
+    {
+      "category": "tiles",
+      "name": "Тёмный камень",
+      "symbol": "base:visual_tiles_stone_dark",
+      "method": "ore"
+    },
+    {
+      "category": "tiles",
+      "name": "Светлый камень",
+      "symbol": "base:visual_tiles_stone_pale",
+      "method": "ore"
+    },
+    {
+      "category": "tiles",
+      "name": "Небольшой камень",
+      "symbol": "base:visual_tiles_stone_small",
+      "method": "ore"
+    },
+    {
+      "category": "tiles",
+      "name": "Деревянная ограда",
+      "symbol": "base:visual_tiles_fence_wooden",
+      "method": "wood"
+    },
+    {
+      "category": "tiles",
+      "name": "Железная решётка",
+      "symbol": "base:visual_tiles_grate_iron",
+      "method": "ore"
+    },
+    {
+      "category": "tiles",
+      "name": "Гриб",
+      "symbol": "base:visual_tiles_mushroom",
+      "method": "food"
+    },
+    {
+      "category": "tiles",
+      "name": "Грибная шляпка",
+      "symbol": "base:visual_tiles_mushroom_cap",
+      "method": "food"
+    },
+    {
+      "category": "tiles",
+      "name": "Большой гриб",
+      "symbol": "base:visual_tiles_mushroom_large",
+      "method": "food"
+    },
+    {
+      "category": "tiles",
+      "name": "Маленький гриб",
+      "symbol": "base:visual_tiles_mushroom_small",
+      "method": "food"
+    },
+    {
+      "category": "tiles",
+      "name": "Тонкий гриб",
+      "symbol": "base:visual_tiles_mushroom_thin",
+      "method": "food"
+    },
+    {
+      "category": "tiles",
+      "name": "Облако пыли",
+      "symbol": "base:visual_tiles_dust_cloud",
+      "method": "magic"
+    },
+    {
+      "category": "tiles",
+      "name": "Пыль и щебень",
+      "symbol": "base:visual_tiles_rubble_dust",
+      "method": "magic"
+    },
+    {
+      "category": "tiles",
+      "name": "Каменная крошка",
+      "symbol": "base:visual_tiles_stone_chips",
+      "method": "ore"
+    },
+    {
+      "category": "tiles",
+      "name": "Деревянные подпорки",
+      "symbol": "base:visual_tiles_wooden_support",
+      "method": "wood"
+    },
+    {
+      "category": "objects",
+      "name": "Наковальня",
+      "symbol": "base:visual_objects_anvil",
+      "method": "anvil"
+    },
+    {
+      "category": "objects",
+      "name": "Потрескавшаяся преграда",
+      "symbol": "base:visual_objects_cracked_barrier",
+      "method": "barricade"
+    },
+    {
+      "category": "objects",
+      "name": "Забаррикадированная дверь",
+      "symbol": "base:visual_objects_door_barricaded",
+      "method": "door"
+    },
+    {
+      "category": "objects",
+      "name": "Разрушенная дверь",
+      "symbol": "base:visual_objects_door_broken",
+      "method": "door"
+    },
+    {
+      "category": "objects",
+      "name": "Секретная дверь",
+      "symbol": "base:visual_objects_door_secret",
+      "method": "door"
+    },
+    {
+      "category": "objects",
+      "name": "Деревянная баррикада",
+      "symbol": "base:visual_objects_barricade",
+      "method": "barricade"
+    },
+    {
+      "category": "objects",
+      "name": "Разбираемый механизм",
+      "symbol": "base:visual_objects_craft_mechanism",
+      "method": "gear"
+    },
+    {
+      "category": "objects",
+      "name": "Спутанные ветви",
+      "symbol": "base:visual_objects_tangled_branches",
+      "method": "wood"
+    },
+    {
+      "category": "objects",
+      "name": "Искры",
+      "symbol": "base:visual_objects_sparks",
+      "method": "magic"
+    },
+    {
+      "category": "objects",
+      "name": "Светящийся гриб",
+      "symbol": "base:visual_objects_mushroom_glowing",
+      "method": "food"
+    },
+    {
+      "category": "objects",
+      "name": "Телега",
+      "symbol": "base:visual_objects_cart",
+      "method": "cart"
+    },
+    {
+      "category": "objects",
+      "name": "Тумба",
+      "symbol": "base:visual_objects_nightstand",
+      "method": "table"
+    },
+    {
+      "category": "objects",
+      "name": "Яркий источник света",
+      "symbol": "base:visual_objects_light_bright",
+      "method": "magic"
+    },
+    {
+      "category": "objects",
+      "name": "Магический свет",
+      "symbol": "base:visual_objects_light_magic",
+      "method": "magic"
+    },
+    {
+      "category": "objects",
+      "name": "Источник света",
+      "symbol": "base:visual_objects_light_source",
+      "method": "magic"
+    },
+    {
+      "category": "objects",
+      "name": "Концентрированная магия",
+      "symbol": "base:visual_objects_magic_concentrated",
+      "method": "magic"
+    },
+    {
+      "category": "objects",
+      "name": "Магическая энергия",
+      "symbol": "base:visual_objects_magic_energy",
+      "method": "magic"
+    },
+    {
+      "category": "objects",
+      "name": "Кнопка",
+      "symbol": "base:visual_objects_button",
+      "method": "button"
+    },
+    {
+      "category": "objects",
+      "name": "Нажатая кнопка",
+      "symbol": "base:visual_objects_button_pressed",
+      "method": "button"
+    },
+    {
+      "category": "objects",
+      "name": "Круглая кнопка",
+      "symbol": "base:visual_objects_button_round",
+      "method": "button"
+    },
+    {
+      "category": "objects",
+      "name": "Цепь",
+      "symbol": "base:visual_objects_chain",
+      "method": "chain"
+    },
+    {
+      "category": "objects",
+      "name": "Тяжёлая цепь",
+      "symbol": "base:visual_objects_chain_heavy",
+      "method": "chain"
+    },
+    {
+      "category": "objects",
+      "name": "Механизм / шестерня",
+      "symbol": "base:visual_objects_gears",
+      "method": "gear"
+    },
+    {
+      "category": "objects",
+      "name": "Рычаг",
+      "symbol": "base:visual_objects_lever",
+      "method": "lever"
+    },
+    {
+      "category": "objects",
+      "name": "Опущенный рычаг",
+      "symbol": "base:visual_objects_lever_lowered",
+      "method": "lever"
+    },
+    {
+      "category": "objects",
+      "name": "Рычаг выключен",
+      "symbol": "base:visual_objects_lever_off",
+      "method": "lever"
+    },
+    {
+      "category": "objects",
+      "name": "Рычаг включён",
+      "symbol": "base:visual_objects_lever_on",
+      "method": "lever"
+    },
+    {
+      "category": "objects",
+      "name": "Механизм",
+      "symbol": "base:visual_objects_mechanism",
+      "method": "gear"
+    },
+    {
+      "category": "objects",
+      "name": "Колесо механизма",
+      "symbol": "base:visual_objects_mechanism_wheel",
+      "method": "gear"
+    },
+    {
+      "category": "objects",
+      "name": "Закреплённая верёвка",
+      "symbol": "base:visual_objects_rope_decor",
+      "method": "rope"
+    },
+    {
+      "category": "objects",
+      "name": "Натянутая верёвка",
+      "symbol": "base:visual_objects_rope_taut",
+      "method": "rope"
+    },
+    {
+      "category": "objects",
+      "name": "Магический разлом",
+      "symbol": "base:visual_objects_magic_rift",
+      "method": "magic"
+    },
+    {
+      "category": "objects",
+      "name": "Портал",
+      "symbol": "base:visual_objects_portal",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Активный портал",
+      "symbol": "base:visual_objects_portal_active",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Тёмный портал",
+      "symbol": "base:visual_objects_portal_dark",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Великий портал",
+      "symbol": "base:visual_objects_portal_great",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Неактивный портал",
+      "symbol": "base:visual_objects_portal_inactive",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Светлый портал",
+      "symbol": "base:visual_objects_portal_light",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Малый портал",
+      "symbol": "base:visual_objects_portal_small",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Туша монстра",
+      "symbol": "base:visual_objects_carcass",
+      "method": "skull"
+    },
+    {
+      "category": "objects",
+      "name": "Труп",
+      "symbol": "base:visual_objects_corpse",
+      "method": "skull"
+    },
+    {
+      "category": "objects",
+      "name": "Череп",
+      "symbol": "base:visual_objects_skull",
+      "method": "skull"
+    },
+    {
+      "category": "objects",
+      "name": "Спуск глубже",
+      "symbol": "base:visual_objects_exit_down",
+      "method": "stairs"
+    },
+    {
+      "category": "objects",
+      "name": "Выход наверх",
+      "symbol": "base:visual_objects_exit_up",
+      "method": "stairs"
+    },
+    {
+      "category": "objects",
+      "name": "Переход вниз",
+      "symbol": "base:visual_objects_transition_down",
+      "method": "stairs"
+    },
+    {
+      "category": "objects",
+      "name": "Переход на следующий уровень",
+      "symbol": "base:visual_objects_transition_next",
+      "method": "stairs"
+    },
+    {
+      "category": "objects",
+      "name": "Переход на предыдущий уровень",
+      "symbol": "base:visual_objects_transition_previous",
+      "method": "stairs"
+    },
+    {
+      "category": "objects",
+      "name": "Переход вверх",
+      "symbol": "base:visual_objects_transition_up",
+      "method": "stairs"
+    },
+    {
+      "category": "objects",
+      "name": "Телепорт",
+      "symbol": "base:visual_objects_teleport",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Активный телепорт",
+      "symbol": "base:visual_objects_teleport_active",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Неактивный телепорт",
+      "symbol": "base:visual_objects_teleport_inactive",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Большой телепорт",
+      "symbol": "base:visual_objects_teleport_large",
+      "method": "portal"
+    },
+    {
+      "category": "objects",
+      "name": "Лужа",
+      "symbol": "base:visual_objects_puddle",
+      "method": "water"
+    },
+    {
+      "category": "objects",
+      "name": "Мелкая лужа",
+      "symbol": "base:visual_objects_puddle_small",
+      "method": "water"
+    },
+    {
+      "category": "monsters",
+      "name": "Гоблин",
+      "symbol": "base:visual_monsters_goblin",
+      "method": "goblin"
+    },
+    {
+      "category": "equipment",
+      "name": "Связанный реагент",
+      "symbol": "base:visual_equipment_arcane_dust",
+      "method": "magic"
+    },
+    {
+      "category": "equipment",
+      "name": "Рунный фокус",
+      "symbol": "base:visual_equipment_arcane_focus",
+      "method": "magic"
+    },
+    {
+      "category": "equipment",
+      "name": "Связующая смола",
+      "symbol": "base:visual_equipment_binding_resin",
+      "method": "magic"
+    },
+    {
+      "category": "equipment",
+      "name": "Драконья кожа",
+      "symbol": "base:visual_equipment_dragon_hide",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Доспех из драконьей кожи",
+      "symbol": "base:visual_equipment_dragon_leather",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Железное дерево",
+      "symbol": "base:visual_equipment_ironwood",
+      "method": "wood"
+    },
+    {
+      "category": "equipment",
+      "name": "Мифрил",
+      "symbol": "base:visual_equipment_mithril",
+      "method": "ore"
+    },
+    {
+      "category": "equipment",
+      "name": "Пигмент",
+      "symbol": "base:visual_equipment_pigment",
+      "method": "magic"
+    },
+    {
+      "category": "equipment",
+      "name": "Рунный кожаный доспех",
+      "symbol": "base:visual_equipment_rune_leather",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Кислотный реагент",
+      "symbol": "base:visual_equipment_acid_reagent",
+      "method": "magic"
+    },
+    {
+      "category": "equipment",
+      "name": "Алхимический реагент",
+      "symbol": "base:visual_equipment_alchemy_reagent",
+      "method": "magic"
+    },
+    {
+      "category": "equipment",
+      "name": "Бинт",
+      "symbol": "base:visual_equipment_bandage",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Глина",
+      "symbol": "base:visual_equipment_clay",
+      "method": "ore"
+    },
+    {
+      "category": "equipment",
+      "name": "Тряпка",
+      "symbol": "base:visual_equipment_cloth",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Заготовка",
+      "symbol": "base:visual_equipment_craft_workpiece",
+      "method": "gear"
+    },
+    {
+      "category": "equipment",
+      "name": "Стекольное сырьё",
+      "symbol": "base:visual_equipment_glass_material",
+      "method": "ore"
+    },
+    {
+      "category": "equipment",
+      "name": "Импровизированная верёвка",
+      "symbol": "base:visual_equipment_improvised_rope",
+      "method": "rope"
+    },
+    {
+      "category": "equipment",
+      "name": "Железо",
+      "symbol": "base:visual_equipment_iron",
+      "method": "ore"
+    },
+    {
+      "category": "equipment",
+      "name": "Металлический лом",
+      "symbol": "base:visual_equipment_metal_scrap",
+      "method": "ore"
+    },
+    {
+      "category": "equipment",
+      "name": "Грибы",
+      "symbol": "base:visual_equipment_mushroom",
+      "method": "food"
+    },
+    {
+      "category": "equipment",
+      "name": "Растительное волокно",
+      "symbol": "base:visual_equipment_plant_fiber",
+      "method": "wood"
+    },
+    {
+      "category": "equipment",
+      "name": "Кожа",
+      "symbol": "base:visual_equipment_raw_leather",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Камень",
+      "symbol": "base:visual_equipment_stone",
+      "method": "ore"
+    },
+    {
+      "category": "equipment",
+      "name": "Растопка",
+      "symbol": "base:visual_equipment_tinder",
+      "method": "wood"
+    },
+    {
+      "category": "equipment",
+      "name": "Древесина",
+      "symbol": "base:visual_equipment_wood",
+      "method": "wood"
+    },
+    {
+      "category": "equipment",
+      "name": "Резной посох",
+      "symbol": "base:visual_equipment_carved_staff",
+      "method": "staff"
+    },
+    {
+      "category": "equipment",
+      "name": "Хитин",
+      "symbol": "base:visual_equipment_chitin",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Приготовленное мясо",
+      "symbol": "base:visual_equipment_cooked_meat",
+      "method": "food"
+    },
+    {
+      "category": "equipment",
+      "name": "Кожаная лента",
+      "symbol": "base:visual_equipment_leather_strip",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Сырое мясо",
+      "symbol": "base:visual_equipment_raw_meat",
+      "method": "food"
+    },
+    {
+      "category": "equipment",
+      "name": "Паутина",
+      "symbol": "base:visual_equipment_spider_silk",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Каменный клин",
+      "symbol": "base:visual_equipment_stone_wedge",
+      "method": "ore"
+    },
+    {
+      "category": "equipment",
+      "name": "Деревянный шест",
+      "symbol": "base:visual_equipment_wooden_pole",
+      "method": "staff"
+    },
+    {
+      "category": "equipment",
+      "name": "Кремень и кресало",
+      "symbol": "base:visual_equipment_flint_and_steel",
+      "method": "fire"
+    },
+    {
+      "category": "equipment",
+      "name": "Лечебная припарка",
+      "symbol": "base:visual_equipment_healing_poultice",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Кожаный доспех",
+      "symbol": "base:visual_equipment_leather",
+      "method": "cloth"
+    },
+    {
+      "category": "equipment",
+      "name": "Дорожный паёк",
+      "symbol": "base:visual_equipment_rations",
+      "method": "food"
+    },
+    {
+      "category": "equipment",
+      "name": "Верёвка",
+      "symbol": "base:visual_equipment_rope",
+      "method": "rope"
+    },
+    {
+      "category": "equipment",
+      "name": "Посох",
+      "symbol": "base:visual_equipment_staff",
+      "method": "staff"
+    },
+    {
+      "category": "equipment",
+      "name": "Сапоги",
+      "symbol": "base:visual_equipment_terrain_decor_boots",
+      "method": "boots"
+    },
+    {
+      "category": "equipment",
+      "name": "Лук",
+      "symbol": "base:visual_equipment_terrain_decor_bow",
+      "method": "bow"
+    },
+    {
+      "category": "equipment",
+      "name": "Длинный лук",
+      "symbol": "base:visual_equipment_terrain_decor_longbow",
+      "method": "bow"
+    },
+    {
+      "category": "spells",
+      "name": "Кислотная сфера",
+      "symbol": "base:visual_spells_acid_splash",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Защитный клинок",
+      "symbol": "base:visual_spells_blade_ward",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Холодное прикосновение",
+      "symbol": "base:visual_spells_chill_touch",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Пляшущие огоньки",
+      "symbol": "base:visual_spells_dancing_lights",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Дневной свет",
+      "symbol": "base:visual_spells_daylight",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Обнаружение магии",
+      "symbol": "base:visual_spells_detect_magic",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Элементализм",
+      "symbol": "base:visual_spells_elementalism",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Свет",
+      "symbol": "base:visual_spells_light",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Волшебная рука",
+      "symbol": "base:visual_spells_mage_hand",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Волшебная стрела",
+      "symbol": "base:visual_spells_magic_missile",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Починка",
+      "symbol": "base:visual_spells_mending",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Малая иллюзия",
+      "symbol": "base:visual_spells_minor_illusion",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Ядовитые брызги",
+      "symbol": "base:visual_spells_poison_spray",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Фокусы",
+      "symbol": "base:visual_spells_prestidigitation",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Луч холода",
+      "symbol": "base:visual_spells_ray_of_frost",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Электрическое касание",
+      "symbol": "base:visual_spells_shocking_grasp",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Раскат грома",
+      "symbol": "base:visual_spells_thunderclap",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Погребальный звон",
+      "symbol": "base:visual_spells_toll_the_dead",
+      "method": "magic"
+    },
+    {
+      "category": "spells",
+      "name": "Истинный удар",
+      "symbol": "base:visual_spells_true_strike",
+      "method": "magic"
+    },
+    {
+      "category": "classes",
+      "name": "Плут",
+      "symbol": "base:visual_classes_rogue",
+      "method": "cloak"
+    },
+    {
+      "category": "classes",
+      "name": "Воин",
+      "symbol": "base:visual_classes_warrior",
+      "method": "shield"
+    },
+    {
+      "category": "classes",
+      "name": "Волшебник",
+      "symbol": "base:visual_classes_wizard",
+      "method": "magic"
+    },
+    {
+      "category": "races",
+      "name": "Дварф",
+      "symbol": "base:visual_races_dwarf",
+      "method": "person"
+    },
+    {
+      "category": "races",
+      "name": "Эльф",
+      "symbol": "base:visual_races_elf",
+      "method": "person"
+    },
+    {
+      "category": "races",
+      "name": "Человек",
+      "symbol": "base:visual_races_human",
+      "method": "person"
+    },
+    {
+      "category": "backgrounds",
+      "name": "Ремесленник",
+      "symbol": "base:visual_backgrounds_artisan",
+      "method": "tools"
+    },
+    {
+      "category": "backgrounds",
+      "name": "Мудрец",
+      "symbol": "base:visual_backgrounds_sage",
+      "method": "book"
+    },
+    {
+      "category": "backgrounds",
+      "name": "Учёный",
+      "symbol": "base:visual_backgrounds_scholar",
+      "method": "book"
+    },
+    {
+      "category": "backgrounds",
+      "name": "Солдат",
+      "symbol": "base:visual_backgrounds_soldier",
+      "method": "shield"
+    },
+    {
+      "category": "backgrounds",
+      "name": "Вор",
+      "symbol": "base:visual_backgrounds_thief",
+      "method": "tools"
+    },
+    {
+      "category": "backgrounds",
+      "name": "Странник",
+      "symbol": "base:visual_backgrounds_wanderer",
+      "method": "tools"
+    },
+    {
+      "category": "points_of_interest",
+      "name": "Положительная энергия",
+      "symbol": "base:visual_points_of_interest_terrain_magic_positive",
+      "method": "magic"
+    },
+    {
+      "category": "points_of_interest",
+      "name": "Слабая магия",
+      "symbol": "base:visual_points_of_interest_terrain_magic_weak",
+      "method": "magic"
+    },
+    {
+      "category": "points_of_interest",
+      "name": "Сильная магическая зона",
+      "symbol": "base:visual_points_of_interest_terrain_magic_zone",
+      "method": "magic"
+    },
+    {
+      "category": "points_of_interest",
+      "name": "Магическая руна",
+      "symbol": "base:visual_points_of_interest_terrain_rune_magic",
+      "method": "magic"
+    },
+    {
+      "category": "points_of_interest",
+      "name": "Жертвенная чаша",
+      "symbol": "base:visual_points_of_interest_terrain_sacrificial_bowl",
+      "method": "bow"
+    },
+    {
+      "category": "backgrounds",
+      "name": "Разработчик: все ремёсла",
+      "symbol": "base:visual_backgrounds_master_artisan",
+      "method": "tools"
+    }
+  ],
+  "backups": [
+    "backups/symbols_20261012_104411_449278",
+    "backups/symbols_20261012_104822_981619"
+  ]
+}

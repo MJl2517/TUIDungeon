@@ -31,20 +31,24 @@
       "name": "Еда",
       "glyph": "%",
       "foreground": 10,
-      "background": null
+      "background": null,
+      "symbol": "base:glyph_0025"
     },
     {
       "name": "Пища",
       "glyph": "F",
       "foreground": 10,
-      "background": null
+      "background": null,
+      "symbol": "base:glyph_0046"
     },
     {
       "name": "Рацион",
       "glyph": "r",
       "foreground": 10,
-      "background": null
+      "background": null,
+      "symbol": "base:glyph_0072"
     }
   ],
-  "group": "Декорации: припасы"
+  "group": "Декорации: припасы",
+  "symbol": "base:visual_equipment_rations"
 }

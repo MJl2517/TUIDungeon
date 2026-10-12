@@ -10,5 +10,6 @@
   "foreground": 13,
   "tags": [
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_equipment_arcane_dust"
 }

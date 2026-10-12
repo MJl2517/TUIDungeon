@@ -33,5 +33,6 @@
   "map_light": {
     "radius": 6,
     "bright_radius": 3
-  }
+  },
+  "symbol": "base:visual_traps_terrain_magic_fire"
 }

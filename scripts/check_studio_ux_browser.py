@@ -53,10 +53,41 @@ def run():
                 errors = []
                 page.on("pageerror", lambda e: errors.append(str(e)))
                 page.goto(f"http://127.0.0.1:{port}")
+
+                # Catalog pages must respond to the mouse wheel, not just to
+                # programmatic scroll_into_view (which also scrolls overflow:hidden).
+                def wheel_to_bottom(selector):
+                    panel = page.locator(selector)
+                    expect(panel).to_be_visible()
+                    assert panel.evaluate("e => e.scrollHeight > e.clientHeight")
+                    panel.evaluate("e => e.scrollTop = 0")
+                    box = panel.bounding_box()
+                    page.mouse.move(box["x"] + box["width"] / 2, box["y"] + 20)
+                    page.mouse.wheel(0, 100000)
+                    page.wait_for_function(
+                        "s => { const e = document.querySelector(s); "
+                        "return e.scrollTop > 0 && "
+                        "e.scrollTop + e.clientHeight >= e.scrollHeight - 2; }",
+                        arg=selector,
+                    )
+
+                page.locator(".home-card").first.wait_for()
+                wheel_to_bottom(".studio-home")
+                for size in [(1600, 1000), (800, 640)]:
+                    page.set_viewport_size(dict(zip(("width", "height"), size)))
+                    for category in ["equipment", "tiles", "objects", "recipes"]:
+                        page.locator(
+                            f'.navigation [data-category="{category}"]'
+                        ).click()
+                        page.locator(".content-entry").first.wait_for()
+                        wheel_to_bottom(".library-page")
+                        expect(page.locator(".content-pagination")).to_be_in_viewport()
+                page.set_viewport_size(dict(width=1600, height=1000))
                 # Tag editing is checked on disposable content, including persistence.
                 page.get_by_role("button", name="Предметы", exact=True).click()
                 page.get_by_label("Поиск контента").fill("base:pickaxe")
                 page.locator(".content-entry").click()
+                wheel_to_bottom(".mechanics-form")
                 tag_search = page.get_by_label("Поиск игровых тегов", exact=True)
                 tag_search.fill("свят")
                 expect(

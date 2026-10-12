@@ -26,5 +26,6 @@
   "charges": null,
   "hands": 0,
   "light": null,
-  "group": "Декорации: снаряжение"
+  "group": "Декорации: снаряжение",
+  "symbol": "base:visual_equipment_terrain_decor_gloves"
 }

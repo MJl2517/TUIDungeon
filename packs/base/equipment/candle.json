@@ -29,5 +29,6 @@
     "burn_minutes": 60,
     "fuel_tag": null
   },
-  "group": "Снаряжение"
+  "group": "Снаряжение",
+  "symbol": "base:visual_equipment_candle"
 }

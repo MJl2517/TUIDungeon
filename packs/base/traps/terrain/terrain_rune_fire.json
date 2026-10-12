@@ -29,5 +29,6 @@
     "runes",
     "transparent",
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_traps_terrain_rune_fire"
 }

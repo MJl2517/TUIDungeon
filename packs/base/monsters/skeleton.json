@@ -57,5 +57,6 @@
     "immunities": [
       "poison"
     ]
-  }
+  },
+  "symbol": "base:visual_monsters_skeleton"
 }

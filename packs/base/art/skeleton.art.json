@@ -16,738 +16,882 @@
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
-          },
-          {
-            "char": ".",
-            "foreground": 7,
-            "background": null
-          },
-          {
-            "char": "-",
-            "foreground": 7,
-            "background": null
-          },
-          {
-            "char": "-",
-            "foreground": 7,
-            "background": null
-          },
-          {
-            "char": "-",
-            "foreground": 7,
-            "background": null
-          },
-          {
-            "char": "-",
-            "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": ".",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
+          },
+          {
+            "char": "-",
+            "foreground": 7,
+            "background": null,
+            "symbol": "base:glyph_002d"
+          },
+          {
+            "char": "-",
+            "foreground": 7,
+            "background": null,
+            "symbol": "base:glyph_002d"
+          },
+          {
+            "char": "-",
+            "foreground": 7,
+            "background": null,
+            "symbol": "base:glyph_002d"
+          },
+          {
+            "char": "-",
+            "foreground": 7,
+            "background": null,
+            "symbol": "base:glyph_002d"
+          },
+          {
+            "char": ".",
+            "foreground": 7,
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           }
         ],
         [
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "/",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002f"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "o",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_006f"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "o",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_006f"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "\\",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_005c"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           }
         ],
         [
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "|",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_007c"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "/",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002f"
           },
           {
             "char": "\\",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_005c"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "|",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_007c"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           }
         ],
         [
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "'",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0027"
           },
           {
             "char": "-",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002d"
           },
           {
             "char": "-",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002d"
           },
           {
             "char": "-",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002d"
           },
           {
             "char": "-",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002d"
           },
           {
             "char": "-",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002d"
           },
           {
             "char": "-",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002d"
           },
           {
             "char": "'",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0027"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           }
         ],
         [
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "|",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_007c"
           },
           {
             "char": "|",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_007c"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           }
         ],
         [
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "=",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_003d"
           },
           {
             "char": "=",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_003d"
           },
           {
             "char": "[",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_005b"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "|",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_007c"
           },
           {
             "char": "|",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_007c"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "]",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_005d"
           },
           {
             "char": "=",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_003d"
           },
           {
             "char": "=",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_003d"
           }
         ],
         [
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "[",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_005b"
           },
           {
             "char": "|",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_007c"
           },
           {
             "char": "|",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_007c"
           },
           {
             "char": "]",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_005d"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           }
         ],
         [
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "/",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002f"
           },
           {
             "char": "\\",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_005c"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           }
         ],
         [
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "/",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002f"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "\\",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_005c"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": " ",
             "foreground": 7,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           }
         ]
       ]

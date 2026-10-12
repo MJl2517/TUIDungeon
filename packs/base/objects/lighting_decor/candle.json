@@ -39,5 +39,6 @@
         "quantity": 1
       }
     ]
-  }
+  },
+  "symbol": "base:visual_objects_candle"
 }

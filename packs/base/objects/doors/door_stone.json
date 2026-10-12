@@ -35,5 +35,9 @@
       "item": "base:stone",
       "quantity": 2
     }
-  ]
+  ],
+  "symbol": "base:door_stone_closed",
+  "state_symbols": {
+    "closed": "base:door_stone_closed"
+  }
 }

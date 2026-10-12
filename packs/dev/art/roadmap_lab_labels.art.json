@@ -180,107 +180,128 @@
           {
             "char": "1",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0031"
           },
           {
             "char": ".",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "С",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0421"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "В",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0412"
           },
           {
             "char": "Ы",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042b"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "З",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0417"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Г",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0413"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "В",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0412"
           },
           {
             "char": "К",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041a"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           null,
           null,
@@ -290,77 +311,92 @@
           {
             "char": "2",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0032"
           },
           {
             "char": ".",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "С",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0421"
           },
           {
             "char": "В",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0412"
           },
           {
             "char": "Е",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0415"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "К",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041a"
           },
           {
             "char": "Р",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0420"
           },
           {
             "char": "Ы",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042b"
           },
           {
             "char": "Ш",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0428"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           null,
           null,
@@ -376,92 +412,110 @@
           {
             "char": "3",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0033"
           },
           {
             "char": ".",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "З",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0417"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": "Я",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042f"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "Ж",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0416"
           },
           {
             "char": "У",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0423"
           },
           {
             "char": "Р",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0420"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Л",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041b"
           },
           null,
           null,
@@ -2016,82 +2070,98 @@
           {
             "char": "4",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0034"
           },
           {
             "char": ".",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "Б",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0411"
           },
           {
             "char": "Ъ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042a"
           },
           {
             "char": "Е",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0415"
           },
           {
             "char": "К",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041a"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "Ы",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042b"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "П",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041f"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "Л",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041b"
           },
           null,
           null,
@@ -2106,97 +2176,116 @@
           {
             "char": "5",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0035"
           },
           {
             "char": ".",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "Г",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0413"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "Ь",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042c"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "Ж",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0416"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": "Д",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0414"
           },
           {
             "char": "К",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041a"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "С",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0421"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           null,
           null,
@@ -2208,97 +2297,116 @@
           {
             "char": "6",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0036"
           },
           {
             "char": ".",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "С",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0421"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "Ц",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0426"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "Р",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0420"
           },
           {
             "char": "Е",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0415"
           },
           {
             "char": "М",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041c"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           null,
           null,
@@ -3852,112 +3960,134 @@
           {
             "char": "7",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0037"
           },
           {
             "char": ".",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "П",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041f"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "С",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0421"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "Р",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0420"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "Й",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0419"
           },
           {
             "char": "К",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041a"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "Л",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041b"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "В",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0412"
           },
           {
             "char": "У",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0423"
           },
           {
             "char": "Ш",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0428"
           },
           {
             "char": "К",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041a"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           null,
           null,
@@ -3966,102 +4096,122 @@
           {
             "char": "8",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0038"
           },
           {
             "char": ".",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "О",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041e"
           },
           {
             "char": "С",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0421"
           },
           {
             "char": "Т",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0422"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "К",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041a"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "Р",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0420"
           },
           {
             "char": "Е",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0415"
           },
           {
             "char": "М",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041c"
           },
           {
             "char": "Ё",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0401"
           },
           {
             "char": "С",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0421"
           },
           {
             "char": "Л",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041b"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           null,
           null,
@@ -4072,92 +4222,110 @@
           {
             "char": "9",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0039"
           },
           {
             "char": ".",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_002e"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "Ч",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0427"
           },
           {
             "char": "Е",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0415"
           },
           {
             "char": "Р",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0420"
           },
           {
             "char": "Н",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041d"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": "Л",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041b"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": " ",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0020"
           },
           {
             "char": "М",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_041c"
           },
           {
             "char": "А",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0410"
           },
           {
             "char": "Г",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0413"
           },
           {
             "char": "И",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_0418"
           },
           {
             "char": "Я",
             "foreground": 14,
-            "background": null
+            "background": null,
+            "symbol": "base:glyph_042f"
           },
           null,
           null,

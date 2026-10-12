@@ -13,5 +13,6 @@
     "trap",
     "tool"
   ],
-  "durability": null
+  "durability": null,
+  "symbol": "base:visual_equipment_trap_kit"
 }

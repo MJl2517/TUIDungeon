@@ -32,9 +32,11 @@ def override_document(category, document, overrides):
         return document
     if {"id", "schema_version"} & overrides.keys():
         raise ValueError("Идентификатор и версия шаблона не переопределяются")
-    return MODELS[category].model_validate(
-        merge_properties(document.model_dump(mode="json"), overrides)
-    )
+    merged = merge_properties(document.model_dump(mode="json"), overrides)
+    # Old maps can override only the text sign on a migrated template.
+    if "glyph" in overrides and "symbol" not in overrides:
+        merged["symbol"] = None
+    return MODELS[category].model_validate(merged)
 
 
 def resolve_placement(documents, category, placement):

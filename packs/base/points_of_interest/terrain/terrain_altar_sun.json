@@ -12,5 +12,6 @@
     "transparent"
   ],
   "challenge": "base:terrain_altar_sun",
-  "group": "Алтари и святыни"
+  "group": "Алтари и святыни",
+  "symbol": "base:visual_points_of_interest_terrain_altar_sun"
 }

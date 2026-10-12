@@ -8,19 +8,22 @@
       "name": "Щит",
       "glyph": "]",
       "foreground": 250,
-      "background": null
+      "background": null,
+      "symbol": "base:glyph_005d"
     },
     {
       "name": "Круглый щит",
       "glyph": "O",
       "foreground": 250,
-      "background": null
+      "background": null,
+      "symbol": "base:glyph_004f"
     },
     {
       "name": "Большой щит",
       "glyph": "D",
       "foreground": 250,
-      "background": null
+      "background": null,
+      "symbol": "base:glyph_0044"
     }
   ],
   "glyph": "[",
@@ -54,5 +57,6 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 1,
-  "light": null
+  "light": null,
+  "symbol": "base:visual_equipment_shield"
 }

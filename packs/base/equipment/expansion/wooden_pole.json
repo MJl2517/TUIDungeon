@@ -17,5 +17,6 @@
   "slot": "weapon",
   "hands": 2,
   "durability": 20,
-  "weapon_damage": "1d6"
+  "weapon_damage": "1d6",
+  "symbol": "base:visual_equipment_wooden_pole"
 }

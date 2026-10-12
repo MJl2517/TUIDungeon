@@ -10,5 +10,6 @@
   "weight": 0.5,
   "tags": [
     "clay"
-  ]
+  ],
+  "symbol": "base:visual_equipment_clay"
 }

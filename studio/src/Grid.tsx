@@ -1,9 +1,13 @@
-import { useLayoutEffect, useRef } from "react";
+import { useContext, useLayoutEffect, useRef } from "react";
+import { SymbolContext } from "./Symbols";
+import { drawSymbol } from "./symbolModel";
 import { Cell, Point, color } from "./model";
 type Props = {
   cells: Cell[][];
   zoom?: number;
   grid?: boolean;
+  square?: boolean;
+  symbols?: boolean;
   overlays?: { cells: boolean[][]; color: string }[];
   selection?: Point[];
   onDown?: (p: Point, modifiers?: { altKey: boolean }) => void;
@@ -15,6 +19,8 @@ export function Grid({
   cells,
   zoom = 1,
   grid = true,
+  square = false,
+  symbols = false,
   overlays = [],
   selection = [],
   onDown,
@@ -22,10 +28,11 @@ export function Grid({
   onUp,
   onHover,
 }: Props) {
+  const { assets } = useContext(SymbolContext);
   const ref = useRef<HTMLCanvasElement>(null),
     drag = useRef(false);
-  const cw = 12 * zoom,
-    ch = 20 * zoom,
+  const cw = (square ? 16 : 12) * zoom,
+    ch = (square ? 16 : 20) * zoom,
     w = cells[0]?.length ?? 1,
     h = cells.length;
   useLayoutEffect(() => {
@@ -53,7 +60,10 @@ export function Grid({
         }
         if (c) {
           ctx.fillStyle = color(c.foreground);
-          ctx.fillText(c.char, (x + 0.5) * cw, (y + 0.5) * ch);
+          const image = c.symbol ? assets["symbols/" + c.symbol] : undefined;
+          if (symbols && image)
+            drawSymbol(ctx, image, x * cw, y * ch, cw, ch, color(c.foreground));
+          else ctx.fillText(c.char, (x + 0.5) * cw, (y + 0.5) * ch);
         }
       }),
     );
@@ -83,7 +93,7 @@ export function Grid({
     }
     ctx.fillStyle = "#edc87555";
     for (const p of selection) ctx.fillRect(p.x * cw, p.y * ch, cw, ch);
-  }, [cells, cw, ch, w, h, grid, overlays, selection, zoom]);
+  }, [cells, cw, ch, w, h, grid, overlays, selection, zoom, symbols, assets]);
   const point = (e: React.PointerEvent) => {
     const r = e.currentTarget.getBoundingClientRect();
     return {

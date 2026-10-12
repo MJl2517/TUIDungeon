@@ -35,5 +35,11 @@
       "item": "base:stone",
       "quantity": 2
     }
-  ]
+  ],
+  "symbol": "base:door_adamantine_closed",
+  "state_symbols": {
+    "closed": "base:door_adamantine_closed",
+    "locked": "base:door_adamantine_locked",
+    "open": "base:door_adamantine_open"
+  }
 }

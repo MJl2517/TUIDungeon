@@ -12,5 +12,6 @@
     "organic",
     "poison",
     "reagent"
-  ]
+  ],
+  "symbol": "base:visual_equipment_poison_gland"
 }

@@ -52,5 +52,6 @@
     "base:true_strike"
   ],
   "cantrips_known": 3,
-  "spellcasting_ability": "intelligence"
+  "spellcasting_ability": "intelligence",
+  "symbol": "base:visual_classes_wizard"
 }

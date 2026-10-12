@@ -19,8 +19,10 @@
       "name": "Золото",
       "glyph": "G",
       "foreground": 11,
-      "background": null
+      "background": null,
+      "symbol": "base:glyph_0047"
     }
   ],
-  "group": "Сокровища"
+  "group": "Сокровища",
+  "symbol": "base:visual_points_of_interest_terrain_treasure_gold"
 }

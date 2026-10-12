@@ -14,5 +14,6 @@
     "stone"
   ],
   "challenge": "base:terrain_shrine",
-  "group": "Алтари и святыни"
+  "group": "Алтари и святыни",
+  "symbol": "base:visual_points_of_interest_terrain_shrine"
 }

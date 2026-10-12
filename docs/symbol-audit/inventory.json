@@ -1,0 +1,4989 @@
+{
+  "definitions": 598,
+  "assignments": [
+    {
+      "category": "backgrounds",
+      "ref": "base:artisan",
+      "name": "Ремесленник",
+      "field": "symbol",
+      "symbol": "base:visual_backgrounds_artisan",
+      "reviewed": true
+    },
+    {
+      "category": "backgrounds",
+      "ref": "base:sage",
+      "name": "Мудрец",
+      "field": "symbol",
+      "symbol": "base:visual_backgrounds_sage",
+      "reviewed": true
+    },
+    {
+      "category": "backgrounds",
+      "ref": "base:scholar",
+      "name": "Учёный",
+      "field": "symbol",
+      "symbol": "base:visual_backgrounds_scholar",
+      "reviewed": true
+    },
+    {
+      "category": "backgrounds",
+      "ref": "base:soldier",
+      "name": "Солдат",
+      "field": "symbol",
+      "symbol": "base:visual_backgrounds_soldier",
+      "reviewed": true
+    },
+    {
+      "category": "backgrounds",
+      "ref": "base:thief",
+      "name": "Вор",
+      "field": "symbol",
+      "symbol": "base:visual_backgrounds_thief",
+      "reviewed": true
+    },
+    {
+      "category": "backgrounds",
+      "ref": "base:wanderer",
+      "name": "Странник",
+      "field": "symbol",
+      "symbol": "base:visual_backgrounds_wanderer",
+      "reviewed": true
+    },
+    {
+      "category": "backgrounds",
+      "ref": "dev:master_artisan",
+      "name": "Разработчик: все ремёсла",
+      "field": "symbol",
+      "symbol": "base:visual_backgrounds_master_artisan",
+      "reviewed": true
+    },
+    {
+      "category": "classes",
+      "ref": "base:rogue",
+      "name": "Плут",
+      "field": "symbol",
+      "symbol": "base:visual_classes_rogue",
+      "reviewed": true
+    },
+    {
+      "category": "classes",
+      "ref": "base:warrior",
+      "name": "Воин",
+      "field": "symbol",
+      "symbol": "base:visual_classes_warrior",
+      "reviewed": true
+    },
+    {
+      "category": "classes",
+      "ref": "base:wizard",
+      "name": "Волшебник",
+      "field": "symbol",
+      "symbol": "base:visual_classes_wizard",
+      "reviewed": true
+    },
+    {
+      "category": "classes",
+      "ref": "dev:roadmap_tester",
+      "name": "Испытатель ремёсел",
+      "field": "symbol",
+      "symbol": "base:visual_classes_roadmap_tester",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:acid_flask",
+      "name": "Флакон кислоты",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_acid_flask",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:acid_reagent",
+      "name": "Кислотный реагент",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_acid_reagent",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:alchemist_tools",
+      "name": "Алхимические принадлежности",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_alchemist_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:alchemy_reagent",
+      "name": "Алхимический реагент",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_alchemy_reagent",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:animal_bone",
+      "name": "Кость животного",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_animal_bone",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:arcane_dust",
+      "name": "Связанный реагент",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_arcane_dust",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:arcane_focus",
+      "name": "Рунный фокус",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_arcane_focus",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:bandage",
+      "name": "Бинт",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_bandage",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:battering_ram",
+      "name": "Переносной таран",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_battering_ram",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:bedroll",
+      "name": "Спальный мешок",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_bedroll",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:binding_resin",
+      "name": "Связующая смола",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_binding_resin",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:bitter_herb",
+      "name": "Горькая трава",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_bitter_herb",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:brewer_tools",
+      "name": "Принадлежности пивовара",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_brewer_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:calligrapher_tools",
+      "name": "Принадлежности каллиграфа",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_calligrapher_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:candle",
+      "name": "Свеча",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_candle",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:carpenter_tools",
+      "name": "Инструменты плотника",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_carpenter_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:cartographer_tools",
+      "name": "Инструменты картографа",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_cartographer_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:carved_staff",
+      "name": "Резной посох",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_carved_staff",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:chest_key",
+      "name": "Ключ от сундука",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_chest_key",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:chitin",
+      "name": "Хитин",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_chitin",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:clay",
+      "name": "Глина",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_clay",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:clay_pot",
+      "name": "Глиняный сосуд",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_clay_pot",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:cloth",
+      "name": "Тряпка",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_cloth",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:club",
+      "name": "Простая дубинка",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_club",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:cobbler_tools",
+      "name": "Инструменты сапожника",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_cobbler_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:cook_tools",
+      "name": "Кухонные принадлежности",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_cook_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:cooked_meat",
+      "name": "Приготовленное мясо",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_cooked_meat",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:cooking_pot",
+      "name": "Походный котелок",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_cooking_pot",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:craft_workpiece",
+      "name": "Заготовка",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_craft_workpiece",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:crowbar",
+      "name": "Ломик",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_crowbar",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:dagger",
+      "name": "Кинжал",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_dagger",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:dragon_hide",
+      "name": "Драконья кожа",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_dragon_hide",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:dragon_leather",
+      "name": "Доспех из драконьей кожи",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_dragon_leather",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:dried_herbs",
+      "name": "Сухие травы",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_dried_herbs",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:flint_and_steel",
+      "name": "Кремень и кресало",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_flint_and_steel",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:glass_flask",
+      "name": "Стеклянный флакон",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_glass_flask",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:glass_material",
+      "name": "Стекольное сырьё",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_glass_material",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:glassblower_tools",
+      "name": "Инструменты стеклодува",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_glassblower_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:gold",
+      "name": "Золотая монета",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_gold",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:healing_potion",
+      "name": "Зелье лечения",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_healing_potion",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:healing_potion",
+      "name": "Зелье лечения",
+      "field": "variants.0",
+      "symbol": "base:glyph_00a1",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:healing_potion",
+      "name": "Зелье лечения",
+      "field": "variants.1",
+      "symbol": "base:glyph_0021",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:healing_poultice",
+      "name": "Лечебная припарка",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_healing_poultice",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:herbal_extract",
+      "name": "Травяной экстракт",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_herbal_extract",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:herbalism_kit",
+      "name": "Набор травника",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_herbalism_kit",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:improvised_club",
+      "name": "Связанная дубинка",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_improvised_club",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:improvised_lockpicks",
+      "name": "Простые отмычки",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_improvised_lockpicks",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:improvised_rope",
+      "name": "Импровизированная верёвка",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_improvised_rope",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:ink",
+      "name": "Чернила и перо",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_ink",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:inscribed_page",
+      "name": "Лист с надписью",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_inscribed_page",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:iron",
+      "name": "Железо",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_iron",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:ironwood",
+      "name": "Железное дерево",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_ironwood",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:ironwood_club",
+      "name": "Дубинка из железного дерева",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_ironwood_club",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:jeweler_tools",
+      "name": "Инструменты ювелира",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_jeweler_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:lamp",
+      "name": "Масляная лампа",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_lamp",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:leather",
+      "name": "Кожаный доспех",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_leather",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:leather_boots",
+      "name": "Кожаные сапоги",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_leather_boots",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:leather_strip",
+      "name": "Кожаная лента",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_leather_strip",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:leatherworker_tools",
+      "name": "Инструменты кожевника",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_leatherworker_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:mail",
+      "name": "Кольчуга",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_mail",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:mason_tools",
+      "name": "Инструменты каменщика",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_mason_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:master_lockpicks",
+      "name": "Мастерские отмычки",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_master_lockpicks",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:mechanical_part",
+      "name": "Механическая деталь",
+      "field": "symbol",
+      "symbol": "base:glyph_002a",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:medicinal_herb",
+      "name": "Лекарственная трава",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_medicinal_herb",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:metal_scrap",
+      "name": "Металлический лом",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_metal_scrap",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:metal_shield",
+      "name": "Металлический щит",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_metal_shield",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:mithril",
+      "name": "Мифрил",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_mithril",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:mithril_shield",
+      "name": "Мифриловый щит",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_mithril_shield",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:mushroom",
+      "name": "Грибы",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_mushroom",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:oil",
+      "name": "Масло",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_oil",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:packed_furniture",
+      "name": "Мебель",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_packed_furniture",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:painter_tools",
+      "name": "Принадлежности художника",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_painter_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:parchment",
+      "name": "Пергамент",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_parchment",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:pickaxe",
+      "name": "Кирка",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_pickaxe",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:pigment",
+      "name": "Пигмент",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_pigment",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:plant_fiber",
+      "name": "Растительное волокно",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_plant_fiber",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:poison_gland",
+      "name": "Ядовитая железа",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_poison_gland",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:poison_herb",
+      "name": "Ядовитая трава",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_poison_herb",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:poisoner_kit",
+      "name": "Набор отравителя",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_poisoner_kit",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:potter_tools",
+      "name": "Инструменты гончара",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_potter_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:rations",
+      "name": "Дорожный паёк",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_rations",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:rations",
+      "name": "Дорожный паёк",
+      "field": "variants.0",
+      "symbol": "base:glyph_0025",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:rations",
+      "name": "Дорожный паёк",
+      "field": "variants.1",
+      "symbol": "base:glyph_0046",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:rations",
+      "name": "Дорожный паёк",
+      "field": "variants.2",
+      "symbol": "base:glyph_0072",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:raw_leather",
+      "name": "Кожа",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_raw_leather",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:raw_meat",
+      "name": "Сырое мясо",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_raw_meat",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:robe",
+      "name": "Мантия",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_robe",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:rope",
+      "name": "Верёвка",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_rope",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:rune_dagger",
+      "name": "Рунный клинок",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_rune_dagger",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:rune_leather",
+      "name": "Рунный кожаный доспех",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_rune_leather",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:scroll_fire_bolt",
+      "name": "Свиток огненного снаряда",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_scroll_fire_bolt",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:scroll_light",
+      "name": "Свиток света",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_scroll_light",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:scroll_mending",
+      "name": "Свиток починки",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_scroll_mending",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:shield",
+      "name": "Щит",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_shield",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:shield",
+      "name": "Щит",
+      "field": "variants.0",
+      "symbol": "base:glyph_005d",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:shield",
+      "name": "Щит",
+      "field": "variants.1",
+      "symbol": "base:glyph_004f",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:shield",
+      "name": "Щит",
+      "field": "variants.2",
+      "symbol": "base:glyph_0044",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:simple_poison",
+      "name": "Простой яд",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_simple_poison",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:smith_tools",
+      "name": "Инструменты кузнеца",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_smith_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:spellbook",
+      "name": "Книга заклинаний",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_spellbook",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:spider_silk",
+      "name": "Паутина",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_spider_silk",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:staff",
+      "name": "Посох",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_staff",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:stake",
+      "name": "Кол",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_stake",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:stone",
+      "name": "Камень",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_stone",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:stone_block",
+      "name": "Каменный блок",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_stone_block",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:stone_wedge",
+      "name": "Каменный клин",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_stone_wedge",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:sword",
+      "name": "Меч",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_sword",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact",
+      "name": "Магический предмет",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact_amulet",
+      "name": "Магический амулет",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact_amulet",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact_legendary",
+      "name": "Легендарный предмет",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact_legendary",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact_powerful",
+      "name": "Сильный магический предмет",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact_powerful",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact_ring",
+      "name": "Магическое кольцо",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact_ring",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact_ring_enchanted",
+      "name": "Зачарованное кольцо",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact_ring_enchanted",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact_stone",
+      "name": "Магический камень",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact_stone",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact_unidentified",
+      "name": "Неопознанный магический предмет",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact_unidentified",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact_unknown",
+      "name": "Неизвестный артефакт",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact_unknown",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_artifact_weak",
+      "name": "Слабый магический предмет",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_artifact_weak",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_armor",
+      "name": "Броня",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_armor",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_armor_heavy",
+      "name": "Тяжёлая броня",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_armor_heavy",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_armor_light",
+      "name": "Лёгкая броня",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_armor_light",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_arrow",
+      "name": "Стрела",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_arrow",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_axe",
+      "name": "Топор",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_axe",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_bolt",
+      "name": "Болт",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_bolt",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_boots",
+      "name": "Сапоги",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_boots",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_bottle",
+      "name": "Бутылка",
+      "field": "symbol",
+      "symbol": "base:glyph_006f",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_bow",
+      "name": "Лук",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_bow",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_cloak",
+      "name": "Плащ",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_cloak",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_gloves",
+      "name": "Перчатки",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_gloves",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_greataxe",
+      "name": "Двуручный топор",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_greataxe",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_greatsword",
+      "name": "Большой меч",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_greatsword",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_halberd",
+      "name": "Алебарда",
+      "field": "symbol",
+      "symbol": "base:glyph_0050",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_hammer",
+      "name": "Молот",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_hammer",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_helmet",
+      "name": "Шлем",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_helmet",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_longbow",
+      "name": "Длинный лук",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_longbow",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_mace",
+      "name": "Булава",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_mace",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_potion_unknown",
+      "name": "Неизвестное зелье",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_potion_unknown",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_rapier",
+      "name": "Рапира",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_rapier",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_sickle",
+      "name": "Серп",
+      "field": "symbol",
+      "symbol": "base:glyph_2310",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_decor_spear",
+      "name": "Копьё",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_decor_spear",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_key_ancient",
+      "name": "Древний ключ",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_key_ancient",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_key_decor",
+      "name": "Ключ",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_key_decor",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_key_decor",
+      "name": "Ключ",
+      "field": "variants.0",
+      "symbol": "base:glyph_26bf",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_key_important",
+      "name": "Важный ключ",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_key_important",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:terrain_key_special",
+      "name": "Особый ключ",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_terrain_key_special",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:thieves_tools",
+      "name": "Воровские инструменты",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_thieves_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:tinder",
+      "name": "Растопка",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_tinder",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:tinker_tools",
+      "name": "Инструменты жестянщика",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_tinker_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:torch",
+      "name": "Факел",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_torch",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:trap_kit",
+      "name": "Импровизированная ловушка (набор)",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_trap_kit",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:uncut_gem",
+      "name": "Необработанный самоцвет",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_uncut_gem",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:water_flask",
+      "name": "Флакон",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_water_flask",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:waterskin",
+      "name": "Бурдюк",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_waterskin",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:weaver_tools",
+      "name": "Инструменты ткача",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_weaver_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:wood",
+      "name": "Древесина",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_wood",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:woodcarver_tools",
+      "name": "Инструменты резчика",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_woodcarver_tools",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:wooden_pole",
+      "name": "Деревянный шест",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_wooden_pole",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:wooden_shield",
+      "name": "Деревянный щит",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_wooden_shield",
+      "reviewed": true
+    },
+    {
+      "category": "equipment",
+      "ref": "base:writing_paper",
+      "name": "Лист пергамента",
+      "field": "symbol",
+      "symbol": "base:visual_equipment_writing_paper",
+      "reviewed": true
+    },
+    {
+      "category": "monsters",
+      "ref": "base:goblin",
+      "name": "Гоблин",
+      "field": "symbol",
+      "symbol": "base:visual_monsters_goblin",
+      "reviewed": true
+    },
+    {
+      "category": "monsters",
+      "ref": "base:skeleton",
+      "name": "Скелет",
+      "field": "symbol",
+      "symbol": "base:visual_monsters_skeleton",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:alchemy_flower",
+      "name": "Лиловый эфирник",
+      "field": "symbol",
+      "symbol": "base:visual_objects_alchemy_flower",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:alchemy_table",
+      "name": "Алхимический стол",
+      "field": "symbol",
+      "symbol": "base:visual_objects_alchemy_table",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:anvil",
+      "name": "Наковальня",
+      "field": "symbol",
+      "symbol": "base:visual_objects_anvil",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:barricade",
+      "name": "Деревянная баррикада",
+      "field": "symbol",
+      "symbol": "base:visual_objects_barricade",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:bed",
+      "name": "Кровать",
+      "field": "symbol",
+      "symbol": "base:visual_objects_bed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:bedroll",
+      "name": "Лежанка",
+      "field": "symbol",
+      "symbol": "base:visual_objects_bedroll",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:bench",
+      "name": "Скамья",
+      "field": "symbol",
+      "symbol": "base:visual_objects_bench",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:bitter_flower",
+      "name": "Золототысячник",
+      "field": "symbol",
+      "symbol": "base:visual_objects_bitter_flower",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:bones",
+      "name": "Кости",
+      "field": "symbol",
+      "symbol": "base:visual_objects_bones",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:bones_pile",
+      "name": "Груда костей",
+      "field": "symbol",
+      "symbol": "base:visual_objects_bones_pile",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:bookcase",
+      "name": "Книжный шкаф",
+      "field": "symbol",
+      "symbol": "base:visual_objects_bookcase",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:button",
+      "name": "Кнопка",
+      "field": "symbol",
+      "symbol": "base:visual_objects_button",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:button_pressed",
+      "name": "Нажатая кнопка",
+      "field": "symbol",
+      "symbol": "base:visual_objects_button_pressed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:button_round",
+      "name": "Круглая кнопка",
+      "field": "symbol",
+      "symbol": "base:visual_objects_button_round",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:cabinet",
+      "name": "Шкаф",
+      "field": "symbol",
+      "symbol": "base:visual_objects_cabinet",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:campfire",
+      "name": "Костёр",
+      "field": "symbol",
+      "symbol": "base:visual_objects_campfire",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:candle",
+      "name": "Свеча",
+      "field": "symbol",
+      "symbol": "base:visual_objects_candle",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:carcass",
+      "name": "Туша монстра",
+      "field": "symbol",
+      "symbol": "base:visual_objects_carcass",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:cart",
+      "name": "Телега",
+      "field": "symbol",
+      "symbol": "base:visual_objects_cart",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:chain",
+      "name": "Цепь",
+      "field": "symbol",
+      "symbol": "base:visual_objects_chain",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:chain_heavy",
+      "name": "Тяжёлая цепь",
+      "field": "symbol",
+      "symbol": "base:visual_objects_chain_heavy",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:chair",
+      "name": "Стул",
+      "field": "symbol",
+      "symbol": "base:visual_objects_chair",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:corpse",
+      "name": "Труп",
+      "field": "symbol",
+      "symbol": "base:visual_objects_corpse",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:cracked_barrier",
+      "name": "Потрескавшаяся преграда",
+      "field": "symbol",
+      "symbol": "base:visual_objects_cracked_barrier",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:craft_mechanism",
+      "name": "Разбираемый механизм",
+      "field": "symbol",
+      "symbol": "base:visual_objects_craft_mechanism",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:desk",
+      "name": "Письменный стол",
+      "field": "symbol",
+      "symbol": "base:visual_objects_desk",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_adamantine",
+      "name": "Адамантиевая дверь",
+      "field": "symbol",
+      "symbol": "base:door_adamantine_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_adamantine",
+      "name": "Адамантиевая дверь",
+      "field": "state_symbols.closed",
+      "symbol": "base:door_adamantine_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_adamantine",
+      "name": "Адамантиевая дверь",
+      "field": "state_symbols.locked",
+      "symbol": "base:door_adamantine_locked",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_adamantine",
+      "name": "Адамантиевая дверь",
+      "field": "state_symbols.open",
+      "symbol": "base:door_adamantine_open",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_barricaded",
+      "name": "Забаррикадированная дверь",
+      "field": "symbol",
+      "symbol": "base:visual_objects_door_barricaded",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_bars",
+      "name": "Дверь из прутьев",
+      "field": "symbol",
+      "symbol": "base:door_bars_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_bars",
+      "name": "Дверь из прутьев",
+      "field": "state_symbols.closed",
+      "symbol": "base:door_bars_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_bars",
+      "name": "Дверь из прутьев",
+      "field": "state_symbols.locked",
+      "symbol": "base:door_bars_locked",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_bars",
+      "name": "Дверь из прутьев",
+      "field": "state_symbols.open",
+      "symbol": "base:door_bars_open",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_bars",
+      "name": "Дверь из прутьев",
+      "field": "state_symbols.bent",
+      "symbol": "base:door_bars_bent",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_broken",
+      "name": "Разрушенная дверь",
+      "field": "symbol",
+      "symbol": "base:visual_objects_door_broken",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_secret",
+      "name": "Секретная дверь",
+      "field": "symbol",
+      "symbol": "base:visual_objects_door_secret",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_steel",
+      "name": "Стальная дверь",
+      "field": "symbol",
+      "symbol": "base:door_steel_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_steel",
+      "name": "Стальная дверь",
+      "field": "state_symbols.closed",
+      "symbol": "base:door_steel_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_steel",
+      "name": "Стальная дверь",
+      "field": "state_symbols.locked",
+      "symbol": "base:door_steel_locked",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_steel",
+      "name": "Стальная дверь",
+      "field": "state_symbols.open",
+      "symbol": "base:door_steel_open",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_stone",
+      "name": "Каменная плита",
+      "field": "symbol",
+      "symbol": "base:door_stone_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_stone",
+      "name": "Каменная плита",
+      "field": "state_symbols.closed",
+      "symbol": "base:door_stone_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_wood",
+      "name": "Деревянная дверь",
+      "field": "symbol",
+      "symbol": "base:door_wood_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_wood",
+      "name": "Деревянная дверь",
+      "field": "state_symbols.closed",
+      "symbol": "base:door_wood_closed",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_wood",
+      "name": "Деревянная дверь",
+      "field": "state_symbols.locked",
+      "symbol": "base:door_wood_locked",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:door_wood",
+      "name": "Деревянная дверь",
+      "field": "state_symbols.open",
+      "symbol": "base:door_wood_open",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:exit_down",
+      "name": "Спуск глубже",
+      "field": "symbol",
+      "symbol": "base:visual_objects_exit_down",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:exit_up",
+      "name": "Выход наверх",
+      "field": "symbol",
+      "symbol": "base:visual_objects_exit_up",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:fiber_flower",
+      "name": "Лазурный лён",
+      "field": "symbol",
+      "symbol": "base:visual_objects_fiber_flower",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:forge",
+      "name": "Горн",
+      "field": "symbol",
+      "symbol": "base:visual_objects_forge",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:gears",
+      "name": "Механизм / шестерня",
+      "field": "symbol",
+      "symbol": "base:visual_objects_gears",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:hot_spring",
+      "name": "Горячий источник",
+      "field": "symbol",
+      "symbol": "base:visual_objects_hot_spring",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:lantern",
+      "name": "Фонарь",
+      "field": "symbol",
+      "symbol": "base:visual_objects_lantern",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:lantern_magic",
+      "name": "Магический фонарь",
+      "field": "symbol",
+      "symbol": "base:visual_objects_lantern_magic",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:lever",
+      "name": "Рычаг",
+      "field": "symbol",
+      "symbol": "base:visual_objects_lever",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:lever_lowered",
+      "name": "Опущенный рычаг",
+      "field": "symbol",
+      "symbol": "base:visual_objects_lever_lowered",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:lever_off",
+      "name": "Рычаг выключен",
+      "field": "symbol",
+      "symbol": "base:visual_objects_lever_off",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:lever_on",
+      "name": "Рычаг включён",
+      "field": "symbol",
+      "symbol": "base:visual_objects_lever_on",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:light_bright",
+      "name": "Яркий источник света",
+      "field": "symbol",
+      "symbol": "base:visual_objects_light_bright",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:light_magic",
+      "name": "Магический свет",
+      "field": "symbol",
+      "symbol": "base:visual_objects_light_magic",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:light_source",
+      "name": "Источник света",
+      "field": "symbol",
+      "symbol": "base:visual_objects_light_source",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:magic_concentrated",
+      "name": "Концентрированная магия",
+      "field": "symbol",
+      "symbol": "base:visual_objects_magic_concentrated",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:magic_energy",
+      "name": "Магическая энергия",
+      "field": "symbol",
+      "symbol": "base:visual_objects_magic_energy",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:magic_rift",
+      "name": "Магический разлом",
+      "field": "symbol",
+      "symbol": "base:visual_objects_magic_rift",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:mechanism",
+      "name": "Механизм",
+      "field": "symbol",
+      "symbol": "base:visual_objects_mechanism",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:mechanism_wheel",
+      "name": "Колесо механизма",
+      "field": "symbol",
+      "symbol": "base:visual_objects_mechanism_wheel",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:medicinal_flower",
+      "name": "Зеленолист",
+      "field": "symbol",
+      "symbol": "base:visual_objects_medicinal_flower",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:muddy_spring",
+      "name": "Мутный источник",
+      "field": "symbol",
+      "symbol": "base:visual_objects_muddy_spring",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:mushroom_glowing",
+      "name": "Светящийся гриб",
+      "field": "symbol",
+      "symbol": "base:visual_objects_mushroom_glowing",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:nightstand",
+      "name": "Тумба",
+      "field": "symbol",
+      "symbol": "base:visual_objects_nightstand",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:oven",
+      "name": "Печь",
+      "field": "symbol",
+      "symbol": "base:visual_objects_oven",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:passage_blocked",
+      "name": "Заваленный проход",
+      "field": "symbol",
+      "symbol": "base:visual_objects_passage_blocked",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:poison_flower",
+      "name": "Алый паслён",
+      "field": "symbol",
+      "symbol": "base:visual_objects_poison_flower",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:portal",
+      "name": "Портал",
+      "field": "symbol",
+      "symbol": "base:visual_objects_portal",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:portal_active",
+      "name": "Активный портал",
+      "field": "symbol",
+      "symbol": "base:visual_objects_portal_active",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:portal_dark",
+      "name": "Тёмный портал",
+      "field": "symbol",
+      "symbol": "base:visual_objects_portal_dark",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:portal_great",
+      "name": "Великий портал",
+      "field": "symbol",
+      "symbol": "base:visual_objects_portal_great",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:portal_inactive",
+      "name": "Неактивный портал",
+      "field": "symbol",
+      "symbol": "base:visual_objects_portal_inactive",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:portal_light",
+      "name": "Светлый портал",
+      "field": "symbol",
+      "symbol": "base:visual_objects_portal_light",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:portal_small",
+      "name": "Малый портал",
+      "field": "symbol",
+      "symbol": "base:visual_objects_portal_small",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:portal_unstable",
+      "name": "Нестабильный портал",
+      "field": "symbol",
+      "symbol": "base:visual_objects_portal_unstable",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:puddle",
+      "name": "Лужа",
+      "field": "symbol",
+      "symbol": "base:visual_objects_puddle",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:puddle_small",
+      "name": "Мелкая лужа",
+      "field": "symbol",
+      "symbol": "base:visual_objects_puddle_small",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:remains",
+      "name": "Останки",
+      "field": "symbol",
+      "symbol": "base:visual_objects_remains",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:rope_decor",
+      "name": "Закреплённая верёвка",
+      "field": "symbol",
+      "symbol": "base:visual_objects_rope_decor",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:rope_taut",
+      "name": "Натянутая верёвка",
+      "field": "symbol",
+      "symbol": "base:visual_objects_rope_taut",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:rubble_large",
+      "name": "Крупный завал",
+      "field": "symbol",
+      "symbol": "base:glyph_0058",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:shelf",
+      "name": "Полка",
+      "field": "symbol",
+      "symbol": "base:visual_objects_shelf",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:skeleton_large",
+      "name": "Крупный скелет",
+      "field": "symbol",
+      "symbol": "base:visual_objects_skeleton_large",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:skeleton_remains",
+      "name": "Скелет",
+      "field": "symbol",
+      "symbol": "base:visual_objects_skeleton_remains",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:skull",
+      "name": "Череп",
+      "field": "symbol",
+      "symbol": "base:visual_objects_skull",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:snake_remains",
+      "name": "Останки змеи",
+      "field": "symbol",
+      "symbol": "base:visual_objects_snake_remains",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:sparks",
+      "name": "Искры",
+      "field": "symbol",
+      "symbol": "base:visual_objects_sparks",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:spider_remains",
+      "name": "Останки паука",
+      "field": "symbol",
+      "symbol": "base:visual_objects_spider_remains",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:stairs_down",
+      "name": "Лестница вниз",
+      "field": "symbol",
+      "symbol": "base:visual_objects_stairs_down",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:stairs_up",
+      "name": "Лестница вверх",
+      "field": "symbol",
+      "symbol": "base:visual_objects_stairs_up",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:stool",
+      "name": "Табурет",
+      "field": "symbol",
+      "symbol": "base:visual_objects_stool",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:table",
+      "name": "Стол",
+      "field": "symbol",
+      "symbol": "base:visual_objects_table",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:table_long",
+      "name": "Длинный стол",
+      "field": "symbol",
+      "symbol": "base:visual_objects_table_long",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:table_small",
+      "name": "Маленький стол",
+      "field": "symbol",
+      "symbol": "base:visual_objects_table_small",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:tangled_branches",
+      "name": "Спутанные ветви",
+      "field": "symbol",
+      "symbol": "base:visual_objects_tangled_branches",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:teleport",
+      "name": "Телепорт",
+      "field": "symbol",
+      "symbol": "base:visual_objects_teleport",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:teleport_active",
+      "name": "Активный телепорт",
+      "field": "symbol",
+      "symbol": "base:visual_objects_teleport_active",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:teleport_inactive",
+      "name": "Неактивный телепорт",
+      "field": "symbol",
+      "symbol": "base:visual_objects_teleport_inactive",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:teleport_large",
+      "name": "Большой телепорт",
+      "field": "symbol",
+      "symbol": "base:visual_objects_teleport_large",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:teleport_unstable",
+      "name": "Нестабильный телепорт",
+      "field": "symbol",
+      "symbol": "base:visual_objects_teleport_unstable",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:throne",
+      "name": "Трон",
+      "field": "symbol",
+      "symbol": "base:visual_objects_throne",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:torch_decor",
+      "name": "Стационарный факел",
+      "field": "symbol",
+      "symbol": "base:visual_objects_torch_decor",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:torch_wall",
+      "name": "Настенный факел",
+      "field": "symbol",
+      "symbol": "base:visual_objects_torch_wall",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:transition_down",
+      "name": "Переход вниз",
+      "field": "symbol",
+      "symbol": "base:visual_objects_transition_down",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:transition_next",
+      "name": "Переход на следующий уровень",
+      "field": "symbol",
+      "symbol": "base:visual_objects_transition_next",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:transition_previous",
+      "name": "Переход на предыдущий уровень",
+      "field": "symbol",
+      "symbol": "base:visual_objects_transition_previous",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:transition_up",
+      "name": "Переход вверх",
+      "field": "symbol",
+      "symbol": "base:visual_objects_transition_up",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:tree",
+      "name": "Обычное дерево",
+      "field": "symbol",
+      "symbol": "base:visual_objects_tree",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:tree_branches",
+      "name": "Дерево с ветвями",
+      "field": "symbol",
+      "symbol": "base:visual_objects_tree_branches",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:tree_clover",
+      "name": "Дерево",
+      "field": "symbol",
+      "symbol": "base:visual_objects_tree_clover",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:tree_dead",
+      "name": "Мёртвое дерево",
+      "field": "symbol",
+      "symbol": "base:visual_objects_tree_dead",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:tree_large",
+      "name": "Крупное дерево",
+      "field": "symbol",
+      "symbol": "base:visual_objects_tree_large",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:tree_young",
+      "name": "Молодое дерево",
+      "field": "symbol",
+      "symbol": "base:visual_objects_tree_young",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:water_well",
+      "name": "Колодец",
+      "field": "symbol",
+      "symbol": "base:visual_objects_water_well",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:wolf_remains",
+      "name": "Останки волка",
+      "field": "symbol",
+      "symbol": "base:visual_objects_wolf_remains",
+      "reviewed": true
+    },
+    {
+      "category": "objects",
+      "ref": "base:workbench",
+      "name": "Верстак",
+      "field": "symbol",
+      "symbol": "base:visual_objects_workbench",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:chest",
+      "name": "Запертый сундук",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_chest",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:chest",
+      "name": "Запертый сундук",
+      "field": "variants.0",
+      "symbol": "base:glyph_00a4",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:crafting_expansion_manual",
+      "name": "Руководство ремесленника",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_crafting_expansion_manual",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:crafting_manual",
+      "name": "Памятка плотника",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_crafting_manual",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:crafting_workshop",
+      "name": "Мастерская плотника",
+      "field": "symbol",
+      "symbol": "base:glyph_0057",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:paper_note",
+      "name": "Листы с записями",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_paper_note",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:quest_board",
+      "name": "Доска с заданиями",
+      "field": "symbol",
+      "symbol": "base:glyph_0021",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:shrine",
+      "name": "Забытый алтарь",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_shrine",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:stone_tablet",
+      "name": "Каменная табличка",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_stone_tablet",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:strangers_diary",
+      "name": "Чужой дневник",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_strangers_diary",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_altar",
+      "name": "Алтарь",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_altar",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_altar_large",
+      "name": "Большой алтарь",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_altar_large",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_altar_moon",
+      "name": "Лунный алтарь",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_altar_moon",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_altar_sun",
+      "name": "Солнечный алтарь",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_altar_sun",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_amulet",
+      "name": "Тайник с амулетом",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_amulet",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_ancient_cross",
+      "name": "Древний крест",
+      "field": "symbol",
+      "symbol": "base:glyph_2629",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_barrel",
+      "name": "Бочка",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_barrel",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_barrel_large",
+      "name": "Большая бочка",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_barrel_large",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_barrel_small",
+      "name": "Маленькая бочка",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_barrel_small",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_book",
+      "name": "Книга",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_book",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_book_ancient",
+      "name": "Древний том",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_book_ancient",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_book_closed",
+      "name": "Закрытая книга",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_book_closed",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_book_large",
+      "name": "Большая книга",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_book_large",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_chest",
+      "name": "Сундук",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_chest",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_chest_open",
+      "name": "Открытый сундук",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_chest_open",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_chest_treasure",
+      "name": "Сундук с сокровищами",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_chest_treasure",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_coin_scatter",
+      "name": "Россыпь монет",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_coin_scatter",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_crate",
+      "name": "Ящик",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_crate",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_crate_closed",
+      "name": "Закрытый ящик",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_crate_closed",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_crate_reinforced",
+      "name": "Укреплённый ящик",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_crate_reinforced",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_gem",
+      "name": "Драгоценный камень",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_gem",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_gem_large",
+      "name": "Крупный самоцвет",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_gem_large",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_gem_raw",
+      "name": "Необработанный самоцвет",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_gem_raw",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_holy_symbol",
+      "name": "Священный символ",
+      "field": "symbol",
+      "symbol": "base:glyph_002b",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_jewelry",
+      "name": "Украшение",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_jewelry",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_jug",
+      "name": "Кувшин",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_jug",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_magic_positive",
+      "name": "Положительная энергия",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_magic_positive",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_magic_weak",
+      "name": "Слабая магия",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_magic_weak",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_magic_zone",
+      "name": "Сильная магическая зона",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_magic_zone",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_map_drawing",
+      "name": "Карта",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_map_drawing",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_map_fragment",
+      "name": "Фрагмент карты",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_map_fragment",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_marker_important",
+      "name": "Важное место",
+      "field": "symbol",
+      "symbol": "base:glyph_0021",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_marker_interest",
+      "name": "Интересный объект",
+      "field": "symbol",
+      "symbol": "base:glyph_002a",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_marker_treasure",
+      "name": "Сокровище",
+      "field": "symbol",
+      "symbol": "base:glyph_00a4",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_marker_unique",
+      "name": "Уникальное место",
+      "field": "symbol",
+      "symbol": "base:glyph_2605",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_marker_unknown",
+      "name": "Неизвестное место",
+      "field": "symbol",
+      "symbol": "base:glyph_003f",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_note",
+      "name": "Записка",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_note",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_paper_scrap",
+      "name": "Клочок бумаги",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_paper_scrap",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_pot",
+      "name": "Горшок",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_pot",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_ring",
+      "name": "Кольцо",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_ring",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_ritual_circle",
+      "name": "Ритуальный круг",
+      "field": "symbol",
+      "symbol": "base:glyph_25cb",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_ritual_circle_active",
+      "name": "Активный ритуальный круг",
+      "field": "symbol",
+      "symbol": "base:glyph_25c9",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune",
+      "name": "Обычная руна",
+      "field": "symbol",
+      "symbol": "base:glyph_002a",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_active",
+      "name": "Активная руна",
+      "field": "symbol",
+      "symbol": "base:glyph_25c9",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_air",
+      "name": "Руна воздуха",
+      "field": "symbol",
+      "symbol": "base:glyph_25c7",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_circle",
+      "name": "Круглая руна",
+      "field": "symbol",
+      "symbol": "base:glyph_25cb",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_cross",
+      "name": "Руна",
+      "field": "symbol",
+      "symbol": "base:glyph_002b",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_earth",
+      "name": "Руна земли",
+      "field": "symbol",
+      "symbol": "base:glyph_25a1",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_magic",
+      "name": "Магическая руна",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_rune_magic",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_observation",
+      "name": "Руна наблюдения",
+      "field": "symbol",
+      "symbol": "base:glyph_2299",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_prohibition",
+      "name": "Запрещающая руна",
+      "field": "symbol",
+      "symbol": "base:glyph_2297",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_protection",
+      "name": "Защитная руна",
+      "field": "symbol",
+      "symbol": "base:glyph_2295",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_water",
+      "name": "Руна воды",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_rune_water",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_rune_weak",
+      "name": "Слабая руна",
+      "field": "symbol",
+      "symbol": "base:glyph_2727",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_sack",
+      "name": "Мешок",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_sack",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_sack_large",
+      "name": "Большой мешок",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_sack_large",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_sacrificial_bowl",
+      "name": "Жертвенная чаша",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_sacrificial_bowl",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_scroll",
+      "name": "Свиток",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_scroll",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_scroll_magic",
+      "name": "Магический свиток",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_scroll_magic",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_shrine",
+      "name": "Святыня",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_shrine",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_temple_symbol",
+      "name": "Храмовый символ",
+      "field": "symbol",
+      "symbol": "base:glyph_271d",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_treasure_coins",
+      "name": "Монеты",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_treasure_coins",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_treasure_copper",
+      "name": "Медь",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_treasure_copper",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_treasure_gold",
+      "name": "Золото",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_treasure_gold",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_treasure_gold",
+      "name": "Золото",
+      "field": "variants.0",
+      "symbol": "base:glyph_0047",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_treasure_jewels",
+      "name": "Драгоценности",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_treasure_jewels",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_treasure_silver",
+      "name": "Серебро",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_treasure_silver",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_urn",
+      "name": "Урна",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_urn",
+      "reviewed": true
+    },
+    {
+      "category": "points_of_interest",
+      "ref": "base:terrain_vessel_large",
+      "name": "Большой сосуд",
+      "field": "symbol",
+      "symbol": "base:visual_points_of_interest_terrain_vessel_large",
+      "reviewed": true
+    },
+    {
+      "category": "races",
+      "ref": "base:dwarf",
+      "name": "Дварф",
+      "field": "symbol",
+      "symbol": "base:visual_races_dwarf",
+      "reviewed": true
+    },
+    {
+      "category": "races",
+      "ref": "base:elf",
+      "name": "Эльф",
+      "field": "symbol",
+      "symbol": "base:visual_races_elf",
+      "reviewed": true
+    },
+    {
+      "category": "races",
+      "ref": "base:human",
+      "name": "Человек",
+      "field": "symbol",
+      "symbol": "base:visual_races_human",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:acid_splash",
+      "name": "Кислотная сфера",
+      "field": "symbol",
+      "symbol": "base:visual_spells_acid_splash",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:blade_ward",
+      "name": "Защитный клинок",
+      "field": "symbol",
+      "symbol": "base:visual_spells_blade_ward",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:chill_touch",
+      "name": "Холодное прикосновение",
+      "field": "symbol",
+      "symbol": "base:visual_spells_chill_touch",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:dancing_lights",
+      "name": "Пляшущие огоньки",
+      "field": "symbol",
+      "symbol": "base:visual_spells_dancing_lights",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:daylight",
+      "name": "Дневной свет",
+      "field": "symbol",
+      "symbol": "base:visual_spells_daylight",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:detect_magic",
+      "name": "Обнаружение магии",
+      "field": "symbol",
+      "symbol": "base:visual_spells_detect_magic",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:elementalism",
+      "name": "Элементализм",
+      "field": "symbol",
+      "symbol": "base:visual_spells_elementalism",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:fire_bolt",
+      "name": "Огненный снаряд",
+      "field": "symbol",
+      "symbol": "base:visual_spells_fire_bolt",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:light",
+      "name": "Свет",
+      "field": "symbol",
+      "symbol": "base:visual_spells_light",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:mage_hand",
+      "name": "Волшебная рука",
+      "field": "symbol",
+      "symbol": "base:visual_spells_mage_hand",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:magic_missile",
+      "name": "Волшебная стрела",
+      "field": "symbol",
+      "symbol": "base:visual_spells_magic_missile",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:mending",
+      "name": "Починка",
+      "field": "symbol",
+      "symbol": "base:visual_spells_mending",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:minor_illusion",
+      "name": "Малая иллюзия",
+      "field": "symbol",
+      "symbol": "base:visual_spells_minor_illusion",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:poison_spray",
+      "name": "Ядовитые брызги",
+      "field": "symbol",
+      "symbol": "base:visual_spells_poison_spray",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:prestidigitation",
+      "name": "Фокусы",
+      "field": "symbol",
+      "symbol": "base:visual_spells_prestidigitation",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:ray_of_frost",
+      "name": "Луч холода",
+      "field": "symbol",
+      "symbol": "base:visual_spells_ray_of_frost",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:shocking_grasp",
+      "name": "Электрическое касание",
+      "field": "symbol",
+      "symbol": "base:visual_spells_shocking_grasp",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:thunderclap",
+      "name": "Раскат грома",
+      "field": "symbol",
+      "symbol": "base:visual_spells_thunderclap",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:toll_the_dead",
+      "name": "Погребальный звон",
+      "field": "symbol",
+      "symbol": "base:visual_spells_toll_the_dead",
+      "reviewed": true
+    },
+    {
+      "category": "spells",
+      "ref": "base:true_strike",
+      "name": "Истинный удар",
+      "field": "symbol",
+      "symbol": "base:visual_spells_true_strike",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:ascent",
+      "name": "Подъём",
+      "field": "symbol",
+      "symbol": "base:glyph_25b2",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:blood_drops",
+      "name": "Капли крови",
+      "field": "symbol",
+      "symbol": "base:glyph_002c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:blood_fresh",
+      "name": "Свежие брызги",
+      "field": "symbol",
+      "symbol": "base:glyph_002a",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:blood_pool",
+      "name": "Лужа крови",
+      "field": "symbol",
+      "symbol": "base:glyph_007e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:blood_pool_large",
+      "name": "Большая лужа крови",
+      "field": "symbol",
+      "symbol": "base:glyph_2248",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:blood_splashes",
+      "name": "Брызги крови",
+      "field": "symbol",
+      "symbol": "base:glyph_003a",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:blood_tracks",
+      "name": "Следы крови",
+      "field": "symbol",
+      "symbol": "base:glyph_003b",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:boulder",
+      "name": "Валун",
+      "field": "symbol",
+      "symbol": "base:glyph_25b3",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:boulder_large",
+      "name": "Крупный валун",
+      "field": "symbol",
+      "symbol": "base:glyph_25c6",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:broken_objects",
+      "name": "Сломанные предметы",
+      "field": "symbol",
+      "symbol": "base:glyph_0078",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:bush",
+      "name": "Куст",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_bush",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:bush_dry",
+      "name": "Сухой куст",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_bush_dry",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:cave_wall",
+      "name": "Стена пещены",
+      "field": "symbol",
+      "symbol": "base:glyph_2588",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:chasm_bottomless",
+      "name": "Бездонная пропасть",
+      "field": "symbol",
+      "symbol": "base:glyph_2248",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:chasm_deep",
+      "name": "Глубокая пропасть",
+      "field": "symbol",
+      "symbol": "base:glyph_007e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:cliff",
+      "name": "Большая скала",
+      "field": "symbol",
+      "symbol": "base:glyph_25b2",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:current_east",
+      "name": "Течение вправо",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_current_east",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:current_north",
+      "name": "Течение вверх",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_current_north",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:current_south",
+      "name": "Течение вниз",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_current_south",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:current_west",
+      "name": "Течение влево",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_current_west",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:danger_mark",
+      "name": "Обнаруженная опасность",
+      "field": "symbol",
+      "symbol": "base:glyph_0021",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:depression",
+      "name": "Углубление",
+      "field": "symbol",
+      "symbol": "base:glyph_2304",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:descent",
+      "name": "Спуск",
+      "field": "symbol",
+      "symbol": "base:glyph_25bc",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:dust_cloud",
+      "name": "Облако пыли",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_dust_cloud",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:earth",
+      "name": "Земля",
+      "field": "symbol",
+      "symbol": "base:glyph_002c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:earth_gravel",
+      "name": "Гравийная почва",
+      "field": "symbol",
+      "symbol": "base:glyph_003a",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:earth_loose",
+      "name": "Рыхлая земля",
+      "field": "symbol",
+      "symbol": "base:glyph_003b",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:earth_packed",
+      "name": "Утоптанная земля",
+      "field": "symbol",
+      "symbol": "base:glyph_002e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:fence_planks",
+      "name": "Деревянный забор",
+      "field": "symbol",
+      "symbol": "base:glyph_2261",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:fence_wooden",
+      "name": "Деревянная ограда",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_fence_wooden",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:fissure",
+      "name": "Глубокая расщелина",
+      "field": "symbol",
+      "symbol": "base:glyph_224b",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor",
+      "name": "Каменный пол",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_boardwalk",
+      "name": "Настил",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_boardwalk",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_dark",
+      "name": "Тёмный каменный пол",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_dark",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_diagonal_tiles",
+      "name": "Диагональная плитка",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_diagonal_tiles",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_dirty",
+      "name": "Грязный пол",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_dirty",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_dusty",
+      "name": "Пыльный пол",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_dusty",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_gravel",
+      "name": "Гравийный пол",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_gravel",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_litter",
+      "name": "Мелкий мусор на полу",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_litter",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_mosaic",
+      "name": "Мозаичный пол",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_mosaic",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_ornate_tiles",
+      "name": "Узорная плитка",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_ornate_tiles",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_pavers",
+      "name": "Плиточный пол",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_pavers",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_pebbles",
+      "name": "Мелкие камни",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_pebbles",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_planks",
+      "name": "Деревянные доски",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_planks",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_polished",
+      "name": "Гладкая поверхность",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_polished",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_rough",
+      "name": "Грубый каменный пол",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_rough",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_sand",
+      "name": "Песок",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_sand",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_slab",
+      "name": "Напольная плита",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_slab",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_smooth",
+      "name": "Гладкий каменный пол",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_smooth",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_striped_tiles",
+      "name": "Полосатые плиты",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_striped_tiles",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_tiles",
+      "name": "Каменная плитка",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_tiles",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_uneven_planks",
+      "name": "Неровный настил",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_uneven_planks",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:floor_worn_tiles",
+      "name": "Грубая плитка",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_floor_worn_tiles",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:flower_blooming",
+      "name": "Цветущее растение",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_flower_blooming",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:flowers",
+      "name": "Цветы",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_flowers",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:fog",
+      "name": "Туман",
+      "field": "symbol",
+      "symbol": "base:glyph_007e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:fog_dense",
+      "name": "Густой туман",
+      "field": "symbol",
+      "symbol": "base:glyph_2248",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:frost",
+      "name": "Иней",
+      "field": "symbol",
+      "symbol": "base:glyph_002a",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:gate_grated",
+      "name": "Решётчатая дверь",
+      "field": "symbol",
+      "symbol": "base:glyph_256b",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:grass_dry",
+      "name": "Сухая трава",
+      "field": "symbol",
+      "symbol": "base:glyph_002c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:grass_short",
+      "name": "Низкая трава",
+      "field": "symbol",
+      "symbol": "base:glyph_0027",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:grass_tall",
+      "name": "Высокая трава",
+      "field": "symbol",
+      "symbol": "base:glyph_0022",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:grate_dense",
+      "name": "Плотная решётка",
+      "field": "symbol",
+      "symbol": "base:glyph_0023",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:grate_horizontal",
+      "name": "Горизонтальная решётка",
+      "field": "symbol",
+      "symbol": "base:glyph_002d",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:grate_iron",
+      "name": "Железная решётка",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_grate_iron",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:grate_partition",
+      "name": "Железная перегородка",
+      "field": "symbol",
+      "symbol": "base:glyph_2550",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:grate_vertical",
+      "name": "Вертикальная решётка",
+      "field": "symbol",
+      "symbol": "base:glyph_007c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:height_stairs_down",
+      "name": "Ступени вниз (рельеф)",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_height_stairs_down",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:height_stairs_up",
+      "name": "Ступени вверх (рельеф)",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_height_stairs_up",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:ice",
+      "name": "Лёд",
+      "field": "symbol",
+      "symbol": "base:glyph_005f",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:ice_cracked",
+      "name": "Потрескавшийся лёд",
+      "field": "symbol",
+      "symbol": "base:glyph_2261",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:ice_crystals",
+      "name": "Ледяная область",
+      "field": "symbol",
+      "symbol": "base:glyph_2744",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:ice_thick",
+      "name": "Толстый лёд",
+      "field": "symbol",
+      "symbol": "base:glyph_003d",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:litter",
+      "name": "Мелкий мусор",
+      "field": "symbol",
+      "symbol": "base:glyph_003b",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:lock",
+      "name": "Замок",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_lock",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:magic_unstable",
+      "name": "Нестабильная магия",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_magic_unstable",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:mechanism_locked",
+      "name": "Запертый механизм",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_mechanism_locked",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:metal_bar",
+      "name": "Одиночный металлический прут",
+      "field": "symbol",
+      "symbol": "base:glyph_2020",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:mud",
+      "name": "Грязь",
+      "field": "symbol",
+      "symbol": "base:glyph_006d",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:mud_deep",
+      "name": "Вязкая грязь",
+      "field": "symbol",
+      "symbol": "base:glyph_007e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:mushroom",
+      "name": "Гриб",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_mushroom",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:mushroom_cap",
+      "name": "Грибная шляпка",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_mushroom_cap",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:mushroom_large",
+      "name": "Большой гриб",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_mushroom_large",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:mushroom_small",
+      "name": "Маленький гриб",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_mushroom_small",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:mushroom_thin",
+      "name": "Тонкий гриб",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_mushroom_thin",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pillar",
+      "name": "Колонна",
+      "field": "symbol",
+      "symbol": "base:glyph_004f",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pillar_carved",
+      "name": "Резная колонна",
+      "field": "symbol",
+      "symbol": "base:glyph_00a4",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pillar_massive",
+      "name": "Массивная колонна",
+      "field": "symbol",
+      "symbol": "base:glyph_25cf",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pillar_ornate",
+      "name": "Украшенная колонна",
+      "field": "symbol",
+      "symbol": "base:glyph_25c9",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pillar_round",
+      "name": "Круглая колонна",
+      "field": "symbol",
+      "symbol": "base:glyph_25cb",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pit_dangerous",
+      "name": "Опасная яма",
+      "field": "symbol",
+      "symbol": "base:glyph_2297",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pit_debris",
+      "name": "Яма с чем-то внутри",
+      "field": "symbol",
+      "symbol": "base:glyph_2299",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pit_deep",
+      "name": "Глубокая яма",
+      "field": "symbol",
+      "symbol": "base:glyph_25cf",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pit_large",
+      "name": "Большая яма",
+      "field": "symbol",
+      "symbol": "base:glyph_25ef",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:pit_small",
+      "name": "Небольшая яма",
+      "field": "symbol",
+      "symbol": "base:glyph_25cb",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:refuse",
+      "name": "Груда мусора",
+      "field": "symbol",
+      "symbol": "base:glyph_0026",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:reinforced_support",
+      "name": "Укреплённая конструкция",
+      "field": "symbol",
+      "symbol": "base:glyph_0048",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:rubble",
+      "name": "Обломки",
+      "field": "symbol",
+      "symbol": "base:glyph_0025",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:rubble_blocked",
+      "name": "Завал прохода",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_rubble_blocked",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:rubble_dust",
+      "name": "Пыль и щебень",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_rubble_dust",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:ruined_masonry",
+      "name": "Разрушенная кладка",
+      "field": "symbol",
+      "symbol": "base:glyph_2592",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:shards",
+      "name": "Осколки",
+      "field": "symbol",
+      "symbol": "base:glyph_002a",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:shrubs",
+      "name": "Кустарник",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_shrubs",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:slime",
+      "name": "Слизь",
+      "field": "symbol",
+      "symbol": "base:glyph_007e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:slime_deep",
+      "name": "Глубокая слизь",
+      "field": "symbol",
+      "symbol": "base:glyph_2248",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:slime_trail",
+      "name": "Слизистый след",
+      "field": "symbol",
+      "symbol": "base:glyph_0073",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:slope_down",
+      "name": "Спуск вниз",
+      "field": "symbol",
+      "symbol": "base:glyph_0056",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:slope_left",
+      "name": "Склон влево",
+      "field": "symbol",
+      "symbol": "base:glyph_003c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:slope_right",
+      "name": "Склон вправо",
+      "field": "symbol",
+      "symbol": "base:glyph_003e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:slope_steep_down",
+      "name": "Крутой спуск",
+      "field": "symbol",
+      "symbol": "base:glyph_21a1",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:slope_steep_up",
+      "name": "Крутой подъём",
+      "field": "symbol",
+      "symbol": "base:glyph_219f",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:slope_up",
+      "name": "Подъём вверх",
+      "field": "symbol",
+      "symbol": "base:glyph_005e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:smoke",
+      "name": "Дым",
+      "field": "symbol",
+      "symbol": "base:glyph_2591",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:smoke_dense",
+      "name": "Густой дым",
+      "field": "symbol",
+      "symbol": "base:glyph_2592",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:snow",
+      "name": "Снег",
+      "field": "symbol",
+      "symbol": "base:glyph_00b7",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:snow_deep",
+      "name": "Глубокий снег",
+      "field": "symbol",
+      "symbol": "base:glyph_2591",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:snow_packed",
+      "name": "Плотный снег",
+      "field": "symbol",
+      "symbol": "base:glyph_2592",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:soil",
+      "name": "Земля",
+      "field": "symbol",
+      "symbol": "base:glyph_002e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:statue",
+      "name": "Статуя",
+      "field": "symbol",
+      "symbol": "base:glyph_0053",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:statue_beast",
+      "name": "Статуя зверя",
+      "field": "symbol",
+      "symbol": "base:glyph_265e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:statue_dark",
+      "name": "Тёмная статуя",
+      "field": "symbol",
+      "symbol": "base:glyph_265f",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:statue_human",
+      "name": "Статуя человека",
+      "field": "symbol",
+      "symbol": "base:glyph_2659",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:statue_massive",
+      "name": "Массивная статуя",
+      "field": "symbol",
+      "symbol": "base:glyph_265c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:statue_small",
+      "name": "Маленькая статуя",
+      "field": "symbol",
+      "symbol": "base:glyph_0073",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:steps_left",
+      "name": "Ступени влево",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_steps_left",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:steps_right",
+      "name": "Ступени вправо",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_steps_right",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:stone_chips",
+      "name": "Каменная крошка",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_stone_chips",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:stone_dark",
+      "name": "Тёмный камень",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_stone_dark",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:stone_pale",
+      "name": "Светлый камень",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_stone_pale",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:stone_small",
+      "name": "Небольшой камень",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_stone_small",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:swamp",
+      "name": "Болото",
+      "field": "symbol",
+      "symbol": "base:glyph_2248",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:tower_support",
+      "name": "Башня или массивная опора",
+      "field": "symbol",
+      "symbol": "base:glyph_265c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:tracks",
+      "name": "Следы",
+      "field": "symbol",
+      "symbol": "base:glyph_003a",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:tracks_east",
+      "name": "Следы вправо",
+      "field": "symbol",
+      "symbol": "base:glyph_00bb",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:tracks_faint",
+      "name": "Слабые следы",
+      "field": "symbol",
+      "symbol": "base:glyph_002e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:tracks_muddy",
+      "name": "Грязные следы",
+      "field": "symbol",
+      "symbol": "base:glyph_003b",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:tracks_north",
+      "name": "Следы вверх",
+      "field": "symbol",
+      "symbol": "base:glyph_005e",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:tracks_south",
+      "name": "Следы вниз",
+      "field": "symbol",
+      "symbol": "base:glyph_0076",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:tracks_west",
+      "name": "Следы влево",
+      "field": "symbol",
+      "symbol": "base:glyph_00ab",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:vines",
+      "name": "Лианы",
+      "field": "symbol",
+      "symbol": "base:glyph_0076",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:vines_dense",
+      "name": "Густые лианы",
+      "field": "symbol",
+      "symbol": "base:glyph_0056",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall",
+      "name": "Каменная стена",
+      "field": "symbol",
+      "symbol": "base:glyph_0023",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_beams",
+      "name": "Перекрещенные балки",
+      "field": "symbol",
+      "symbol": "base:glyph_2573",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_block",
+      "name": "Каменный блок",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_wall_block",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_branch_e",
+      "name": "Стена с ответвлением вправо",
+      "field": "symbol",
+      "symbol": "base:glyph_251c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_branch_n",
+      "name": "Стена с ответвлением вверх",
+      "field": "symbol",
+      "symbol": "base:glyph_2534",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_branch_s",
+      "name": "Стена с ответвлением вниз",
+      "field": "symbol",
+      "symbol": "base:glyph_252c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_branch_w",
+      "name": "Стена с ответвлением влево",
+      "field": "symbol",
+      "symbol": "base:glyph_2524",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_corner_ne",
+      "name": "Угол стены, верх-право",
+      "field": "symbol",
+      "symbol": "base:glyph_2510",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_corner_nw",
+      "name": "Угол стены, верх-лево",
+      "field": "symbol",
+      "symbol": "base:glyph_250c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_corner_se",
+      "name": "Угол стены, низ-право",
+      "field": "symbol",
+      "symbol": "base:glyph_2518",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_corner_sw",
+      "name": "Угол стены, низ-лево",
+      "field": "symbol",
+      "symbol": "base:glyph_2514",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_cross",
+      "name": "Пересечение стен",
+      "field": "symbol",
+      "symbol": "base:glyph_253c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_crumbling",
+      "name": "Очень разрушенная стена",
+      "field": "symbol",
+      "symbol": "base:glyph_2591",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_damaged",
+      "name": "Повреждённая стена",
+      "field": "symbol",
+      "symbol": "base:glyph_2592",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_diagonal_down",
+      "name": "Диагональная стена \\",
+      "field": "symbol",
+      "symbol": "base:glyph_2572",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_diagonal_up",
+      "name": "Диагональная стена /",
+      "field": "symbol",
+      "symbol": "base:glyph_2571",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_branch_e",
+      "name": "Толстое ответвление вправо",
+      "field": "symbol",
+      "symbol": "base:glyph_2560",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_branch_n",
+      "name": "Толстое ответвление вверх",
+      "field": "symbol",
+      "symbol": "base:glyph_2569",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_branch_s",
+      "name": "Толстое ответвление вниз",
+      "field": "symbol",
+      "symbol": "base:glyph_2566",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_branch_w",
+      "name": "Толстое ответвление влево",
+      "field": "symbol",
+      "symbol": "base:glyph_2563",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_corner_ne",
+      "name": "Толстый угол, верх-право",
+      "field": "symbol",
+      "symbol": "base:glyph_2557",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_corner_nw",
+      "name": "Толстый угол, верх-лево",
+      "field": "symbol",
+      "symbol": "base:glyph_2554",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_corner_se",
+      "name": "Толстый угол, низ-право",
+      "field": "symbol",
+      "symbol": "base:glyph_255d",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_corner_sw",
+      "name": "Толстый угол, низ-лево",
+      "field": "symbol",
+      "symbol": "base:glyph_255a",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_cross",
+      "name": "Толстое пересечение",
+      "field": "symbol",
+      "symbol": "base:glyph_256c",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_horizontal",
+      "name": "Толстая горизонтальная стена",
+      "field": "symbol",
+      "symbol": "base:glyph_2550",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_double_vertical",
+      "name": "Толстая вертикальная стена",
+      "field": "symbol",
+      "symbol": "base:glyph_2551",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_hollow_block",
+      "name": "Пустой каменный блок",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_wall_hollow_block",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_horizontal",
+      "name": "Горизонтальная стена",
+      "field": "symbol",
+      "symbol": "base:glyph_2500",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_lattice",
+      "name": "Решётчатая кладка",
+      "field": "symbol",
+      "symbol": "base:glyph_25a6",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_massive",
+      "name": "Сплошная массивная стена",
+      "field": "symbol",
+      "symbol": "base:glyph_2588",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_reinforced",
+      "name": "Укреплённая стена",
+      "field": "symbol",
+      "symbol": "base:glyph_25a3",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_stub_e",
+      "name": "Короткий участок стены слева",
+      "field": "symbol",
+      "symbol": "base:glyph_2576",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_stub_n",
+      "name": "Короткий участок стены сверху",
+      "field": "symbol",
+      "symbol": "base:glyph_2577",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_stub_s",
+      "name": "Короткий участок стены снизу",
+      "field": "symbol",
+      "symbol": "base:glyph_2575",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_stub_w",
+      "name": "Короткий участок стены справа",
+      "field": "symbol",
+      "symbol": "base:glyph_2574",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_thick",
+      "name": "Толстая каменная стена",
+      "field": "symbol",
+      "symbol": "base:glyph_2593",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wall_vertical",
+      "name": "Вертикальная стена",
+      "field": "symbol",
+      "symbol": "base:glyph_2502",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:water_calm",
+      "name": "Спокойная вода",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_water_calm",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:water_deep",
+      "name": "Глубокая вода",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_water_deep",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:water_flowing",
+      "name": "Текущая вода",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_water_flowing",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:water_muddy",
+      "name": "Мутная вода",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_water_muddy",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:water_ripple",
+      "name": "Мелкая вода",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_water_ripple",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:water_shallow",
+      "name": "Вода",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_water_shallow",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:waterfall",
+      "name": "Водопад",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_waterfall",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:web",
+      "name": "Паутина",
+      "field": "symbol",
+      "symbol": "base:glyph_0025",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:web_dense",
+      "name": "Плотная паутина",
+      "field": "symbol",
+      "symbol": "base:glyph_0023",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:web_sticky",
+      "name": "Липкая паутина",
+      "field": "symbol",
+      "symbol": "base:glyph_002a",
+      "reviewed": true
+    },
+    {
+      "category": "tiles",
+      "ref": "base:wooden_support",
+      "name": "Деревянные подпорки",
+      "field": "symbol",
+      "symbol": "base:visual_tiles_wooden_support",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:improvised_trap",
+      "name": "Импровизированная ловушка",
+      "field": "symbol",
+      "symbol": "base:visual_traps_improvised_trap",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:spikes",
+      "name": "Шипы",
+      "field": "symbol",
+      "symbol": "base:visual_traps_spikes",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_acid",
+      "name": "Кислота",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_acid",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_acid_deep",
+      "name": "Глубокая кислота",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_acid_deep",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_arrow_slit",
+      "name": "Стрела из стены",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_arrow_slit",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_arrow_slit_barrage",
+      "name": "Серия стрел",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_arrow_slit_barrage",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_cave_in",
+      "name": "Обвал",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_cave_in",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_door_trap",
+      "name": "Ловушка в двери",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_door_trap",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_fire",
+      "name": "Огонь",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_fire",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_fire_large",
+      "name": "Большое пламя",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_fire_large",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_fire_small",
+      "name": "Небольшое пламя",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_fire_small",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_gas_toxic",
+      "name": "Ядовитый газ",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_gas_toxic",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_lava",
+      "name": "Лава",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_lava",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_lava_bubbling",
+      "name": "Бурлящая лава",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_lava_bubbling",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_lava_flow",
+      "name": "Поток лавы",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_lava_flow",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_magic_fire",
+      "name": "Магический огонь",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_magic_fire",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_magic_negative",
+      "name": "Отрицательная энергия",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_magic_negative",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_poison",
+      "name": "Яд",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_poison",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_poison_surface",
+      "name": "Ядовитая поверхность",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_poison_surface",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_pressure_plate",
+      "name": "Нажимная плита",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_pressure_plate",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_pressure_plate_active",
+      "name": "Активированная плита",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_pressure_plate_active",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_pressure_plate_stone",
+      "name": "Каменная нажимная плита",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_pressure_plate_stone",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_rune_destruction",
+      "name": "Руна разрушения",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_rune_destruction",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_rune_fire",
+      "name": "Руна огня",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_rune_fire",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_spikes_hidden",
+      "name": "Скрытые шипы",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_spikes_hidden",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_spikes_large",
+      "name": "Большие шипы",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_spikes_large",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_suspicious_floor",
+      "name": "Подозрительное место",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_suspicious_floor",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_toxic_spores",
+      "name": "Токсичные споры",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_toxic_spores",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_trap_acid",
+      "name": "Кислотная ловушка",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_trap_acid",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_trap_deadly",
+      "name": "Смертельная ловушка",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_trap_deadly",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_trap_flood",
+      "name": "Затопляющая ловушка",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_trap_flood",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_trap_magic",
+      "name": "Магическая ловушка",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_trap_magic",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_trap_mechanical",
+      "name": "Механическая ловушка",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_trap_mechanical",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_trap_rune",
+      "name": "Магическая руна-ловушка",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_trap_rune",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_trap_small",
+      "name": "Небольшая ловушка",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_trap_small",
+      "reviewed": true
+    },
+    {
+      "category": "traps",
+      "ref": "base:terrain_wall_falling",
+      "name": "Падающая стена",
+      "field": "symbol",
+      "symbol": "base:visual_traps_terrain_wall_falling",
+      "reviewed": true
+    }
+  ]
+}

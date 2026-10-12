@@ -38,5 +38,6 @@
   "tags": [
     "aoe",
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_spells_acid_splash"
 }

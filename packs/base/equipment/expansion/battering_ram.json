@@ -17,5 +17,6 @@
   "slot": "weapon",
   "hands": 2,
   "durability": 30,
-  "weapon_damage": "1d6"
+  "weapon_damage": "1d6",
+  "symbol": "base:visual_equipment_battering_ram"
 }

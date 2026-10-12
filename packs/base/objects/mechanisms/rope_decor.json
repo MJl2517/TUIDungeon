@@ -26,5 +26,6 @@
     "light": null,
     "transition": false,
     "door": null
-  }
+  },
+  "symbol": "base:visual_objects_rope_decor"
 }

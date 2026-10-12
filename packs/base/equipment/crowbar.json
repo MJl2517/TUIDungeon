@@ -23,5 +23,6 @@
   "charges": null,
   "hands": 1,
   "light": null,
-  "group": "Снаряжение"
+  "group": "Снаряжение",
+  "symbol": "base:visual_equipment_crowbar"
 }

@@ -13,5 +13,7 @@
   ],
   "starting_recipes": [
     "base:craft_torch"
-  ]
+  ],
+  "glyph": "?",
+  "symbol": "base:visual_backgrounds_artisan"
 }

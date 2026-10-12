@@ -31,7 +31,11 @@ from .tui import (
 )
 
 from ..world.maps import Position
-from .tilesets import load_kenney_tileset, load_map_style, save_map_style
+from .tilesets import (
+    load_symbol_tileset,
+    load_map_style,
+    save_map_style,
+)
 
 FONT_DIR = Path(__file__).resolve().parents[2] / "assets" / "fonts"
 TILE_SIZE = (12, 24)
@@ -135,7 +139,15 @@ def render_map(controller, width, height, tile_size, *, sprites=None):
     view = background_view(controller)
     if (
         not controller.engine
-        or view not in (View.EXPLORE, View.LOOK, View.THROW, View.IGNITE)
+        or view
+        not in (
+            View.EXPLORE,
+            View.LOOK,
+            View.THROW,
+            View.IGNITE,
+            View.SPELL_TARGET,
+            View.HAND_TARGET,
+        )
         or width < MIN_WIDTH
         or height < MIN_HEIGHT
     ):
@@ -174,7 +186,7 @@ def render_map(controller, width, height, tile_size, *, sprites=None):
                 if sprites:
                     visual_ref = getattr(cell, "visual_ref", None)
                     char = sprites.get(
-                        visual_ref,
+                        getattr(cell, "symbol", None) or visual_ref,
                         char if visual_ref else sprites.get(("glyph", cell.char), char),
                     )
                 attribute = screen.attribute(cell.foreground, cell.background)
@@ -220,7 +232,7 @@ def map_zoom(tile_size, event):
             delta = 1
         elif event.sym in (tcod.event.KeySym.MINUS, tcod.event.KeySym.KP_MINUS):
             delta = -1
-    return max(24, min(72, tile_size + (12 if delta > 0 else -12 if delta < 0 else 0)))
+    return max(16, min(96, tile_size + (16 if delta > 0 else -16 if delta < 0 else 0)))
 
 
 def draw_map_hint(console, controller):
@@ -441,7 +453,7 @@ def run(
         ui_render = tcod.render.SDLConsoleRender(atlas)
         map_render = tcod.render.SDLConsoleRender(atlas)
         kenney_render, map_sprites = None, None
-        map_size = 36
+        map_size = 32
         frame = None
         editing = False
         dirty, last_blink = True, None
@@ -458,16 +470,24 @@ def run(
                 )
                 and blink != last_blink
             ):
-                if controller.map_style == "kenney_1bit" and kenney_render is None:
+                if (
+                    controller.map_style in ("symbols", "kenney_1bit")
+                    and kenney_render is None
+                ):
                     try:
-                        map_tileset, map_sprites = load_kenney_tileset(tileset)
+                        from ..content.packs import PackStore
+
+                        documents = (controller.store or PackStore()).documents
+                        map_tileset, map_sprites = load_symbol_tileset(
+                            tileset, documents
+                        )
                         kenney_atlas = tcod.render.SDLTilesetAtlas(
                             renderer, map_tileset
                         )
                         kenney_render = tcod.render.SDLConsoleRender(kenney_atlas)
                     except (OSError, ValueError, RuntimeError) as error:
                         controller.map_style = "text"
-                        controller.message = f"Не удалось загрузить Kenney: {error}"
+                        controller.message = f"Не удалось загрузить символы: {error}"
                 if controller.map_style != saved_style:
                     try:
                         save_map_style(controller.map_style)
@@ -481,13 +501,13 @@ def run(
                     renderer,
                     ui_render,
                     kenney_render
-                    if controller.map_style == "kenney_1bit"
+                    if controller.map_style in ("symbols", "kenney_1bit")
                     else map_render,
                     console,
                     controller,
                     map_size,
                     sprites=map_sprites
-                    if controller.map_style == "kenney_1bit"
+                    if controller.map_style in ("symbols", "kenney_1bit")
                     else None,
                 )
                 dirty = False

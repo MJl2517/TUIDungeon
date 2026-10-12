@@ -15,5 +15,6 @@
     "paper"
   ],
   "challenge": "base:terrain_book",
-  "group": "Книги и документы"
+  "group": "Книги и документы",
+  "symbol": "base:visual_points_of_interest_terrain_book"
 }

@@ -1,3 +1,5 @@
+import { SymbolPreview } from "./Symbols";
+import { visual } from "./symbolModel";
 import { useEffect, useState } from "react";
 import { ContentSelect } from "./ContentBrowser";
 import { Doc, Entry, color, matchesEntry } from "./model";
@@ -381,7 +383,14 @@ export function MapPalette({
                           : undefined,
                     }}
                   >
-                    {tile.glyph ?? (layer === "decorations" ? "░" : ">")}
+                    {tile.symbol ? (
+                      <SymbolPreview
+                        symbol={visual(tile, assets).symbol}
+                        tint={color(tile.foreground ?? 7)}
+                      />
+                    ) : (
+                      (tile.glyph ?? (layer === "decorations" ? "░" : ">"))
+                    )}
                   </span>
                   <span className="tile-name">
                     {e.name}

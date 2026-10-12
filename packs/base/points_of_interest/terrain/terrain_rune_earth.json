@@ -13,5 +13,6 @@
     "magic"
   ],
   "challenge": "base:terrain_rune_earth",
-  "group": "Руны"
+  "group": "Руны",
+  "symbol": "base:glyph_25a1"
 }

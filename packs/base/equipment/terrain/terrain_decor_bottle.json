@@ -24,5 +24,6 @@
   "charges": null,
   "hands": 0,
   "light": null,
-  "group": "Декорации: припасы"
+  "group": "Декорации: припасы",
+  "symbol": "base:glyph_006f"
 }

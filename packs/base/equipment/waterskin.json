@@ -14,5 +14,6 @@
     "leather",
     "organic"
   ],
-  "durability": null
+  "durability": null,
+  "symbol": "base:visual_equipment_waterskin"
 }

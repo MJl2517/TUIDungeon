@@ -15,5 +15,6 @@
   "slot": "hand",
   "hands": 1,
   "durability": 10,
-  "spell_bonus": 1
+  "spell_bonus": 1,
+  "symbol": "base:visual_equipment_arcane_focus"
 }

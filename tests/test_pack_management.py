@@ -114,7 +114,7 @@ class PackManagementTests(PackFixture):
         self.client.post("/api/packs", json={"id": "parent", "name": "Parent"})
         self.client.post(
             "/api/packs",
-            json={"id": "child", "name": "Child", "dependencies": ["parent"]},
+            json={"id": "child", "name": "Child", "dependencies": ["parent", "base"]},
         )
         parent = self.envelope("parent")
         self.assertEqual(parent["dependents"], [{"id": "child", "name": "Child"}])

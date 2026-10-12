@@ -8,5 +8,6 @@
   "category": "materials",
   "group": "Материалы",
   "weight": 0.1,
-  "tags": []
+  "tags": [],
+  "symbol": "base:visual_equipment_alchemy_reagent"
 }

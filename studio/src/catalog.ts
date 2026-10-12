@@ -4,6 +4,13 @@ export const sections: Record<
   string,
   { icon: string; name: string; description: string; family: string }
 > = {
+  symbols: {
+    icon: "▧",
+    name: "Символы",
+    description:
+      "Общая библиотека изображений 16×16, текстовых знаков и пиксельный редактор.",
+    family: "Мир",
+  },
   recipes: {
     icon: "⚒",
     name: "Рецепты",

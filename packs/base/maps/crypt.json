@@ -62,24 +62,7 @@
     }
   ],
   "ambient_light": "dark",
-  "lights": [
-    {
-      "x": 6,
-      "y": 12,
-      "id": "tile_lights_6_12",
-      "radius": 6,
-      "bright_radius": 3,
-      "enabled": true
-    },
-    {
-      "x": 1,
-      "y": 7,
-      "id": "tile_lights_1_7",
-      "radius": 6,
-      "bright_radius": 3,
-      "enabled": true
-    }
-  ],
+  "lights": [],
   "width": 100,
   "height": 100,
   "tiles": [
@@ -304,7 +287,7 @@
       "base:floor",
       "base:floor",
       "base:floor",
-      "base:bones",
+      "base:floor",
       "base:floor",
       "base:floor",
       "base:mud",
@@ -404,7 +387,7 @@
       "base:floor_litter",
       "base:cave_wall",
       "base:floor",
-      "base:bones",
+      "base:floor",
       "base:floor",
       "base:floor",
       "base:floor",
@@ -412,7 +395,7 @@
       "base:mud",
       "base:mud",
       "base:mud",
-      "base:bones",
+      "base:floor",
       "base:cave_wall",
       null,
       null,
@@ -507,13 +490,13 @@
       "base:cave_wall",
       "base:floor",
       "base:floor",
-      "base:bones",
+      "base:floor",
       "base:floor",
       "base:floor",
       "base:mud",
       "base:mud",
       "base:floor",
-      "base:bones",
+      "base:floor",
       "base:floor",
       "base:cave_wall",
       null,
@@ -616,7 +599,7 @@
       "base:mud",
       "base:floor",
       "base:floor",
-      "base:bones",
+      "base:floor",
       "base:cave_wall",
       null,
       null,
@@ -920,7 +903,7 @@
       "base:floor",
       "base:floor",
       "base:floor",
-      "base:bones",
+      "base:floor",
       "base:floor",
       "base:floor",
       "base:cave_wall",
@@ -1122,7 +1105,7 @@
       "base:floor",
       "base:floor",
       "base:floor",
-      "base:bones",
+      "base:floor",
       "base:floor",
       "base:floor",
       "base:floor",
@@ -30780,7 +30763,8 @@
         "weapon_ability": "strength",
         "charges": null,
         "hands": 0,
-        "light": null
+        "light": null,
+        "symbol": "base:glyph_0025"
       }
     }
   ],
@@ -30927,6 +30911,54 @@
       "ref": "base:torch_decor",
       "x": 6,
       "y": 12
+    },
+    {
+      "id": "tile_objects_16_2",
+      "ref": "base:bones",
+      "x": 16,
+      "y": 2
+    },
+    {
+      "id": "tile_objects_14_3",
+      "ref": "base:bones",
+      "x": 14,
+      "y": 3
+    },
+    {
+      "id": "tile_objects_22_3",
+      "ref": "base:bones",
+      "x": 22,
+      "y": 3
+    },
+    {
+      "id": "tile_objects_15_4",
+      "ref": "base:bones",
+      "x": 15,
+      "y": 4
+    },
+    {
+      "id": "tile_objects_21_4",
+      "ref": "base:bones",
+      "x": 21,
+      "y": 4
+    },
+    {
+      "id": "tile_objects_22_5",
+      "ref": "base:bones",
+      "x": 22,
+      "y": 5
+    },
+    {
+      "id": "tile_objects_20_8",
+      "ref": "base:bones",
+      "x": 20,
+      "y": 8
+    },
+    {
+      "id": "tile_objects_18_10",
+      "ref": "base:bones",
+      "x": 18,
+      "y": 10
     }
   ]
 }

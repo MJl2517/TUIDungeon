@@ -12,5 +12,6 @@
     "treasure"
   ],
   "challenge": "base:terrain_treasure_jewels",
-  "group": "Сокровища"
+  "group": "Сокровища",
+  "symbol": "base:visual_points_of_interest_terrain_treasure_jewels"
 }

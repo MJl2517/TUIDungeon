@@ -19,5 +19,6 @@
       "kind": "heal",
       "amount": 4
     }
-  ]
+  ],
+  "symbol": "base:visual_equipment_bandage"
 }

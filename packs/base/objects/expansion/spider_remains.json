@@ -43,5 +43,6 @@
     "capacity": 1000000,
     "personal": false,
     "contents": []
-  }
+  },
+  "symbol": "base:visual_objects_spider_remains"
 }

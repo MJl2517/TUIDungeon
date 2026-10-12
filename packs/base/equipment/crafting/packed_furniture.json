@@ -8,5 +8,6 @@
   "category": "tools",
   "group": "Мебель",
   "weight": 0,
-  "durability": null
+  "durability": null,
+  "symbol": "base:visual_equipment_packed_furniture"
 }

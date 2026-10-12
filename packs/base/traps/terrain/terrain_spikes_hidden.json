@@ -40,5 +40,6 @@
         "quantity": 2
       }
     ]
-  }
+  },
+  "symbol": "base:visual_traps_terrain_spikes_hidden"
 }

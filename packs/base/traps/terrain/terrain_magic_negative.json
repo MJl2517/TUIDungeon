@@ -28,5 +28,6 @@
   "tags": [
     "magic",
     "transparent"
-  ]
+  ],
+  "symbol": "base:visual_traps_terrain_magic_negative"
 }

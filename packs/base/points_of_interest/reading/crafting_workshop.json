@@ -17,5 +17,6 @@
     "base:repair_wood",
     "base:repair_metal",
     "base:repair_wood_object"
-  ]
+  ],
+  "symbol": "base:glyph_0057"
 }

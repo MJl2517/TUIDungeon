@@ -112,5 +112,7 @@
     "base:dagger",
     "base:calligrapher_tools",
     "base:painter_tools"
-  ]
+  ],
+  "glyph": "?",
+  "symbol": "base:visual_backgrounds_master_artisan"
 }

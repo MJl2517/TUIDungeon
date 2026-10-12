@@ -27,5 +27,6 @@
     },
     "transition": false,
     "door": null
-  }
+  },
+  "symbol": "base:visual_objects_light_magic"
 }

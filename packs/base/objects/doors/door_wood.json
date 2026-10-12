@@ -37,5 +37,11 @@
       "item": "base:wood",
       "quantity": 3
     }
-  ]
+  ],
+  "symbol": "base:door_wood_closed",
+  "state_symbols": {
+    "closed": "base:door_wood_closed",
+    "locked": "base:door_wood_locked",
+    "open": "base:door_wood_open"
+  }
 }

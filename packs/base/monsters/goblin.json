@@ -57,5 +57,6 @@
     "goblin",
     "living",
     "organic"
-  ]
+  ],
+  "symbol": "base:visual_monsters_goblin"
 }

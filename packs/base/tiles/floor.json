@@ -11,5 +11,6 @@
   "blocks_sight": false,
   "tags": [
     "stone"
-  ]
+  ],
+  "symbol": "base:visual_tiles_floor"
 }

@@ -28,5 +28,6 @@
   "hands": 1,
   "light": null,
   "group": "Декорации: оружие",
-  "damage_type": "bludgeoning"
+  "damage_type": "bludgeoning",
+  "symbol": "base:visual_equipment_terrain_decor_hammer"
 }

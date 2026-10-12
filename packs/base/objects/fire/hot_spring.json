@@ -27,5 +27,6 @@
     },
     "transition": false,
     "door": null
-  }
+  },
+  "symbol": "base:visual_objects_hot_spring"
 }

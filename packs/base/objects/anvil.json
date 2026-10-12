@@ -16,5 +16,6 @@
   ],
   "destruction": {
     "max_hp": 30
-  }
+  },
+  "symbol": "base:visual_objects_anvil"
 }

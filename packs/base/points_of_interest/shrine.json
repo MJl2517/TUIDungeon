@@ -11,5 +11,6 @@
     "stone"
   ],
   "challenge": "base:ruined_shrine",
-  "group": "События"
+  "group": "События",
+  "symbol": "base:visual_points_of_interest_shrine"
 }

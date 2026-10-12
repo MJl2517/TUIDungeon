@@ -13,5 +13,6 @@
     "magic"
   ],
   "challenge": "base:terrain_ritual_circle",
-  "group": "Алтари и святыни"
+  "group": "Алтари и святыни",
+  "symbol": "base:glyph_25cb"
 }

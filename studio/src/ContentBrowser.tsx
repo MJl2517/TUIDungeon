@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { SymbolPreview } from "./Symbols";
 import { Doc, Entry, libraryResults } from "./model";
 import { contentBadges, contentGroup, contentRank, sections } from "./catalog";
 
@@ -22,6 +23,7 @@ export function ContentBrowser({
     [group, setGroup] = useState(""),
     [rank, setRank] = useState(""),
     [sort, setSort] = useState("group"),
+    [readiness, setReadiness] = useState("all"),
     [page, setPage] = useState(0);
   const categories = [...new Set(entries.map((e) => e.category))];
   const scoped = entries.filter((e) => scope === "all" || e.category === scope);
@@ -48,6 +50,8 @@ export function ContentBrowser({
   const results = libraryResults(searchable, query, scope, pack, assets).filter(
     (e) =>
       (!group || contentGroup(e, assets) === group) &&
+      (readiness === "all" ||
+        (readiness === "ready") === !!e.details?.reviewed) &&
       (!rank || (e.category === "spells" && String(e.details?.level) === rank)),
   );
   results.sort((a, b) => {
@@ -83,6 +87,7 @@ export function ContentBrowser({
     setGroup("");
     setRank("");
     setSort("group");
+    setReadiness("all");
     setPage(0);
   };
   let previousGroup = "";
@@ -99,6 +104,20 @@ export function ContentBrowser({
         />
       </div>
       <div className="content-filters">
+        {scope === "symbols" && (
+          <label>
+            Готовность
+            <select
+              aria-label="Готовность символов"
+              value={readiness}
+              onChange={(e) => change(setReadiness, e.target.value)}
+            >
+              <option value="all">Все символы</option>
+              <option value="ready">Согласованные</option>
+              <option value="unreviewed">Неразобранные</option>
+            </select>
+          </label>
+        )}
         {categories.length > 1 && (
           <label>
             Раздел
@@ -207,13 +226,31 @@ export function ContentBrowser({
                 onClick={() => onChoose(e)}
               >
                 <span className="content-glyph" aria-hidden="true">
-                  {e.glyph ?? sections[e.category]?.icon}
+                  {e.category === "symbols" ? (
+                    <SymbolPreview
+                      symbol={e.ref}
+                      doc={assets["symbols/" + e.ref]}
+                    />
+                  ) : e.symbol ? (
+                    <SymbolPreview symbol={e.symbol} />
+                  ) : (
+                    (e.glyph ?? sections[e.category]?.icon)
+                  )}
                 </span>
                 <span className="content-entry-body">
                   <strong>{e.name}</strong>
                   <small>
                     {e.ref} · {sections[e.category]?.name}
                   </small>
+                  {e.category === "symbols" && (
+                    <small>
+                      {e.glyph} ·{" "}
+                      {e.details?.reviewed ? "Согласован" : "Неразобранное"} ·{" "}
+                      {e.usage_count ?? 0} использований
+                      <br />
+                      {e.source_name}
+                    </small>
+                  )}
                   <span className="content-badges">
                     {contentBadges(e).map((b) => (
                       <span key={b}>{b}</span>

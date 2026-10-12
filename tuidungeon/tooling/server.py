@@ -24,7 +24,7 @@ from ..content.packs import (
 from ..content.schemas import MODELS
 from ..content.migrations import migrate_map, migrate_document
 from ..domain.mechanics import mechanics
-from ..presentation.art import import_txt, export_txt
+from ..presentation.art import import_txt
 from .launcher import open_test_map
 
 
@@ -58,6 +58,7 @@ class SandboxRequest(RequestModel):
 
 
 LABELS = {
+    "symbols": "Символы",
     "recipes": "Рецепты",
     "art": "Графика",
     "tiles": "Поверхности",
@@ -76,6 +77,11 @@ LABELS = {
 }
 ASSET_CATEGORIES = frozenset(
     {
+        "symbols",
+        "spells",
+        "classes",
+        "races",
+        "backgrounds",
         "art",
         "tiles",
         "objects",
@@ -225,6 +231,7 @@ def create_app(root=None, dist=None):
     @app.get("/api/library")
     def library():
         store.reload()
+        usage_index = store.reference_index()
         return {
             "packs": [m.model_dump() for m in store.manifests.values()],
             "categories": LABELS,
@@ -238,6 +245,9 @@ def create_app(root=None, dist=None):
                     "asset": c in ASSET_CATEGORIES,
                     "version": store.versions[(c, r)],
                     "glyph": getattr(d, "glyph", None),
+                    "symbol": getattr(d, "symbol", None),
+                    "usage_count": len(usage_index.get((c, r), ())),
+                    "source_name": getattr(getattr(d, "source", None), "name", None),
                     "classes": getattr(d, "classes", []),
                     "group": getattr(d, "group", None),
                     "tags": getattr(d, "tags", []),
@@ -258,6 +268,7 @@ def create_app(root=None, dist=None):
                             "ambient_light",
                             "width",
                             "height",
+                            "reviewed",
                         )
                         if getattr(d, key, None) is not None
                     },
@@ -306,7 +317,23 @@ def create_app(root=None, dist=None):
 
     @app.put("/api/documents/{category}/{ref}")
     def save_document(category, ref, request: SaveRequest):
-        return store.save(category, ref, request.document, request.version)
+        from ..content.symbols import bind_legacy_visuals
+        from ..content.schemas import Visual
+
+        with store.lock:
+            store.reload()
+            raw = request.document
+            if category in MODELS and (
+                issubclass(MODELS[category], Visual) or category in ("art", "maps")
+            ):
+                raw = (
+                    migrate_map(raw)
+                    if category == "maps"
+                    else migrate_document(raw, category)
+                )
+                raw = MODELS[category].model_validate(raw).model_dump(mode="json")
+                raw = bind_legacy_visuals(store, raw, ref.split(":")[0])
+            return store.save(category, ref, raw, request.version)
 
     @app.post("/api/validate/{category}/{ref}")
     def validate_document(category, ref, request: SaveRequest):
@@ -348,11 +375,29 @@ def create_app(root=None, dist=None):
 
     @app.post("/api/art/import")
     def import_art(raw: dict):
-        return import_txt(
+        from ..content.symbols import resolve_text
+
+        store.reload()
+        document = import_txt(
             raw.get("text", ""),
             raw.get("id", "imported"),
             raw.get("name", "Импорт TXT"),
         ).model_dump(mode="json")
+        refs = resolve_text(store, raw.get("text", "") + " ", raw.get("pack", "base"))
+        for layer in document["layers"]:
+            for row in layer["cells"]:
+                for cell in row:
+                    cell["symbol"] = refs.get(cell["char"], "base:glyph_0020")
+        return document
+
+    @app.post("/api/symbols/resolve-text")
+    def resolve_typed_symbols(raw: dict):
+        from ..content.symbols import resolve_text
+
+        store.reload()
+        return {
+            "symbols": resolve_text(store, raw.get("text", ""), raw.get("pack", "base"))
+        }
 
     @app.post("/api/art/check")
     def check_art(raw: dict):
@@ -374,7 +419,17 @@ def create_app(root=None, dist=None):
 
     @app.get("/api/art/{ref}/export")
     def export_art(ref):
-        return {"text": export_txt(store.get("art", ref))}
+        from ..content.symbols import appearance
+        from ..world.graphics import compose
+
+        doc = store.get("art", ref)
+        return {
+            "text": "\n".join(
+                "".join(appearance(store.documents, c)[0] if c else " " for c in row)
+                for row in compose(doc)
+            )
+            + "\n"
+        }
 
     @app.post("/api/game")
     def launch_game(request: GameRequest):

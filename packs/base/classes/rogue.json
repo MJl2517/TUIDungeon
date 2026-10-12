@@ -26,5 +26,6 @@
     "base:influence"
   ],
   "carry_per_strength": 5.0,
-  "order": 2
+  "order": 2,
+  "symbol": "base:visual_classes_rogue"
 }

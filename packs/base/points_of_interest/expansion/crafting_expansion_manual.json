@@ -45,5 +45,6 @@
       "base:weave_rope",
       "base:appraise_gem"
     ]
-  }
+  },
+  "symbol": "base:visual_points_of_interest_crafting_expansion_manual"
 }

@@ -12,5 +12,6 @@
     "wooden",
     "flammable",
     "fuel"
-  ]
+  ],
+  "symbol": "base:visual_equipment_wood"
 }

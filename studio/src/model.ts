@@ -1,6 +1,8 @@
+import { visual } from "./symbolModel";
 export type Doc = Record<string, any>;
 export type Cell = {
   char: string;
+  symbol?: string;
   foreground: number;
   background: number | null;
 } | null;
@@ -12,6 +14,7 @@ export type Entry = {
   name: string;
   version: string;
   glyph?: string;
+  symbol?: string;
   classes?: string[];
   group?: string | null;
   tags?: string[];
@@ -20,6 +23,8 @@ export type Entry = {
   details?: Doc;
   features?: Record<string, boolean>;
   search_text?: string;
+  usage_count?: number;
+  source_name?: string;
 };
 
 export const materialTagLabels: Record<string, string> = {
@@ -110,6 +115,11 @@ export function diffProperties(base: Doc, value: Doc): Doc {
 }
 export function instanceDocument(base: Doc, placement: Doc): Doc {
   const result = mergeProperties(base, placement.overrides);
+  if (
+    "glyph" in (placement.overrides ?? {}) &&
+    !("symbol" in placement.overrides)
+  )
+    result.symbol = null;
   const door = result.brush?.door;
   if (door) {
     if (door.material === "stone") {
@@ -334,9 +344,7 @@ export function mapGrid(
   const grid: Cell[][] = doc.tiles.map((row: (string | null)[]) =>
     row.map((ref) => {
       const t = ref ? assets["tiles/" + ref] : null;
-      return t
-        ? { char: t.glyph, foreground: t.foreground, background: t.background }
-        : null;
+      return t ? visual(t, assets) : null;
     }),
   );
   for (const key of placements) {
@@ -349,35 +357,30 @@ export function mapGrid(
           compose(art).forEach((row, y) =>
             row.forEach((c, x) => {
               if (grid[p.y + y] && p.x + x < doc.width)
-                grid[p.y + y][p.x + x] = overlay(grid[p.y + y][p.x + x], c);
+                grid[p.y + y][p.x + x] = overlay(
+                  grid[p.y + y][p.x + x],
+                  c ? visual(c, assets) : null,
+                );
             }),
           );
       } else if (key === "transitions") {
         if (!(doc.objects ?? []).some((o: Point) => o.x === p.x && o.y === p.y))
-          grid[p.y][p.x] = { char: ">", foreground: 14, background: null };
+          grid[p.y][p.x] = visual({ glyph: ">", foreground: 14 }, assets);
       } else if (key === "lights") {
         if (doc.tiles[p.y]?.[p.x]) continue;
-        grid[p.y][p.x] = {
-          char: "*",
-          foreground: p.enabled ? 11 : 8,
-          background: null,
-        };
+        grid[p.y][p.x] = visual(
+          { glyph: "*", foreground: p.enabled ? 11 : 8 },
+          assets,
+        );
       } else {
         const base = assets[(key === "doors" ? "objects" : key) + "/" + p.ref];
         const d = base ? instanceDocument(base, p) : null;
-        if (d)
-          grid[p.y][p.x] = {
-            char: d.glyph,
-            foreground: d.foreground,
-            background: d.background,
-          };
+        if (d) grid[p.y][p.x] = visual(d, assets);
       }
     }
   }
   grid[doc.spawn.y][doc.spawn.x] = {
-    char: "@",
-    foreground: 15,
-    background: null,
+    ...visual({ symbol: "base:hero", glyph: "@", foreground: 15 }, assets),
   };
   return grid;
 }

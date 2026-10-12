@@ -11,12 +11,16 @@
 моделями. Схемы строгие: лишние поля, неверные типы, ширина символа, размеры,
 кубики и ссылки отклоняются до сохранения.
 
+[Библиотека символов и формат масок 16×16](symbols.md): поле `symbol` ссылается
+на `symbols/`, `state_symbols` задаёт вид состояний двери. `glyph`/`char`
+сохраняются для чтения прежних документов; новые изображения выбираются из библиотеки.
+
 ## Манифест и ссылки
 
 ```text
 packs/my_pack/
   manifest.json
-  art/ tiles/ objects/ maps/ monsters/ equipment/ spells/ actions/
+  symbols/ art/ tiles/ objects/ maps/ monsters/ equipment/ spells/ actions/
   classes/ races/ backgrounds/ challenges/ traps/ points_of_interest/
 ```
 
@@ -61,7 +65,7 @@ ID пакета совпадает с папкой. Документ задаё�
   "schema_version": 1,
   "id": "scout",
   "name": "Разведчик",
-  "glyph": "g",
+  "symbol": "base:visual_monsters_goblin",
   "foreground": 10,
   "background": null,
   "art": "base:goblin",

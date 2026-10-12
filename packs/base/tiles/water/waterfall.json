@@ -15,5 +15,6 @@
     "liquid"
   ],
   "walkable": false,
-  "blocks_sight": true
+  "blocks_sight": true,
+  "symbol": "base:visual_tiles_waterfall"
 }

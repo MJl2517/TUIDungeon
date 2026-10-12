@@ -15,5 +15,6 @@
     "liquid"
   ],
   "walkable": true,
-  "blocks_sight": false
+  "blocks_sight": false,
+  "symbol": "base:visual_tiles_current_south"
 }

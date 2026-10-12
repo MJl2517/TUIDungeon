@@ -12,5 +12,6 @@
     "stone",
     "door_brace"
   ],
-  "durability": null
+  "durability": null,
+  "symbol": "base:visual_equipment_stone_wedge"
 }

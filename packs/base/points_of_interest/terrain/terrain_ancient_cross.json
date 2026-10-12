@@ -12,5 +12,6 @@
     "transparent"
   ],
   "challenge": "base:terrain_ancient_cross",
-  "group": "Алтари и святыни"
+  "group": "Алтари и святыни",
+  "symbol": "base:glyph_2629"
 }

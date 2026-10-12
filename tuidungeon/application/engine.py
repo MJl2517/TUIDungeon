@@ -383,6 +383,7 @@ class Engine(
                     c.foreground if c else 11,
                     94,
                     getattr(c, "visual_ref", None),
+                    getattr(c, "symbol", None),
                 )
         frame = light.shade(cells, (x, y))
         # Keep at most the full map and a small number of camera regions.

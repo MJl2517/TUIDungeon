@@ -7,5 +7,6 @@
   "foreground": 6,
   "category": "materials",
   "group": "Материалы",
-  "weight": 0.0
+  "weight": 0.0,
+  "symbol": "base:visual_equipment_craft_workpiece"
 }

@@ -7,7 +7,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 APPEARANCE_PATH = ROOT / "saves" / "appearance.json"
-MAP_STYLES = {"text": "Текст", "kenney_1bit": "Kenney 1-Bit"}
+MAP_STYLES = {"text": "Текст", "symbols": "Символы"}
 SPRITE_START = 0x100000
 
 
@@ -15,12 +15,16 @@ def load_map_style(path=APPEARANCE_PATH):
     try:
         data = json.loads(Path(path).read_text(encoding="utf-8"))
         style = data.get("map_style") if isinstance(data, dict) else None
+        if style == "kenney_1bit":
+            style = "symbols"
         return style if isinstance(style, str) and style in MAP_STYLES else "text"
     except (OSError, ValueError):
         return "text"
 
 
 def save_map_style(style, path=APPEARANCE_PATH):
+    if style == "kenney_1bit":
+        style = "symbols"
     if style not in MAP_STYLES:
         raise ValueError("Неизвестное оформление карты")
     path = Path(path)
@@ -39,36 +43,43 @@ def save_map_style(style, path=APPEARANCE_PATH):
 
 
 def load_kenney_tileset(font):
+    """Compatibility entrypoint; the pack library now owns all assignments."""
+    from ..content.packs import PackStore
+
+    return load_symbol_tileset(font, PackStore().documents)
+
+
+def load_symbol_tileset(font, documents):
+    """Build a pinned atlas once for the loaded content snapshot."""
     import numpy as np
     import tcod.tileset
+    from ..content.symbols import glyph_ref, symbol_ref
 
-    manifest = json.loads(
-        (ROOT / "assets" / "tilesets" / "kenney_1bit.json").read_text(encoding="utf-8")
-    )
-    columns, rows = manifest["columns"], manifest["rows"]
-    tileset = tcod.tileset.load_tilesheet(
-        ROOT / "assets" / manifest["image"],
-        columns,
-        rows,
-        range(SPRITE_START, SPRITE_START + columns * rows),
-    )
-    # Unmapped content keeps its normal glyph, fitted to the square map cell.
-    y = np.arange(tileset.tile_height) * font.tile_height // tileset.tile_height
-    x = np.arange(tileset.tile_width) * font.tile_width // tileset.tile_width
+    tileset = tcod.tileset.Tileset(16, 16)
+    y = np.arange(16) * font.tile_height // 16
+    x = np.arange(16) * font.tile_width // 16
     for codepoint in font:
-        if not SPRITE_START <= codepoint < SPRITE_START + columns * rows:
-            tileset[codepoint] = font[codepoint][y[:, None], x]
-
-    def sprite(coordinates):
-        x, y = coordinates
-        if not (0 <= x < columns and 0 <= y < rows):
-            raise ValueError("Рисунок выходит за границы тайлсета")
-        return chr(SPRITE_START + y * columns + x)
-
-    mapping = {("glyph", char): sprite(xy) for char, xy in manifest["glyphs"].items()}
-    mapping.update({ref: sprite(xy) for ref, xy in manifest["special"].items()})
-    for category, entries in manifest["content"].items():
-        mapping.update(
-            {category + "/" + ref: sprite(xy) for ref, xy in entries.items()}
-        )
+        tileset[codepoint] = font[codepoint][y[:, None], x]
+    mapping = {}
+    for (category, ref), doc in sorted(documents.items()):
+        if category != "symbols":
+            continue
+        code = SPRITE_START + len(mapping)
+        if code > 0x10FFFD:
+            raise ValueError("Превышен размер атласа символов")
+        pixels = np.zeros((16, 16, 4), dtype=np.uint8)
+        pixels[:, :, :3] = 255
+        pixels[:, :, 3] = [[255 if c == "1" else 0 for c in row] for row in doc.pixels]
+        tileset[code] = pixels
+        mapping[ref] = chr(code)
+    for codepoint in font:
+        if codepoint != ord(" ") and glyph_ref(chr(codepoint)) in mapping:
+            mapping[("glyph", chr(codepoint))] = mapping[glyph_ref(chr(codepoint))]
+    for (category, ref), doc in documents.items():
+        if category != "symbols" and hasattr(doc, "glyph"):
+            target = symbol_ref(documents, doc)
+            if target in mapping:
+                mapping[category + "/" + ref] = mapping[target]
+    if "base:hero" in mapping:
+        mapping["hero"] = mapping["base:hero"]
     return tileset, mapping

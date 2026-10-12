@@ -17,5 +17,6 @@
   "durability": 30,
   "slot": "hand",
   "hands": 1,
-  "weapon_damage": "1d6+1"
+  "weapon_damage": "1d6+1",
+  "symbol": "base:visual_equipment_ironwood_club"
 }

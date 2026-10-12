@@ -16,5 +16,6 @@
     "metal"
   ],
   "walkable": false,
-  "blocks_sight": false
+  "blocks_sight": false,
+  "symbol": "base:visual_tiles_grate_iron"
 }

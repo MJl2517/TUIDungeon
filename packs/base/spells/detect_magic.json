@@ -21,5 +21,6 @@
   "target": "self",
   "tags": [
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_spells_detect_magic"
 }

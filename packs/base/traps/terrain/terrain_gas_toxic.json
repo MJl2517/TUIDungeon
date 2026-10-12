@@ -37,5 +37,6 @@
     "gas",
     "transparent",
     "poison"
-  ]
+  ],
+  "symbol": "base:visual_traps_terrain_gas_toxic"
 }

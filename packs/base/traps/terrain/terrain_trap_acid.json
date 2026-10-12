@@ -29,5 +29,6 @@
     "transparent",
     "trap_decor",
     "acid"
-  ]
+  ],
+  "symbol": "base:visual_traps_terrain_trap_acid"
 }

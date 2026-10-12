@@ -12,5 +12,6 @@
     "transparent"
   ],
   "challenge": "base:terrain_magic_positive",
-  "group": "Магические зоны"
+  "group": "Магические зоны",
+  "symbol": "base:visual_points_of_interest_terrain_magic_positive"
 }

@@ -21,5 +21,6 @@
     "fuel_tag": "wooden",
     "radius": 5,
     "bright_radius": 3
-  }
+  },
+  "symbol": "base:visual_objects_campfire"
 }

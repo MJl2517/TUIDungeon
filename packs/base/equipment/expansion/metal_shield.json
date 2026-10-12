@@ -20,5 +20,6 @@
       "kind": "armor_bonus",
       "amount": 2
     }
-  ]
+  ],
+  "symbol": "base:visual_equipment_metal_shield"
 }

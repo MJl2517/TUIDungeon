@@ -10,5 +10,6 @@
   "walkable": false,
   "water_source": {
     "kind": "clean_water"
-  }
+  },
+  "symbol": "base:visual_objects_water_well"
 }

@@ -11,5 +11,6 @@
   "blocks_sight": true,
   "tags": [
     "stone"
-  ]
+  ],
+  "symbol": "base:glyph_2588"
 }

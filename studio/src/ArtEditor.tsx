@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { SymbolContext, SymbolSelect } from "./Symbols";
+import { glyphRef, visual } from "./symbolModel";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Grid } from "./Grid";
 import {
   Cell,
@@ -18,8 +20,11 @@ type Props = {
   doc: Doc;
   onChange: (d: Doc) => void;
   notify: (s: string) => void;
+  packId?: string;
 };
-export function ArtEditor({ doc, onChange, notify }: Props) {
+export function ArtEditor({ doc, onChange, notify, packId = "base" }: Props) {
+  const context = useContext(SymbolContext);
+  const [symbol, setSymbol] = useState(glyphRef("█"));
   const [layerIndex, setLayerIndex] = useState(0),
     [tool, setTool] = useState("brush"),
     [glyph, setGlyph] = useState("█"),
@@ -61,8 +66,19 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
   } | null>(null);
   const index = Math.min(layerIndex, doc.layers.length - 1);
   const shown = preview ?? doc;
-  const cells = useMemo(() => compose(shown), [shown]);
-  const currentCell: Cell = { char: glyph, foreground: fg, background: bg };
+  const cells = useMemo(
+    () =>
+      compose(shown).map((row) =>
+        row.map((c) => (c ? visual(c, context.assets) : null)),
+      ),
+    [shown, context.assets],
+  );
+  const currentCell: Cell = {
+    char: context.assets["symbols/" + symbol]?.glyph ?? glyph,
+    symbol,
+    foreground: fg,
+    background: bg,
+  };
   function paint(base: Doc, points: Point[], erase = false) {
     const next = clone(base);
     if (next.layers[index].locked) {
@@ -84,7 +100,7 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
       .slice(minY, maxY + 1)
       .map((r: Cell[]) => clone(r.slice(minX, maxX + 1)));
   }
-  function down(p: Point) {
+  async function down(p: Point) {
     if (doc.layers[index].locked && tool !== "select") {
       notify("Слой заблокирован");
       return;
@@ -103,6 +119,15 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
       return;
     }
     if (tool === "text") {
+      let refs: Record<string, string>;
+      try {
+        refs = (await api("/symbols/resolve-text", { text, pack: packId }))
+          .symbols;
+        await context.refresh();
+      } catch (e) {
+        notify(String(e));
+        return;
+      }
       const n = clone(doc);
       text.split("\n").forEach((row, y) =>
         Array.from(row).forEach((c, x) => {
@@ -110,6 +135,7 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
             n.layers[index].cells[p.y + y][p.x + x] = {
               ...currentCell!,
               char: c,
+              symbol: refs[c],
             };
         }),
       );
@@ -183,9 +209,11 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
           id: doc.id,
           name: doc.name,
           text: await file.text(),
+          pack: packId,
         });
         onChange(n);
       }
+      await context.refresh();
       notify("Импортировано в текущий холст");
     } catch (e) {
       notify(String(e));
@@ -194,7 +222,9 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
   function download() {
     const txt =
       compose(doc)
-        .map((r) => r.map((c) => c?.char ?? " ").join(""))
+        .map((r) =>
+          r.map((c) => (c ? visual(c, context.assets).char : " ")).join(""),
+        )
         .join("\n") + "\n";
     const url = URL.createObjectURL(
       new Blob([txt], { type: "text/plain;charset=utf-8" }),
@@ -205,13 +235,6 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
     a.click();
     URL.revokeObjectURL(url);
   }
-  const palettes = [
-    "@#.+-*/\\_|=!?0123456789",
-    "█▓▒░▀▄▌▐■□●○◆◇",
-    "┌┐└┘├┤┬┴┼─│╔╗╚╝║═",
-    "abcdefghijklmnopqrstuvwxyz",
-    "АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯ",
-  ];
   return (
     <div className="editor-layout">
       <div className="workspace">
@@ -351,14 +374,14 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
             ))}
           </div>
         )}
-        <label>
-          Символ{" "}
-          <input
-            className="glyph-input"
-            value={glyph}
-            onChange={(e) => setGlyph(Array.from(e.target.value).at(-1) ?? " ")}
-          />
-        </label>
+        <SymbolSelect
+          value={symbol}
+          onChange={(ref) => {
+            setSymbol(ref);
+            setGlyph(context.assets["symbols/" + ref]?.glyph ?? "?");
+          }}
+          label="Кисть из библиотеки"
+        />
         {tool === "text" && (
           <textarea
             aria-label="Текст кисти"
@@ -366,21 +389,6 @@ export function ArtEditor({ doc, onChange, notify }: Props) {
             onChange={(e) => setText(e.target.value)}
           />
         )}
-        <div className="glyph-palettes">
-          {palettes.map((s, i) => (
-            <div key={i}>
-              {Array.from(s).map((c) => (
-                <button
-                  key={c}
-                  className={glyph === c ? "selected" : ""}
-                  onClick={() => setGlyph(c)}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          ))}
-        </div>
         <div className="color-options">
           <label>
             Символ{" "}

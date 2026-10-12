@@ -202,7 +202,8 @@ class Level:
         return self._order
 
     def render_cells(self, state, viewport=None):
-        from .graphics import glyph_cell
+        from .graphics import glyph_cell, visual_cell
+        from ..content.symbols import appearance
 
         x, y, width, height = viewport or (
             0,
@@ -214,24 +215,12 @@ class Level:
 
         def draw(definition, p, category, ref=None):
             visual_ref = category + "/" + (ref or p.ref)
-            if isinstance(definition, dict):
-                cells[p.y - y][p.x - x] = glyph_cell(
-                    definition["glyph"],
-                    definition["foreground"],
-                    definition["background"]
-                    if definition["background"] is not None
-                    else cells[p.y - y][p.x - x].background,
-                    visual_ref,
-                )
-            else:
-                cells[p.y - y][p.x - x] = glyph_cell(
-                    definition.glyph,
-                    definition.foreground,
-                    definition.background
-                    if definition.background is not None
-                    else cells[p.y - y][p.x - x].background,
-                    visual_ref,
-                )
+            cells[p.y - y][p.x - x] = visual_cell(
+                self.store,
+                definition,
+                visual_ref,
+                background=cells[p.y - y][p.x - x].background,
+            )
 
         for container in self.index("containers").region(x, y, width, height):
             fixture = getattr(container.definition, "light_fixture", None)
@@ -246,17 +235,35 @@ class Level:
         for instance in self.index("doors").region(x, y, width, height):
             p, door = instance.placement, instance.door
             if not door.destroyed:
-                cells[p.y - y][p.x - x] = glyph_cell(
-                    door.glyph,
-                    door.display_color(),
-                    visual_ref=(
-                        "door_open"
-                        if door.opened
-                        else "door_bent"
-                        if door.bent
-                        else "door_closed"
-                    ),
+                definition = instance.definition
+                if definition.brush.door.material != door.material:
+                    definition = self.store.documents.get(
+                        ("objects", "base:door_" + door.material), definition
+                    )
+                state_key = (
+                    "open"
+                    if door.opened
+                    else "bent"
+                    if door.bent
+                    else "locked"
+                    if door.locked
+                    else "closed"
                 )
+                visual = (
+                    definition
+                    if state_key in definition.state_symbols
+                    or (state_key == "closed" and definition.symbol)
+                    else {"glyph": door.glyph}
+                )
+                char, symbol = appearance(self.store.documents, visual, state_key)
+                cells[p.y - y][p.x - x] = glyph_cell(
+                    char if symbol else door.glyph,
+                    door.display_color(),
+                    visual_ref="door_"
+                    + ("open" if door.opened else "bent" if door.bent else "closed"),
+                    symbol=symbol,
+                )
+
         for placement, item in state.item_index.region(x, y, width, height):
             draw(
                 item.template or self.store.get("equipment", placement.ref),
@@ -275,9 +282,15 @@ class Level:
                     )
         p = state.position
         if x <= p.x < x + width and y <= p.y < y + height:
-            cells[p.y - y][p.x - x] = glyph_cell(
-                "@",
-                244 if state.hero.sneaking else 15,
-                visual_ref="hero",
+            cells[p.y - y][p.x - x] = visual_cell(
+                self.store,
+                {
+                    "glyph": "@",
+                    "foreground": 244 if state.hero.sneaking else 15,
+                    "symbol": "base:hero"
+                    if ("symbols", "base:hero") in self.store.documents
+                    else None,
+                },
+                "hero",
             )
         return cells

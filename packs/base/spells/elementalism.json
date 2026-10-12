@@ -33,5 +33,6 @@
     "ignite",
     "utility",
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_spells_elementalism"
 }

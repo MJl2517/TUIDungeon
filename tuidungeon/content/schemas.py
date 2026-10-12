@@ -71,6 +71,45 @@ class Manifest(StrictModel):
     dependencies: list[LocalId] = Field(default_factory=list)
 
 
+class SymbolSource(StrictModel):
+    name: str
+    license: str
+    location: str = ""
+    coordinates: list[int] | None = None
+
+
+class SymbolDocument(Document):
+    """A one-cell monochrome image, independent of gameplay and tint."""
+
+    glyph: str = "?"
+    group: str = "Неразобранное"
+    tags: list[str] = Field(default_factory=list)
+    reviewed: bool = False
+    pixels: list[str] = Field(default_factory=lambda: ["0" * 16 for _ in range(16)])
+    source: SymbolSource | None = None
+    _glyph = field_validator("glyph")(valid_glyph)
+    _group = field_validator("group")(title_text)
+
+    @field_validator("pixels")
+    @classmethod
+    def mask_size(cls, value):
+        if len(value) != 16 or any(
+            len(row) != 16 or set(row) - {"0", "1"} for row in value
+        ):
+            raise ValueError("Маска должна содержать 16 строк по 16 пикселей 0/1")
+        return value
+
+    @model_validator(mode="after")
+    def reviewed_name(self):
+        if self.reviewed and (
+            self.group == "Неразобранное"
+            or self.name.startswith(("Kenney [", "Импорт ["))
+            or self.name == "Новый символ"
+        ):
+            raise ValueError("Перед назначением укажите название и категорию символа")
+        return self
+
+
 class Scores(StrictModel):
     strength: Positive = 10
     dexterity: Positive = 10
@@ -177,7 +216,10 @@ class TileLight(StrictModel):
 
 class VisualVariant(StrictModel):
     name: str
-    glyph: str
+    glyph: str = "?"
+    symbol: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "symbols"}
+    )
     foreground: Color = 7
     background: Color | None = None
     _name = field_validator("name")(title_text)
@@ -185,6 +227,13 @@ class VisualVariant(StrictModel):
 
 
 class Visual(Document):
+    symbol: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "symbols"}
+    )
+    state_symbols: dict[str, Ref] = Field(
+        default_factory=dict,
+        description="Графика состояний двери: closed, locked, open, bent",
+    )
     variants: list[VisualVariant] = Field(
         default_factory=list,
         description="Варианты внешнего вида без копирования механик",
@@ -194,6 +243,13 @@ class Visual(Document):
     background: Color | None = None
     art: Ref | None = Field(default=None, json_schema_extra={"ref_category": "art"})
     _glyph = field_validator("glyph")(valid_glyph)
+
+    @field_validator("state_symbols")
+    @classmethod
+    def known_states(cls, value):
+        if set(value) - {"closed", "locked", "open", "bent"}:
+            raise ValueError("Неизвестное состояние графики двери")
+        return value
 
 
 class Aid(StrictModel):
@@ -978,6 +1034,9 @@ class WorldObjectDocument(TileDocument):
 
 class Cell(StrictModel):
     char: str = " "
+    symbol: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "symbols"}
+    )
     foreground: Color = 7
     background: Color | None = None
     _glyph = field_validator("char")(valid_glyph)
@@ -1169,6 +1228,7 @@ class MapDocument(Document):
 
 
 MODELS = {
+    "symbols": SymbolDocument,
     "recipes": RecipeDocument,
     "art": ArtDocument,
     "tiles": TileDocument,

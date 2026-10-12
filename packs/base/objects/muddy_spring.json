@@ -10,5 +10,6 @@
   "walkable": false,
   "water_source": {
     "kind": "dirty_water"
-  }
+  },
+  "symbol": "base:visual_objects_muddy_spring"
 }

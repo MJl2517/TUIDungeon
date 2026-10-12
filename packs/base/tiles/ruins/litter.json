@@ -15,5 +15,6 @@
     "flammable"
   ],
   "walkable": true,
-  "blocks_sight": false
+  "blocks_sight": false,
+  "symbol": "base:glyph_003b"
 }

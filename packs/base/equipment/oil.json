@@ -30,5 +30,6 @@
   "hands": 0,
   "light": null,
   "variants": [],
-  "group": "Декорации: припасы"
+  "group": "Декорации: припасы",
+  "symbol": "base:visual_equipment_oil"
 }

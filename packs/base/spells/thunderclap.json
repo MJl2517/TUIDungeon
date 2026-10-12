@@ -43,5 +43,6 @@
     "noise",
     "aoe",
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_spells_thunderclap"
 }

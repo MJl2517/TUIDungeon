@@ -57,7 +57,10 @@ export function MapEditor({
     [paletteEmpty, setPaletteEmpty] = useState(false),
     [maskValue, setMaskValue] = useState(true),
     [initTile, setInitTile] = useState(true),
-    [zoom, setZoom] = useState(1.3),
+    [zoom, setZoom] = useState(2),
+    [symbolMode, setSymbolMode] = useState(
+      () => localStorage.getItem("map-render-mode") !== "text",
+    ),
     [grid, setGrid] = useState(true),
     [width, setWidth] = useState(doc.width),
     [height, setHeight] = useState(doc.height),
@@ -73,6 +76,9 @@ export function MapEditor({
       roof: false,
     }),
     [preview, setPreview] = useState<Doc | null>(null);
+  useEffect(() => {
+    localStorage.setItem("map-render-mode", symbolMode ? "symbols" : "text");
+  }, [symbolMode]);
   useEffect(() => {
     setWidth(doc.width);
     setHeight(doc.height);
@@ -400,11 +406,15 @@ export function MapEditor({
     if (!view) return;
     setZoom(
       Math.max(
-        0.2,
+        1,
         Math.min(
-          3,
-          (view.clientWidth - 56) / (12 * doc.width),
-          (view.clientHeight - 56) / (20 * doc.height),
+          6,
+          Math.floor(
+            Math.min(
+              (view.clientWidth - 56) / (16 * doc.width),
+              (view.clientHeight - 56) / (16 * doc.height),
+            ),
+          ),
         ),
       ),
     );
@@ -530,10 +540,7 @@ export function MapEditor({
     const wheel = (e: WheelEvent) => {
       if (!e.ctrlKey || !shortcutsEnabled) return;
       e.preventDefault();
-      const next = Math.max(
-        0.2,
-        Math.min(3, zoom + (e.deltaY < 0 ? 0.1 : -0.1)),
-      );
+      const next = Math.max(1, Math.min(6, zoom + (e.deltaY < 0 ? 1 : -1)));
       const rect = view.getBoundingClientRect(),
         x = e.clientX - rect.left,
         y = e.clientY - rect.top;
@@ -707,6 +714,8 @@ export function MapEditor({
         >
           <Grid
             cells={cells}
+            square={true}
+            symbols={symbolMode}
             overlays={overlays}
             selection={selection}
             zoom={zoom}
@@ -725,17 +734,20 @@ export function MapEditor({
         </div>
         <div className="toolbar">
           <label>
-            Масштаб {Math.round(zoom * 100)}%{" "}
+            Клетка {zoom * 16}×{zoom * 16}{" "}
             <input
               type="range"
               aria-label="Масштаб карты"
-              min="0.2"
-              max="3"
-              step="0.1"
+              min="1"
+              max="6"
+              step="1"
               value={zoom}
               onChange={(e) => setZoom(Number(e.target.value))}
             />
           </label>
+          <button onClick={() => setSymbolMode((v) => !v)}>
+            {symbolMode ? "Символы" : "Текст"}
+          </button>
           <button title="Вписать карту (0)" onClick={fit}>
             Вписать
           </button>

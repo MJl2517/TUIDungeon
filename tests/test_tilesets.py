@@ -1,6 +1,5 @@
 """Map skins preserve visibility, UI text and the original text renderer."""
 
-import json
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -13,9 +12,8 @@ import tcod.event as events
 
 from scripts.testing import fixture_store
 from tuidungeon.presentation.tilesets import (
-    ROOT,
     SPRITE_START,
-    load_kenney_tileset,
+    load_symbol_tileset,
     load_map_style,
     save_map_style,
 )
@@ -36,7 +34,7 @@ class MapTilesetTests(unittest.TestCase):
     def setUpClass(cls):
         cls.store = fixture_store()
         cls.font = load_tileset()
-        cls.tileset, cls.mapping = load_kenney_tileset(cls.font)
+        cls.tileset, cls.mapping = load_symbol_tileset(cls.font, cls.store.documents)
 
     def controller(self):
         c = Controller(
@@ -53,20 +51,18 @@ class MapTilesetTests(unittest.TestCase):
     def test_atlas_manifest_and_persistent_selection(self):
         self.assertEqual(self.tileset.tile_shape, (16, 16))
         self.assertGreater(self.tileset[ord("Я")][:, :, 3].sum(), 0)
-        self.assertEqual(
-            self.mapping["objects/base:lantern"], self.mapping["equipment/base:lamp"]
-        )
-        manifest = json.loads((ROOT / "assets/tilesets/kenney_1bit.json").read_text())
-        for category, entries in manifest["content"].items():
-            for ref in entries:
-                self.assertIn((category, ref), self.store.documents)
-        for sprite in self.mapping.values():
+        for (category, ref), symbol in self.store.documents.items():
+            if category != "symbols":
+                continue
+            self.assertIn(ref, self.mapping)
+            sprite = self.mapping[ref]
             self.assertGreaterEqual(ord(sprite), SPRITE_START)
-            self.assertGreater(self.tileset[ord(sprite)][:, :, 3].sum(), 0)
+            expected = sum(row.count("1") for row in symbol.pixels) * 255
+            self.assertEqual(int(self.tileset[ord(sprite)][:, :, 3].sum()), expected)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "saves" / "appearance.json"
             self.assertEqual(load_map_style(path), "text")
-            for style in ("kenney_1bit", "text"):
+            for style in ("symbols", "text"):
                 save_map_style(style, path)
                 self.assertEqual(load_map_style(path), style)
                 self.assertEqual(list(path.parent.iterdir()), [path])
@@ -80,15 +76,15 @@ class MapTilesetTests(unittest.TestCase):
         c = self.controller()
         c.return_view, c.view = View.EXPLORE, View.SETTINGS
         c.handle("4")
-        self.assertEqual(c.map_style, "kenney_1bit")
+        self.assertEqual(c.map_style, "symbols")
         c.handle("3")
         c.dialog_index = 2
         c.handle("down")
         c.handle("enter")
-        self.assertEqual(c.map_style, "kenney_1bit")
+        self.assertEqual(c.map_style, "symbols")
         for width, height in ((80, 24), (100, 28)):
             text = "\n".join(render(c, width, height))
-            self.assertIn("Kenney 1-Bit", text)
+            self.assertIn("Символы", text)
             _, rect, _, hits = popup_layout(c, width, height)
             row = next(row for index, row in hits if index == 2)
             self.assertTrue(
@@ -111,7 +107,7 @@ class MapTilesetTests(unittest.TestCase):
                 update={"ambient_light": ambient, "lights": []}
             )
             plain = render_map(c, 100, 28, 36)[0]
-            c.map_style = "kenney_1bit"
+            c.map_style = "symbols"
             graphical = render_map(c, 100, 28, 36, sprites=self.mapping)[0]
             np.testing.assert_array_equal(
                 plain.ch == ord(" "), graphical.ch == ord(" ")
@@ -125,7 +121,7 @@ class MapTilesetTests(unittest.TestCase):
         before, after = tcod.console.Console(100, 28), tcod.console.Console(100, 28)
         c.map_style = "text"
         draw(before, c)
-        c.map_style = "kenney_1bit"
+        c.map_style = "symbols"
         draw(after, c)
         np.testing.assert_array_equal(before.rgb, after.rgb)
         c.view, c.look_position = View.LOOK, state.position
@@ -144,7 +140,7 @@ class MapTilesetTests(unittest.TestCase):
             fallback = render_map(c, 100, 28, 36, sprites=self.mapping)[0]
         self.assertIn(ord(self.mapping["tiles/base:wall"]), fallback.ch)
         self.assertIn(ord(self.mapping["objects/base:barricade"]), fallback.ch)
-        self.assertIn(ord("Ж"), fallback.ch)
+        self.assertIn(ord(self.mapping.get(("glyph", "Ж"), "Ж")), fallback.ch)
         self.assertIn(ord("#"), fallback.ch)
         self.assertEqual((state.position, state.turns, c.game_rng.getstate()), initial)
 
@@ -173,7 +169,7 @@ class MapTilesetTests(unittest.TestCase):
                 "tuidungeon.presentation.window.load_tileset", return_value=self.font
             ),
             patch(
-                "tuidungeon.presentation.window.load_kenney_tileset",
+                "tuidungeon.presentation.window.load_symbol_tileset",
                 return_value=(self.tileset, self.mapping),
             ) as load,
             patch("tcod.context.new") as create,
@@ -194,7 +190,7 @@ class MapTilesetTests(unittest.TestCase):
         load.assert_called_once()
         self.assertEqual(
             save.call_args_list,
-            [call("kenney_1bit"), call("text"), call("kenney_1bit")],
+            [call("symbols"), call("text"), call("symbols")],
         )
         self.assertEqual(
             [entry.args[2] for entry in present.call_args_list],
@@ -214,14 +210,14 @@ class MapTilesetTests(unittest.TestCase):
             patch("tuidungeon.presentation.window.Controller", return_value=c),
             patch(
                 "tuidungeon.presentation.window.load_map_style",
-                return_value="kenney_1bit",
+                return_value="symbols",
             ),
             patch("tuidungeon.presentation.window.save_map_style") as save,
             patch(
                 "tuidungeon.presentation.window.load_tileset", return_value=self.font
             ),
             patch(
-                "tuidungeon.presentation.window.load_kenney_tileset",
+                "tuidungeon.presentation.window.load_symbol_tileset",
                 side_effect=FileNotFoundError("missing sheet"),
             ),
             patch("tcod.context.new") as create,
@@ -233,7 +229,7 @@ class MapTilesetTests(unittest.TestCase):
             create.return_value.__enter__.return_value = context
             run()
         self.assertEqual(c.map_style, "text")
-        self.assertIn("Не удалось загрузить Kenney", c.message)
+        self.assertIn("Не удалось загрузить символы", c.message)
         save.assert_called_once_with("text")
 
 

@@ -269,6 +269,21 @@ class TerminalSession(unittest.TestCase):
         )
         self.expect_frame()
 
+    def choose_interaction(self, point_id, choice_id):
+        """Use actual menu keys while allowing new nearby objects and actions."""
+        self.assertIs(self.controller.view, View.INTERACTION)
+        points = self.controller.engine.nearby_points()
+        point = next(p for p in points if p.placement.id == point_id)
+        if self.controller.point_id is None:
+            key = str(points.index(point) + 1)
+            self.key(key.encode(), key)
+        self.assertEqual(self.controller.point_id, point_id)
+        choices = point.available_choices(self.controller.engine.state.hero)
+        key = str(
+            next(i for i, choice in enumerate(choices, 1) if choice.id == choice_id)
+        )
+        self.key(key.encode(), key)
+
     def stop_process(self):
         if self.process.poll() is None:
             self.process.terminate()
@@ -358,8 +373,11 @@ class TerminalTests(TerminalSession):
         self.assertEqual(
             (hero.cantrip_uses, self.controller.engine.state.turns), (maximum - 1, 1)
         )
+        self.key(b"\x08", "backspace")  # Magic → Actions.
+        self.key(b"\x08", "backspace")  # Actions → exploration.
         self.key(b"\x1b", "escape")
         self.key(b"1", "1")
+        self.assertTrue(self.save_path.is_file())
         saved = json.loads(self.save_path.read_text())
         self.assertEqual(saved["hero"]["cantrip_uses"], maximum - 1)
         self.assertEqual(saved["magic_effects"][0]["kind"], "light")
@@ -376,6 +394,12 @@ class TerminalTests(TerminalSession):
         self.key(b"s", "s")
         self.key(b"\r", "enter")
         self.assertIn("Мудрец", "\n".join(self.screen.lines()))
+        for _ in range(len(self.controller.creation.buttons)):
+            option = self.controller.creation.focused_option
+            if option and option.id == "sage":
+                break
+            self.key(b"s", "s")
+        self.assertEqual(self.controller.creation.focused_option.id, "sage")
         self.key(b"h", "h")
         self.key(b"\r", "enter")
         self.key(b"\r", "enter")
@@ -459,7 +483,8 @@ class TerminalTests(TerminalSession):
         self.key(b"\x7f", "backspace")
         self.key(b"4", "4")
         self.key(b"2", "2")
-        self.assertEqual(self.controller.engine.state.turns, 6)
+        self.assertEqual(self.controller.engine.state.turns, 5)
+        self.assertIn("Длительный отдых доступен только", self.controller.message)
         self.resize(40, 10)
         self.expect_frame()
         os.write(self.master, b"3")  # No resting while the terminal is too small.
@@ -539,10 +564,17 @@ class MapTerminalTests(TerminalSession):
         self.key(b"\x7f", "backspace")
         self.assertEqual(engine.state.turns, turns)
         self.key(b"\r", "enter")
+        self.choose_interaction("chest_1", "open_storage")
         self.assertIs(self.controller.view, View.STORAGE)
-        self.key(b"\x1bOS", "f4")
-        self.key(b"2", "2")
-        self.assertTrue(engine.state.level.points[0].challenge.completed)
+        self.key(b"\x7f", "backspace")
+        for key in b"aass":
+            self.key(bytes([key]), chr(key))
+        self.key(b"\r", "enter")
+        self.choose_interaction("shrine_1", "read")
+        shrine = next(
+            p for p in engine.state.level.points if p.placement.id == "shrine_1"
+        )
+        self.assertTrue(shrine.challenge.completed)
         self.key(b"\x1bOC", "right")
         self.key(b"\x1bOD", "left")
         self.resize(100, 30)
@@ -602,7 +634,7 @@ class StorageTerminalTests(TerminalSession):
 
     def test_exchange_slider_cancel_resize_and_restore_terminal(self):
         self.key(b"\r", "enter")
-        self.key(b"1", "1")  # Several objects nearby: choose the personal chest.
+        self.choose_interaction("personal_chest", "open_storage")
         self.assertIs(self.controller.view, View.STORAGE)
         self.key(b"\r", "enter")
         self.assertIsNotNone(self.controller.storage.pending)
@@ -700,7 +732,8 @@ class TestMapTerminalTests(TerminalSession):
         self.key(b"\r", "enter")
         self.key(b"\r", "enter")
         self.key(b"2", "2")
-        self.assertIn("Осмотр предмета", self.screen.lines()[2])
+        self.assertIs(self.controller.view, View.ITEM_INSPECT)
+        self.assertIn("Осмотр предмета", "\n".join(self.screen.lines()))
         self.key(b"\x1bOB", "down")
         self.key(b"\x7f", "backspace")
         self.key(b"3", "3")

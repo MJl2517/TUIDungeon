@@ -19,5 +19,6 @@
       "kind": "heal",
       "amount": 2
     }
-  ]
+  ],
+  "symbol": "base:visual_equipment_cooked_meat"
 }

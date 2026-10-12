@@ -24,5 +24,6 @@
     "humanoid",
     "living",
     "organic"
-  ]
+  ],
+  "symbol": "base:visual_races_human"
 }

@@ -26,5 +26,6 @@
   "hands": 2,
   "light": null,
   "group": "Декорации: оружие",
-  "damage_type": "slashing"
+  "damage_type": "slashing",
+  "symbol": "base:visual_equipment_terrain_decor_greatsword"
 }

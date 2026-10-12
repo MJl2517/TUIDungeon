@@ -591,7 +591,7 @@ class Controller:
                 elif key == "3":
                     self.map_style = "text"
                 elif key == "4" and self.windowed:
-                    self.map_style = "kenney_1bit"
+                    self.map_style = "symbols"
                 self.theme = GlyphTheme.named(self.symbols)
             return
         if self.view is View.CREATION:

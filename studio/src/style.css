@@ -15,6 +15,167 @@
   --color-7: #c8ccd4;
   --color-15: #f5f1e6;
 }
+.symbol-preview {
+  display: inline-block;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  border: 0;
+  box-shadow: none;
+  vertical-align: middle;
+  cursor: inherit;
+}
+.symbol-text {
+  font: 24px monospace;
+}
+.symbol-select {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+}
+.symbol-select > span {
+  min-width: 0;
+}
+.symbol-select strong,
+.symbol-select small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.symbol-select small {
+  color: var(--muted);
+  margin-top: 5px;
+  font-size: 11px;
+}
+.symbol-dialog {
+  width: min(1180px, 95vw);
+  height: 92vh;
+  max-height: 92vh;
+  overflow: auto;
+  color: #d3dae3;
+  background: #18222e;
+  border: 1px solid #52657c;
+  border-radius: 10px;
+  padding: 20px;
+}
+.symbol-dialog::backdrop {
+  background: #080e17d9;
+}
+.symbol-dialog > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+.symbol-editor,
+.symbol-assignments {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px;
+}
+.symbol-dialog .symbol-editor {
+  overflow: visible;
+  padding: 20px 0;
+}
+.symbol-properties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.symbol-properties > label {
+  flex: 1 1 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.symbol-properties .toggle {
+  flex-direction: row;
+  align-items: center;
+}
+.symbol-workspace {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.symbol-workspace canvas[tabindex] {
+  touch-action: none;
+  max-width: 100%;
+}
+.symbol-workspace aside {
+  max-width: 320px;
+}
+.symbol-samples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.symbol-samples canvas {
+  padding: 0;
+  outline: 8px solid transparent;
+}
+.import-cells {
+  display: flex;
+  flex-wrap: wrap;
+  max-height: 320px;
+  overflow: auto;
+  gap: 4px;
+  margin: 16px 0;
+}
+.symbol-import {
+  border: 1px solid var(--border);
+  padding: 16px;
+}
+.assignment-list {
+  margin: 18px 0;
+}
+.assignment-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.assignment-row > span:first-of-type {
+  flex: 1;
+  min-width: 0;
+}
+.assignment-row strong,
+.assignment-row small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.assignment-row small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.assignment-row input[type="checkbox"] {
+  flex-shrink: 0;
+}
+.assignment-confirm {
+  border: 1px solid var(--accent);
+  padding: 16px;
+  margin-top: 18px;
+}
+.assignment-preview-list {
+  max-height: 200px;
+  overflow: auto;
+  margin-bottom: 16px;
+}
+.assignment-preview-list > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px;
+}
+@media (max-width: 850px) {
+  .assignment-row {
+    flex-wrap: wrap;
+  }
+}
 .lockpick-panel {
   margin: 12px 0;
   padding: 14px;
@@ -1138,8 +1299,13 @@ legend {
   width: 100%;
   flex: 1;
   min-height: 0;
+  overflow: auto;
   border: none;
   background: #1d2631;
+}
+.library-page > .library-heading,
+.library-page > .content-browser {
+  flex-shrink: 0;
 }
 .library-page .library-heading {
   display: block;

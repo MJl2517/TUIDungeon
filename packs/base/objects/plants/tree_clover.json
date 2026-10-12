@@ -64,5 +64,6 @@
   },
   "movable": false,
   "weight": 0.0,
-  "storage": null
+  "storage": null,
+  "symbol": "base:visual_objects_tree_clover"
 }

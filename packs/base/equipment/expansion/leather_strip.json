@@ -12,5 +12,6 @@
     "leather",
     "organic",
     "flammable"
-  ]
+  ],
+  "symbol": "base:visual_equipment_leather_strip"
 }

@@ -29,5 +29,6 @@
       "verb": "remove_barricade"
     },
     "remains": []
-  }
+  },
+  "symbol": "base:visual_objects_barricade"
 }

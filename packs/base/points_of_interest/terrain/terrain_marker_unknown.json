@@ -12,5 +12,6 @@
     "transparent"
   ],
   "challenge": "base:terrain_marker_unknown",
-  "group": "Метки мест"
+  "group": "Метки мест",
+  "symbol": "base:glyph_003f"
 }

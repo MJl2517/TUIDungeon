@@ -12,5 +12,6 @@
     "organic",
     "sticky",
     "flammable"
-  ]
+  ],
+  "symbol": "base:visual_equipment_binding_resin"
 }

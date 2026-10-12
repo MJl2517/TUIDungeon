@@ -28,5 +28,6 @@
     "transparent",
     "trap_decor",
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_traps_terrain_trap_rune"
 }

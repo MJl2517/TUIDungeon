@@ -1,3 +1,4 @@
+import { SymbolSelect } from "./Symbols";
 import { useState } from "react";
 import { ContentSelect } from "./ContentBrowser";
 import { craftNames, mapCategoryNames } from "./catalog";
@@ -56,7 +57,9 @@ const labels: Record<string, string> = {
   check: "Проверка рискованной работы",
   name: "Название",
   description: "Описание",
-  glyph: "Символ на карте",
+  glyph: "Текстовый знак (совместимость)",
+  symbol: "Символ из библиотеки",
+  state_symbols: "Символы состояний двери",
   underlay: "Тайл под предметом",
   door: "Дверь",
   material: "Материал двери",
@@ -307,6 +310,13 @@ export function FieldForm({
     );
   const title = label ? fieldLabel(label, root) : "";
   const category = refCategory ?? original.ref_category ?? s.ref_category;
+  if (label === "symbol")
+    return (
+      <div className="field">
+        <label>{title}</label>
+        <SymbolSelect value={value} onChange={onChange} label={title} />
+      </div>
+    );
   if (nullable && value == null)
     return (
       <div className="field">
@@ -328,6 +338,38 @@ export function FieldForm({
       ×
     </button>
   ) : null;
+  if (label === "state_symbols")
+    return (
+      <fieldset>
+        <legend>{title}</legend>
+        {[
+          ...new Set([
+            ...(schema.state_options ?? ["closed", "locked", "open", "bent"]),
+            ...Object.keys(value ?? {}),
+          ]),
+        ]
+          .map((key) => [key, value?.[key]])
+          .map(([key, ref]) => (
+            <div className="field" key={key}>
+              <label>
+                {(
+                  {
+                    closed: "Закрыта",
+                    locked: "Заперта",
+                    open: "Открыта",
+                    bent: "Прутья погнуты",
+                  } as Doc
+                )[key] ?? key}
+              </label>
+              <SymbolSelect
+                value={ref as string}
+                onChange={(r) => onChange({ ...value, [key]: r })}
+                label={"Символ состояния " + key}
+              />
+            </div>
+          ))}
+      </fieldset>
+    );
   if (s.type === "object") {
     if (
       value?.kind &&
@@ -425,6 +467,8 @@ export function FieldForm({
     const children = Object.entries(s.properties).filter(
       ([key]) =>
         key !== "schema_version" &&
+        key !== "glyph" &&
+        key !== "char" &&
         (s.title !== "RecipeOperation" ||
           (
             {
@@ -878,7 +922,15 @@ export function propertySections(category: string, keys: string[]): Section[] {
     [
       "Внешний вид",
       "Отображение на карте и варианты оформления",
-      ["glyph", "foreground", "background", "art", "variants", "underlay"],
+      [
+        "symbol",
+        "state_symbols",
+        "foreground",
+        "background",
+        "art",
+        "variants",
+        "underlay",
+      ],
     ],
     [
       "Характеристики",
@@ -1035,7 +1087,11 @@ export function DocumentForm({
   const [query, setQuery] = useState("");
   const groups = propertySections(
     category,
-    Object.keys(props.schema.properties),
+    Object.keys(props.schema.properties).filter(
+      (k) =>
+        !["glyph", "char"].includes(k) &&
+        (k !== "state_symbols" || !!props.value.brush?.door),
+    ),
   );
   const matches = (key: string) => {
     const params =
@@ -1129,7 +1185,19 @@ export function DocumentForm({
                 >
                   <FieldForm
                     {...props}
-                    schema={field}
+                    schema={
+                      key === "state_symbols"
+                        ? {
+                            ...field,
+                            state_options:
+                              props.value.brush?.door?.material === "stone"
+                                ? ["closed"]
+                                : props.value.brush?.door?.material === "bars"
+                                  ? ["closed", "locked", "open", "bent"]
+                                  : ["closed", "locked", "open"],
+                          }
+                        : field
+                    }
                     root={fieldRoot}
                     label={key}
                     lockedId={props.lockedId && key === "id"}

@@ -13,5 +13,6 @@
   "tags": [
     "glass"
   ],
-  "durability": null
+  "durability": null,
+  "symbol": "base:visual_equipment_water_flask"
 }

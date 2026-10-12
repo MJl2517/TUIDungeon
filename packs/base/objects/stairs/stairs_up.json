@@ -23,5 +23,6 @@
     "light": null,
     "transition": true,
     "door": null
-  }
+  },
+  "symbol": "base:visual_objects_stairs_up"
 }

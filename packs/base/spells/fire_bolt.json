@@ -40,5 +40,6 @@
     "ignite",
     "fire",
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_spells_fire_bolt"
 }

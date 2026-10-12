@@ -14,5 +14,6 @@
     "paper"
   ],
   "challenge": "base:terrain_map_drawing",
-  "group": "Книги и документы"
+  "group": "Книги и документы",
+  "symbol": "base:visual_points_of_interest_terrain_map_drawing"
 }

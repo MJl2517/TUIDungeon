@@ -50,5 +50,6 @@
     "capacity": 1000000.0,
     "personal": false,
     "contents": []
-  }
+  },
+  "symbol": "base:visual_objects_bones_pile"
 }

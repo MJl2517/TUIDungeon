@@ -28,5 +28,6 @@
   "tags": [
     "transparent",
     "trap_decor"
-  ]
+  ],
+  "symbol": "base:visual_traps_terrain_cave_in"
 }

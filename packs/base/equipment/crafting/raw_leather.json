@@ -12,5 +12,6 @@
     "leather",
     "flammable",
     "organic"
-  ]
+  ],
+  "symbol": "base:visual_equipment_raw_leather"
 }

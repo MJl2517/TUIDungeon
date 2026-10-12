@@ -10,5 +10,6 @@
   "weight": 2,
   "tags": [
     "stone"
-  ]
+  ],
+  "symbol": "base:visual_equipment_stone_block"
 }

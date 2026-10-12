@@ -45,5 +45,6 @@
       }
     ]
   },
-  "map_category": "destructible"
+  "map_category": "destructible",
+  "symbol": "base:visual_objects_cracked_barrier"
 }

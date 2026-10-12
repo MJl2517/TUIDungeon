@@ -13,5 +13,6 @@
     "flammable"
   ],
   "slot": "feet",
-  "durability": 20
+  "durability": 20,
+  "symbol": "base:visual_equipment_leather_boots"
 }

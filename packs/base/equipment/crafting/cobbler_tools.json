@@ -12,5 +12,6 @@
   "tags": [
     "cobbler_tools",
     "tool"
-  ]
+  ],
+  "symbol": "base:visual_equipment_cobbler_tools"
 }

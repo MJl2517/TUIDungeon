@@ -13,5 +13,6 @@
     "magic"
   ],
   "challenge": "base:terrain_rune_water",
-  "group": "Руны"
+  "group": "Руны",
+  "symbol": "base:visual_points_of_interest_terrain_rune_water"
 }

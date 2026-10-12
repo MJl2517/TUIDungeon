@@ -37,5 +37,6 @@
   "pending_effects": [],
   "tags": [
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_spells_poison_spray"
 }

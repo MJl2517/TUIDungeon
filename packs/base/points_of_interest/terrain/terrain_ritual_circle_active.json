@@ -17,5 +17,6 @@
   "map_light": {
     "radius": 6,
     "bright_radius": 3
-  }
+  },
+  "symbol": "base:glyph_25c9"
 }

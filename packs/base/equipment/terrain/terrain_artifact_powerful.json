@@ -24,5 +24,6 @@
   "charges": null,
   "hands": 0,
   "light": null,
-  "group": "Артефакты"
+  "group": "Артефакты",
+  "symbol": "base:visual_equipment_terrain_artifact_powerful"
 }

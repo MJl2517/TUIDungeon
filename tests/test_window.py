@@ -222,11 +222,11 @@ class WindowTests(unittest.TestCase):
             scancode=events.Scancode.EQUALS,
             mod=events.Modifier.NONE,
         )
-        self.assertEqual(map_zoom(36, plus), 48)
-        self.assertEqual(map_zoom(72, plus), 72)
+        self.assertEqual(map_zoom(32, plus), 48)
+        self.assertEqual(map_zoom(96, plus), 96)
         wheel = events.MouseWheel(x=0, y=-1, flipped=False)
-        self.assertEqual(map_zoom(36, wheel), 24)
-        self.assertEqual(map_zoom(24, wheel), 24)
+        self.assertEqual(map_zoom(32, wheel), 16)
+        self.assertEqual(map_zoom(16, wheel), 16)
         self.assertEqual(state.turns, 0)
 
     def test_unicode_text_physical_keys_alt_and_window_close(self):

@@ -47,5 +47,6 @@
         "quantity": 3
       }
     ]
-  }
+  },
+  "symbol": "base:visual_objects_shelf"
 }

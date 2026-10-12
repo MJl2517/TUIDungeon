@@ -27,5 +27,6 @@
   "tags": [
     "transparent",
     "trap_decor"
-  ]
+  ],
+  "symbol": "base:visual_traps_terrain_trap_deadly"
 }

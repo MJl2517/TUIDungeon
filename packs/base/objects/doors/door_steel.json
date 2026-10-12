@@ -35,5 +35,11 @@
       "item": "base:stone",
       "quantity": 2
     }
-  ]
+  ],
+  "symbol": "base:door_steel_closed",
+  "state_symbols": {
+    "closed": "base:door_steel_closed",
+    "locked": "base:door_steel_locked",
+    "open": "base:door_steel_open"
+  }
 }

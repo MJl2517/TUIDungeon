@@ -6,6 +6,7 @@ from pathlib import Path
 
 from tuidungeon.content.packs import DEFAULT_PACKS, PackStore
 from tuidungeon.content.schemas import ArtDocument, ClassDocument, MapDocument
+from tuidungeon.content.symbols import glyph_ref
 
 
 ROOMS = [
@@ -128,6 +129,9 @@ def build_documents(store):
         cantrips_known=0,
         order=99,
     )
+    own_symbol = "base:visual_classes_roadmap_tester"
+    if ("symbols", own_symbol) in store.documents:
+        tester["symbol"] = own_symbol
     tester = ClassDocument.model_validate(tester)
     width, height = 79, 61
     tiles = [["base:floor"] * width for _ in range(height)]
@@ -217,7 +221,12 @@ def build_documents(store):
             wall(xx, yy, False)
         for offset, char in enumerate(title[:22]):
             cells[y + 1][x + 1 + offset] = dict(
-                char=char, foreground=14, background=None
+                char=char,
+                symbol=glyph_ref(char)
+                if ("symbols", glyph_ref(char)) in store.documents
+                else None,
+                foreground=14,
+                background=None,
             )
         put(
             "points_of_interest",

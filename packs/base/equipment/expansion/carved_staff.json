@@ -16,5 +16,6 @@
   "slot": "weapon",
   "hands": 2,
   "weapon_damage": "1d6",
-  "durability": 25
+  "durability": 25,
+  "symbol": "base:visual_equipment_carved_staff"
 }

@@ -27,5 +27,6 @@
     "burn_minutes": 60,
     "fuel_tag": "lamp_oil"
   },
-  "group": "Снаряжение"
+  "group": "Снаряжение",
+  "symbol": "base:visual_equipment_lamp"
 }

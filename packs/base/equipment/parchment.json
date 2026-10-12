@@ -22,5 +22,6 @@
   "charges": null,
   "hands": 0,
   "light": null,
-  "group": "Снаряжение"
+  "group": "Снаряжение",
+  "symbol": "base:visual_equipment_parchment"
 }

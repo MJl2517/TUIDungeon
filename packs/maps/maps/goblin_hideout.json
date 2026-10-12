@@ -99,20 +99,35 @@
       "ref": "base:cabinet",
       "overrides": {},
       "challenge_overrides": {}
+    },
+    {
+      "id": "tile_objects_16_19",
+      "ref": "base:puddle",
+      "x": 16,
+      "y": 19
+    },
+    {
+      "id": "tile_objects_21_20",
+      "ref": "base:puddle",
+      "x": 21,
+      "y": 20
+    },
+    {
+      "id": "tile_objects_18_21",
+      "ref": "base:puddle",
+      "x": 18,
+      "y": 21
+    },
+    {
+      "id": "tile_objects_19_23",
+      "ref": "base:puddle",
+      "x": 19,
+      "y": 23
     }
   ],
   "doors": [],
   "ambient_light": "dark",
-  "lights": [
-    {
-      "x": 20,
-      "y": 22,
-      "id": "tile_lights_20_22",
-      "radius": 6,
-      "bright_radius": 3,
-      "enabled": true
-    }
-  ],
+  "lights": [],
   "width": 33,
   "height": 27,
   "tiles": [
@@ -798,7 +813,7 @@
       "base:water_shallow",
       "base:water_shallow",
       null,
-      "base:puddle",
+      "base:floor",
       null,
       null,
       "base:cave_wall",
@@ -838,7 +853,7 @@
       null,
       null,
       null,
-      "base:puddle",
+      "base:floor",
       "base:slope_steep_up",
       null,
       null,
@@ -870,7 +885,7 @@
       "base:water_shallow",
       "base:water_shallow",
       null,
-      "base:puddle",
+      "base:floor",
       null,
       null,
       null,
@@ -941,7 +956,7 @@
       "base:water_shallow",
       "base:water_shallow",
       null,
-      "base:puddle",
+      "base:floor",
       "base:floor",
       "base:cave_wall",
       null,
@@ -2986,7 +3001,8 @@
         "foreground": 136,
         "background": null,
         "art": null,
-        "challenge": "base:terrain_chest_locked"
+        "challenge": "base:terrain_chest_locked",
+        "symbol": "base:glyph_00a4"
       },
       "challenge_overrides": {}
     },
@@ -3118,7 +3134,8 @@
         "weapon_ability": "strength",
         "charges": null,
         "hands": 0,
-        "light": null
+        "light": null,
+        "symbol": "base:glyph_0046"
       },
       "challenge_overrides": {}
     },
@@ -3142,7 +3159,8 @@
         "weapon_ability": "strength",
         "charges": null,
         "hands": 0,
-        "light": null
+        "light": null,
+        "symbol": "base:glyph_0046"
       },
       "challenge_overrides": {}
     },
@@ -3166,7 +3184,8 @@
         "weapon_ability": "strength",
         "charges": null,
         "hands": 0,
-        "light": null
+        "light": null,
+        "symbol": "base:glyph_0046"
       },
       "challenge_overrides": {}
     },
@@ -3190,7 +3209,8 @@
         "weapon_ability": "strength",
         "charges": null,
         "hands": 0,
-        "light": null
+        "light": null,
+        "symbol": "base:glyph_26bf"
       },
       "challenge_overrides": {}
     }

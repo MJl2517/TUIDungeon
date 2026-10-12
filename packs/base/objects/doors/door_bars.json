@@ -35,5 +35,12 @@
       "item": "base:stone",
       "quantity": 2
     }
-  ]
+  ],
+  "symbol": "base:door_bars_closed",
+  "state_symbols": {
+    "closed": "base:door_bars_closed",
+    "locked": "base:door_bars_locked",
+    "open": "base:door_bars_open",
+    "bent": "base:door_bars_bent"
+  }
 }

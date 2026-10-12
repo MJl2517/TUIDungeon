@@ -13,5 +13,6 @@
     "holy"
   ],
   "challenge": "base:terrain_holy_symbol",
-  "group": "Алтари и святыни"
+  "group": "Алтари и святыни",
+  "symbol": "base:glyph_002b"
 }

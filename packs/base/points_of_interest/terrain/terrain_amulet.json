@@ -14,5 +14,6 @@
     "transparent",
     "treasure"
   ],
-  "challenge": "base:terrain_amulet"
+  "challenge": "base:terrain_amulet",
+  "symbol": "base:visual_points_of_interest_terrain_amulet"
 }

@@ -56,6 +56,8 @@ def compile_definition(category, ref, doc):
     raw["id"] = runtime_key(ref)
     for name in (
         "glyph",
+        "symbol",
+        "state_symbols",
         "foreground",
         "background",
         "art",

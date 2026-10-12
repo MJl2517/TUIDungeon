@@ -19,5 +19,6 @@
       "Текст этой надписи задаёт автор пакета в студии. Прочитанный лист сохраняется в записях текущей игры."
     ]
   },
-  "durability": null
+  "durability": null,
+  "symbol": "base:visual_equipment_inscribed_page"
 }

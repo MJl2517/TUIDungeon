@@ -20,5 +20,6 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 0,
-  "light": null
+  "light": null,
+  "symbol": "base:visual_equipment_gold"
 }

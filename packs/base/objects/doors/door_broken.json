@@ -26,5 +26,6 @@
     "transition": false,
     "door": null
   },
-  "map_category": "destructible"
+  "map_category": "destructible",
+  "symbol": "base:visual_objects_door_broken"
 }

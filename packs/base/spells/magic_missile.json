@@ -22,5 +22,6 @@
   "target": "other",
   "tags": [
     "magic"
-  ]
+  ],
+  "symbol": "base:visual_spells_magic_missile"
 }
