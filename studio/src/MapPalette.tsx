@@ -198,6 +198,7 @@ export function MapPalette({
                   "walkability",
                   "blocks_sight",
                   "objects",
+                  "tiles",
                 ].includes(id),
               )
               .map(([id, name]) => (

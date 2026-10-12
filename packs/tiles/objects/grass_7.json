@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "id": "grass_7",
+  "name": "Низкая трава 7",
+  "description": "Руками: 1 волокно. Нож или серп: 2. Восстановление: 3 дня.",
+  "variants": [
+    {
+      "name": "Зелёная",
+      "glyph": "*",
+      "symbol": "tiles:cell_0007",
+      "foreground": 10
+    },
+    {
+      "name": "Жёлтая",
+      "glyph": "*",
+      "symbol": "tiles:cell_0007",
+      "foreground": 11
+    },
+    {
+      "name": "Белая",
+      "glyph": "*",
+      "symbol": "tiles:cell_0007",
+      "foreground": 15
+    }
+  ],
+  "glyph": "*",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Растительность: трава",
+  "tags": [
+    "plants",
+    "organic",
+    "flammable",
+    "fiber"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": 4320,
+    "max_hp": 3,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "harvest",
+      "tools": [],
+      "turns": 1,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:plant_fiber",
+          "quantity": 1
+        }
+      ],
+      "bonus_tools": [
+        "blade",
+        "slashing"
+      ],
+      "bonus_loot": [
+        {
+          "item": "base:plant_fiber",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": []
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null,
+  "symbol": "tiles:cell_0007"
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "sickle",
+  "name": "Серп для сбора",
+  "description": "Даёт дополнительное волокно при сборе травы. Режущее оружие для лиан.",
+  "glyph": "⌐",
+  "foreground": 250,
+  "background": null,
+  "art": null,
+  "category": "tools",
+  "weight": 2.0,
+  "tags": [
+    "blade",
+    "tool",
+    "metal",
+    "wooden",
+    "harvest"
+  ],
+  "durability": null,
+  "slot": "weapon",
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": "1d4",
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 1,
+  "light": null,
+  "group": "Инструменты",
+  "damage_type": "slashing",
+  "symbol": "base:glyph_2310"
+}

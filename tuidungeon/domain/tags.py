@@ -465,6 +465,8 @@ def liquid_tags(kind):
         tags.add("healing")
     if kind == "antidote":
         tags.add("antidote")
+    if kind == "cactus_juice":
+        tags.update({"plants", "organic", "food"})
     return frozenset(tags)
 
 
@@ -578,7 +580,7 @@ def interaction_tags(value, *, category=None, include_contents=True):
             }.get(condition, ())
         )
     vessel = _get(value, "vessel")
-    for effect in _get(value, "effects", ()):
+    for effect in (*_get(value, "effects", ()), *_get(value, "on_enter", ())):
         tags.update(interaction_tags(effect))
     if not vessel:
         for effect in _get(value, "properties", ()):

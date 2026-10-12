@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "tree_53",
+  "name": "Дерево 53",
+  "description": "Дерево 53. Восстанавливается через 10 сут.",
+  "variants": [
+    {
+      "name": "Зелёное",
+      "glyph": "Y",
+      "symbol": "tiles:cell_0053",
+      "foreground": 10
+    },
+    {
+      "name": "Белое",
+      "glyph": "Y",
+      "symbol": "tiles:cell_0053",
+      "foreground": 15
+    },
+    {
+      "name": "Жёлтое",
+      "glyph": "Y",
+      "symbol": "tiles:cell_0053",
+      "foreground": 11
+    },
+    {
+      "name": "Рыжее",
+      "glyph": "Y",
+      "symbol": "tiles:cell_0053",
+      "foreground": 208
+    }
+  ],
+  "glyph": "Y",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Растительность: деревья",
+  "tags": [
+    "plants",
+    "organic",
+    "wooden",
+    "flammable",
+    "obstacle",
+    "opaque"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": 14400,
+    "max_hp": 24,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "chop",
+      "tools": [
+        "blade",
+        "slashing"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      }
+    ]
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null,
+  "symbol": "tiles:cell_0053"
+}

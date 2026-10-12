@@ -979,6 +979,39 @@ class Engine(
         from ..domain.rules import Ability
 
         messages = []
+        for target in self.world_objects():
+            if target.category != "objects" or (
+                target.placement.x,
+                target.placement.y,
+            ) != (self.state.position.x, self.state.position.y):
+                continue
+            specs = tuple(
+                effect(e.model_dump(), frozenset(mechanics.entries))
+                for e in target.definition.on_enter
+            )
+            if specs:
+                outcomes = self.actions.effects.apply_all(
+                    specs, self.state.hero, self.dice
+                )
+                message = (
+                    target.definition.name
+                    + ": "
+                    + "; ".join(
+                        f"урон {e.amount}"
+                        if e.kind == "damage"
+                        else f"{e.kind}: {e.condition or e.amount}"
+                        for e in outcomes
+                    )
+                )
+                messages.append(message)
+                self.events.append(
+                    {
+                        "kind": "environment",
+                        "placement": target.placement.id,
+                        "message": message,
+                        "effects": [e.payload() for e in outcomes],
+                    }
+                )
         for trap in level.index("traps").at(
             self.state.position.x, self.state.position.y
         ):

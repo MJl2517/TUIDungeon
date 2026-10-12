@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "cactus_56",
+  "name": "Кактус 56",
+  "description": "Колючки наносят 1 колющего урона при входе. Можно набрать сок в пустой сосуд (2 порции) или собрать 1 флакон руками.",
+  "variants": [],
+  "glyph": "*",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Растительность: кактусы",
+  "tags": [
+    "plants",
+    "organic"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "campfire": null,
+  "water_source": {
+    "kind": "cactus_juice",
+    "portions": 2
+  },
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": null,
+    "max_hp": 3,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "harvest",
+      "tools": [],
+      "turns": 1,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "tiles:cactus_juice_flask",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": []
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null,
+  "symbol": "tiles:cell_0056",
+  "on_enter": [
+    {
+      "kind": "damage",
+      "amount": 1,
+      "damage_type": "piercing"
+    }
+  ]
+}

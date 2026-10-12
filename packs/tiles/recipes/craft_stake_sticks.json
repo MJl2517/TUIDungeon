@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "craft_stake_sticks",
+  "name": "Кол из палок",
+  "description": "Вариант существующего рецепта с сухими палками. Начальные количества сохранены.",
+  "category": "basic",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Вручную",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:stick"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 1
+    }
+  ],
+  "result": [
+    {
+      "item": "base:stake",
+      "quantity": 1
+    }
+  ]
+}

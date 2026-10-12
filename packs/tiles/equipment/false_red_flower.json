@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "false_red_flower",
+  "name": "Красный цветок",
+  "description": "Собранный красный цветок.",
+  "glyph": "*",
+  "foreground": 9,
+  "category": "consumables",
+  "group": "Материалы",
+  "weight": 0.05,
+  "tags": [
+    "plants",
+    "organic",
+    "poison",
+    "consumable"
+  ],
+  "symbol": "tiles:cell_0004",
+  "properties": [
+    {
+      "kind": "condition",
+      "condition": "poisoned",
+      "duration": 5
+    }
+  ],
+  "charges": 1
+}

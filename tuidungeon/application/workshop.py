@@ -97,7 +97,7 @@ class WorkshopCommands:
             )
             if not source:
                 return self._craft_result(
-                    False, "Нужен соседний видимый источник воды."
+                    False, "Нужен соседний видимый источник жидкости."
                 )
             kind = source.definition.water_source.kind
             if item.liquid_kind and (item.liquid_kind != kind or item.liquid_effects):
@@ -117,7 +117,7 @@ class WorkshopCommands:
                 hero.carried_weight + amount * PORTION_WEIGHT
                 > hero.max_carry_weight + 1e-9
             ):
-                return self._craft_result(False, "Вода превысит переносимый вес.")
+                return self._craft_result(False, "Жидкость превысит переносимый вес.")
             item.liquid_kind = kind
             item.liquid_portions += amount
             if remaining is not None:

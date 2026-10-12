@@ -7,7 +7,7 @@ from ..domain.definitions import DiceExpression
 from ..domain.value_types import freeze
 from ..domain.doors import Material, LockQuality, LockComplexity, MATERIALS, door_glyph
 from ..domain.tags import TAGS_DESCRIPTION, TAG_SCHEMA
-from ..domain.liquids import LiquidKind, WaterKind
+from ..domain.liquids import LiquidKind
 from ..domain.damage import DamageType, DamageSelector
 
 LocalId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*$")]
@@ -15,7 +15,9 @@ Ref = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$")]
 AbilityName = Literal[
     "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"
 ]
-MapCategory = Literal["auto", "floor", "wall", "destructible", "furniture", "special"]
+MapCategory = Literal[
+    "auto", "floor", "wall", "destructible", "furniture", "special", "service"
+]
 Color = Annotated[int, Field(ge=0, le=255)]
 Positive = Annotated[int, Field(ge=1)]
 Nonnegative = Annotated[int, Field(ge=0)]
@@ -294,7 +296,7 @@ class VesselSpec(StrictModel):
 
 
 class WaterSourceSpec(StrictModel):
-    kind: WaterKind = "dirty_water"
+    kind: LiquidKind = "dirty_water"
     portions: Annotated[int, Field(ge=1, le=1000)] | None = Field(
         default=None,
         description="Запас порций. Пусто — неисчерпаемый источник; при исчерпании объект исчезает.",
@@ -813,6 +815,15 @@ class DismantleSpec(StrictModel):
         return value
 
     loot: list[RecipeOutput] = Field(default_factory=list, max_length=32)
+    bonus_tools: list[LocalId] = Field(
+        default_factory=list,
+        description="Тег инструмента или тип урона оружия, дающий дополнительную добычу",
+    )
+    bonus_loot: list[RecipeOutput] = Field(
+        default_factory=list,
+        max_length=32,
+        description="Дополнительные материалы при сборе подходящим инструментом",
+    )
 
 
 class DestructionSpec(StrictModel):
@@ -996,6 +1007,13 @@ class LightFixtureSpec(StrictModel):
 
 
 class WorldObjectDocument(TileDocument):
+    rarity: Literal["common", "uncommon", "rare"] = "common"
+    on_enter: list[Effect] = Field(
+        default_factory=list,
+        max_length=16,
+        description="Воздействия при входе персонажа на клетку объекта",
+    )
+    _on_enter = field_validator("on_enter")(active_effects)
     light_fixture: LightFixtureSpec | None = None
     campfire: CampfireSpec | None = None
     water_source: WaterSourceSpec | None = None

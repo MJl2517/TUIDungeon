@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "build_barricade_sticks",
+  "name": "Построить баррикаду из палок",
+  "description": "Вариант существующего рецепта с сухими палками. Начальные количества сохранены.",
+  "category": "basic",
+  "basic_known": true,
+  "learn_on_proficiency": [],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:stick"
+          ],
+          "quantity": 3
+        }
+      ],
+      "turns": 3,
+      "tools": [],
+      "proficiencies": [],
+      "stations": []
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "place_object",
+    "place_object": "base:barricade"
+  }
+}

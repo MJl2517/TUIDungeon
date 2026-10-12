@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "stick",
+  "name": "Сухая палка",
+  "description": "Материал для факела, кола, дубинки и баррикады по рецептам пакета tiles.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.1,
+  "tags": [
+    "plants",
+    "organic",
+    "wooden",
+    "flammable"
+  ],
+  "symbol": "base:visual_equipment_plant_fiber"
+}

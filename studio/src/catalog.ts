@@ -171,7 +171,7 @@ export const mapCategoryNames: Record<string, string> = {
   ...Object.fromEntries(
     Object.entries(paletteSections)
       .filter(([id]) =>
-        ["floor", "wall", "destructible", "furniture", "special"].includes(id),
+        ["floor", "wall", "destructible", "furniture", "special", "service"].includes(id),
       )
       .map(([id, value]) => [id, value.name]),
   ),

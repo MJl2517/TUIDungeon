@@ -132,7 +132,15 @@ class WorldObject:
                 ChallengeChoice("open_storage", "Открыть контейнер", minutes=0)
             )
         if getattr(self.definition, "water_source", None):
-            choices.append(ChallengeChoice("fill_water", "Набрать воду", minutes=1))
+            from ..domain.liquids import LIQUID_NAMES
+
+            choices.append(
+                ChallengeChoice(
+                    "fill_water",
+                    "Набрать: " + LIQUID_NAMES[self.definition.water_source.kind],
+                    minutes=1,
+                )
+            )
         if getattr(self.definition, "campfire", None):
             choices += [
                 ChallengeChoice("fire_refuel", "Добавить топливо", minutes=1),

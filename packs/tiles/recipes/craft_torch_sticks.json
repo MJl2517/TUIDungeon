@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "craft_torch_sticks",
+  "name": "Факел из палок",
+  "description": "Вариант существующего рецепта с сухими палками. Начальные количества сохранены.",
+  "category": "basic",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "С инструментами плотника",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:stick"
+          ],
+          "quantity": 1
+        },
+        {
+          "items": [
+            "base:cloth"
+          ],
+          "quantity": 1
+        }
+      ],
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 1
+    },
+    {
+      "name": "Вручную",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:stick"
+          ],
+          "quantity": 1
+        },
+        {
+          "items": [
+            "base:cloth"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 2
+    }
+  ],
+  "result": [
+    {
+      "item": "base:torch",
+      "quantity": 1
+    }
+  ]
+}

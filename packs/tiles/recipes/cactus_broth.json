@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "cactus_broth",
+  "name": "Отвар сока кактуса",
+  "description": "Начальный тестовый рецепт: 1 порция сока и лекарственная трава, 2 хода у источника тепла. Получается 1 порция лечебного отвара.",
+  "category": "basic",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "У источника тепла",
+      "ingredients": [
+        {
+          "items": [
+            "base:medicinal_herb"
+          ],
+          "quantity": 1
+        }
+      ],
+      "stations": [
+        [
+          "heat"
+        ]
+      ],
+      "turns": 2
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "liquid",
+    "liquids": [
+      "cactus_juice"
+    ],
+    "liquid_result": "healing_broth",
+    "portions": 1,
+    "heat_safe": true
+  }
+}

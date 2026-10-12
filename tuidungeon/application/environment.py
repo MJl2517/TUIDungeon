@@ -302,16 +302,21 @@ class EnvironmentCommands:
         if not target or not target.dismantle or target.state.burning:
             return False
         tools = target.dismantle.tools
-        return (
-            not tools
-            or any(
-                i.usable and set(tools).intersection(i.tags)
-                for i in self.state.hero.inventory
-            )
-        ) and not (
+        return (not tools or self.has_work_tool(tools)) and not (
             target.category == "traps"
             and target.definition.disarm
             and not target.original.disabled
+        )
+
+    def has_work_tool(self, requirements):
+        return any(
+            item.usable
+            and (
+                set(requirements).intersection(item.tags)
+                or item.definition.weapon_damage
+                and item.definition.damage_type in requirements
+            )
+            for item in self.state.hero.inventory
         )
 
     def disarm_trap(self, identifier):
@@ -425,7 +430,10 @@ class EnvironmentCommands:
             return self._craft_result(True, "Работа прервана: объект разрушен.", 1)
         target.state.progress += 1
         if target.state.progress >= target.state.total:
-            self._remove_world_object(target, target.dismantle.loot)
+            loot = list(target.dismantle.loot)
+            if self.has_work_tool(target.dismantle.bonus_tools):
+                loot.extend(target.dismantle.bonus_loot)
+            self._remove_world_object(target, loot)
             self.active_craft = None
             return self._craft_result(
                 True,

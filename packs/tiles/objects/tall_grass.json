@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "id": "tall_grass",
+  "name": "Высокая трава",
+  "description": "Закрывает обзор, но проходима. Руками: 2 волокна, ножом или серпом: 3. Восстановление: 4 дня.",
+  "variants": [
+    {
+      "name": "Зелёная",
+      "glyph": "*",
+      "symbol": "tiles:cell_0099",
+      "foreground": 10
+    },
+    {
+      "name": "Жёлтая",
+      "glyph": "*",
+      "symbol": "tiles:cell_0099",
+      "foreground": 11
+    },
+    {
+      "name": "Белая",
+      "glyph": "*",
+      "symbol": "tiles:cell_0099",
+      "foreground": 15
+    }
+  ],
+  "glyph": "*",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Растительность: трава",
+  "tags": [
+    "plants",
+    "organic",
+    "flammable",
+    "fiber"
+  ],
+  "walkable": true,
+  "blocks_sight": true,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": 5760,
+    "max_hp": 3,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "harvest",
+      "tools": [],
+      "turns": 1,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:plant_fiber",
+          "quantity": 2
+        }
+      ],
+      "bonus_tools": [
+        "blade",
+        "slashing"
+      ],
+      "bonus_loot": [
+        {
+          "item": "base:plant_fiber",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": []
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null,
+  "symbol": "tiles:cell_0099"
+}

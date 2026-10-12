@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "flower_4_orange",
+  "name": "Оранжевый цветок",
+  "description": "Оранжевый цветок. Восстанавливается через 3 сут.",
+  "variants": [],
+  "glyph": "*",
+  "foreground": 208,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Цветы: необычные",
+  "tags": [
+    "plants",
+    "organic",
+    "flammable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_minutes": 4320,
+    "max_hp": 3,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "harvest",
+      "tools": [],
+      "turns": 1,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:alchemy_reagent",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": []
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null,
+  "symbol": "tiles:cell_0004",
+  "rarity": "uncommon"
+}

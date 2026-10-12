@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "cactus_juice_flask",
+  "name": "Флакон сока кактуса",
+  "description": "1 порция питьевого сока для зельеварения. После питья остаётся пустой флакон.",
+  "variants": [],
+  "glyph": "!",
+  "foreground": 10,
+  "background": null,
+  "art": null,
+  "group": "Декорации: припасы",
+  "category": "consumables",
+  "weight": 0.1,
+  "tags": [
+    "glass",
+    "potion",
+    "consumable"
+  ],
+  "durability": null,
+  "slot": null,
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": 1,
+  "hands": 0,
+  "light": null,
+  "vessel": {
+    "capacity_portions": 1,
+    "initial_portions": 1,
+    "initial_kind": "cactus_juice",
+    "fragile": true
+  },
+  "symbol": "base:visual_equipment_healing_potion"
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "empty",
+  "name": "Пустая клетка",
+  "description": "Служебная проходимая поверхность без рисунка. Не создаёт стен или взаимодействий.",
+  "glyph": " ",
+  "symbol": "tiles:cell_0001",
+  "map_category": "service",
+  "group": "Служебные",
+  "walkable": true,
+  "blocks_sight": false,
+  "tags": []
+}

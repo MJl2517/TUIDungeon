@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "coconut",
+  "name": "Кокос",
+  "description": "Съедобный кокос. Начальное действие: восстановить 1 HP.",
+  "glyph": "!",
+  "foreground": 7,
+  "category": "consumables",
+  "group": "Ремёсла и добыча",
+  "weight": 0.3,
+  "tags": [
+    "plants",
+    "organic",
+    "food",
+    "consumable"
+  ],
+  "symbol": "base:visual_equipment_raw_meat",
+  "properties": [
+    {
+      "kind": "heal",
+      "amount": 1
+    }
+  ],
+  "charges": 1
+}

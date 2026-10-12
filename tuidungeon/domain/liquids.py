@@ -21,6 +21,7 @@ LiquidKind = Literal[
     "healing_broth",
     "healing_potion",
     "antidote",
+    "cactus_juice",
 ]
 LIQUID_NAMES = dict(
     clean_water="Чистая вода",
@@ -32,6 +33,7 @@ LIQUID_NAMES = dict(
     healing_broth="Лечебный отвар",
     healing_potion="Лечебное зелье",
     antidote="Противоядный отвар",
+    cactus_juice="Сок кактуса",
 )
 WATER_KINDS = tuple(k for k in LIQUID_NAMES if k.endswith("water"))
 PORTION_WEIGHT = 0.1
