@@ -20,9 +20,9 @@ def main():
     )
     thieves_tools = store.get("equipment", "base:thieves_tools").model_dump(mode="json")
     thieves_tools.update(
-        durability=None,
+        durability=10,
         check_aids=[],
-        description="Необходимы для взлома замков. Не изнашиваются, в том числе при провале.",
+        description="Необходимы для взлома замков. Прочность 10; неудачная попытка взлома расходует 1 прочность.",
     )
     acid = dict(
         id="acid_flask",

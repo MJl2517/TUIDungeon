@@ -3,18 +3,10 @@
 from dataclasses import dataclass
 from typing import Literal
 from .damage import DAMAGE_TYPES, DamageProfile, validate_damage
+from .locks import LockRules, LockQuality, LockComplexity
+from .locks import LOCK_DC as LOCK_DC, LOCK_NAMES as LOCK_NAMES
 
 Material = Literal["wood", "bars", "steel", "stone", "adamantine"]
-LockQuality = Literal["cheap", "normal", "expensive", "legendary"]
-LockComplexity = Literal["simple", "complex"]
-
-LOCK_DC = {"cheap": 10, "normal": 15, "expensive": 20, "legendary": 25}
-LOCK_NAMES = {
-    "cheap": "дешёвый",
-    "normal": "обычный",
-    "expensive": "дорогой",
-    "legendary": "легендарный",
-}
 
 
 @dataclass(frozen=True)
@@ -61,7 +53,7 @@ def door_glyph(opened, locked, *, destroyed=False, bent=False, material="wood"):
 
 
 @dataclass
-class Door:
+class Door(LockRules):
     material: Material = "wood"
     opened: bool = False
     locked: bool = False
@@ -73,6 +65,12 @@ class Door:
     burning: bool = False
     corroding: bool = False
     burn_turns: int = 0
+    transmits_light: bool = False
+    openable: bool = True
+    force_allowed: bool = True
+    bend_difficulty: int = 20
+    foreground: int | None = None
+    key_tag: str | None = None
 
     @classmethod
     def from_spec(cls, spec):
@@ -85,6 +83,13 @@ class Door:
             spec.lock_complexity,
             hp,
             hp,
+            bent=spec.bent,
+            transmits_light=spec.transmits_light,
+            openable=spec.openable,
+            force_allowed=spec.force_allowed,
+            bend_difficulty=spec.bend_difficulty,
+            foreground=spec.foreground,
+            key_tag=spec.key_tag,
         )
 
     @property
@@ -99,7 +104,9 @@ class Door:
 
     @property
     def opaque(self):
-        return not self.passable and self.material != "bars"
+        return (
+            not self.passable and self.material != "bars" and not self.transmits_light
+        )
 
     @property
     def glyph(self):
@@ -113,23 +120,19 @@ class Door:
 
     @property
     def color(self):
-        return MATERIALS[self.material].color
+        return (
+            self.foreground
+            if self.foreground is not None
+            else MATERIALS[self.material].color
+        )
 
     def display_color(self):
         """Turn-based flicker; the first completed burning turn is red."""
         return 9 if self.burning and self.burn_turns % 2 else self.color
 
     @property
-    def lock_dc(self):
-        return LOCK_DC[self.lock_quality]
-
-    @property
-    def lock_turns(self):
-        return 10 if self.lock_complexity == "complex" else 1
-
-    @property
     def force_dc(self):
-        return MATERIALS[self.material].force_dc
+        return MATERIALS[self.material].force_dc if self.force_allowed else None
 
     @property
     def geometry_key(self):
@@ -140,7 +143,7 @@ class Door:
         return self.glyph, self.display_color(), self.burning
 
     def force_open(self):
-        if self.material == "stone":
+        if self.material == "stone" or not self.force_allowed:
             return False
         self.opened, self.locked = True, False
         return True
@@ -207,12 +210,6 @@ class Door:
         return True
 
     def inspection(self):
-        if self.material == "stone":
-            return [
-                f"Каменная плита: {'уничтожена' if self.destroyed else 'перекрывает проход'}.",
-                f"HP: {self.hp}/{self.max_hp}. Нельзя открыть, вскрыть или выломать.",
-                "Разрушение: кирка или дробящий урон. Каждый удар: 1d4 износа оружия.",
-            ]
         state = (
             "уничтожена"
             if self.destroyed
@@ -224,19 +221,21 @@ class Door:
         )
         return [
             f"{MATERIALS[self.material].name}: {state}.",
-            "Заперта." if self.locked else "Не заперта.",
-            f"Замок: {LOCK_NAMES[self.lock_quality]}, СЛ {self.lock_dc}; "
-            f"{'сложный' if self.lock_turns == 10 else 'простой'}, {self.lock_turns} ход(ов).",
-            f"Выломать: СИЛ, СЛ {self.force_dc}. HP: {self.hp}/{self.max_hp}.",
+            f"HP: {self.hp}/{self.max_hp}.",
             *(
-                ["Прутья пропускают свет. Согнуть: СИЛ, СЛ 20."]
-                if self.material == "bars"
+                ["Заперта." if self.locked else "Не заперта."]
+                if self.openable and self.material != "stone"
                 else []
             ),
-            "Каждый удар по двери: 1d4 износа оружия.",
-            *(["Дверь горит: 5 урона за игровую минуту."] if self.burning else []),
             *(
-                ["Кислота разъедает металл: 2 урона за игровую минуту."]
+                ["Пропускает свет."]
+                if self.material == "bars" or self.transmits_light
+                else []
+            ),
+            *(["Неподвижная решётка."] if not self.openable else []),
+            *(["Горит: 5 урона за игровую минуту."] if self.burning else []),
+            *(
+                ["Разъедается кислотой: 2 урона за игровую минуту."]
                 if self.corroding
                 else []
             ),
@@ -248,6 +247,7 @@ class LockpickAttempt:
     door_id: str
     progress: int = 0
     total: int = 10
+    target_kind: Literal["door", "container"] = "door"
 
 
 @dataclass(frozen=True)

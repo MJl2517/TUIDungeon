@@ -12,5 +12,6 @@
     "medicinal",
     "plants"
   ],
-  "symbol": "base:visual_equipment_dried_herbs"
+  "symbol": "base:visual_equipment_dried_herbs",
+  "size": "small"
 }

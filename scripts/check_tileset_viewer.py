@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import json
 import runpy
+import shutil
 import tempfile
 import threading
 
@@ -15,7 +16,14 @@ def run():
     root = Path(__file__).resolve().parents[1]
     with sync_playwright() as p:
         browser = p.chromium.launch(
-            headless=True, channel=os.environ.get("PLAYWRIGHT_BROWSER_CHANNEL") or None
+            headless=True,
+            channel=os.environ.get("PLAYWRIGHT_BROWSER_CHANNEL") or None,
+            executable_path=os.environ.get("PLAYWRIGHT_BROWSER_EXECUTABLE")
+            or (
+                (shutil.which("chromium") or shutil.which("google-chrome"))
+                if not os.environ.get("PLAYWRIGHT_BROWSER_CHANNEL")
+                else None
+            ),
         )
         page = browser.new_page(viewport={"width": 1440, "height": 900})
         errors = []
@@ -183,6 +191,51 @@ def check_progress(browser, root):
                 encoding="utf-8"
             )
             assert "10 дней" in requests and "Камни" not in requests
+            # A second tab with unsaved work must not resurrect the completed task.
+            stale = browser.new_page()
+            stale.goto(url)
+            stale.wait_for_function("ready && tasksReady")
+            stale.evaluate("select(20, false)")
+            stale.locator("#prompt").fill("Несохранённая новая партия")
+            stale.locator("#add-task").click()
+            page.locator("#task-list li").get_by_text("Выполнено", exact=True).click()
+            expect(page.locator("#tasks-state")).to_contain_text("перенесено в архив")
+            expect(page.locator("#pending-count")).to_have_text("0")
+            expect(page.locator("#completed-count")).to_have_text("1")
+            assert "10 дней" not in (progress.parent / "tile-requests.md").read_text(
+                encoding="utf-8"
+            )
+            stale.locator("#save-tasks").click()
+            expect(stale.locator("#tasks-state")).to_contain_text("изменились")
+            expect(stale.locator("#task-list li[data-task-id]")).to_have_count(2)
+            stale.on("dialog", lambda dialog: dialog.accept())
+            stale.close()
+            # Follow-up becomes a separate pending task; its source stays archived.
+            page.locator("#show-completed").click()
+            page.locator("#task-list li").get_by_text(
+                "Создать доработку", exact=True
+            ).click()
+            expect(page.locator("#prompt")).to_have_value(
+                "Деревья — восстановление за 10 дней."
+            )
+            page.locator("#prompt").fill("Деревья — восстановление за 20 дней.")
+            page.locator("#add-task").click()
+            page.locator("#save-tasks").click()
+            expect(page.locator("#tasks-state")).to_contain_text("Сохранены tasks.json")
+            requests = (progress.parent / "tile-requests.md").read_text(
+                encoding="utf-8"
+            )
+            assert "20 дней" in requests and "10 дней" not in requests
+            page.reload()
+            page.wait_for_function("ready && tasksReady")
+            expect(page.locator("#pending-count")).to_have_text("1")
+            expect(page.locator("#completed-count")).to_have_text("1")
+            page.locator("#show-completed").click()
+            page.locator("#task-list summary").click()
+            expect(page.locator("#task-list p").last).to_have_text(
+                "Деревья — восстановление за 10 дней."
+            )
+            page.screenshot(path=str(root / "saves/qa/tileset-task-archive.png"))
             page.close()
         finally:
             server.shutdown()

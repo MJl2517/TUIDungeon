@@ -9,5 +9,6 @@
   "group": "Мебель",
   "weight": 0,
   "durability": null,
-  "symbol": "base:visual_equipment_packed_furniture"
+  "symbol": "base:visual_equipment_packed_furniture",
+  "size": "large"
 }

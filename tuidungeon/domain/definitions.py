@@ -8,6 +8,7 @@ from .rules import Ability
 from .stats import Stats
 from .value_types import freeze
 from .damage import DamageProfile, DamageType, validate_damage
+from .item_sizes import ItemSize, ITEM_SIZES
 
 
 @dataclass(frozen=True)
@@ -100,9 +101,14 @@ class EquipmentDefinition:
     cast_spell: str | None = None
     spell_bonus: int = 0
     reading: object | None = None
+    size: ItemSize = "medium"
 
     def __post_init__(self):
-        if "tool" in self.tags:
+        if self.size not in ITEM_SIZES:
+            raise ValueError("Размер предмета: small, medium или large")
+        if "lockpicks" in self.tags and self.durability is None:
+            object.__setattr__(self, "durability", 10)
+        elif "tool" in self.tags and "lockpicks" not in self.tags:
             object.__setattr__(self, "durability", None)
 
 

@@ -10,10 +10,12 @@ export function visual(doc: Doc, assets: Record<string, Doc>, state?: string) {
     (door
       ? door.state === "open"
         ? "open"
-        : door.locked
-          ? "locked"
-          : "closed"
-      : undefined);
+        : door.bent
+          ? "bent"
+          : door.locked
+            ? "locked"
+            : "closed"
+      : doc.storage?.state);
   const ref =
     (key && doc.state_symbols?.[key]) ||
     doc.symbol ||
@@ -24,6 +26,7 @@ export function visual(doc: Doc, assets: Record<string, Doc>, state?: string) {
     char: symbol?.glyph ?? doc.glyph ?? doc.char ?? "?",
     foreground: doc.foreground ?? 7,
     background: doc.background ?? null,
+    mirror_x: !!doc.mirror_x,
   };
 }
 export function paintMask(mask: string[], points: Point[], value: string) {
@@ -100,6 +103,7 @@ export function drawSymbol(
   w: number,
   h: number,
   tint: string,
+  mirror_x = false,
 ) {
   // Cache tinted images per immutable asset object, not per map cell.
   let variants = tinted.get(doc);
@@ -119,6 +123,12 @@ export function drawSymbol(
     variants.set(tint, image);
   }
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(image, x, y, w, h);
+  if (mirror_x) {
+    ctx.save();
+    ctx.translate(x + w, y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(image, 0, 0, w, h);
+    ctx.restore();
+  } else ctx.drawImage(image, x, y, w, h);
 }
 const tinted = new WeakMap<Doc, Map<string, HTMLCanvasElement>>();

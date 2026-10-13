@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "build_metal_fence_damaged",
+  "name": "Построить: Повреждённый металлический забор",
+  "description": "Построить секцию на соседней свободной клетке.",
+  "category": "tinker",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Сборка инструментами",
+      "ingredients": [
+        {
+          "items": [
+            "base:metal"
+          ],
+          "quantity": 2
+        }
+      ],
+      "tools": [
+        "tinker_tools"
+      ],
+      "proficiencies": [],
+      "turns": 5
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "place_object",
+    "place_object": "tiles:metal_fence_damaged"
+  }
+}

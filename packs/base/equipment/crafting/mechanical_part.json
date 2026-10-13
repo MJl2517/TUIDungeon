@@ -11,5 +11,6 @@
   "tags": [
     "metal"
   ],
-  "symbol": "base:glyph_002a"
+  "symbol": "base:glyph_002a",
+  "size": "small"
 }

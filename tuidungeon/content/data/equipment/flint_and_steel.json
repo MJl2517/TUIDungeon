@@ -11,5 +11,6 @@
     "tool"
   ],
   "schema_version": 1,
-  "durability": null
+  "durability": null,
+  "size": "small"
 }

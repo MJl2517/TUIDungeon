@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "service_lock_simple",
+  "name": "Простой замок (индикатор)",
+  "description": "Служебный рисунок. Цвет берётся из качества замка; не добавляет преград или источников света.",
+  "glyph": "l",
+  "symbol": "base:service_lock_simple",
+  "foreground": 110,
+  "map_category": "service",
+  "group": "Служебные: замки",
+  "tags": [
+    "lock_indicator",
+    "lock_simple"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

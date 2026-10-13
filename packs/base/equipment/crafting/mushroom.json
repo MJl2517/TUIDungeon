@@ -15,5 +15,6 @@
     "food",
     "fungi"
   ],
-  "symbol": "base:visual_equipment_mushroom"
+  "symbol": "base:visual_equipment_mushroom",
+  "size": "small"
 }

@@ -28,5 +28,6 @@
     "fuel_tag": "lamp_oil"
   },
   "group": "Снаряжение",
-  "symbol": "base:visual_equipment_lamp"
+  "symbol": "base:visual_equipment_lamp",
+  "size": "medium"
 }

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "metal_fence",
+  "name": "Металлический забор",
+  "description": "Разбор требует наличия исправного инструмента, но не владения им.",
+  "glyph": "H",
+  "symbol": "tiles:cell_0198",
+  "foreground": 153,
+  "group": "Ограды: металлические",
+  "map_category": "destructible",
+  "tags": [
+    "fence",
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": false,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "tools": [
+        "tinker_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:metal",
+          "quantity": 2
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:metal",
+        "quantity": 1
+      }
+    ]
+  },
+  "attackable": false
+}

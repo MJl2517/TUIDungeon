@@ -29,5 +29,6 @@
   "light": null,
   "group": "Декорации: оружие",
   "damage_type": "bludgeoning",
-  "symbol": "base:visual_equipment_terrain_decor_mace"
+  "symbol": "base:visual_equipment_terrain_decor_mace",
+  "size": "medium"
 }

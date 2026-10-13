@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 
 from ..domain.storage import item_stacks
+from ..domain.item_sizes import SIZE_LABELS
 
 
 @dataclass
@@ -12,6 +13,16 @@ class StorageBrowser:
     selected: list[int] = field(default_factory=lambda: [0, 0])
     pending: tuple[int, str, int] | None = None
     quantity: int = 1
+    colors: list[tuple] = field(default_factory=list, repr=False)
+
+    def denial(self, engine, stack, side, *, container=None, free_weight=None):
+        # A stack remains available when at least one unit can be transferred.
+        return engine.storage_transfer_denial(
+            container or engine.storage_at(self.container_id),
+            [stack.first],
+            deposit=side == 0,
+            free_weight=free_weight,
+        )
 
     def open(self, container_id):
         self.container_id = container_id
@@ -102,6 +113,9 @@ class StorageBrowser:
             if index < 0:
                 return
             stack = options[index]
+            if reason := self.denial(engine, stack, self.side):
+                controller.message = reason
+                return
             if stack.quantity > 1:
                 self.pending = (self.side, stack.first.instance_id, stack.quantity)
                 self.quantity = 1
@@ -116,6 +130,7 @@ def storage_layout(controller, width, height):
     from .tui import Rect
 
     browser, engine = controller.storage, controller.engine
+    browser.colors.clear()
     container = engine.storage_at(browser.container_id)
     w, h = min(116, width - 4), min(32, height - 2)
     rect = Rect((width - w) // 2, (height - h) // 2, w, h)
@@ -124,6 +139,11 @@ def storage_layout(controller, width, height):
     column = (w - 5) // 2
     pair = lambda a, b: a[:column].ljust(column) + " | " + b[:column].ljust(column)
     hero = engine.state.hero
+    hero_weight, container_weight = hero.carried_weight, container.weight
+    free_weights = [
+        container.spec.capacity - container_weight,
+        hero.max_carry_weight - hero_weight,
+    ]
     rows = [
         pair(
             "[ Инвентарь ]" if browser.side == 0 else "Инвентарь",
@@ -132,7 +152,7 @@ def storage_layout(controller, width, height):
     ]
     rows.append("-" * column + "-+-" + "-" * column)
     stacks = browser.stacks(engine)
-    count = h - 11
+    count = h - 12
     windows, offsets = [], []
     for side, options in enumerate(stacks):
         browser.selected[side] = max(0, min(browser.selected[side], len(options) - 1))
@@ -153,12 +173,40 @@ def storage_layout(controller, width, height):
                 else ""
             )
             labels.append(("> " if active and label else "  ") + label)
+            if i < len(windows[side]):
+                disabled = (
+                    browser.denial(
+                        engine,
+                        windows[side][i],
+                        side,
+                        container=container,
+                        free_weight=free_weights[side],
+                    )
+                    is not None
+                )
+                browser.colors.append(
+                    (
+                        2 + i,
+                        side * (column + 3),
+                        labels[-1][:column].ljust(column),
+                        8 if disabled else 0 if active else 15,
+                        11 if active else 4,
+                        active and not disabled,
+                        disabled,
+                    )
+                )
         rows.append(pair(*labels))
     rows += [
         "-" * column + "-+-" + "-" * column,
         pair(
-            f"Вес: {hero.carried_weight:g}/{hero.max_carry_weight:g} кг",
-            f"Вес: {container.weight:g}/{container.spec.capacity:g} кг",
+            f"Вес: {hero_weight:g}/{hero.max_carry_weight:g} кг",
+            f"Вес: {container_weight:g}/{container.spec.capacity:g} кг",
+        ),
+        pair(
+            "Размер: " + SIZE_LABELS[stacks[0][browser.selected[0]].first.size]
+            if stacks[0]
+            else "",
+            "Макс. размер: " + SIZE_LABELS[container.spec.max_item_size],
         ),
         "Личный: можно класть и забирать; не обновляется."
         if container.spec.personal
@@ -177,7 +225,7 @@ def storage_layout(controller, width, height):
     else:
         rows += [
             "Tab / ←→: колонка | ↑↓: предмет | Enter / F5: перенос",
-            "Если вещей несколько — выбор количества ползунком.",
+            "Серые вещи недоступны; для стопок — выбор количества.",
         ]
     point = next(
         (
@@ -192,8 +240,20 @@ def storage_layout(controller, width, height):
         if point and point.available_choices(hero) and not browser.pending
         else ""
     )
+    selected = stacks[browser.side]
+    denial = (
+        browser.denial(
+            engine,
+            selected[browser.selected[browser.side]],
+            browser.side,
+            container=container,
+            free_weight=free_weights[browser.side],
+        )
+        if selected
+        else None
+    )
     rows += [
-        controller.message,
+        denial or controller.message,
         "Backspace / Esc: "
         + ("отменить количество" if browser.pending else "закрыть")
         + event_hint,
@@ -214,7 +274,7 @@ def storage_click(controller, x, y, width, height):
             fraction = max(0, min(1, (local_x - start) / 19))
             browser.quantity = 1 + round(fraction * (browser.pending[2] - 1))
         return True
-    if 2 <= row < rect.height - 9 and 0 <= local_x < 2 * column + 3:
+    if 2 <= row < rect.height - 10 and 0 <= local_x < 2 * column + 3:
         side = int(local_x >= column + 3)
         index = row - 2 + offsets[side]
         if index < len(browser.stacks(controller.engine)[side]):

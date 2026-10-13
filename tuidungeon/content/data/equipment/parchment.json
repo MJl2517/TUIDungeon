@@ -9,5 +9,6 @@
     "flammable"
   ],
   "description": "Листы для заметок и зарисовок.",
-  "durability": null
+  "durability": null,
+  "size": "small"
 }

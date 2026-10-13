@@ -11,5 +11,6 @@
   "tags": [
     "acid"
   ],
-  "symbol": "base:visual_equipment_acid_reagent"
+  "symbol": "base:visual_equipment_acid_reagent",
+  "size": "small"
 }

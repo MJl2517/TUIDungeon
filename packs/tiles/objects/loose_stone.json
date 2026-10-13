@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "loose_stone",
   "name": "Камни",
-  "description": "Камни. Восстанавливается через 15 сут.",
+  "description": "Восстанавливается через 15 сут.",
   "variants": [
     {
       "name": "Серые",

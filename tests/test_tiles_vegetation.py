@@ -96,8 +96,10 @@ class TilesVegetationTests(unittest.TestCase):
         self.assertTrue(
             all(
                 ref in refs
-                for c, ref in self.store.documents
-                if c == "objects" and ref.startswith("tiles:")
+                for (c, ref), doc in self.store.documents.items()
+                if c == "objects"
+                and ref.startswith("tiles:")
+                and doc.group.startswith("Растительность")
             )
         )
         self.assertEqual(self.store.get("tiles", "tiles:empty").map_category, "service")

@@ -15,5 +15,6 @@
     "organic"
   ],
   "durability": null,
-  "symbol": "base:visual_equipment_waterskin"
+  "symbol": "base:visual_equipment_waterskin",
+  "size": "small"
 }

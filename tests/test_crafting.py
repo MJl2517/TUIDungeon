@@ -348,7 +348,8 @@ class CraftingTests(unittest.TestCase):
         c.handle("c")
         self.assertEqual(c.view, View.CRAFT)
         self.assertEqual(
-            len(c.craft.entries(c.engine)), len(c.engine.state.hero.known_recipes)
+            len(c.craft.entries(c.engine)),
+            sum(e["category"] == c.craft.category for e in c.engine.craft_list()),
         )
         self.assertEqual(popup_content(c)[2], [])
         self.assertIn("РЕЗУЛЬТАТ", "\n".join(render(c, 100, 28)))
@@ -416,7 +417,10 @@ class CraftingTests(unittest.TestCase):
             test_map=True,
         )
         c.handle("c")
-        c.handle("right")
+        for _ in c.craft.categories(c.engine):
+            if c.craft.category == "smith":
+                break
+            c.handle("right")
         self.assertEqual(c.craft.category, "smith")
         c.handle("end")
         for width, height in ((80, 24), (100, 28), (140, 40)):
@@ -426,7 +430,10 @@ class CraftingTests(unittest.TestCase):
             self.assertIn("Рецепт 44", "\n".join(rows))
             self.assertGreater(c.craft.page, 0)
             self.assertLessEqual(len(rows), rect.height - 2)
-        c.handle("left")
+        for _ in c.craft.categories(c.engine):
+            if c.craft.category == "basic":
+                break
+            c.handle("left")
         self.assertEqual(c.craft.category, "basic")
         self.assertTrue(
             all(e["category"] == "basic" for e in c.craft.entries(c.engine))

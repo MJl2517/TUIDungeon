@@ -65,14 +65,16 @@ const labels: Record<string, string> = {
   description: "Описание",
   glyph: "Текстовый знак (совместимость)",
   symbol: "Символ из библиотеки",
-  state_symbols: "Символы состояний двери",
+  state_symbols: "Символы состояний",
+  mirror_x: "Отразить по горизонтали",
+  loot_tier: "Цветовая категория добычи",
   underlay: "Тайл под предметом",
   door: "Дверь",
   material: "Материал двери",
   state: "Начальное состояние",
   locked: "Заперта",
-  lock_quality: "Качество замка",
-  lock_complexity: "Сложность замка",
+  lock_quality: "Качество замка (СЛ)",
+  lock_complexity: "Механизм замка (длительность)",
   foreground: "Цвет символа",
   background: "Цвет фона",
   art: "Рисунок",
@@ -84,6 +86,12 @@ const labels: Record<string, string> = {
   wisdom: "Мудрость",
   charisma: "Харизма",
   hit_points: "Хиты",
+  attackable: "Можно атаковать",
+  transmits_light: "Пропускает свет в закрытом состоянии",
+  openable: "Есть открываемая створка",
+  force_allowed: "Можно выломать",
+  bend_difficulty: "СЛ сгибания прутьев",
+  bent: "Прутья погнуты (проход свободен)",
   armor_class: "Класс доспеха",
   speed: "Скорость",
   initiative_bonus: "Бонус инициативы",
@@ -97,6 +105,10 @@ const labels: Record<string, string> = {
   title: "Заголовок текста",
   pages: "Страницы",
   capacity: "Вместимость, кг",
+  lock: "Замок",
+  key_tag: "Тег подходящего ключа",
+  size: "Размер предмета",
+  max_item_size: "Максимальный размер предмета",
   personal: "Личный (можно класть вещи; не обновляется)",
   contents: "Начальное содержимое",
   quantity: "Количество предметов",
@@ -775,10 +787,14 @@ export function FieldForm({
                 adamantine: "Адамантиевая",
                 open: "Открыта",
                 closed: "Закрыта",
-                cheap: "Дешёвый — СЛ 10",
-                normal: "Обычный — СЛ 15",
-                expensive: "Дорогой — СЛ 20",
-                legendary: "Легендарный — СЛ 25",
+                cheap: "Лёгкий, бронзовый — СЛ 10",
+                normal: "Средний, синевато-железный — СЛ 15",
+                expensive: "Сложный, золотой — СЛ 20",
+                legendary: "Легендарный, фиолетовый — СЛ 25",
+                white: "Белый",
+                bronze: "Бронзовый",
+                iron: "Металлический",
+                gold: "Золотой",
                 simple: "Простой — 1 ход",
                 complex: "Сложный — 10 ходов",
                 strength: "Сила",
@@ -787,6 +803,9 @@ export function FieldForm({
                 consumables: "Расходники",
                 tools: "Инструменты",
                 materials: "Материалы",
+                small: "Маленький",
+                medium: "Средний",
+                large: "Большой",
                 dexterity: "Ловкость",
                 constitution: "Телосложение",
                 intelligence: "Интеллект",
@@ -934,6 +953,7 @@ export function propertySections(category: string, keys: string[]): Section[] {
       "Отображение на карте и варианты оформления",
       [
         "symbol",
+        "mirror_x",
         "state_symbols",
         "foreground",
         "background",
@@ -954,6 +974,7 @@ export function propertySections(category: string, keys: string[]): Section[] {
         "initiative_bonus",
         "damage_profile",
         "weight",
+        "size",
         "rarity",
         "durability",
         "slot",
@@ -1103,7 +1124,9 @@ export function DocumentForm({
     Object.keys(props.schema.properties).filter(
       (k) =>
         !["glyph", "char"].includes(k) &&
-        (k !== "state_symbols" || !!props.value.brush?.door),
+        (k !== "state_symbols" ||
+          !!props.value.brush?.door ||
+          !!props.value.storage),
     ),
   );
   const matches = (key: string) => {
@@ -1203,11 +1226,13 @@ export function DocumentForm({
                         ? {
                             ...field,
                             state_options:
-                              props.value.brush?.door?.material === "stone"
-                                ? ["closed"]
-                                : props.value.brush?.door?.material === "bars"
-                                  ? ["closed", "locked", "open", "bent"]
-                                  : ["closed", "locked", "open"],
+                              props.value.storage && !props.value.brush?.door
+                                ? ["closed", "open"]
+                                : props.value.brush?.door?.material === "stone"
+                                  ? ["closed"]
+                                  : props.value.brush?.door?.material === "bars"
+                                    ? ["closed", "locked", "open", "bent"]
+                                    : ["closed", "locked", "open"],
                           }
                         : field
                     }

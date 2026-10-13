@@ -37072,7 +37072,7 @@
       "x": 20,
       "y": 28,
       "id": "tile_equipment_20_28",
-      "ref": "base:iron",
+      "ref": "base:metal",
       "overrides": {},
       "challenge_overrides": {}
     },
@@ -37096,7 +37096,7 @@
       "x": 32,
       "y": 28,
       "id": "tile_equipment_32_28",
-      "ref": "base:metal_scrap",
+      "ref": "base:metal",
       "overrides": {},
       "challenge_overrides": {}
     },

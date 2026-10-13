@@ -13,5 +13,6 @@
     "weaver_tools",
     "tool"
   ],
-  "symbol": "base:visual_equipment_weaver_tools"
+  "symbol": "base:visual_equipment_weaver_tools",
+  "size": "medium"
 }

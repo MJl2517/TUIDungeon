@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "improvised_lockpicks",
   "name": "Простые отмычки",
-  "description": "Инструмент для взлома замков. Не изнашивается.",
+  "description": "Инструмент для взлома замков. Прочность 10; неудачная попытка взлома расходует 1 прочность. При нуле инструмент сломан.",
   "glyph": "!",
   "foreground": 7,
   "category": "tools",
@@ -13,6 +13,7 @@
     "lockpicks",
     "tool"
   ],
-  "durability": null,
-  "symbol": "base:visual_equipment_improvised_lockpicks"
+  "durability": 10,
+  "symbol": "base:visual_equipment_improvised_lockpicks",
+  "size": "small"
 }

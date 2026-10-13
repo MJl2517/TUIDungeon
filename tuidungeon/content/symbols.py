@@ -18,6 +18,12 @@ def symbol_ref(documents, definition, state=None):
         if isinstance(definition, dict)
         else lambda k, d=None: getattr(definition, k, d)
     )
+    if state is None and (storage := get("storage")):
+        state = (
+            storage.get("state", "closed")
+            if isinstance(storage, dict)
+            else storage.state
+        )
     ref = get("state_symbols", {}).get(state) if state else None
     ref = ref or get("symbol")
     if not ref:

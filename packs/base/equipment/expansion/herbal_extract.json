@@ -12,5 +12,6 @@
     "organic",
     "reagent"
   ],
-  "symbol": "base:visual_equipment_herbal_extract"
+  "symbol": "base:visual_equipment_herbal_extract",
+  "size": "small"
 }

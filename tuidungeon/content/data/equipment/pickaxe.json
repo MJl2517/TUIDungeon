@@ -16,5 +16,6 @@
   "weapon_damage": "1d6",
   "description": "Разбирает крупный завал за 10 ходов вместо 30. Позволяет разрушать каменные плиты и двери. Не изнашивается.",
   "schema_version": 1,
-  "damage_type": "piercing"
+  "damage_type": "piercing",
+  "size": "large"
 }

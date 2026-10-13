@@ -114,6 +114,7 @@ def template(store, category):
                 walkability=[[True] * 20 for _ in range(12)],
                 blocks_sight=[[False] * 20 for _ in range(12)],
                 roof=[[False] * 20 for _ in range(12)],
+                tile_mirrors=[[False] * 20 for _ in range(12)],
             )
         elif category == "art":
             raw.update(
@@ -157,6 +158,7 @@ def template(store, category):
             brush={},
         )
     if category == "maps":
+        raw["tile_mirrors"] = [[False] * 20 for _ in range(12)]
         raw.update(
             lights=[],
             ambient_light="bright",

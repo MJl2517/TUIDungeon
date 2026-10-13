@@ -37,6 +37,10 @@
   #tasks-state { min-height: 24px; color: #ffc35b; font-size: 13px; }
   #task-list { padding-left: 20px; }
   #task-list li { margin: 12px 0; }
+  #task-list small { display: block; color: #94a9bd; overflow-wrap: anywhere; }
+  #task-list details { margin: 10px 0; }
+  .task-tabs .active { border-color: #82dcaa; background: #253b34; }
+  .empty-tasks { list-style: none; color: #aebdce; }
   #task-list p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; margin: 6px 0; }
   @media (max-width: 760px) { main { grid-template-columns: 1fr; height: auto; } .atlas { max-height: 65dvh; } aside { border-left: 0; border-top: 1px solid #34404e; } }
 </style>
@@ -74,10 +78,16 @@
       <label for="prompt">Что нужно реализовать</label>
       <textarea id="prompt" maxlength="20000" placeholder="Деревья — коричневые стволы, горючие, можно рубить. Механику скопировать из base:tree."></textarea>
       <div class="actions"><button id="add-task" disabled>Добавить задание</button><button id="cancel-task" hidden>Отмена правки</button></div>
+      <div class="actions task-tabs">
+        <button id="show-pending" class="active">Новые (<span id="pending-count">0</span>)</button>
+        <button id="show-completed">Архив (<span id="completed-count">0</span>)</button>
+        <button id="reload-tasks">Обновить список</button>
+        <button id="download-tasks">Скачать черновик</button>
+      </div>
       <ol id="task-list"></ol>
       <button id="save-tasks" disabled>Сохранить задания в файл</button>
       <div id="tasks-state" role="status">Загрузка заданий…</div>
-      <p class="hint">Сохраняет список и единый tile-requests.md в папке tools/tileset-viewer. Галочка «добавлено» означает уже реализованный тайл; запись задания её не ставит.</p>
+      <p class="hint">Рабочий tile-requests.md содержит только новые задания. После реализации и проверки нажмите «Выполнено» — промпт сохранится в архиве. Для исправления готового тайла создайте доработку. Галочки атласа и статусы заданий независимы.</p>
     </section>
     <p class="hint">Нумерация с 1, слева направо и сверху вниз. Координаты: [строка, столбец], тоже с 1.</p>
     <p class="hint">Обычный щелчок выбирает одну клетку. Shift + щелчок повторно снимает выделение. Стрелки и Enter работают, когда атлас в фокусе.</p>
@@ -100,6 +110,7 @@
   let sheet, image, ready = false, hovered = null, drag = null;
   const promptInput = document.getElementById('prompt'), taskState = document.getElementById('tasks-state');
   const addTask = document.getElementById('add-task'), saveTasks = document.getElementById('save-tasks');
+  let tasksVersion = null, taskView = 'pending';
   let tasks = [], tasksReady = false, tasksDirty = false, tasksSaving = false, editingTask = null;
   const margin = 30, gap = 1;
   const size = () => Number(zoom.value);
@@ -192,57 +203,115 @@
     promptInput.disabled = tasksSaving;
     addTask.textContent = editingTask === null ? 'Добавить задание' : 'Обновить задание';
     document.getElementById('cancel-task').hidden = editingTask === null;
+    document.getElementById('reload-tasks').disabled = tasksSaving;
   }
   function resetTaskEditor() { editingTask = null; promptInput.value = ''; updateTaskControls(); }
   function changedTasks() { tasksDirty = true; taskState.textContent = 'Есть несохранённые задания'; renderTasks(); }
   function renderTasks() {
     const list = document.getElementById('task-list'); list.replaceChildren();
+    document.getElementById('pending-count').textContent = tasks.filter(t => t.status === 'pending').length;
+    document.getElementById('completed-count').textContent = tasks.filter(t => t.status === 'completed').length;
+    document.getElementById('show-pending').classList.toggle('active', taskView === 'pending');
+    document.getElementById('show-completed').classList.toggle('active', taskView === 'completed');
     tasks.forEach((task, index) => {
-      const row = document.createElement('li'), title = document.createElement('strong'), text = document.createElement('p');
+      if (task.status !== taskView) return;
+      const completed = task.status === 'completed';
+      const row = document.createElement('li'), title = document.createElement('strong'), text = document.createElement('p'), identity = document.createElement('small');
+      row.dataset.taskId = task.id;
       title.textContent = `Тайлы ${tileRanges(task.tiles)} · ${sheets[task.sheet].name}`;
+      identity.textContent = task.id;
       text.textContent = task.prompt;
-      const edit = document.createElement('button'), remove = document.createElement('button'), actions = document.createElement('div');
-      actions.className = 'actions'; edit.textContent = 'Править'; remove.textContent = 'Удалить';
-      edit.disabled = remove.disabled = tasksSaving;
+      const edit = document.createElement('button'), actions = document.createElement('div');
+      actions.className = 'actions'; edit.textContent = completed ? 'Создать доработку' : 'Править';
+      edit.disabled = tasksSaving;
       edit.onclick = () => {
         if (promptInput.value.trim() && !confirm('Заменить текущий черновик выбранным заданием?')) return;
         sheetSelect.value = task.sheet; loadSheet();
         for (const id of task.tiles) selected.add(id);
-        editingTask = index; promptInput.value = task.prompt; updateSelection(); promptInput.focus();
+        editingTask = completed ? null : index;
+        promptInput.value = task.prompt; taskView = 'pending'; renderTasks(); updateSelection(); promptInput.focus();
       };
-      remove.onclick = () => { tasks.splice(index, 1); if (editingTask === index) resetTaskEditor(); else if (editingTask !== null && editingTask > index) editingTask--; changedTasks(); };
-      actions.append(edit, remove); row.append(title, text, actions); list.append(row);
+      actions.append(edit); row.append(title, identity);
+      if (completed) {
+        const detail = document.createElement('details'), summary = document.createElement('summary'), note = document.createElement('p');
+        summary.textContent = 'Исходное задание'; detail.append(summary, text);
+        note.textContent = `Выполнено: ${new Date(task.completed_at).toLocaleString('ru-RU')}${task.completion_note ? ' · ' + task.completion_note : ''}`;
+        row.append(note, detail);
+      } else {
+        const remove = document.createElement('button'), complete = document.createElement('button');
+        remove.textContent = 'Удалить'; remove.disabled = tasksSaving;
+        remove.onclick = () => { tasks.splice(index, 1); if (editingTask === index) resetTaskEditor(); else if (editingTask !== null && editingTask > index) editingTask--; changedTasks(); };
+        complete.textContent = 'Выполнено'; complete.disabled = tasksSaving || tasksDirty || !!promptInput.value.trim();
+        complete.title = 'После реализации и проверки; сначала сохраните задания. Галочки атласа не меняются.';
+        complete.onclick = () => completeTask(task.id);
+        actions.append(remove, complete); row.append(text);
+      }
+      row.append(actions); list.append(row);
     });
+    if (!list.children.length) {
+      const empty = document.createElement('li'); empty.className = 'empty-tasks';
+      empty.textContent = taskView === 'pending' ? 'Новых заданий нет. Добавьте следующую группу тайлов.' : 'Архив пока пуст.';
+      list.append(empty);
+    }
     updateTaskControls();
   }
-  promptInput.addEventListener('input', updateTaskControls);
-  document.getElementById('cancel-task').onclick = resetTaskEditor;
-  addTask.onclick = () => {
-    const task = { sheet: sheetSelect.value, tiles: [...selected].sort((a, b) => a - b), prompt: promptInput.value.trim() };
-    if (editingTask === null) tasks.push(task); else tasks[editingTask] = task;
-    resetTaskEditor(); changedTasks();
+  promptInput.addEventListener('input', () => { updateTaskControls(); document.querySelectorAll('#task-list button').forEach(button => { if (button.textContent === 'Выполнено') button.disabled = tasksSaving || tasksDirty || !!promptInput.value.trim(); }); });
+  document.getElementById('cancel-task').onclick = () => { resetTaskEditor(); renderTasks(); };
+  document.getElementById('show-pending').onclick = () => { taskView = 'pending'; renderTasks(); };
+  document.getElementById('show-completed').onclick = () => { taskView = 'completed'; renderTasks(); };
+  document.getElementById('reload-tasks').onclick = () => {
+    if (tasksDirty && !confirm('Несохранённые изменения списка будут заменены. Скачайте черновик перед обновлением. Продолжить?')) return;
+    loadTasks();
   };
+  document.getElementById('download-tasks').onclick = () => {
+    const blob = new Blob([JSON.stringify(tasks.filter(t => t.status === 'pending'), null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = 'tile-tasks-draft.json'; link.click(); URL.revokeObjectURL(url);
+  };
+  addTask.onclick = () => {
+    const id = editingTask === null ? 'task_' + crypto.randomUUID().replaceAll('-', '') : tasks[editingTask].id;
+    const task = { id, status: 'pending', sheet: sheetSelect.value, tiles: [...selected].sort((a, b) => a - b), prompt: promptInput.value.trim() };
+    if (editingTask === null) tasks.push(task); else tasks[editingTask] = task;
+    taskView = 'pending'; resetTaskEditor(); changedTasks();
+  };
+  async function taskRequest(path, body) {
+    const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'If-Match': tasksVersion }, body: JSON.stringify(body) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Ошибка сохранения');
+    tasksVersion = response.headers.get('ETag'); tasks = data; tasksDirty = false;
+  }
   saveTasks.onclick = async () => {
     tasksSaving = true; renderTasks();
     try {
-      const response = await fetch('/tasks.json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(tasks) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Ошибка сохранения');
-      tasks = data; tasksDirty = false; taskState.textContent = 'Сохранены tasks.json и единый tile-requests.md';
+      await taskRequest('/tasks.json', tasks);
+      taskState.textContent = 'Сохранены tasks.json и очередь новых заданий tile-requests.md';
     } catch (error) { taskState.textContent = `Не сохранено: ${error.message}`; }
     finally { tasksSaving = false; renderTasks(); }
   };
-  async function loadTasks() {
-    if (location.protocol === 'file:') { taskState.textContent = 'Для сохранения заданий запустите tileset-viewer.bat'; return; }
+  async function completeTask(id) {
+    tasksSaving = true; renderTasks();
+    try {
+      await taskRequest('/tasks/complete', { ids: [id] });
+      taskState.textContent = 'Задание перенесено в архив и убрано из рабочего MD';
+    } catch (error) { taskState.textContent = `Не завершено: ${error.message}`; }
+    finally { tasksSaving = false; renderTasks(); }
+  }
+  async function loadTasks(quiet = false) {
+    const beforeVersion = tasksVersion;
+    if (!quiet) tasksReady = false;
+    if (location.protocol === 'file:') { taskState.textContent = 'Для очереди заданий запустите tileset-viewer.sh или tileset-viewer.bat'; return; }
     try {
       const response = await fetch('/tasks.json', { cache: 'no-store' }), data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Ошибка загрузки');
-      if (!Array.isArray(data) || data.some(task => !task || !sheets[task.sheet] || !Array.isArray(task.tiles) || !task.tiles.length || task.tiles.some(id => !Number.isInteger(id) || id < 1 || id > sheets[task.sheet].rows * sheets[task.sheet].columns) || typeof task.prompt !== 'string')) throw new Error('Некорректный tasks.json');
-      tasks = data; tasksReady = true; taskState.textContent = 'Задания загружены из tasks.json'; renderTasks();
+      const version = response.headers.get('ETag');
+      if (!version || !Array.isArray(data) || data.some(task => !task || !task.id || !['pending', 'completed'].includes(task.status) || !sheets[task.sheet] || !Array.isArray(task.tiles) || !task.tiles.length || task.tiles.some(id => !Number.isInteger(id) || id < 1 || id > sheets[task.sheet].rows * sheets[task.sheet].columns) || typeof task.prompt !== 'string')) throw new Error('Некорректный tasks.json; обновите сервер просмотрщика');
+      if (quiet && (version === tasksVersion || tasksVersion !== beforeVersion || tasksDirty || tasksSaving || promptInput.value.trim())) return;
+      tasks = data; tasksVersion = version; tasksReady = true; tasksDirty = false; editingTask = null;
+      taskState.textContent = 'Очередь и архив загружены; в MD только новые задания'; renderTasks();
     } catch (error) { taskState.textContent = `Задания не загружены: ${error.message}`; }
   }
+  setInterval(() => { if (tasksReady && !tasksDirty && !tasksSaving && !promptInput.value.trim()) loadTasks(true); }, 5000);
   async function loadProgress() {
-    if (location.protocol === 'file:') { saveState.textContent = 'Для отметок с сохранением запустите tileset-viewer.bat (Linux: python3 tools/tileset-viewer/server.py).'; return; }
+    if (location.protocol === 'file:') { saveState.textContent = 'Для отметок с сохранением запустите tileset-viewer.bat (Linux/macOS: ./tileset-viewer.sh).'; return; }
     try {
       const response = await fetch('/progress.json', { cache: 'no-store' });
       const data = await response.json();

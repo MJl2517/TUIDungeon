@@ -12,5 +12,6 @@
     "paper",
     "flammable"
   ],
-  "symbol": "base:visual_equipment_writing_paper"
+  "symbol": "base:visual_equipment_writing_paper",
+  "size": "small"
 }

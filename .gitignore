@@ -18,3 +18,5 @@ packs/.trash/
 .env
 .env.*
 !.env.example
+
+tools/tileset-viewer/.tasks.lock

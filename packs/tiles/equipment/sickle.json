@@ -27,5 +27,6 @@
   "light": null,
   "group": "Инструменты",
   "damage_type": "slashing",
-  "symbol": "base:glyph_2310"
+  "symbol": "base:glyph_2310",
+  "size": "medium"
 }

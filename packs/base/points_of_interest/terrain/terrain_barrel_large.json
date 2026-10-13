@@ -21,7 +21,8 @@
   "storage": {
     "capacity": 1000.0,
     "personal": false,
-    "contents": []
+    "contents": [],
+    "max_item_size": "large"
   },
   "movable": true,
   "weight": 12,
@@ -35,7 +36,14 @@
         {
           "item": "base:wood",
           "quantity": 3
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
         }
+      ],
+      "tools": [
+        "carpenter_tools"
       ]
     },
     "remains": [
@@ -45,5 +53,6 @@
       }
     ]
   },
-  "symbol": "base:visual_points_of_interest_terrain_barrel_large"
+  "symbol": "base:visual_points_of_interest_terrain_barrel_large",
+  "size": "large"
 }

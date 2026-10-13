@@ -13,5 +13,6 @@
     "fiber",
     "flammable"
   ],
-  "symbol": "base:visual_equipment_spider_silk"
+  "symbol": "base:visual_equipment_spider_silk",
+  "size": "small"
 }

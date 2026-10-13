@@ -38,7 +38,8 @@
         "item": "base:candle",
         "quantity": 1
       }
-    ]
+    ],
+    "max_item_size": "large"
   },
   "symbol": "base:visual_objects_candle"
 }

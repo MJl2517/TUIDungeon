@@ -50,5 +50,6 @@
     }
   ],
   "group": "Декорации: припасы",
-  "symbol": "base:visual_equipment_rations"
+  "symbol": "base:visual_equipment_rations",
+  "size": "small"
 }

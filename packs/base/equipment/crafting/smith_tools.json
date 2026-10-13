@@ -13,5 +13,6 @@
     "smith_tools",
     "tool"
   ],
-  "symbol": "base:visual_equipment_smith_tools"
+  "symbol": "base:visual_equipment_smith_tools",
+  "size": "medium"
 }

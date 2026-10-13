@@ -13,5 +13,6 @@
     "flammable",
     "organic"
   ],
-  "symbol": "base:visual_equipment_raw_leather"
+  "symbol": "base:visual_equipment_raw_leather",
+  "size": "small"
 }

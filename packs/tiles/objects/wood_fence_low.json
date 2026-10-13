@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "wood_fence_low",
+  "name": "Низкий деревянный забор",
+  "description": "Разбор требует наличия исправного инструмента, но не владения им. Низкая ограда не мешает герою; blocks_domesticated — контракт будущего фермерства, поведение животных пока не реализовано.",
+  "glyph": "=",
+  "symbol": "tiles:cell_0148",
+  "foreground": 11,
+  "group": "Ограды: деревянные",
+  "map_category": "destructible",
+  "tags": [
+    "fence",
+    "wooden",
+    "flammable",
+    "low_fence",
+    "blocks_domesticated"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "movable": false,
+  "destruction": {
+    "max_hp": 15,
+    "dismantle": {
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 2
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 1
+      }
+    ]
+  }
+}

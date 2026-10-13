@@ -218,6 +218,17 @@ class CantripTests(unittest.TestCase):
             self.assertEqual(item.durability, min(item.definition.durability, expected))
         self.assertEqual(e.state.hero.spell_slots, {1: 2})
 
+    def test_repair_worn_and_broken_lockpicks(self):
+        e = self.engine()
+        item = Equipment.create(self.catalog.equipment["thieves_tools"])
+        e.state.hero.inventory.append(item)
+        for durability in (8, 0):
+            item.durability = durability
+            self.assertIn(item, e.spell_item_targets(self.catalog.spells["mending"]))
+            self.assertTrue(self.cast(e, "mending", item).performed)
+            self.assertEqual(item.durability, durability + 1)
+            self.assertTrue(item.usable)
+
     def test_repair_targets_exclude_tools_and_intact_items(
         self,
     ):

@@ -19,5 +19,6 @@
   "hands": 1,
   "weapon_damage": "1d4+1",
   "damage_type": "piercing",
-  "symbol": "base:visual_equipment_rune_dagger"
+  "symbol": "base:visual_equipment_rune_dagger",
+  "size": "small"
 }

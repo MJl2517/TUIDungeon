@@ -15,5 +15,6 @@
     "metal"
   ],
   "durability": null,
-  "symbol": "base:visual_equipment_cooking_pot"
+  "symbol": "base:visual_equipment_cooking_pot",
+  "size": "medium"
 }

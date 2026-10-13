@@ -13,7 +13,8 @@
     "obstacle",
     "transparent",
     "flammable",
-    "wooden"
+    "wooden",
+    "storage"
   ],
   "walkable": false,
   "blocks_sight": false,
@@ -38,7 +39,14 @@
         {
           "item": "base:wood",
           "quantity": 3
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
         }
+      ],
+      "tools": [
+        "carpenter_tools"
       ]
     },
     "remains": [
@@ -48,5 +56,12 @@
       }
     ]
   },
-  "symbol": "base:visual_objects_shelf"
+  "symbol": "base:visual_objects_shelf",
+  "size": "large",
+  "storage": {
+    "personal": false,
+    "contents": [],
+    "capacity": 30,
+    "max_item_size": "small"
+  }
 }

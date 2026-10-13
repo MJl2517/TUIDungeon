@@ -13,5 +13,6 @@
     "mason_tools",
     "tool"
   ],
-  "symbol": "base:visual_equipment_mason_tools"
+  "symbol": "base:visual_equipment_mason_tools",
+  "size": "medium"
 }

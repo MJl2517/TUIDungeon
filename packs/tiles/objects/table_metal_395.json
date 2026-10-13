@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "table_metal_395",
+  "name": "Стальной квадратный стол",
+  "glyph": "T",
+  "foreground": 153,
+  "description": "Переносимая мебель. Для разбора нужен инструмент в инвентаре, владение не требуется.",
+  "map_category": "furniture",
+  "group": "Мебель: металл",
+  "tags": [
+    "furniture",
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": true,
+  "size": "large",
+  "weight": 30,
+  "destruction": {
+    "max_hp": 40,
+    "dismantle": {
+      "tools": [
+        "tinker_tools"
+      ],
+      "turns": 5,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:metal",
+          "quantity": 3
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:metal",
+        "quantity": 3
+      }
+    ]
+  },
+  "storage": null,
+  "symbol": "tiles:cell_0395"
+}

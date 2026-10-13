@@ -13,5 +13,6 @@
     "brewer_tools",
     "tool"
   ],
-  "symbol": "base:visual_equipment_brewer_tools"
+  "symbol": "base:visual_equipment_brewer_tools",
+  "size": "medium"
 }

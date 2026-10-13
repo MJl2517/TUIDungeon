@@ -48,7 +48,8 @@
   "storage": {
     "capacity": 1000000.0,
     "personal": false,
-    "contents": []
+    "contents": [],
+    "max_item_size": "large"
   },
   "symbol": "base:visual_objects_remains"
 }

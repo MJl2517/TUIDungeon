@@ -13,5 +13,6 @@
     "herbalism_kit",
     "tool"
   ],
-  "symbol": "base:visual_equipment_herbalism_kit"
+  "symbol": "base:visual_equipment_herbalism_kit",
+  "size": "small"
 }

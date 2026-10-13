@@ -11,5 +11,6 @@
   "tags": [
     "magic"
   ],
-  "symbol": "base:visual_equipment_arcane_dust"
+  "symbol": "base:visual_equipment_arcane_dust",
+  "size": "small"
 }

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "chest",
   "name": "Запертый сундук",
-  "description": "Старый сундук. Возможно, внутри осталось золото.",
+  "description": "Сундук с замком. Содержимое и свойства замка задаются отдельно для каждого размещения.",
   "variants": [
     {
       "name": "Запертый сундук",
@@ -25,11 +25,18 @@
     "transparent",
     "wooden"
   ],
-  "challenge": "base:locked_chest",
+  "challenge": null,
   "storage": {
-    "capacity": 1000.0,
+    "capacity": 300,
     "personal": false,
-    "contents": []
+    "contents": [],
+    "max_item_size": "medium",
+    "lock": {
+      "locked": true,
+      "lock_quality": "normal",
+      "lock_complexity": "simple",
+      "key_tag": "chest_key"
+    }
   },
   "movable": true,
   "weight": 12,
@@ -43,7 +50,14 @@
         {
           "item": "base:wood",
           "quantity": 3
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
         }
+      ],
+      "tools": [
+        "carpenter_tools"
       ]
     },
     "remains": [
@@ -53,5 +67,6 @@
       }
     ]
   },
-  "symbol": "base:visual_points_of_interest_chest"
+  "symbol": "base:visual_points_of_interest_chest",
+  "size": "large"
 }

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "wood_fence_cross",
+  "name": "Деревянный забор с перекладиной",
+  "description": "Разбор требует наличия исправного инструмента, но не владения им.",
+  "glyph": "H",
+  "symbol": "tiles:cell_0150",
+  "foreground": 11,
+  "group": "Ограды: деревянные",
+  "map_category": "destructible",
+  "tags": [
+    "fence",
+    "wooden",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": false,
+  "destruction": {
+    "max_hp": 15,
+    "dismantle": {
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 2
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 1
+      }
+    ]
+  }
+}

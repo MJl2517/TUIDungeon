@@ -17,5 +17,6 @@
   "weapon_ability": "strength",
   "charges": null,
   "hands": 0,
-  "light": null
+  "light": null,
+  "size": "small"
 }

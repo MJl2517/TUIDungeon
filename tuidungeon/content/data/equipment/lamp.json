@@ -17,5 +17,6 @@
     "burn_minutes": 60,
     "fuel_tag": "lamp_oil"
   },
-  "durability": null
+  "durability": null,
+  "size": "medium"
 }

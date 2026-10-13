@@ -2285,7 +2285,7 @@
               "quantity": 1
             },
             {
-              "item": "base:metal_scrap",
+              "item": "base:metal",
               "quantity": 2
             },
             {
@@ -2293,7 +2293,7 @@
               "quantity": 1
             },
             {
-              "item": "base:iron",
+              "item": "base:metal",
               "quantity": 10
             },
             {

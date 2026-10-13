@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "rails_247",
+  "name": "Рельсы 247",
+  "glyph": "=",
+  "foreground": 153,
+  "description": "Декорация. Разбирается инструментами жестянщика на металл и дерево.",
+  "group": "Декорации: рельсы",
+  "map_category": "destructible",
+  "tags": [
+    "rails",
+    "metal",
+    "wooden",
+    "flammable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "attackable": false,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "tools": [
+        "tinker_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:metal",
+          "quantity": 2
+        },
+        {
+          "item": "base:wood",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:metal",
+        "quantity": 1
+      }
+    ]
+  },
+  "symbol": "tiles:cell_0247"
+}

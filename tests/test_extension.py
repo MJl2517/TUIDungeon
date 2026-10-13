@@ -243,7 +243,7 @@ class ExtensionTests(unittest.TestCase):
         )
         self.assertEqual((hero.gold, hero.experience), (10, 15))
 
-    def test_automatic_tools_skip_dice_and_cannot_break(self):
+    def test_automatic_tools_skip_dice_but_broken_tools_cannot_help(self):
         hero = self.hero()
         tool = self.item("master_lockpicks")
         hero.inventory.append(tool)
@@ -254,8 +254,8 @@ class ExtensionTests(unittest.TestCase):
         tool.wear(100)
         challenge = TextChallenge(self.catalog.challenges["locked_chest"])
         result = challenge.resolve("pick_lock", hero, Dice(FixedRng()))
-        self.assertTrue(result.success)
-        self.assertIsNone(tool.durability)
+        self.assertFalse(result.performed)
+        self.assertEqual(tool.durability, 0)
         hero.inventory.remove(tool)
         challenge = TextChallenge(self.catalog.challenges["locked_chest"])
         result = challenge.resolve("pick_lock", hero, Dice(FixedRng()))

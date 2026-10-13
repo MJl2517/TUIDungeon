@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "pit_302",
+  "name": "Яма",
+  "glyph": "O",
+  "foreground": 8,
+  "description": "Непроходимая яма. Заготовка для будущей ловушки: падение и урон пока не заданы.",
+  "group": "Пропасти и рельеф",
+  "map_category": "special",
+  "tags": [
+    "pit",
+    "height"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "symbol": "tiles:cell_0302"
+}

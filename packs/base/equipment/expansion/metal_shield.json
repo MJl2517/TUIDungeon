@@ -21,5 +21,6 @@
       "amount": 2
     }
   ],
-  "symbol": "base:visual_equipment_metal_shield"
+  "symbol": "base:visual_equipment_metal_shield",
+  "size": "medium"
 }

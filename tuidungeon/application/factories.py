@@ -166,6 +166,15 @@ class SessionFactory:
                     raise ValueError(
                         "Начальное содержимое превышает вместимость контейнера"
                     )
+                from ..domain.item_sizes import fits_size
+
+                if any(
+                    not fits_size(i.size, container.spec.max_item_size)
+                    for i in container.items
+                ):
+                    raise ValueError(
+                        "Размер начального содержимого превышает предел контейнера"
+                    )
                 if getattr(obj, "light_fixture", None):
                     for item in container.items:
                         if item.definition.light:

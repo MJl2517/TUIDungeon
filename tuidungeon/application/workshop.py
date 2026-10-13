@@ -516,9 +516,6 @@ class WorkshopCommands:
                 id="built_" + uuid4().hex, ref=op.place_object, x=x, y=y
             )
             # One ordinary placement on the floor; source pack documents stay immutable.
-            level.definition = level.definition.model_copy(
-                update={"objects": [*level.definition.objects, placement]}
-            )
             definition = level.store.resolve("objects", placement)
             state = ObjectState(
                 hp=definition.destruction.max_hp if definition.destruction else None
@@ -526,5 +523,5 @@ class WorkshopCommands:
             if definition.campfire and op.ignition:
                 state.fuel_minutes = definition.campfire.fuel_minutes
                 state.lit = True
-            level.object_states[placement.id] = state
+            self._attach_world_object(level, "objects", placement, definition, state)
         return [work.target] if work.target else []

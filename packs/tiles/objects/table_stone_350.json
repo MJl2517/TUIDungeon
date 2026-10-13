@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "table_stone_350",
+  "name": "Каменный прямоугольный стол",
+  "glyph": "T",
+  "foreground": 244,
+  "description": "Переносимая мебель. Можно только разрушить; разбор недоступен.",
+  "map_category": "furniture",
+  "group": "Мебель: камень",
+  "tags": [
+    "furniture",
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": true,
+  "size": "large",
+  "weight": 60,
+  "destruction": {
+    "max_hp": 40,
+    "dismantle": null,
+    "remains": [
+      {
+        "item": "base:stone",
+        "quantity": 3
+      }
+    ]
+  },
+  "storage": null,
+  "symbol": "tiles:cell_0350"
+}

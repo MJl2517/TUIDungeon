@@ -125,6 +125,16 @@
       "description": "Особый материал существующей двери; не синоним неуничтожимости.",
       "group": "Материалы и вещества"
     },
+    "domesticated": {
+      "label": "Одомашненный",
+      "description": "Признак животного для будущего фермерства; AI пока отсутствует.",
+      "group": "Природа и реакции"
+    },
+    "blocks_domesticated": {
+      "label": "Ограда для домашних животных",
+      "description": "Контракт будущего фермерства; не ограничивает движение героя.",
+      "group": "Природа и реакции"
+    },
     "flammable": {
       "label": "Горючий",
       "description": "Может участвовать в горении; тег не задаёт механику разрушения.",
@@ -199,6 +209,21 @@
       "label": "Нежить",
       "description": "Тип существа; не накладывает иммунитеты автоматически.",
       "group": "Природа и реакции"
+    },
+    "lock_indicator": {
+      "label": "Индикатор замка",
+      "description": "Служебная графика: временно заменяет тайл запертого объекта рядом с героем.",
+      "group": "Назначение и источники"
+    },
+    "lock_simple": {
+      "label": "Простой замок (индикатор)",
+      "description": "Рисунок простого механизма, 1 ход взлома; цвет задаёт качество замка.",
+      "group": "Назначение и источники"
+    },
+    "lock_complex": {
+      "label": "Сложный замок (индикатор)",
+      "description": "Рисунок сложного механизма, 10 ходов взлома; цвет задаёт качество замка.",
+      "group": "Назначение и источники"
     },
     "weapon": {
       "label": "Оружие",
@@ -887,6 +912,16 @@
       "tags": [
         "antidote",
         "liquid"
+      ]
+    },
+    {
+      "id": "cactus_juice",
+      "name": "Сок кактуса",
+      "tags": [
+        "food",
+        "liquid",
+        "organic",
+        "plants"
       ]
     }
   ],
@@ -1647,6 +1682,21 @@
     },
     {
       "category": "equipment",
+      "ref": "base:furniture_hardware",
+      "name": "Фурнитура",
+      "path": "packs/base/equipment/crafting/furniture_hardware.json",
+      "tags": [
+        "metal"
+      ],
+      "authored_tags": [
+        "metal"
+      ],
+      "effects": [],
+      "special_actions": [],
+      "abilities": {}
+    },
+    {
+      "category": "equipment",
       "ref": "base:glass_material",
       "name": "Стекольное сырьё",
       "path": "packs/base/equipment/crafting/glass_material.json",
@@ -1708,23 +1758,6 @@
         "rope",
         "flammable",
         "fiber"
-      ],
-      "effects": [],
-      "special_actions": [],
-      "abilities": {}
-    },
-    {
-      "category": "equipment",
-      "ref": "base:iron",
-      "name": "Железо",
-      "path": "packs/base/equipment/crafting/iron.json",
-      "tags": [
-        "iron",
-        "metal"
-      ],
-      "authored_tags": [
-        "metal",
-        "iron"
       ],
       "effects": [],
       "special_actions": [],
@@ -1819,9 +1852,9 @@
     },
     {
       "category": "equipment",
-      "ref": "base:metal_scrap",
-      "name": "Металлический лом",
-      "path": "packs/base/equipment/crafting/metal_scrap.json",
+      "ref": "base:metal",
+      "name": "Металл",
+      "path": "packs/base/equipment/crafting/metal.json",
       "tags": [
         "metal"
       ],
@@ -2365,8 +2398,10 @@
       "name": "Простые отмычки",
       "path": "packs/base/equipment/expansion/improvised_lockpicks.json",
       "tags": [
+        "destructible",
         "lockpicks",
         "metal",
+        "repairable",
         "tool"
       ],
       "authored_tags": [
@@ -2842,7 +2877,9 @@
       "name": "Мастерские отмычки",
       "path": "packs/base/equipment/master_lockpicks.json",
       "tags": [
+        "destructible",
         "lockpicks",
+        "repairable",
         "tool"
       ],
       "authored_tags": [
@@ -4041,7 +4078,9 @@
       "name": "Воровские инструменты",
       "path": "packs/base/equipment/thieves_tools.json",
       "tags": [
+        "destructible",
         "lockpicks",
+        "repairable",
         "tool"
       ],
       "authored_tags": [
@@ -7037,6 +7076,40 @@
     },
     {
       "category": "tiles",
+      "ref": "base:service_lock_complex",
+      "name": "Сложный замок (индикатор)",
+      "path": "packs/base/tiles/service_lock_complex.json",
+      "tags": [
+        "lock_complex",
+        "lock_indicator"
+      ],
+      "authored_tags": [
+        "lock_indicator",
+        "lock_complex"
+      ],
+      "effects": [],
+      "special_actions": [],
+      "abilities": {}
+    },
+    {
+      "category": "tiles",
+      "ref": "base:service_lock_simple",
+      "name": "Простой замок (индикатор)",
+      "path": "packs/base/tiles/service_lock_simple.json",
+      "tags": [
+        "lock_indicator",
+        "lock_simple"
+      ],
+      "authored_tags": [
+        "lock_indicator",
+        "lock_simple"
+      ],
+      "effects": [],
+      "special_actions": [],
+      "abilities": {}
+    },
+    {
+      "category": "tiles",
       "ref": "base:statue",
       "name": "Статуя",
       "path": "packs/base/tiles/statues/statue.json",
@@ -9399,6 +9472,7 @@
         "movable",
         "obstacle",
         "repairable",
+        "storage",
         "transparent",
         "wooden"
       ],
@@ -9407,7 +9481,8 @@
         "obstacle",
         "transparent",
         "flammable",
-        "wooden"
+        "wooden",
+        "storage"
       ],
       "effects": [],
       "special_actions": [],

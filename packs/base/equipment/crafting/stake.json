@@ -20,5 +20,6 @@
   "hands": 1,
   "weapon_damage": "1d4",
   "damage_type": "piercing",
-  "symbol": "base:visual_equipment_stake"
+  "symbol": "base:visual_equipment_stake",
+  "size": "medium"
 }

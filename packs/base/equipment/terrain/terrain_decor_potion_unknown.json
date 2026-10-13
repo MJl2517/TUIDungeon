@@ -25,5 +25,6 @@
   "hands": 0,
   "light": null,
   "group": "Декорации: припасы",
-  "symbol": "base:visual_equipment_terrain_decor_potion_unknown"
+  "symbol": "base:visual_equipment_terrain_decor_potion_unknown",
+  "size": "small"
 }

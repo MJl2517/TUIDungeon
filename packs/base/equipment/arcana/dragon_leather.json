@@ -27,5 +27,6 @@
       "fire"
     ]
   },
-  "symbol": "base:visual_equipment_dragon_leather"
+  "symbol": "base:visual_equipment_dragon_leather",
+  "size": "medium"
 }

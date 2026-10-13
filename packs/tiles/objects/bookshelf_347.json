@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "bookshelf_347",
+  "name": "Большая книжная полка",
+  "glyph": "K",
+  "foreground": 130,
+  "description": "Переносимая мебель. Для разбора нужен инструмент в инвентаре, владение не требуется.",
+  "map_category": "furniture",
+  "group": "Мебель: дерево",
+  "tags": [
+    "furniture",
+    "wooden",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "movable": true,
+  "size": "large",
+  "weight": 25,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      }
+    ]
+  },
+  "storage": {
+    "capacity": 30,
+    "max_item_size": "small"
+  },
+  "symbol": "tiles:cell_0347"
+}

@@ -14,6 +14,7 @@ from ..content.catalog import default_catalog
 from ..domain.actors import Hero, Monster
 from ..domain.challenges import TextChallenge
 from ..domain.equipment import Equipment
+from ..domain.item_sizes import ItemSize, fits_size
 from ..domain.stats import Stats
 from ..world.clock import GameClock
 from ..world.maps import DungeonMap, Position
@@ -172,6 +173,7 @@ class DoorRecord(Record):
 
 
 class LockpickRecord(Record):
+    target_kind: Literal["door", "container"] = "door"
     door_id: str
     progress: int = Field(ge=0, le=9)
     total: Literal[10] = 10
@@ -183,6 +185,9 @@ class OilRecord(Record):
 
 
 class ContainerRecord(Record):
+    opened: bool | None = None
+    locked: bool | None = None
+    max_item_size: ItemSize = "large"
     open_tool: LocalId | None = None
     instance_id: str
     items: list[ItemRecord]
@@ -345,15 +350,15 @@ def restore_item(record, catalog):
     item.template = record.template
     for name in ("durability", "charges"):
         value, maximum = getattr(record, name), getattr(item.definition, name)
-        if name == "durability" and "tool" in definition.tags:
+        if name == "durability" and "tool" in definition.tags and maximum is None:
             value = None  # Old damaged/broken tools become unbreakable.
         if (
             name == "durability"
             and value is None
             and maximum is not None
-            and item.definition.weapon_damage
+            and (item.definition.weapon_damage or "lockpicks" in definition.tags)
         ):
-            value = maximum  # Earlier scenery weapons had no durability.
+            value = maximum  # Earlier scenery weapons and lockpicks had no durability.
         if (value is None) != (maximum is None) or (
             value is not None and value > maximum
         ):
@@ -436,6 +441,7 @@ def restore_item(record, catalog):
             any(i.equipped or i.lit for i in items)
             or (items and spec is None)
             or (spec and sum(i.weight for i in items) > spec.capacity + 1e-9)
+            or (spec and any(not fits_size(i.size, spec.max_item_size) for i in items))
         ):
             raise ValueError("Недопустимое содержимое переносимой мебели")
         item.furniture = FurnitureCargo(
@@ -675,6 +681,9 @@ class SaveRepository:
                             items=[item_record(i) for i in c.items],
                             personal=c.spec.personal,
                             capacity=c.spec.capacity,
+                            max_item_size=c.spec.max_item_size,
+                            locked=c.lock.locked if c.lock else None,
+                            opened=c.opened,
                         )
                         for c in level.containers
                     }
@@ -825,6 +834,7 @@ class SaveRepository:
                         "walkability",
                         "blocks_sight",
                         "transitions",
+                        "doors",
                     }
                     if saved.world.model_dump(exclude=mutable) != authored.model_dump(
                         exclude=mutable
@@ -933,6 +943,12 @@ class SaveRepository:
                         **data.model_dump(exclude={"instance_id"}),
                         lock_quality=original.lock_quality,
                         lock_complexity=original.lock_complexity,
+                        transmits_light=original.transmits_light,
+                        openable=original.openable,
+                        force_allowed=original.force_allowed,
+                        bend_difficulty=original.bend_difficulty,
+                        foreground=original.foreground,
+                        key_tag=original.key_tag,
                     )
                     if instance.door.material == "stone":
                         instance.door.opened = instance.door.locked = False
@@ -1035,10 +1051,25 @@ class SaveRepository:
                         if container.placement.id not in saved.containers:
                             continue  # Older remains had no container or contents.
                         data = saved.containers[container.placement.id]
+                        if data.opened is not None:
+                            container.opened = data.opened
+                        if data.locked is not None:
+                            if container.lock is None:
+                                raise ValueError(
+                                    "Сохранён замок у контейнера без замка"
+                                )
+                            container.lock.locked = data.locked
+                        elif "locked" not in data.model_fields_set and container.lock:
+                            container.lock.locked = (
+                                False  # Older saves had freely accessible containers.
+                            )
                         container.spec = container.spec.model_copy(
                             update={
                                 "personal": data.personal,
                                 "capacity": data.capacity,
+                                "max_item_size": data.max_item_size
+                                if "max_item_size" in data.model_fields_set
+                                else container.spec.max_item_size,
                                 "open_tool": data.open_tool
                                 if "open_tool" in data.model_fields_set
                                 else container.spec.open_tool,
@@ -1058,6 +1089,10 @@ class SaveRepository:
                             )
                             or sum(i.weight for i in items)
                             > container.spec.capacity + 1e-9
+                            or any(
+                                not fits_size(i.size, container.spec.max_item_size)
+                                for i in items
+                            )
                         ):
                             raise ValueError("Недопустимое содержимое контейнера")
                         fixture = getattr(container.definition, "light_fixture", None)
@@ -1124,12 +1159,15 @@ class SaveRepository:
             if state.level:
                 from ..world.objects import validate_object_state
 
-                for category in ("objects", "points_of_interest", "traps"):
+                for category in ("objects", "points_of_interest", "traps", "doors"):
                     for placement in getattr(state.level.definition, category):
                         if placement.id in state.level.object_states:
                             validate_object_state(
                                 state.level.object_states[placement.id],
-                                state.level.store.resolve(category, placement),
+                                state.level.store.resolve(
+                                    "objects" if category == "doors" else category,
+                                    placement,
+                                ),
                                 category,
                             )
                 if saved.door_loot is None:
@@ -1204,7 +1242,6 @@ class SaveRepository:
                 obj = store.get("objects", item.work.recipe.operation.place_object)
                 if (
                     obj.storage
-                    or obj.brush.door
                     or obj.brush.transition
                     or (item.work.recipe.operation.ignition and not obj.campfire)
                 ):
@@ -1302,13 +1339,8 @@ class SaveRepository:
             raise ValueError("Герой находится в закрытой двери")
         if record.lockpick:
             attempt = LockpickAttempt(**record.lockpick.model_dump())
-            instance = engine._door(attempt.door_id)
-            if (
-                not engine._door_available(instance)
-                or not instance.door.locked
-                or instance.door.passable
-                or instance.door.lock_turns != attempt.total
-            ):
+            target = engine.lockpick_target(attempt)
+            if target is None or target[1].lock_turns != attempt.total:
                 raise ValueError("Недопустимый процесс взлома")
             engine.lockpick_attempt = attempt
         if record.active_craft:

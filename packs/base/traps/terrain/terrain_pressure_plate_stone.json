@@ -35,7 +35,7 @@
     "fast_turns": 1,
     "loot": [
       {
-        "item": "base:metal_scrap",
+        "item": "base:metal",
         "quantity": 2
       }
     ]

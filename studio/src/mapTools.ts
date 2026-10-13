@@ -5,6 +5,7 @@ export type PaintOptions = {
   mechanics: boolean;
   target: string;
   erase?: boolean;
+  mirror?: boolean;
 };
 export function paintTile(
   doc: Doc,
@@ -17,6 +18,7 @@ export function paintTile(
   if (
     brush.door &&
     brush.door.state !== "open" &&
+    !brush.door.bent &&
     doc.spawn.x === p.x &&
     doc.spawn.y === p.y
   )
@@ -68,6 +70,11 @@ export function paintTile(
     : (options.mechanics && brush.item) || brush.door
       ? underlying
       : ref;
+  doc.tile_mirrors ??= Array.from({ length: doc.height }, () =>
+    Array(doc.width).fill(false),
+  );
+  doc.tile_mirrors[p.y][p.x] =
+    !options.erase && !brush.door && !brush.item && !!options.mirror;
   if (options.masks) {
     doc.walkability[p.y][p.x] = walkable;
     doc.blocks_sight[p.y][p.x] = options.erase
@@ -90,7 +97,12 @@ export function paintTile(
         ),
     );
     if (brush.door) {
-      doc.doors.push({ id: `tile_doors_${p.x}_${p.y}`, ...p, ref });
+      doc.doors.push({
+        id: `tile_doors_${p.x}_${p.y}`,
+        ...p,
+        ref,
+        ...(options.mirror ? { overrides: { mirror_x: !tile?.mirror_x } } : {}),
+      });
       doc.walkability[p.y][p.x] = true;
       doc.blocks_sight[p.y][p.x] = false;
     }
@@ -121,7 +133,13 @@ export function paintTile(
           : key === "equipment"
             ? brush.item
             : null;
-    if (reference) doc[key].push({ id, ...p, ref: reference });
+    if (reference)
+      doc[key].push({
+        id,
+        ...p,
+        ref: reference,
+        ...(options.mirror ? { overrides: { mirror_x: true } } : {}),
+      });
     if (key === "lights" && brush.light)
       doc[key].push({ id, ...p, ...clone(brush.light), enabled: true });
     if (key === "transitions" && brush.transition)
@@ -160,6 +178,7 @@ export function paintObject(
   p: Point,
   target = "",
   erase = false,
+  mirror = false,
 ) {
   if (!erase && !definition) throw new Error("Сначала выберите объект.");
   if (
@@ -191,6 +210,7 @@ export function paintObject(
     !erase &&
     layer === "doors" &&
     definition?.brush?.door?.state !== "open" &&
+    !definition?.brush?.door?.bent &&
     p.x === doc.spawn.x &&
     p.y === doc.spawn.y
   )
@@ -210,7 +230,12 @@ export function paintObject(
     placements.flatMap((key) => (doc[key] ?? []).map((entry: Doc) => entry.id)),
   );
   while (used.has(id) || used.has(id + "_transition")) id += "_new";
-  doc[layer].push({ id, ref, ...p });
+  doc[layer].push({
+    id,
+    ref,
+    ...p,
+    ...(mirror ? { overrides: { mirror_x: !definition?.mirror_x } } : {}),
+  });
   if (definition?.brush?.transition)
     doc.transitions.push({ id: id + "_transition", target, ...p });
 }

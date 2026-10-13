@@ -15,5 +15,6 @@
     "fuel",
     "organic"
   ],
-  "symbol": "base:visual_equipment_tinder"
+  "symbol": "base:visual_equipment_tinder",
+  "size": "small"
 }

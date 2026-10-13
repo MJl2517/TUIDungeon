@@ -10,5 +10,6 @@
     "liquid"
   ],
   "description": "Набор для записей и копирования письмен.",
-  "durability": null
+  "durability": null,
+  "size": "small"
 }

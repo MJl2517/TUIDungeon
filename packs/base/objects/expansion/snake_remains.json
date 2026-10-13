@@ -42,7 +42,8 @@
   "storage": {
     "capacity": 1000000,
     "personal": false,
-    "contents": []
+    "contents": [],
+    "max_item_size": "large"
   },
   "symbol": "base:visual_objects_snake_remains"
 }

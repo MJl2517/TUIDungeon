@@ -28,5 +28,6 @@
   "hands": 1,
   "light": null,
   "damage_type": "slashing",
-  "symbol": "base:visual_equipment_sword"
+  "symbol": "base:visual_equipment_sword",
+  "size": "medium"
 }

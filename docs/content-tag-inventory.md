@@ -4,7 +4,7 @@
 
 Каталог и правила: [gameplay-tags.md](gameplay-tags.md). Машиночитаемые данные: [gameplay-tags.json](gameplay-tags.json).
 
-Проверено документов: **735**. equipment: 149; spells: 20; actions: 5; monsters: 2; tiles: 190; objects: 110; points_of_interest: 77; traps: 36; challenges: 72; races: 3; classes: 3; backgrounds: 6; recipes: 62.
+Проверено документов: **737**. equipment: 149; spells: 20; actions: 5; monsters: 2; tiles: 192; objects: 110; points_of_interest: 77; traps: 36; challenges: 72; races: 3; classes: 3; backgrounds: 6; recipes: 62.
 
 ## Содержимое сосудов
 
@@ -21,6 +21,7 @@
 | `healing_broth` | Лечебный отвар | `healing`, `liquid` |
 | `healing_potion` | Лечебное зелье | `healing`, `liquid` |
 | `antidote` | Противоядный отвар | `antidote`, `liquid` |
+| `cactus_juice` | Сок кактуса | `food`, `liquid`, `organic`, `plants` |
 
 ## equipment
 
@@ -64,17 +65,17 @@
 | [base:cobbler_tools: Инструменты сапожника](../packs/base/equipment/crafting/cobbler_tools.json) | `cobbler_tools`, `tool` | — |
 | [base:cook_tools: Кухонные принадлежности](../packs/base/equipment/crafting/cook_tools.json) | `cook_tools`, `tool` | — |
 | [base:craft_workpiece: Заготовка](../packs/base/equipment/crafting/craft_workpiece.json) | Нет физических признаков; см. поля/ссылки ниже | — |
+| [base:furniture_hardware: Фурнитура](../packs/base/equipment/crafting/furniture_hardware.json) | `metal` | — |
 | [base:glass_material: Стекольное сырьё](../packs/base/equipment/crafting/glass_material.json) | `glass` | — |
 | [base:glassblower_tools: Инструменты стеклодува](../packs/base/equipment/crafting/glassblower_tools.json) | `glassblower_tools`, `tool` | — |
 | [base:herbalism_kit: Набор травника](../packs/base/equipment/crafting/herbalism_kit.json) | `herbalism_kit`, `tool` | — |
 | [base:improvised_rope: Импровизированная верёвка](../packs/base/equipment/crafting/improvised_rope.json) | `fiber`, `flammable`, `rope` | — |
-| [base:iron: Железо](../packs/base/equipment/crafting/iron.json) | `iron`, `metal` | — |
 | [base:jeweler_tools: Инструменты ювелира](../packs/base/equipment/crafting/jeweler_tools.json) | `jeweler_tools`, `tool` | — |
 | [base:leatherworker_tools: Инструменты кожевника](../packs/base/equipment/crafting/leatherworker_tools.json) | `leatherworker_tools`, `tool` | — |
 | [base:mason_tools: Инструменты каменщика](../packs/base/equipment/crafting/mason_tools.json) | `mason_tools`, `tool` | — |
 | [base:mechanical_part: Механическая деталь](../packs/base/equipment/crafting/mechanical_part.json) | `metal` | — |
 | [base:medicinal_herb: Лекарственная трава](../packs/base/equipment/crafting/medicinal_herb.json) | `flammable`, `medicinal`, `organic`, `plants` | — |
-| [base:metal_scrap: Металлический лом](../packs/base/equipment/crafting/metal_scrap.json) | `metal` | — |
+| [base:metal: Металл](../packs/base/equipment/crafting/metal.json) | `metal` | — |
 | [base:mushroom: Грибы](../packs/base/equipment/crafting/mushroom.json) | `edible`, `flammable`, `food`, `fungi`, `organic` | — |
 | [base:packed_furniture: Мебель](../packs/base/equipment/crafting/packed_furniture.json) | Нет физических признаков; см. поля/ссылки ниже | — |
 | [base:painter_tools: Принадлежности художника](../packs/base/equipment/crafting/painter_tools.json) | `painter_tools`, `tool` | — |
@@ -102,7 +103,7 @@
 | [base:cooked_meat: Приготовленное мясо](../packs/base/equipment/expansion/cooked_meat.json) | `food`, `healing`, `organic` | `consumable` |
 | [base:glass_flask: Стеклянный флакон](../packs/base/equipment/expansion/glass_flask.json) | `fragile`, `glass`, `vessel` | — |
 | [base:herbal_extract: Травяной экстракт](../packs/base/equipment/expansion/herbal_extract.json) | `organic` | `reagent` |
-| [base:improvised_lockpicks: Простые отмычки](../packs/base/equipment/expansion/improvised_lockpicks.json) | `lockpicks`, `metal`, `tool` | — |
+| [base:improvised_lockpicks: Простые отмычки](../packs/base/equipment/expansion/improvised_lockpicks.json) | `destructible`, `lockpicks`, `metal`, `repairable`, `tool` | — |
 | [base:leather_boots: Кожаные сапоги](../packs/base/equipment/expansion/leather_boots.json) | `destructible`, `flammable`, `leather`, `repairable` | — |
 | [base:leather_strip: Кожаная лента](../packs/base/equipment/expansion/leather_strip.json) | `flammable`, `leather`, `organic` | — |
 | [base:metal_shield: Металлический щит](../packs/base/equipment/expansion/metal_shield.json) | `armor`, `destructible`, `metal`, `protection`, `repairable` | — |
@@ -124,7 +125,7 @@
 | [base:lamp: Масляная лампа](../packs/base/equipment/lamp.json) | `light_source`, `metal` | — |
 | [base:leather: Кожаный доспех](../packs/base/equipment/leather.json) | `armor`, `destructible`, `flammable`, `leather`, `organic`, `protection`, `repairable` | — |
 | [base:mail: Кольчуга](../packs/base/equipment/mail.json) | `armor`, `destructible`, `iron`, `metal`, `protection`, `repairable` | — |
-| [base:master_lockpicks: Мастерские отмычки](../packs/base/equipment/master_lockpicks.json) | `lockpicks`, `tool` | — |
+| [base:master_lockpicks: Мастерские отмычки](../packs/base/equipment/master_lockpicks.json) | `destructible`, `lockpicks`, `repairable`, `tool` | — |
 | [base:oil: Масло](../packs/base/equipment/oil.json) | `flammable`, `fuel`, `lamp_oil`, `liquid`, `oil` | `consumable`, `supplies_decor`, `throwable`, `transparent` |
 | [base:parchment: Пергамент](../packs/base/equipment/parchment.json) | `flammable`, `paper` | — |
 | [base:pickaxe: Кирка](../packs/base/equipment/pickaxe.json) | `attack`, `damage`, `flammable`, `metal`, `pickaxe`, `piercing`, `tool`, `weapon`, `wooden` | — |
@@ -171,7 +172,7 @@
 | [base:terrain_key_decor: Ключ](../packs/base/equipment/terrain/terrain_key_decor.json) | `key`, `metal` | `key_decor`, `keys`, `transparent` |
 | [base:terrain_key_important: Важный ключ](../packs/base/equipment/terrain/terrain_key_important.json) | `key`, `metal` | `key_important`, `keys`, `transparent` |
 | [base:terrain_key_special: Особый ключ](../packs/base/equipment/terrain/terrain_key_special.json) | `key`, `metal` | `key_special`, `keys`, `transparent` |
-| [base:thieves_tools: Воровские инструменты](../packs/base/equipment/thieves_tools.json) | `lockpicks`, `tool` | — |
+| [base:thieves_tools: Воровские инструменты](../packs/base/equipment/thieves_tools.json) | `destructible`, `lockpicks`, `repairable`, `tool` | — |
 | [base:torch: Факел](../packs/base/equipment/torch.json) | `flammable`, `ignite`, `light_source`, `wooden` | `поджог` |
 | [base:water_flask: Флакон](../packs/base/equipment/water_flask.json) | `fragile`, `glass`, `vessel` | — |
 | [base:waterskin: Бурдюк](../packs/base/equipment/waterskin.json) | `flammable`, `leather`, `organic`, `vessel` | — |
@@ -451,6 +452,8 @@
 | [base:ruined_masonry: Разрушенная кладка](../packs/base/tiles/ruins/ruined_masonry.json) | `stone` | `obstacle`, `opaque`, `ruins` |
 | [base:shards: Осколки](../packs/base/tiles/ruins/shards.json) | Нет физических признаков; см. поля/ссылки ниже | `ruins`, `transparent`, `walkable` |
 | [base:stone_chips: Каменная крошка](../packs/base/tiles/ruins/stone_chips.json) | `stone` | `ruins`, `transparent`, `walkable` |
+| [base:service_lock_complex: Сложный замок (индикатор)](../packs/base/tiles/service_lock_complex.json) | `lock_complex`, `lock_indicator` | — |
+| [base:service_lock_simple: Простой замок (индикатор)](../packs/base/tiles/service_lock_simple.json) | `lock_indicator`, `lock_simple` | — |
 | [base:statue: Статуя](../packs/base/tiles/statues/statue.json) | `stone` | `obstacle`, `opaque`, `statues` |
 | [base:statue_beast: Статуя зверя](../packs/base/tiles/statues/statue_beast.json) | `stone` | `obstacle`, `opaque`, `statues` |
 | [base:statue_dark: Тёмная статуя](../packs/base/tiles/statues/statue_dark.json) | `stone` | `obstacle`, `opaque`, `statues` |
@@ -565,7 +568,7 @@
 | [base:chair: Стул](../packs/base/objects/furniture/chair.json) | `destructible`, `dismantlable`, `flammable`, `furniture`, `movable`, `repairable`, `wooden` | `obstacle`, `transparent` |
 | [base:desk: Письменный стол](../packs/base/objects/furniture/desk.json) | `destructible`, `dismantlable`, `flammable`, `furniture`, `movable`, `repairable`, `wooden` | `obstacle`, `transparent` |
 | [base:nightstand: Тумба](../packs/base/objects/furniture/nightstand.json) | `destructible`, `dismantlable`, `flammable`, `furniture`, `movable`, `repairable`, `wooden` | `obstacle`, `transparent` |
-| [base:shelf: Полка](../packs/base/objects/furniture/shelf.json) | `destructible`, `dismantlable`, `flammable`, `furniture`, `movable`, `repairable`, `wooden` | `obstacle`, `transparent` |
+| [base:shelf: Полка](../packs/base/objects/furniture/shelf.json) | `destructible`, `dismantlable`, `flammable`, `furniture`, `movable`, `repairable`, `storage`, `wooden` | `obstacle`, `transparent` |
 | [base:stool: Табурет](../packs/base/objects/furniture/stool.json) | `destructible`, `dismantlable`, `flammable`, `furniture`, `movable`, `repairable`, `wooden` | `obstacle`, `transparent` |
 | [base:table: Стол](../packs/base/objects/furniture/table.json) | `destructible`, `dismantlable`, `flammable`, `furniture`, `movable`, `repairable`, `wooden` | `obstacle`, `transparent` |
 | [base:table_long: Длинный стол](../packs/base/objects/furniture/table_long.json) | `destructible`, `dismantlable`, `flammable`, `furniture`, `movable`, `repairable`, `wooden` | `obstacle`, `transparent` |

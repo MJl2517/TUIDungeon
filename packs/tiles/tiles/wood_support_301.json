@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "wood_support_301",
+  "name": "Деревянные подпорки",
+  "glyph": "H",
+  "foreground": 130,
+  "description": "Непроходимая декорация. Пропускает свет и обзор, не разбирается.",
+  "group": "Декорации: подпорки",
+  "map_category": "special",
+  "tags": [
+    "wooden",
+    "flammable",
+    "support"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "symbol": "tiles:cell_0301"
+}

@@ -13,5 +13,6 @@
     "organic",
     "flammable"
   ],
-  "symbol": "base:visual_equipment_dragon_hide"
+  "symbol": "base:visual_equipment_dragon_hide",
+  "size": "medium"
 }

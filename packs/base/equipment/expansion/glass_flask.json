@@ -17,5 +17,6 @@
     "capacity_portions": 1
   },
   "durability": null,
-  "symbol": "base:visual_equipment_glass_flask"
+  "symbol": "base:visual_equipment_glass_flask",
+  "size": "small"
 }

@@ -15,5 +15,6 @@
   ],
   "charges": 1,
   "cast_spell": "base:mending",
-  "symbol": "base:visual_equipment_scroll_mending"
+  "symbol": "base:visual_equipment_scroll_mending",
+  "size": "small"
 }

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "thieves_tools",
   "name": "Воровские инструменты",
-  "description": "Необходимы для взлома замков. Не изнашиваются, в том числе при неудачных попытках.",
+  "description": "Инструмент для взлома замков. Прочность 10; неудачная попытка взлома расходует 1 прочность. При нуле инструмент сломан.",
   "glyph": "?",
   "foreground": 7,
   "background": null,
@@ -13,7 +13,7 @@
     "tool",
     "lockpicks"
   ],
-  "durability": null,
+  "durability": 10,
   "slot": null,
   "properties": [],
   "check_aids": [],
@@ -23,5 +23,6 @@
   "hands": 0,
   "light": null,
   "group": "Снаряжение",
-  "symbol": "base:visual_equipment_thieves_tools"
+  "symbol": "base:visual_equipment_thieves_tools",
+  "size": "small"
 }

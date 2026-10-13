@@ -28,5 +28,6 @@
   "hands": 1,
   "light": null,
   "damage_type": "piercing",
-  "symbol": "base:visual_equipment_dagger"
+  "symbol": "base:visual_equipment_dagger",
+  "size": "small"
 }

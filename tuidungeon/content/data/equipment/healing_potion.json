@@ -14,5 +14,6 @@
       "kind": "heal",
       "dice": "2d4+2"
     }
-  ]
+  ],
+  "size": "small"
 }

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "service_lock_complex",
+  "name": "Сложный замок (индикатор)",
+  "description": "Служебный рисунок. Цвет берётся из качества замка; не добавляет преград или источников света.",
+  "glyph": "L",
+  "symbol": "base:service_lock_complex",
+  "foreground": 110,
+  "map_category": "service",
+  "group": "Служебные: замки",
+  "tags": [
+    "lock_indicator",
+    "lock_complex"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

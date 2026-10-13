@@ -20,5 +20,6 @@
       "amount": 4
     }
   ],
-  "symbol": "base:visual_equipment_bandage"
+  "symbol": "base:visual_equipment_bandage",
+  "size": "small"
 }

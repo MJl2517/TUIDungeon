@@ -14,5 +14,6 @@
     "tool"
   ],
   "durability": null,
-  "symbol": "base:visual_equipment_trap_kit"
+  "symbol": "base:visual_equipment_trap_kit",
+  "size": "medium"
 }

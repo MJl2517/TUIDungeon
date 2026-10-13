@@ -9,6 +9,36 @@ from ..world.maps import Position
 class DoorCommands:
     lockpick_attempt = None
 
+    def operable_doors(self):
+        level = self.state.level
+        return [
+            instance
+            for instance in (level.nearby_doors(self.state.position) if level else ())
+            if self._door_available(instance)
+            and any(
+                c.id in ("open", "close")
+                for c in instance.available_choices(self.state.hero)
+            )
+        ]
+
+    def toggle_door(self, identifier):
+        instance = self._door(identifier)
+        return self.interact_door(
+            identifier, "close" if instance and instance.door.opened else "open"
+        )
+
+    def toggle_nearby_door(self):
+        doors = self.operable_doors()
+        if len(doors) != 1:
+            return self._door_result(
+                False,
+                0,
+                "Выберите дверь: Enter, затем Space."
+                if doors
+                else "Рядом нет двери, которую можно открыть или закрыть. Enter — остальные взаимодействия.",
+            )
+        return self.toggle_door(doors[0].placement.id)
+
     def _door(self, identifier):
         level = self.state.level
         return (
@@ -29,7 +59,10 @@ class DoorCommands:
 
     def _finish_door(self, instance, action, message, *, minutes=1, check=None):
         event = dict(
-            kind="door", placement=instance.placement.id, action=action, message=message
+            kind="door" if hasattr(instance, "door") else "lock",
+            placement=instance.placement.id,
+            action=action,
+            message=message,
         )
         if check:
             event.update(
@@ -53,8 +86,36 @@ class DoorCommands:
         if not self._door_available(instance):
             return self._door_result(False, 0, "Подойдите к двери.")
         door, hero = instance.door, self.state.hero
+        if action == "attack" and (
+            door.material == "bars"
+            or not getattr(instance.definition, "attackable", True)
+        ):
+            return self._door_result(
+                False,
+                0,
+                "Эту преграду нельзя атаковать. Используйте доступные взаимодействия.",
+            )
+        if action in ("open", "close", "pick", "brace") and not door.openable:
+            return self._door_result(
+                False, 0, "У неподвижной решётки нет створки и замка."
+            )
+        if action == "force" and door.force_dc is None:
+            return self._door_result(
+                False, 0, "Эту преграду нельзя выломать, даже ломиком."
+            )
         if door.destroyed or door.bent:
             return self._door_result(False, 0, "Проход уже свободен.")
+        if action == "use_key":
+            if (
+                not door.locked
+                or not door.key_tag
+                or not any(i.usable and door.key_tag in i.tags for i in hero.inventory)
+            ):
+                return self._door_result(
+                    False, 0, "Нет запертого замка или подходящего ключа."
+                )
+            door.locked = False
+            return self._finish_door(instance, action, "Ключ открывает замок двери.")
         if action in ("brace", "unbrace"):
             if denial := self.light_denial():
                 return denial
@@ -137,8 +198,12 @@ class DoorCommands:
                 True, 0, "Взлом: Space — следующий ход, Backspace — отменить."
             )
         if action in ("force", "bend"):
-            if action == "bend" and door.material != "bars":
-                return self._door_result(False, 0, "Сгибать можно только прутья.")
+            if action == "bend" and (door.material != "bars" or door.openable):
+                return self._door_result(
+                    False,
+                    0,
+                    "Сгибать можно только неподвижную решётку. Дверь из прутьев можно выломать.",
+                )
             crowbar = (
                 next(
                     (
@@ -151,7 +216,7 @@ class DoorCommands:
                 if action == "force"
                 else None
             )
-            difficulty = door.force_dc if action == "force" else 20
+            difficulty = door.force_dc if action == "force" else door.bend_difficulty
             check = self.dice.check(
                 hero.stats.score(Ability.STRENGTH),
                 difficulty,
@@ -261,17 +326,39 @@ class DoorCommands:
             + ("Успех." if check.success else "Провал.")
         )
 
+    def lockpick_target(self, attempt):
+        if attempt is None:
+            return None
+        if attempt.target_kind == "container":
+            instance = next(
+                (
+                    c
+                    for c in self.nearby_containers(include_closed=True)
+                    if c.placement.id == attempt.door_id
+                ),
+                None,
+            )
+            return (
+                (instance, instance.lock)
+                if instance and instance.locked and self.state.hero.hp > 0
+                else None
+            )
+        instance = self._door(attempt.door_id)
+        return (
+            (instance, instance.door)
+            if self._door_available(instance)
+            and instance.door.locked
+            and not instance.door.passable
+            else None
+        )
+
     def advance_lockpick(self):
         attempt = self.lockpick_attempt
-        instance = self._door(attempt.door_id) if attempt else None
-        if (
-            not attempt
-            or not self._door_available(instance)
-            or not instance.door.locked
-            or instance.door.passable
-        ):
+        target = self.lockpick_target(attempt)
+        if target is None:
             self.lockpick_attempt = None
             return self._door_result(False, 0, "Взлом недоступен или прерван.")
+        instance, lock = target
         tools = find_lockpicks(self.state.hero.inventory)
         if tools is None:
             self.lockpick_attempt = None
@@ -280,7 +367,7 @@ class DoorCommands:
             )
         attempt.progress += 1
         expired = self._advance(1)
-        if self.state.hero.hp <= 0 or instance.door.destroyed:
+        if self.lockpick_target(attempt) is None:
             self.lockpick_attempt = None
             return self._door_result(True, 1, "Взлом прерван." + " ".join(expired))
         if attempt.progress < attempt.total:
@@ -293,10 +380,12 @@ class DoorCommands:
         hero = self.state.hero
         check = self.dice.check(
             hero.stats.score(Ability.DEXTERITY),
-            instance.door.lock_dc,
+            lock.lock_dc,
         )
         if check.success:
-            instance.door.locked = False
+            lock.locked = False
+        else:
+            tools.wear(1)
         tool_message = (
             f" Воровские инструменты: {tools.durability}/{tools.definition.durability}."
             if tools.durability is not None

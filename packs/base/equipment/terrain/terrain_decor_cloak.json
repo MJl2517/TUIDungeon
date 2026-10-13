@@ -27,5 +27,6 @@
   "hands": 0,
   "light": null,
   "group": "Декорации: снаряжение",
-  "symbol": "base:visual_equipment_terrain_decor_cloak"
+  "symbol": "base:visual_equipment_terrain_decor_cloak",
+  "size": "medium"
 }

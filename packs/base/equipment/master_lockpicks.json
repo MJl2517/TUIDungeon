@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "master_lockpicks",
   "name": "Мастерские отмычки",
-  "description": "Инструмент для взлома замков. Не изнашивается.",
+  "description": "Инструмент для взлома замков. Прочность 10; неудачная попытка взлома расходует 1 прочность. При нуле инструмент сломан.",
   "glyph": "?",
   "foreground": 7,
   "background": null,
@@ -13,7 +13,7 @@
     "tool",
     "lockpicks"
   ],
-  "durability": null,
+  "durability": 10,
   "slot": null,
   "properties": [],
   "check_aids": [
@@ -28,5 +28,6 @@
   "hands": 0,
   "light": null,
   "group": "Снаряжение",
-  "symbol": "base:visual_equipment_master_lockpicks"
+  "symbol": "base:visual_equipment_master_lockpicks",
+  "size": "small"
 }

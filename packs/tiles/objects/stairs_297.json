@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "stairs_297",
+  "name": "Ступени наверх",
+  "glyph": "<",
+  "foreground": 7,
+  "tags": [
+    "stairs",
+    "transition"
+  ],
+  "group": "Лестницы и переходы",
+  "map_category": "service",
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "transition": true
+  },
+  "description": "Переход между картами. Выберите карту назначения при размещении в студии.",
+  "symbol": "tiles:cell_0297"
+}

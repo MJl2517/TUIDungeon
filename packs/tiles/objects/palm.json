@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "palm",
   "name": "Пальма",
-  "description": "Пальма. Восстанавливается через 10 сут.",
+  "description": "Восстанавливается через 10 сут.",
   "variants": [],
   "glyph": "Y",
   "foreground": 10,

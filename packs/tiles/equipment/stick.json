@@ -14,5 +14,6 @@
     "wooden",
     "flammable"
   ],
-  "symbol": "base:visual_equipment_plant_fiber"
+  "symbol": "base:visual_equipment_plant_fiber",
+  "size": "medium"
 }

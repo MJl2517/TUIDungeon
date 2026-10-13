@@ -347,7 +347,8 @@ class WorkshopTests(unittest.TestCase):
 
     def test_route_furniture_torch_fire_water_remedy_and_save(self):
         self.e.state.position = Position(3, 6)
-        self.e.start_dismantle("lab_table")
+        self.add("carpenter_tools")
+        self.assertTrue(self.e.start_dismantle("lab_table").performed)
         self.finish()
         self.e.state.position = Position(4, 6)
         for _ in range(3):
@@ -617,7 +618,7 @@ class WorkshopTests(unittest.TestCase):
     def test_professional_repair_checks_and_destroyed_station(self):
         sword = self.add("sword")
         sword.durability = 1
-        self.add("metal_scrap")
+        self.add("metal")
         assessment = self.e.assess_craft("base:repair_metal", target=sword.instance_id)
         self.assertTrue(any("инструмента" in r for r in assessment.reasons))
         self.assertTrue(any("владения" in r for r in assessment.reasons))

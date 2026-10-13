@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "iron_grille",
+  "name": "Неподвижная решётка",
+  "description": "Разбор требует наличия исправного инструмента, но не владения им.",
+  "glyph": "|",
+  "symbol": "tiles:cell_0153",
+  "foreground": 153,
+  "group": "Ограды: металлические",
+  "map_category": "special",
+  "tags": [
+    "fence",
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": false,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "tools": [
+        "tinker_tools"
+      ],
+      "turns": 10,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:metal",
+          "quantity": 2
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:metal",
+        "quantity": 1
+      }
+    ]
+  },
+  "brush": {
+    "door": {
+      "material": "bars",
+      "hit_points": 20,
+      "transmits_light": true,
+      "foreground": 153,
+      "openable": false,
+      "force_allowed": false,
+      "bend_difficulty": 15
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:metal",
+      "quantity": 1
+    }
+  ],
+  "state_symbols": {
+    "closed": "tiles:cell_0153",
+    "locked": "tiles:cell_0153",
+    "bent": "tiles:cell_0154"
+  },
+  "attackable": false
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "build_metal_fence_251",
+  "name": "Построить: забор с верхними прутьями",
+  "description": "Построить секцию на соседней свободной клетке.",
+  "learn_recipes": [],
+  "category": "tinker",
+  "basic_known": true,
+  "learn_on_proficiency": [],
+  "variants": [
+    {
+      "result": null,
+      "check": null,
+      "spells": [],
+      "name": "Сборка инструментами",
+      "ingredients": [
+        {
+          "items": [
+            "base:metal"
+          ],
+          "quantity": 2
+        }
+      ],
+      "tools": [
+        "tinker_tools"
+      ],
+      "proficiencies": [],
+      "stations": [],
+      "turns": 5
+    }
+  ],
+  "result": [],
+  "check": null,
+  "operation": {
+    "kind": "place_object",
+    "target_tags": [],
+    "liquids": [],
+    "portions": 3,
+    "liquid_result": null,
+    "heat_safe": false,
+    "repair_amount": 10,
+    "place_object": "tiles:metal_fence_251",
+    "place_trap": null,
+    "poison_damage": 2,
+    "ignition": false
+  }
+}

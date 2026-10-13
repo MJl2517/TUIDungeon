@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { paintTile, sampleMap } from "./mapTools";
+import { paintTile, paintObject, sampleMap } from "./mapTools";
 import { brushDescription, tileFamily } from "./catalog";
-import { clone, History } from "./model";
+import { clone, History, mapGrid, resizeMap } from "./model";
 
 const blank = () =>
   ({
@@ -28,6 +28,56 @@ const blank = () =>
   }) as any;
 const options = { masks: true, mechanics: true, target: "" };
 describe("map brushes", () => {
+  it("reflects surfaces per cell and preserves reflection through undo, resize and erase", () => {
+    const doc = blank(),
+      p = { x: 1, y: 1 },
+      tile = {
+        walkable: true,
+        blocks_sight: false,
+        symbol: "test:tile",
+        mirror_x: false,
+      };
+    const history = new History(clone(doc));
+    paintTile(doc, "test:tile", tile, p, { ...options, mirror: true });
+    history.commit(clone(doc));
+    const assets = {
+      "tiles/test:tile": tile,
+      "symbols/test:tile": { glyph: "/" },
+    };
+    expect(mapGrid(doc, assets)[1][1]?.mirror_x).toBe(true);
+    expect(
+      mapGrid(doc, {
+        ...assets,
+        "tiles/test:tile": { ...tile, mirror_x: true },
+      })[1][1]?.mirror_x,
+    ).toBe(false);
+    expect(resizeMap(doc, 4, 3).tile_mirrors[1][1]).toBe(true);
+    history.undo();
+    expect(history.present.tile_mirrors).toBeUndefined();
+    history.redo();
+    expect(history.present.tile_mirrors[1][1]).toBe(true);
+    paintTile(doc, "test:tile", tile, p, { ...options, erase: true });
+    expect(doc.tile_mirrors[1][1]).toBe(false);
+  });
+  it("Shift mirrors a placed object relative to its template without copying the symbol", () => {
+    const doc = blank(),
+      p = { x: 1, y: 1 },
+      object = {
+        walkable: true,
+        blocks_sight: false,
+        mirror_x: true,
+        symbol: "test:picture",
+      };
+    paintObject(doc, "objects", "test:object", object, p, "", false, true);
+    expect(doc.objects[0]).toMatchObject({
+      ref: "test:object",
+      overrides: { mirror_x: false },
+    });
+    expect(object.mirror_x).toBe(true);
+    paintObject(doc, "objects", "test:object", object, p);
+    expect(doc.objects[0].overrides).toBeUndefined();
+    expect(doc.objects).toHaveLength(1);
+  });
   it("creates doors over floor and replaces the door without duplicating instances", () => {
     const doc = blank();
     const p = { x: 1, y: 1 };

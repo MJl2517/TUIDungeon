@@ -280,6 +280,8 @@ def shaded_cell(cell, strength):
     if not strength:
         return DARK_CELL
     if strength == 1 and cell:
+        if getattr(cell, "service_indicator", False):
+            return cell
         return cell.model_copy(
             update={"foreground": 8, "background": dim_background(cell.background)}
         )

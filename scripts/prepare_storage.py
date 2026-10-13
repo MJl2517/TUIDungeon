@@ -6,7 +6,7 @@ from pathlib import Path
 from tuidungeon.content.packs import PackStore, DEFAULT_PACKS
 
 CONTAINERS = {
-    "objects": {"bookcase", "cabinet"},
+    "objects": {"bookcase", "shelf", "cabinet"},
     "points_of_interest": {
         "chest",
         "terrain_barrel",
@@ -41,7 +41,19 @@ def run(root=DEFAULT_PACKS, write=False):
                 continue
             raw = doc.model_dump(mode="json")
             raw["tags"] = sorted(set(raw["tags"]) | {"storage"})
-            raw["storage"] = dict(capacity=1000, personal=False, contents=[])
+            small = identifier in {"bookcase", "shelf"}
+            chest = identifier in {
+                "chest",
+                "terrain_chest",
+                "terrain_chest_open",
+                "terrain_chest_treasure",
+            }
+            raw["storage"] = dict(
+                capacity=30 if small else 300 if chest else 1000,
+                max_item_size="small" if small else "medium" if chest else "large",
+                personal=False,
+                contents=[],
+            )
             changed += 1
             if write:
                 store.save(*key, raw, store.versions[key])

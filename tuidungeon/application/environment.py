@@ -61,6 +61,10 @@ class EnvironmentCommands:
         container = next(
             c for c in self.state.level.containers if c.placement.id == identifier
         )
+        if container.locked:
+            return self._craft_result(
+                False, "Контейнер заперт. Сначала откройте замок."
+            )
         if action == "take_light":
             if not container.items:
                 return self._craft_result(False, "Подставка пуста.")
@@ -163,6 +167,7 @@ class EnvironmentCommands:
             }
             level._world_definitions_source = level.definition
         result = []
+        containers = {c.placement.id: c for c in level.containers}
         for category in ("objects", "points_of_interest", "traps"):
             originals = {
                 p.placement.id: p
@@ -192,12 +197,28 @@ class EnvironmentCommands:
                 state = level.object_states.get(p.id)
                 if state is None:
                     state = level.object_states[p.id] = ObjectState(hp=maximum)
-                result.append(WorldObject(category, p, d, state, original))
+                result.append(
+                    WorldObject(category, p, d, state, original, containers.get(p.id))
+                )
         return result
 
     def world_object(self, identifier):
         return next(
             (o for o in self.world_objects() if o.placement.id == identifier), None
+        )
+
+    def world_work_target(self, identifier):
+        """Doors share dismantling progress, but retain their own HP and commands."""
+        target = self.world_object(identifier)
+        if target is not None:
+            return target
+        instance = self._door(identifier)
+        spec = getattr(instance.definition, "destruction", None) if instance else None
+        if not instance or instance.door.destroyed or not spec or not spec.dismantle:
+            return None
+        state = self.state.level.object_states.setdefault(identifier, ObjectState())
+        return WorldObject(
+            "doors", instance.placement, instance.definition, state, instance
         )
 
     def _within_reach(self, placement, distance=1):
@@ -233,7 +254,7 @@ class EnvironmentCommands:
         ]
 
     def world_workpiece(self, identifier):
-        target = self.world_object(identifier.removeprefix("world:"))
+        target = self.world_work_target(identifier.removeprefix("world:"))
         if target is None or not target.state.total:
             return None
         work = SimpleNamespace(
@@ -255,9 +276,13 @@ class EnvironmentCommands:
             target is not None
             and self.state.hero.hp > 0
             and not self.lockpick_attempt
-            and any(
-                o.placement.id == target.placement.id
-                for o in self.nearby_world_objects()
+            and (
+                self._within_reach(target.placement)
+                if target.category == "doors"
+                else any(
+                    o.placement.id == target.placement.id
+                    for o in self.nearby_world_objects()
+                )
             )
             and bool(
                 self.state.level.definition.tiles[target.placement.y][
@@ -301,6 +326,12 @@ class EnvironmentCommands:
 
     def dismantle_ready(self, target):
         if not target or not target.dismantle or target.state.burning:
+            return False
+        if target.category == "doors" and (
+            target.original.door.burning or target.original.brace
+        ):
+            return False
+        if not all(self.has_work_tool([tag]) for tag in target.furniture_tools):
             return False
         tools = target.dismantle.tools
         return (
@@ -376,11 +407,24 @@ class EnvironmentCommands:
         )
 
     def start_dismantle(self, identifier):
-        target = self.world_object(identifier)
+        target = self.world_work_target(identifier)
         if self._world_ready(target) and (
             denial := self.light_denial(2 if target.is_furniture else 1)
         ):
             return denial
+        if self._world_ready(target) and target.dismantle:
+            missing = [
+                tag for tag in target.furniture_tools if not self.has_work_tool([tag])
+            ]
+            if missing:
+                from ..domain.tags import TAG_LABELS
+
+                return self._craft_result(
+                    False,
+                    "Для разбора нужны: "
+                    + ", ".join(TAG_LABELS[tag] for tag in missing)
+                    + ". Владение инструментом не требуется.",
+                )
         if (
             self._world_ready(target)
             and target.dismantle
@@ -420,7 +464,7 @@ class EnvironmentCommands:
         )
 
     def advance_world_work(self):
-        target = self.world_object(self.active_craft.removeprefix("world:"))
+        target = self.world_work_target(self.active_craft.removeprefix("world:"))
         if self._world_ready(target) and (
             denial := self.light_denial(2 if target.is_furniture else 1)
         ):
@@ -443,7 +487,7 @@ class EnvironmentCommands:
                 "Работа приостановлена: проверьте инструмент в руках и остальные условия.",
             )
         self._advance(1)
-        if self.world_object(target.placement.id) is None:
+        if self.world_work_target(target.placement.id) is None:
             self.active_craft = None
             return self._craft_result(True, "Работа прервана: объект разрушен.", 1)
         target.state.progress += 1
@@ -451,6 +495,7 @@ class EnvironmentCommands:
             loot = list(target.dismantle.loot)
             if self.has_work_tool(target.dismantle.bonus_tools):
                 loot.extend(target.dismantle.bonus_loot)
+            loot = self.furniture_hardware_loot(target, loot)
             self._remove_world_object(
                 target, loot, harvested=target.dismantle.verb == "harvest"
             )
@@ -486,6 +531,9 @@ class EnvironmentCommands:
 
     def _detach_world(self, target, *, level=None):
         level, identifier = level or self.state.level, target.placement.id
+        if target.category == "doors":
+            level.doors[:] = [d for d in level.doors if d.placement.id != identifier]
+            level.door_loot.discard(identifier)
         level.object_states.pop(identifier, None)
         level.definition = level.definition.model_copy(
             update={
@@ -512,7 +560,7 @@ class EnvironmentCommands:
             ]
         return list(
             container.items
-        ) if container else [], container.spec if container else None
+        ) if container else [], container.snapshot_spec() if container else None
 
     def _remove_world_object(self, target, loot, *, harvested=False):
         level = self.state.level
@@ -857,10 +905,22 @@ class EnvironmentCommands:
         from ..content.compiler import compile_definition
         from ..content.placements import resolve_challenge
 
+        if getattr(getattr(definition, "brush", None), "door", None):
+            from ..world.doors import DoorInstance
+            from ..domain.doors import Door
+
+            category = "doors"
+            level.doors.append(
+                DoorInstance(
+                    placement, definition, Door.from_spec(definition.brush.door)
+                )
+            )
         level.definition = level.definition.model_copy(
             update={category: [*getattr(level.definition, category), placement]}
         )
-        level.object_states[placement.id] = state
+        level.object_states[placement.id] = (
+            ObjectState() if category == "doors" else state
+        )
         if category == "points_of_interest":
             doc = resolve_challenge(level.store.documents, definition, placement)
             challenge = (
@@ -883,6 +943,37 @@ class EnvironmentCommands:
                     items=list(items),
                 )
             )
+
+    def furniture_hardware_loot(self, target, loot, *, destroyed=False):
+        """Fittings survive careful dismantling; destruction recovers them half the time."""
+        if (
+            not target.is_furniture
+            or "wooden" not in target.definition.tags
+            or "furniture_hardware" not in self.catalog.equipment
+        ):
+            return loot
+        from ..content.schemas import RecipeOutput
+
+        ref = "base:furniture_hardware"
+        quantity = next(
+            (
+                entry.quantity
+                for entry in (target.dismantle.loot if target.dismantle else [])
+                if entry.item == ref
+            ),
+            1,
+        )
+        if not destroyed:
+            return (
+                loot
+                if any(entry.item == ref for entry in loot)
+                else [*loot, RecipeOutput(item=ref, quantity=quantity)]
+            )
+        # Fittings are a separate find, not the half-sized wood/cloth salvage budget.
+        result = [entry for entry in loot if entry.item != ref]
+        if self.dice.roll(1, 100)[0] <= 50:
+            result.append(RecipeOutput(item=ref, quantity=quantity))
+        return result
 
     def damage_world_objects(self, p, amount, kind):
         actual = 0
@@ -919,7 +1010,10 @@ class EnvironmentCommands:
                                 loot.model_copy(update={"quantity": quantity})
                             )
                             budget[loot.item] -= quantity
-                self._remove_world_object(target, remains)
+                self._remove_world_object(
+                    target,
+                    self.furniture_hardware_loot(target, remains, destroyed=True),
+                )
         return actual
 
     def replace_surface(self, p, ref):
@@ -950,6 +1044,7 @@ class EnvironmentCommands:
             )
         raw = level.definition.model_dump(mode="json")
         raw["tiles"][p.y][p.x] = ref
+        raw["tile_mirrors"][p.y][p.x] = False
         raw["walkability"][p.y][p.x] = tile.walkable
         raw["blocks_sight"][p.y][p.x] = tile.blocks_sight
         level.definition = MapDocument.model_validate(raw)
@@ -983,6 +1078,7 @@ class EnvironmentCommands:
                 if not door.door.destroyed or door.placement.id in level.door_loot:
                     continue
                 level.door_loot.add(door.placement.id)
+                level.object_states.pop(door.placement.id, None)
                 if door.brace:
                     item = door.brace
                     door.brace = None
@@ -1066,6 +1162,13 @@ class EnvironmentCommands:
             return self._craft_result(False, "Объект недоступен.")
         if choice != "break_object" and (denial := self.light_denial()):
             return denial
+        if choice == "break_object" and not getattr(
+            target.definition, "attackable", True
+        ):
+            return self._craft_result(
+                False,
+                "Этот объект нельзя атаковать. Используйте доступные взаимодействия.",
+            )
         if (
             choice == "break_object"
             and target.category != "traps"

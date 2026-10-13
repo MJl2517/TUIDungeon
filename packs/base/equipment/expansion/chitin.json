@@ -11,5 +11,6 @@
   "tags": [
     "organic"
   ],
-  "symbol": "base:visual_equipment_chitin"
+  "symbol": "base:visual_equipment_chitin",
+  "size": "small"
 }

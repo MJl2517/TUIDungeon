@@ -17,5 +17,6 @@
   "hands": 2,
   "weapon_damage": "1d6",
   "durability": 25,
-  "symbol": "base:visual_equipment_carved_staff"
+  "symbol": "base:visual_equipment_carved_staff",
+  "size": "large"
 }

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "metal_fence_low",
+  "name": "Низкий металлический забор",
+  "description": "Разбор требует наличия исправного инструмента, но не владения им. Низкая ограда не мешает герою; blocks_domesticated — контракт будущего фермерства, поведение животных пока не реализовано.",
+  "glyph": "=",
+  "symbol": "tiles:cell_0197",
+  "foreground": 153,
+  "group": "Ограды: металлические",
+  "map_category": "destructible",
+  "tags": [
+    "fence",
+    "metal",
+    "low_fence",
+    "blocks_domesticated"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "movable": false,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "tools": [
+        "tinker_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:metal",
+          "quantity": 2
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:metal",
+        "quantity": 1
+      }
+    ]
+  },
+  "attackable": false
+}

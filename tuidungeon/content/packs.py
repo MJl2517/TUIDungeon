@@ -106,9 +106,18 @@ def references(raw, category):
 
 
 def validate_storage(document, documents):
+    from ..domain.item_sizes import fits_size
+
     spec = getattr(document, "storage", None)
     if spec is None:
         return
+    if any(
+        not fits_size(documents["equipment", entry.item].size, spec.max_item_size)
+        for entry in spec.contents
+    ):
+        raise ContentError(
+            "Размер предмета в начальном содержимом превышает допустимый размер вещей в контейнере"
+        )
     if sum(entry.quantity for entry in spec.contents) > 10000:
         raise ContentError(
             "Начальное содержимое контейнера ограничено 10000 предметами"
@@ -268,6 +277,25 @@ class PackStore:
 
     @staticmethod
     def validate_references(documents, manifests):
+        indicators = set()
+        for (category, ref), doc in documents.items():
+            if category == "tiles" and "lock_indicator" in doc.tags:
+                roles = set(doc.tags) & {"lock_simple", "lock_complex"}
+                if (
+                    len(roles) != 1
+                    or doc.map_category != "service"
+                    or not doc.walkable
+                    or doc.blocks_sight
+                    or any(doc.brush.model_dump().values())
+                ):
+                    raise ContentError(
+                        f"{ref}: индикатор замка требует один тег lock_simple/lock_complex, служебный раздел и отсутствие механик клетки"
+                    )
+                key = (ref.split(":")[0], next(iter(roles)))
+                if key in indicators:
+                    raise ContentError(f"{ref}: повторный индикатор замка в пакете")
+                indicators.add(key)
+
         @lru_cache(maxsize=None)
         def allowed(pack):
             result = {pack}
@@ -301,9 +329,9 @@ class PackStore:
                 and doc.operation.kind == "place_object"
             ):
                 obj = documents["objects", doc.operation.place_object]
-                if obj.storage or obj.brush.door or obj.brush.transition:
+                if obj.storage or obj.brush.transition:
                     raise ContentError(
-                        "Создание объектов с дверью, контейнером или переходом ещё не поддерживается"
+                        "Создание объектов с контейнером или переходом ещё не поддерживается"
                     )
                 if doc.operation.ignition and not obj.campfire:
                     raise ContentError("Зажигание при создании требует свойств костра")
@@ -388,10 +416,15 @@ class PackStore:
                             f"{ref}: ссылка двери должна вести на объект с door"
                         )
                     spec = resolved.brush.door
-                    if (entry.x, entry.y) == (
-                        doc.spawn.x,
-                        doc.spawn.y,
-                    ) and spec.state != "open":
+                    if (
+                        (entry.x, entry.y)
+                        == (
+                            doc.spawn.x,
+                            doc.spawn.y,
+                        )
+                        and spec.state != "open"
+                        and not spec.bent
+                    ):
                         raise ContentError(f"{ref}: старт героя закрыт дверью")
                     if (entry.x, entry.y) in occupied_doors:
                         raise ContentError(f"{ref}: две двери занимают одну клетку")

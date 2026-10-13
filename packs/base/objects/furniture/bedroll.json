@@ -49,5 +49,6 @@
       }
     ]
   },
-  "symbol": "base:visual_objects_bedroll"
+  "symbol": "base:visual_objects_bedroll",
+  "size": "large"
 }

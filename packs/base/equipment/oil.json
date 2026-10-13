@@ -31,5 +31,6 @@
   "light": null,
   "variants": [],
   "group": "Декорации: припасы",
-  "symbol": "base:visual_equipment_oil"
+  "symbol": "base:visual_equipment_oil",
+  "size": "small"
 }

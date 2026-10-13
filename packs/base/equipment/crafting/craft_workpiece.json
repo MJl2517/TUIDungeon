@@ -8,5 +8,6 @@
   "category": "materials",
   "group": "Материалы",
   "weight": 0.0,
-  "symbol": "base:visual_equipment_craft_workpiece"
+  "symbol": "base:visual_equipment_craft_workpiece",
+  "size": "medium"
 }

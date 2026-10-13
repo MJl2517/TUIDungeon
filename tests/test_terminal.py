@@ -796,7 +796,7 @@ class TestMapTerminalTests(TerminalSession):
         self.key(b"1", "1")
         self.assertEqual(self.controller.engine.state.clock.elapsed_minutes, 540)
         self.key(b"\x1b", "escape")
-        self.key(b"4", "4")
+        self.key(b"5", "5")  # Exit submenu, then main menu and load.
         self.key(b"1", "1")
         self.key(b"2", "2")
         self.assertEqual(self.controller.engine.state.clock.elapsed_minutes, 480)

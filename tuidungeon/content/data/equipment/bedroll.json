@@ -10,5 +10,6 @@
     "cloth"
   ],
   "description": "Снаряжение для ночлега в походе.",
-  "durability": null
+  "durability": null,
+  "size": "medium"
 }

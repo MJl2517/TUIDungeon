@@ -11,5 +11,6 @@
   "tags": [
     "stone"
   ],
-  "symbol": "base:visual_equipment_pigment"
+  "symbol": "base:visual_equipment_pigment",
+  "size": "small"
 }

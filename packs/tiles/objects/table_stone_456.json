@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "table_stone_456",
+  "name": "Каменный длинный овальный стол",
+  "glyph": "T",
+  "foreground": 244,
+  "description": "Переносимая мебель. Можно только разрушить; разбор недоступен.",
+  "map_category": "furniture",
+  "group": "Мебель: камень",
+  "tags": [
+    "furniture",
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": true,
+  "size": "large",
+  "weight": 100,
+  "destruction": {
+    "max_hp": 40,
+    "dismantle": null,
+    "remains": [
+      {
+        "item": "base:stone",
+        "quantity": 5
+      }
+    ]
+  },
+  "storage": null,
+  "symbol": "tiles:cell_0456"
+}

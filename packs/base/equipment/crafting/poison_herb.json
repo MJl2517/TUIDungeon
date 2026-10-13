@@ -14,5 +14,6 @@
     "plants",
     "poison"
   ],
-  "symbol": "base:visual_equipment_poison_herb"
+  "symbol": "base:visual_equipment_poison_herb",
+  "size": "small"
 }

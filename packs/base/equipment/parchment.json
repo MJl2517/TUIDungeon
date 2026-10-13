@@ -23,5 +23,6 @@
   "hands": 0,
   "light": null,
   "group": "Снаряжение",
-  "symbol": "base:visual_equipment_parchment"
+  "symbol": "base:visual_equipment_parchment",
+  "size": "small"
 }

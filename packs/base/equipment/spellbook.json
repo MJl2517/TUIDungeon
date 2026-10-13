@@ -25,5 +25,6 @@
   "hands": 0,
   "light": null,
   "group": "Снаряжение",
-  "symbol": "base:visual_equipment_spellbook"
+  "symbol": "base:visual_equipment_spellbook",
+  "size": "small"
 }

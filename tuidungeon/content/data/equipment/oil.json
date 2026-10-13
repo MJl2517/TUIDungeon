@@ -14,5 +14,6 @@
     "flammable",
     "fuel",
     "liquid"
-  ]
+  ],
+  "size": "small"
 }

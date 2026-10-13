@@ -21,5 +21,6 @@
   "charges": null,
   "hands": 0,
   "light": null,
-  "symbol": "base:visual_equipment_gold"
+  "symbol": "base:visual_equipment_gold",
+  "size": "small"
 }

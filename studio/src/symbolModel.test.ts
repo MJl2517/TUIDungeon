@@ -9,6 +9,39 @@ import {
 import { History } from "./model";
 
 describe("symbol documents", () => {
+  it("container states share one template and keep the loot color", () => {
+    const chest = {
+      symbol: "tiles:closed",
+      state_symbols: { closed: "tiles:closed", open: "tiles:open" },
+      storage: { state: "closed" },
+      foreground: 220,
+    };
+    const assets = {
+      "symbols/tiles:closed": { glyph: "C" },
+      "symbols/tiles:open": { glyph: "U" },
+    };
+    expect(visual(chest, assets)).toMatchObject({
+      symbol: "tiles:closed",
+      char: "C",
+      foreground: 220,
+    });
+    expect(
+      visual({ ...chest, storage: { state: "open" } }, assets),
+    ).toMatchObject({ symbol: "tiles:open", char: "U", foreground: 220 });
+  });
+  it("initial bent state chooses the grille state symbol", () => {
+    const doc = {
+      symbol: "tiles:intact",
+      state_symbols: { bent: "tiles:bent" },
+      brush: { door: { state: "closed", bent: true } },
+    };
+    const assets = {
+      "symbols/tiles:intact": { glyph: "|" },
+      "symbols/tiles:bent": { glyph: "%" },
+    };
+    expect(visual(doc, assets).symbol).toBe("tiles:bent");
+    expect(visual(doc, assets).char).toBe("%");
+  });
   it("fills enclosed regions and leaves surrounding pixels intact", () => {
     let mask = blankMask();
     const border = [];

@@ -11,5 +11,6 @@
     "stone"
   ],
   "value_gold": 25,
-  "symbol": "base:visual_equipment_uncut_gem"
+  "symbol": "base:visual_equipment_uncut_gem",
+  "size": "small"
 }

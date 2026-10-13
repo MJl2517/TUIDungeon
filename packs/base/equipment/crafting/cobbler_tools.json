@@ -13,5 +13,6 @@
     "cobbler_tools",
     "tool"
   ],
-  "symbol": "base:visual_equipment_cobbler_tools"
+  "symbol": "base:visual_equipment_cobbler_tools",
+  "size": "medium"
 }

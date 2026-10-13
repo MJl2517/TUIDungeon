@@ -43,7 +43,14 @@
         {
           "item": "base:cloth",
           "quantity": 2
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
         }
+      ],
+      "tools": [
+        "carpenter_tools"
       ]
     },
     "remains": [
@@ -57,5 +64,6 @@
       }
     ]
   },
-  "symbol": "base:visual_objects_bed"
+  "symbol": "base:visual_objects_bed",
+  "size": "large"
 }

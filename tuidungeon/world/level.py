@@ -82,6 +82,7 @@ class Level:
     object_states: dict = field(default_factory=dict)
     regrowing_objects: list = field(default_factory=list)
     door_loot: set = field(default_factory=set)
+    container_visual_version: int = 0
 
     def __post_init__(self):
         self.authored_definition = self.definition
@@ -202,6 +203,7 @@ class Level:
         return self._order
 
     def render_cells(self, state, viewport=None):
+        from ..domain.doors import door_glyph
         from .graphics import glyph_cell, visual_cell
         from ..content.symbols import appearance
 
@@ -213,25 +215,35 @@ class Level:
         )
         cells = [list(row[x : x + width]) for row in self.cells[y : y + height]]
 
-        def draw(definition, p, category, ref=None):
+        def draw(definition, p, category, ref=None, visual_state=None):
             visual_ref = category + "/" + (ref or p.ref)
             cells[p.y - y][p.x - x] = visual_cell(
                 self.store,
                 definition,
                 visual_ref,
+                state=visual_state,
                 background=cells[p.y - y][p.x - x].background,
             )
 
-        for container in self.index("containers").region(x, y, width, height):
-            fixture = getattr(container.definition, "light_fixture", None)
-            if fixture and fixture.stays_when_empty and not container.items:
-                p = container.placement
-                cells[p.y - y][p.x - x] = glyph_cell("†", 8)
         for trap in self.index("traps").region(x, y, width, height):
             if not trap.definition.hidden or trap.triggered or trap.discovered:
                 draw(trap.definition, trap.placement, "traps")
         for point in self.index("points").region(x, y, width, height):
             draw(point.definition, point.placement, "points_of_interest")
+        for container in self.index("containers").region(x, y, width, height):
+            fixture = getattr(container.definition, "light_fixture", None)
+            if fixture and fixture.stays_when_empty and not container.items:
+                p = container.placement
+                cells[p.y - y][p.x - x] = glyph_cell("†", 8)
+            elif container.definition.state_symbols:
+                draw(
+                    container.definition,
+                    container.placement,
+                    "objects"
+                    if ("objects", container.placement.ref) in self.store.documents
+                    else "points_of_interest",
+                    visual_state="open" if container.opened else "closed",
+                )
         for instance in self.index("doors").region(x, y, width, height):
             p, door = instance.placement, instance.door
             if not door.destroyed:
@@ -240,28 +252,29 @@ class Level:
                     definition = self.store.documents.get(
                         ("objects", "base:door_" + door.material), definition
                     )
-                state_key = (
-                    "open"
-                    if door.opened
-                    else "bent"
-                    if door.bent
-                    else "locked"
-                    if door.locked
-                    else "closed"
-                )
+                state_key = "open" if door.opened else "bent" if door.bent else "closed"
                 visual = (
                     definition
                     if state_key in definition.state_symbols
                     or (state_key == "closed" and definition.symbol)
-                    else {"glyph": door.glyph}
+                    else {
+                        "glyph": door_glyph(
+                            door.opened, False, bent=door.bent, material=door.material
+                        )
+                    }
                 )
                 char, symbol = appearance(self.store.documents, visual, state_key)
                 cells[p.y - y][p.x - x] = glyph_cell(
-                    char if symbol else door.glyph,
+                    char
+                    if symbol
+                    else door_glyph(
+                        door.opened, False, bent=door.bent, material=door.material
+                    ),
                     door.display_color(),
                     visual_ref="door_"
                     + ("open" if door.opened else "bent" if door.bent else "closed"),
                     symbol=symbol,
+                    mirror_x=definition.mirror_x,
                 )
 
         for placement, item in state.item_index.region(x, y, width, height):

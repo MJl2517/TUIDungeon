@@ -27,5 +27,6 @@
   "light": null,
   "group": "Снаряжение",
   "damage_type": "piercing",
-  "symbol": "base:visual_equipment_pickaxe"
+  "symbol": "base:visual_equipment_pickaxe",
+  "size": "large"
 }

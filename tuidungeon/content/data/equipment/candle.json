@@ -24,5 +24,6 @@
     "bright_radius": 1,
     "burn_minutes": 60,
     "fuel_tag": null
-  }
+  },
+  "size": "small"
 }

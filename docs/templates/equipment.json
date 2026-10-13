@@ -11,5 +11,6 @@
   "slot": "weapon",
   "durability": 50,
   "weapon_damage": "1d8",
-  "damage_type": "slashing"
+  "damage_type": "slashing",
+  "size": "medium"
 }

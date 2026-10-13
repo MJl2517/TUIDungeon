@@ -91,10 +91,10 @@ G на клетке предмета: подобрать. Enter рядом с т
 | 055 | Материалы | Тряпка | `base:cloth` | Предмет: `base:cloth` | 8 | 28 |
 | 056 | Материалы | Заготовка | `base:craft_workpiece` | Предмет: `base:craft_workpiece` | 12 | 28 |
 | 057 | Материалы | Стекольное сырьё | `base:glass_material` | Предмет: `base:glass_material` | 16 | 28 |
-| 058 | Материалы | Железо | `base:iron` | Предмет: `base:iron` | 20 | 28 |
+| 058 | Материалы | Металл | `base:metal` | Предмет: `base:metal` | 20 | 28 |
 | 059 | Материалы | Механическая деталь | `base:mechanical_part` | Предмет: `base:mechanical_part` | 24 | 28 |
 | 060 | Материалы | Лекарственная трава | `base:medicinal_herb` | Предмет: `base:medicinal_herb` | 28 | 28 |
-| 061 | Материалы | Металлический лом | `base:metal_scrap` | Предмет: `base:metal_scrap` | 32 | 28 |
+| 061 | Материалы | Металл | `base:metal` | Предмет: `base:metal` | 32 | 28 |
 | 062 | Материалы | Грибы | `base:mushroom` | Предмет: `base:mushroom` | 36 | 28 |
 | 063 | Материалы | Растительное волокно | `base:plant_fiber` | Предмет: `base:plant_fiber` | 40 | 28 |
 | 064 | Материалы | Ядовитая трава | `base:poison_herb` | Предмет: `base:poison_herb` | 44 | 28 |

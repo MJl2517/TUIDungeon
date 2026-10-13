@@ -66907,7 +66907,7 @@
       "x": 64,
       "y": 66,
       "id": "sample_129",
-      "ref": "base:iron",
+      "ref": "base:metal",
       "overrides": {},
       "item_state": null,
       "challenge_overrides": {}
@@ -66952,7 +66952,7 @@
       "x": 20,
       "y": 70,
       "id": "sample_134",
-      "ref": "base:metal_scrap",
+      "ref": "base:metal",
       "overrides": {},
       "item_state": null,
       "challenge_overrides": {}

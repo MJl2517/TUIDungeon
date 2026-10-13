@@ -10,5 +10,6 @@
     "fiber"
   ],
   "description": "Прочная верёвка для спуска и подъёма.",
-  "durability": null
+  "durability": null,
+  "size": "medium"
 }

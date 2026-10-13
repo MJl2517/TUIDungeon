@@ -401,6 +401,9 @@ class CraftCommands:
                     description=recipe.description,
                     category=recipe.category,
                     turns=min(v.turns for v in recipe.variants),
+                    requires_proficiency=all(
+                        bool(v.proficiencies) for v in recipe.variants
+                    ),
                     variants=[
                         dict(variant=n, method=v.name, turns=v.turns)
                         for n, v in enumerate(recipe.variants)

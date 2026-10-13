@@ -61,17 +61,23 @@ def load_symbol_tileset(font, documents):
     for codepoint in font:
         tileset[codepoint] = font[codepoint][y[:, None], x]
     mapping = {}
-    for (category, ref), doc in sorted(documents.items()):
-        if category != "symbols":
-            continue
-        code = SPRITE_START + len(mapping)
-        if code > 0x10FFFD:
+    symbols = [
+        (ref, doc)
+        for (category, ref), doc in sorted(documents.items())
+        if category == "symbols"
+    ]
+    for index, (ref, doc) in enumerate(symbols):
+        code = SPRITE_START + index
+        mirrored_code = code + len(symbols)
+        if mirrored_code > 0x10FFFD:
             raise ValueError("Превышен размер атласа символов")
         pixels = np.zeros((16, 16, 4), dtype=np.uint8)
         pixels[:, :, :3] = 255
         pixels[:, :, 3] = [[255 if c == "1" else 0 for c in row] for row in doc.pixels]
         tileset[code] = pixels
         mapping[ref] = chr(code)
+        tileset[mirrored_code] = pixels[:, ::-1].copy()
+        mapping[(ref, "mirror_x")] = chr(mirrored_code)
     for codepoint in font:
         if codepoint != ord(" ") and glyph_ref(chr(codepoint)) in mapping:
             mapping[("glyph", chr(codepoint))] = mapping[glyph_ref(chr(codepoint))]

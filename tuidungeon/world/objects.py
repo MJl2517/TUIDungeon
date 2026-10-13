@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 from uuid import uuid4
+from ..domain.tags import TAG_LABELS
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 from ..content.schemas import Placement, Transition
@@ -60,6 +61,7 @@ class WorldObject:
     definition: object
     state: ObjectState
     original: object = None
+    container: object = None
 
     @property
     def text(self):
@@ -74,6 +76,10 @@ class WorldObject:
             text += f" Костёр: {'горит' if self.state.lit else 'потушен'}, топливо {self.state.fuel_minutes} мин."
         if self.state.burning:
             text += " Горит: 5 урона огнём за минуту."
+        if self.container and self.container.locked:
+            text += " Контейнер заперт."
+        if self.is_furniture and "wooden" in self.definition.tags:
+            text += " Фурнитура: при разборе гарантированно, при разрушении с вероятностью 50%."
         if self.state.progress:
             text += f" {WORK_NAMES[self.dismantle.verb]}: {self.state.progress}/{self.state.total}."
         return text
@@ -97,6 +103,19 @@ class WorldObject:
         )
 
     @property
+    def furniture_tools(self):
+        if not self.is_furniture:
+            return ()
+        return tuple(
+            tool
+            for material, tool in (
+                ("wooden", "carpenter_tools"),
+                ("metal", "tinker_tools"),
+            )
+            if material in self.definition.tags
+        )
+
+    @property
     def dismantle(self):
         if self.category == "traps":
             return self.definition.dismantle
@@ -109,11 +128,15 @@ class WorldObject:
     def available_choices(self, hero):
         choices = (
             list(self.original.available_choices(hero))
-            if self.original and hasattr(self.original, "available_choices")
+            if self.original
+            and hasattr(self.original, "available_choices")
+            and not (self.container and self.container.locked)
             else []
         )
         fixture = getattr(self.definition, "light_fixture", None)
-        if fixture:
+        if self.container and self.container.locked:
+            choices.extend(self.container.available_choices(hero))
+        elif fixture:
             choices.extend(
                 [
                     ChallengeChoice("take_light", "Забрать источник света", minutes=1),
@@ -132,6 +155,14 @@ class WorldObject:
             choices.append(
                 ChallengeChoice("open_storage", "Открыть контейнер", minutes=0)
             )
+            if (
+                self.container
+                and self.container.opened
+                and self.definition.state_symbols
+            ):
+                choices.append(
+                    ChallengeChoice("close_storage", "Закрыть контейнер", minutes=0)
+                )
         if getattr(self.definition, "water_source", None):
             from ..domain.liquids import LIQUID_NAMES
 
@@ -195,12 +226,20 @@ class WorldObject:
                 ChallengeChoice(
                     "dismantle",
                     f"{label} ({self.state.progress}/{turns})"
-                    + (" — яркий свет, больше материалов" if self.is_furniture else ""),
+                    + (" — яркий свет, больше материалов" if self.is_furniture else "")
+                    + (
+                        "; нужны: "
+                        + ", ".join(TAG_LABELS[t] for t in self.furniture_tools)
+                        if self.furniture_tools
+                        else ""
+                    ),
                     minutes=0,
                 )
             )
         if self.category != "traps":
-            if self.definition.destruction:
+            if self.definition.destruction and getattr(
+                self.definition, "attackable", True
+            ):
                 choices.append(
                     ChallengeChoice(
                         "break_object",
@@ -242,7 +281,7 @@ def validate_object_state(state, definition, category):
         raise ValueError("Недопустимый запас источника жидкости")
     maximum = (
         definition.destruction.max_hp
-        if category != "traps" and definition.destruction
+        if category not in ("traps", "doors") and definition.destruction
         else None
     )
     if (maximum is None) != (state.hp is None) or (

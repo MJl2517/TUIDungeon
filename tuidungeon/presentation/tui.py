@@ -767,6 +767,17 @@ class Controller:
             points = self.engine.nearby_points()
             if key in ("backspace", "escape"):
                 self.view, self.point_id = View.EXPLORE, None
+            elif key in ("space", " "):
+                if self.point_id:
+                    if self.engine._door(self.point_id):
+                        result = self.engine.toggle_door(self.point_id)
+                    else:
+                        return
+                else:
+                    result = self.engine.toggle_nearby_door()
+                self.message = result.message
+                if result.performed:
+                    self.view, self.point_id = View.EXPLORE, None
             elif key in ("pageup", "pagedown"):
                 self.page = max(0, self.page + (1 if key == "pagedown" else -1))
             elif key in "123456789" and len(key) == 1:
@@ -971,6 +982,12 @@ class Controller:
                     self.choose_spell(index)
             return
         if self.view is View.EXPLORE and self.action_menu is ActionMenu.ROOT:
+            if key in ("space", " "):
+                doors = self.engine.operable_doors()
+                self.message = self.engine.toggle_nearby_door().message
+                if len(doors) > 1:
+                    self.open_interaction()
+                return
             if key == "escape":
                 self.menu_return = ActionMenu.ROOT
                 self.action_menu = ActionMenu.META
@@ -1559,6 +1576,7 @@ def popup_content(controller):
                 "Z: скрытность | J: журнал | L: логи",
                 "3: действия | 4: отдых | C: крафт | Esc: меню",
                 "Enter рядом с объектом: взаимодействовать",
+                "Space: открыть / закрыть соседнюю дверь или калитку",
                 "I: инвентарь | M: заклинания | B: строительство",
                 "↑↓: выбор вещи | Enter / щелчок: предмет",
                 "F: поиск | G: подобрать | ←/→: вкладки",
@@ -2094,7 +2112,12 @@ def render(controller: Controller, width: int, height: int) -> list[str]:
             controller.message,
         ]
     elif controller.view is View.INTERACTION:
-        actions = ["Цифра: выбрать вариант", "Backspace: карта", "", controller.message]
+        actions = [
+            "Цифра: выбрать вариант",
+            "Backspace: карта",
+            "Space: открыть / закрыть дверь",
+            controller.message,
+        ]
     elif controller.view is View.LOOK:
         actions = [
             "WASD / стрелки: курсор",
@@ -2375,18 +2398,31 @@ def draw_emphasis(screen, controller, width, height, rows, curses, colors=None):
                     pass
 
         if not controller.feedback and controller.view is View.STORAGE:
-            _, _, body, offsets = storage_layout(controller, width, height)
-            column = (rect.width - 5) // 2
-            side = controller.storage.side
-            row = 2 + controller.storage.selected[side] - offsets[side]
-            if 2 <= row < rect.height - 9:
-                x = rect.x + 2 + side * (column + 3)
-                text = body[row][side * (column + 3) : side * (column + 3) + column]
-                attribute = (
-                    colors.attribute(0, 11) if colors else curses.A_REVERSE
-                ) | curses.A_BOLD
+            storage_layout(controller, width, height)
+            for (
+                row,
+                column,
+                text,
+                foreground,
+                background,
+                bold,
+                disabled,
+            ) in controller.storage.colors:
+                attribute = colors.attribute(foreground, background) if colors else 0
+                if bold and not colors:
+                    attribute |= curses.A_BOLD
+                if not colors and background == 11:
+                    attribute |= curses.A_REVERSE
+                if not colors and disabled:
+                    attribute |= curses.A_DIM
                 try:
-                    screen.addnstr(rect.y + row + 1, x, text, column, attribute)
+                    screen.addnstr(
+                        rect.y + row + 1,
+                        rect.x + 2 + column,
+                        text,
+                        len(text),
+                        attribute,
+                    )
                 except curses.error:
                     pass
 
@@ -2477,6 +2513,7 @@ def draw_colors(screen, controller, width, height, colors):
                         | (
                             colors.curses.A_DIM
                             if lighting.cells[cy + y][cx + x] == 1
+                            and not getattr(cell, "service_indicator", False)
                             else 0
                         ),
                     )

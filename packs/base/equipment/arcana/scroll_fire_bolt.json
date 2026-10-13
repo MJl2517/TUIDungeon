@@ -15,5 +15,6 @@
   ],
   "charges": 1,
   "cast_spell": "base:fire_bolt",
-  "symbol": "base:visual_equipment_scroll_fire_bolt"
+  "symbol": "base:visual_equipment_scroll_fire_bolt",
+  "size": "small"
 }

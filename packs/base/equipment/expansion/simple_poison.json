@@ -12,5 +12,6 @@
     "poison",
     "reagent"
   ],
-  "symbol": "base:visual_equipment_simple_poison"
+  "symbol": "base:visual_equipment_simple_poison",
+  "size": "small"
 }

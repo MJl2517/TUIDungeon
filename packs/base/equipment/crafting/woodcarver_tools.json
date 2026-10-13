@@ -13,5 +13,6 @@
     "woodcarver_tools",
     "tool"
   ],
-  "symbol": "base:visual_equipment_woodcarver_tools"
+  "symbol": "base:visual_equipment_woodcarver_tools",
+  "size": "medium"
 }

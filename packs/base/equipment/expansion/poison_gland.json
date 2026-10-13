@@ -13,5 +13,6 @@
     "poison",
     "reagent"
   ],
-  "symbol": "base:visual_equipment_poison_gland"
+  "symbol": "base:visual_equipment_poison_gland",
+  "size": "small"
 }

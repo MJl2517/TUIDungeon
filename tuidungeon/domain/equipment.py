@@ -14,6 +14,13 @@ def find_lockpicks(inventory):
     return next((item for item in inventory if "lockpicks" in item.tags), None)
 
 
+def lockpicks_hint(inventory):
+    tools = find_lockpicks(inventory)
+    if tools is None:
+        return "нужны исправные воровские инструменты"
+    return f"инструменты {tools.durability}/{tools.definition.durability}; провал: −1 прочность"
+
+
 @dataclass(frozen=True)
 class ItemGlow:
     """Read-only view of a session-owned light enchantment."""
@@ -144,6 +151,22 @@ class Equipment:
             if self.work
             else self.definition.weight + self.liquid_portions * PORTION_WEIGHT
         )
+
+    @property
+    def size(self):
+        from .item_sizes import largest_size
+
+        if self.furniture:
+            return self.furniture.definition.size
+        if self.work:
+            return largest_size(
+                [
+                    self.definition.size,
+                    *(item.size for item in self.work.ingredients),
+                    *([self.work.target.size] if self.work.target else []),
+                ]
+            )
+        return self.definition.size
 
     @property
     def category(self) -> str:

@@ -20,5 +20,6 @@
     ]
   },
   "durability": null,
-  "symbol": "base:visual_equipment_inscribed_page"
+  "symbol": "base:visual_equipment_inscribed_page",
+  "size": "small"
 }

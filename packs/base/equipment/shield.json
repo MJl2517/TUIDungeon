@@ -58,5 +58,6 @@
   "charges": null,
   "hands": 1,
   "light": null,
-  "symbol": "base:visual_equipment_shield"
+  "symbol": "base:visual_equipment_shield",
+  "size": "medium"
 }

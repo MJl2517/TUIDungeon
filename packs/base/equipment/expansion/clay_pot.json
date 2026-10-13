@@ -17,5 +17,6 @@
     "capacity_portions": 3
   },
   "durability": null,
-  "symbol": "base:visual_equipment_clay_pot"
+  "symbol": "base:visual_equipment_clay_pot",
+  "size": "medium"
 }

@@ -58,5 +58,6 @@
     "capacity_portions": 1,
     "initial_portions": 1
   },
-  "symbol": "base:visual_equipment_healing_potion"
+  "symbol": "base:visual_equipment_healing_potion",
+  "size": "small"
 }

@@ -8,6 +8,7 @@ import {
   resizeArt,
   resizeMap,
   mapGrid,
+  mapMasks,
   matchesEntry,
   clone,
   mergeProperties,
@@ -15,6 +16,51 @@ import {
   instanceDocument,
 } from "./model";
 describe("instance properties", () => {
+  it("transparent gates and bent grilles share geometry and selected colors", () => {
+    const gate = {
+      glyph: "+",
+      brush: {
+        door: {
+          material: "wood",
+          state: "closed",
+          transmits_light: true,
+          foreground: 11,
+        },
+      },
+    };
+    const closed = instanceDocument(gate, {});
+    expect(closed.walkable).toBe(false);
+    expect(closed.blocks_sight).toBe(false);
+    expect(closed.foreground).toBe(11);
+    const grille = {
+      glyph: "|",
+      brush: {
+        door: {
+          material: "bars",
+          state: "closed",
+          bent: false,
+          foreground: 153,
+        },
+      },
+    };
+    const bent = instanceDocument(grille, {
+      overrides: { brush: { door: { bent: true } } },
+    });
+    expect(bent.walkable).toBe(true);
+    expect(bent.glyph).toBe("%");
+    expect(bent.foreground).toBe(153);
+    const doc = {
+      width: 2,
+      height: 1,
+      walkability: [[true, true]],
+      blocks_sight: [[false, false]],
+      doors: [{ id: "g", ref: "tiles:gate", x: 1, y: 0 }],
+    };
+    const masks = mapMasks(doc, { "objects/tiles:gate": gate });
+    expect(masks.walkability[0][1]).toBe(false);
+    expect(masks.blocks_sight[0][1]).toBe(false);
+  });
+
   const door = {
     glyph: "+",
     foreground: 130,

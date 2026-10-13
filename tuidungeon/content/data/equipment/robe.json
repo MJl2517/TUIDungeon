@@ -8,5 +8,6 @@
     "flammable",
     "cloth"
   ],
-  "slot": "armor"
+  "slot": "armor",
+  "size": "medium"
 }

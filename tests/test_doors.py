@@ -141,14 +141,16 @@ class DoorTests(unittest.TestCase):
         self.assertEqual(engine.render_cells((4, 2, 1, 1))[0][0].char, "+")
         self.assertIs(original, self.store.get("maps", "base:door_test"))
 
-    def test_bars_transmit_light_and_can_be_bent(self):
+    def test_bars_transmit_light_and_can_be_forced_but_not_bent(self):
         engine = self.setup_map("bars", locked=True, ambient="dark")
         self.assertEqual(engine.lighting.illumination[2][5], 2)
         self.assertFalse(engine.apply(Action.EAST).performed)
         with patch.object(engine.dice, "roll", side_effect=lambda n, sides: (20,) * n):
-            self.assertTrue(engine.interact("door", "bend").performed)
-        self.assertTrue(self.instance.door.bent)
-        self.assertEqual(engine.events[-1]["difficulty"], 20)
+            self.assertFalse(engine.interact("door", "bend").performed)
+            self.assertTrue(engine.interact("door", "force").performed)
+        self.assertFalse(self.instance.door.bent)
+        self.assertTrue(self.instance.door.opened)
+        self.assertEqual(engine.events[-1]["difficulty"], 15)
         self.assertTrue(engine.apply(Action.EAST).performed)
 
     def test_simple_and_complex_lockpick_turns_and_cancellation(self):
@@ -167,7 +169,7 @@ class DoorTests(unittest.TestCase):
             rolls.assert_not_called()
             self.assertFalse(engine.apply(Action.WEST).performed)
             engine.cancel_lockpick()
-            self.assertIsNone(tools.durability)
+            self.assertEqual(tools.durability, 10)
             self.assertTrue(self.instance.door.locked)
             engine.interact("door", "pick")
             for _ in range(10):
@@ -176,7 +178,7 @@ class DoorTests(unittest.TestCase):
             self.assertFalse(self.instance.door.locked)
             self.assertEqual(engine.state.turns, 13)
             self.assertEqual(rolls.call_count, 1)
-            self.assertIsNone(tools.durability)
+            self.assertEqual(tools.durability, 10)
         engine = self.setup_map(locked=True)
         self.add_tools(engine)
         with patch.object(engine.dice, "roll", side_effect=lambda n, sides: (20,) * n):
@@ -200,7 +202,7 @@ class DoorTests(unittest.TestCase):
             engine.interact("door", "pick")
             self.assertFalse(engine.events[-1]["advantage"])
             self.assertIsNone(crowbar.durability)
-            self.assertIsNone(tools.durability)
+            self.assertEqual(tools.durability, 9)
             for _ in range(5):
                 engine.interact("door", "force")
                 self.assertTrue(engine.events[-1]["advantage"])
@@ -376,18 +378,19 @@ class DoorTests(unittest.TestCase):
                     self.assertEqual(engine.state.turns, 0)
                     rolls.assert_not_called()
 
-    def test_failed_lockpicking_does_not_wear_or_break_tools(self):
+    def test_failed_lockpicking_wears_and_breaks_tools(self):
         engine = self.setup_map(locked=True)
         tools = self.add_tools(engine)
         with patch.object(
             engine.dice, "roll", side_effect=lambda n, sides: (1,) * n
         ) as rolls:
-            for _ in range(10):
+            for attempt in range(10):
                 result = engine.interact("door", "pick")
                 self.assertTrue(result.performed)
                 self.assertTrue(self.instance.door.locked)
-                self.assertIsNone(tools.durability)
-            self.assertNotIn("сломаны", result.message)
+                self.assertEqual(tools.durability, 9 - attempt)
+            self.assertIn("сломаны", result.message)
+            self.assertFalse(engine.interact("door", "pick").performed)
             self.assertEqual(rolls.call_count, 10)
             self.assertEqual(engine.state.turns, 10)
 
@@ -408,9 +411,9 @@ class DoorTests(unittest.TestCase):
                             engine.advance_lockpick()
                     rolls.assert_called_once_with(1, 20)
                 self.assertFalse(engine.events[-1]["advantage"])
-                self.assertIsNone(tools.durability)
+                self.assertEqual(tools.durability, 9)
 
-    def test_complex_lock_does_not_wear_tools_and_rechecks_presence(self):
+    def test_complex_lock_wears_once_at_final_failure_and_rechecks_presence(self):
         engine = self.setup_map(locked=True, complex=True)
         tools = self.add_tools(engine)
         with patch.object(
@@ -419,19 +422,21 @@ class DoorTests(unittest.TestCase):
             engine.interact("door", "pick")
             for _ in range(9):
                 engine.advance_lockpick()
-                self.assertIsNone(tools.durability)
+                self.assertEqual(tools.durability, 10)
             rolls.assert_not_called()
             engine.advance_lockpick()
-            self.assertIsNone(tools.durability)
+            self.assertEqual(tools.durability, 9)
             self.assertEqual(rolls.call_count, 1)
             engine.interact("door", "pick")
             engine.state.hero.inventory.remove(tools)
             self.assertFalse(engine.advance_lockpick().performed)
             self.assertEqual(engine.state.turns, 10)
             self.assertIsNone(engine.lockpick_attempt)
-            self.assertIsNone(tools.durability)
+            self.assertEqual(tools.durability, 9)
 
-    def test_tools_save_and_legacy_damage_becomes_unbreakable(self):
+    def test_tools_save_preserves_wear_and_legacy_unbreakable_tools_get_durability(
+        self,
+    ):
         engine = self.setup_map(locked=True)
         tools = self.add_tools(engine)
         with patch.object(engine.dice, "roll", side_effect=lambda n, sides: (1,) * n):
@@ -443,17 +448,21 @@ class DoorTests(unittest.TestCase):
         restored_tools = next(
             i for i in restored.state.hero.inventory if i.id == tools.id
         )
-        self.assertIsNone(restored_tools.durability)
+        self.assertEqual(restored_tools.durability, 9)
         self.assertEqual(restored_tools.instance_id, tools.instance_id)
-        for value in (20, 15, 10, 7, 0, 21):
+        for value in (None, 10, 7, 0):
             record = ItemRecord(
                 definition="thieves_tools",
                 instance_id=tools.instance_id,
                 durability=value,
                 equipped=False,
             )
-            self.assertIsNone(restore_item(record, engine.catalog).durability)
-            self.assertTrue(restore_item(record, engine.catalog).usable)
+            restored = restore_item(record, engine.catalog)
+            self.assertEqual(restored.durability, 10 if value is None else value)
+            self.assertEqual(restored.usable, value != 0)
+        record.durability = 11
+        with self.assertRaises(ValueError):
+            restore_item(record, engine.catalog)
 
 
 if __name__ == "__main__":

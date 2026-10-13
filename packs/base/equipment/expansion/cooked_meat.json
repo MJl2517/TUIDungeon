@@ -20,5 +20,6 @@
       "amount": 2
     }
   ],
-  "symbol": "base:visual_equipment_cooked_meat"
+  "symbol": "base:visual_equipment_cooked_meat",
+  "size": "small"
 }

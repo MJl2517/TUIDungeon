@@ -26,5 +26,6 @@
   "hands": 0,
   "light": null,
   "group": "Замки и ключи",
-  "symbol": "base:visual_equipment_terrain_key_ancient"
+  "symbol": "base:visual_equipment_terrain_key_ancient",
+  "size": "small"
 }

@@ -189,8 +189,15 @@ def render_map(controller, width, height, tile_size, *, sprites=None):
                         getattr(cell, "symbol", None) or visual_ref,
                         char if visual_ref else sprites.get(("glyph", cell.char), char),
                     )
+                    if getattr(cell, "mirror_x", False):
+                        char = sprites.get(
+                            (getattr(cell, "symbol", None) or visual_ref, "mirror_x"),
+                            char,
+                        )
                 attribute = screen.attribute(cell.foreground, cell.background)
-                if light.cells[y0 + y][x0 + x] == 1:
+                if light.cells[y0 + y][x0 + x] == 1 and not getattr(
+                    cell, "service_indicator", False
+                ):
                     attribute |= STYLE.A_DIM
                 if view in (
                     View.LOOK,

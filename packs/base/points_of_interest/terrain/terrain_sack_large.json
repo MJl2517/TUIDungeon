@@ -20,7 +20,8 @@
   "storage": {
     "capacity": 1000.0,
     "personal": false,
-    "contents": []
+    "contents": [],
+    "max_item_size": "large"
   },
   "movable": true,
   "weight": 1,
@@ -44,5 +45,6 @@
       }
     ]
   },
-  "symbol": "base:visual_points_of_interest_terrain_sack_large"
+  "symbol": "base:visual_points_of_interest_terrain_sack_large",
+  "size": "large"
 }

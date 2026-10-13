@@ -13,5 +13,6 @@
     "cook_tools",
     "tool"
   ],
-  "symbol": "base:visual_equipment_cook_tools"
+  "symbol": "base:visual_equipment_cook_tools",
+  "size": "medium"
 }

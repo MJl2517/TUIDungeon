@@ -31,5 +31,6 @@
     "initial_kind": "cactus_juice",
     "fragile": true
   },
-  "symbol": "base:visual_equipment_healing_potion"
+  "symbol": "base:visual_equipment_healing_potion",
+  "size": "small"
 }

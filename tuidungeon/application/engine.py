@@ -313,11 +313,25 @@ class Engine(
             raise ValueError("Недопустимая область карты")
         region = (x, y, min(w, width - x), min(h, height - y))
         level = state.level
+        from ..world.lock_indicators import nearby_locks, draw_lock_indicators
+
+        lock_targets = nearby_locks(state)
         key = (
             id(state),
             id(light),
             state.position,
             state.hero.sneaking,
+            level.container_visual_version if level else 0,
+            tuple(
+                (
+                    i.placement.id,
+                    i.placement.x,
+                    i.placement.y,
+                    lock.lock_quality,
+                    lock.lock_complexity,
+                )
+                for i, lock in lock_targets
+            ),
             tuple((m.instance_id, m.position, m.turns) for m in self.magic_effects),
             tuple(state.oil.items()),
             id(state.items),
@@ -384,7 +398,9 @@ class Engine(
                     94,
                     getattr(c, "visual_ref", None),
                     getattr(c, "symbol", None),
+                    mirror_x=getattr(c, "mirror_x", False),
                 )
+        draw_lock_indicators(self, cells, region, lock_targets)
         frame = light.shade(cells, (x, y))
         # Keep at most the full map and a small number of camera regions.
         if len(self._frames) >= 4:
@@ -814,6 +830,17 @@ class Engine(
 
     def inspect_cell(self, position: Position) -> list[str]:
         """Visible information only; inspection never reveals an untriggered hidden trap."""
+        from ..domain.item_sizes import SIZE_LABELS
+
+        def description(definition):
+            title = definition.name.strip()
+            text = definition.description.strip()
+            if text.casefold().rstrip(".") == title.casefold().rstrip("."):
+                text = ""
+            elif text[: len(title) + 1].casefold() == (title + ".").casefold():
+                text = text[len(title) + 1 :].lstrip()
+            return [title, text]
+
         state = self.state
         if not (
             0 <= position.x < state.dungeon.width
@@ -854,6 +881,7 @@ class Engine(
                     item.name,
                     item.definition.description,
                     f"Вес: {item.weight:g} кг",
+                    "Размер: " + SIZE_LABELS[item.size],
                     *material_details(item.definition.tags),
                     *([item.glow.description] if item.glow else []),
                 ]
@@ -870,6 +898,9 @@ class Engine(
         level = state.level
         if level:
             for container in level.index("containers").at(position.x, position.y):
+                if container.locked:
+                    lines.append("Контейнер заперт.")
+                    continue
                 if getattr(container.definition, "light_fixture", None):
                     lines.extend(
                         f"{i.name}: топливо {i.fuel_minutes} мин."
@@ -883,11 +914,13 @@ class Engine(
                     if container.spec.personal
                     else "Лутовый контейнер (только забирать)",
                     f"Содержимое: {len(container.items)} шт.; вес {container.weight:g}/{container.spec.capacity:g} кг",
+                    "Макс. размер предмета: "
+                    + SIZE_LABELS[container.spec.max_item_size],
                 ]
             for p in level.definition.objects:
                 if (p.x, p.y) == (position.x, position.y):
                     obj = level.store.resolve("objects", p)
-                    lines += [obj.name, obj.description, *material_details(obj.tags)]
+                    lines += [*description(obj), *material_details(obj.tags)]
             for target in self.world_objects():
                 if (target.placement.x, target.placement.y) == (position.x, position.y):
                     source = getattr(target.definition, "water_source", None)
@@ -943,7 +976,7 @@ class Engine(
                 lines += (
                     ["Пол."]
                     if hidden_brush_trap
-                    else [tile.name, tile.description, *material_details(tile.tags)]
+                    else [*description(tile), *material_details(tile.tags)]
                 )
         if len(lines) == details_start:
             lines.append("Пол." if state.dungeon.walkable(position) else "Стена.")
@@ -1093,6 +1126,15 @@ class Engine(
         objects = self.nearby_world_objects()
         ids = {o.placement.id for o in objects}
         points = [p for p in points if p.placement.id not in ids] + objects
+        locked = {
+            c.placement.id: c
+            for c in self.nearby_containers(include_closed=True)
+            if c.locked
+        }
+        points = [
+            locked.get(p.placement.id, p) if p.placement.id not in ids else p
+            for p in points
+        ]
         present = {p.placement.id for p in points}
         return points + [
             c for c in self.nearby_containers() if c.placement.id not in present
@@ -1112,6 +1154,10 @@ class Engine(
         return learned
 
     def interact(self, placement_id, choice_id):
+        if choice_id == "close_storage":
+            return self.close_container(placement_id)
+        if choice_id in ("pick_container_lock", "unlock_container_key"):
+            return self.interact_container_lock(placement_id, choice_id)
         if choice_id == "fill_water":
             return self.fill_at_source(placement_id)
         if choice_id in ("fire_ignite", "fire_extinguish", "fire_refuel"):

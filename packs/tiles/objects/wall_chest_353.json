@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "wall_chest_353",
+  "name": "Настенный сундук",
+  "glyph": "C",
+  "foreground": 130,
+  "description": "Переносимая мебель. Для разбора нужен инструмент в инвентаре, владение не требуется.",
+  "map_category": "furniture",
+  "group": "Мебель: сундуки",
+  "tags": [
+    "furniture",
+    "wooden",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": true,
+  "size": "large",
+  "weight": 12,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      }
+    ]
+  },
+  "storage": {
+    "capacity": 100,
+    "max_item_size": "medium"
+  },
+  "symbol": "tiles:cell_0353",
+  "state_symbols": {
+    "closed": "tiles:cell_0353",
+    "open": "tiles:cell_0354"
+  }
+}

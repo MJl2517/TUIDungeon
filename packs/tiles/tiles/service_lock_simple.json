@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "service_lock_simple",
+  "name": "Простой замок",
+  "glyph": "l",
+  "foreground": 110,
+  "description": "Служебный индикатор рядом с запертым объектом. Цвет задаёт качество замка.",
+  "map_category": "service",
+  "group": "Служебные: замки",
+  "tags": [
+    "lock_indicator",
+    "lock_simple"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "symbol": "tiles:cell_0491"
+}

@@ -33,5 +33,6 @@
   "hands": 0,
   "light": null,
   "group": "Снаряжение",
-  "symbol": "base:visual_equipment_mail"
+  "symbol": "base:visual_equipment_mail",
+  "size": "medium"
 }

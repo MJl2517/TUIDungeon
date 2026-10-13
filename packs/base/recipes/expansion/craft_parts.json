@@ -14,7 +14,7 @@
       "ingredients": [
         {
           "items": [
-            "base:metal_scrap"
+            "base:metal"
           ],
           "quantity": 2
         }

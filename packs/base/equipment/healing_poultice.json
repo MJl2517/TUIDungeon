@@ -17,5 +17,6 @@
     "medicinal",
     "organic"
   ],
-  "symbol": "base:visual_equipment_healing_poultice"
+  "symbol": "base:visual_equipment_healing_poultice",
+  "size": "small"
 }

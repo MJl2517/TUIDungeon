@@ -27,5 +27,6 @@
   "light": null,
   "group": "Снаряжение",
   "damage_type": "acid",
-  "symbol": "base:visual_equipment_acid_flask"
+  "symbol": "base:visual_equipment_acid_flask",
+  "size": "small"
 }

@@ -778,6 +778,7 @@ export default function App() {
                             />
                           ) : draft.symbol ? (
                             <SymbolPreview
+                              mirror_x={!!draft.mirror_x}
                               symbol={draft.symbol}
                               size={64}
                               tint={color(draft.foreground ?? 7)}

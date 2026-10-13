@@ -179,6 +179,8 @@ export function InstanceInspector({
                   "glyph",
                   "foreground",
                   "background",
+                  "mirror_x",
+                  ...(base.loot_tier !== undefined ? ["loot_tier"] : []),
                 ])
                   delete next[key];
               } else {
@@ -188,8 +190,12 @@ export function InstanceInspector({
                   "glyph",
                   "foreground",
                   "background",
-                ])
+                  "mirror_x",
+                  ...(base.loot_tier !== undefined ? ["loot_tier"] : []),
+                ]) {
+                  if (key === "mirror_x" && variant[key] == null) continue;
                   next[key] = variant[key] ?? null;
+                }
               }
               onChange({ overrides: next });
             }}

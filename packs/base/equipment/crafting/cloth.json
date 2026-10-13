@@ -13,5 +13,6 @@
     "flammable",
     "organic"
   ],
-  "symbol": "base:visual_equipment_cloth"
+  "symbol": "base:visual_equipment_cloth",
+  "size": "small"
 }

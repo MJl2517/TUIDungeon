@@ -14,5 +14,6 @@
     "medicinal",
     "plants"
   ],
-  "symbol": "base:visual_equipment_medicinal_herb"
+  "symbol": "base:visual_equipment_medicinal_herb",
+  "size": "small"
 }

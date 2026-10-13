@@ -11,5 +11,6 @@
   "tags": [
     "glass"
   ],
-  "symbol": "base:visual_equipment_glass_material"
+  "symbol": "base:visual_equipment_glass_material",
+  "size": "small"
 }

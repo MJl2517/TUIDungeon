@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "metal",
+  "name": "Металл",
+  "description": "Универсальный металлический компонент для ремёсел, строительства и разбора. Заменяет железо, сталь и металлический лом.",
+  "glyph": "*",
+  "foreground": 6,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.3,
+  "tags": [
+    "metal"
+  ],
+  "symbol": "base:visual_equipment_iron",
+  "size": "small"
+}

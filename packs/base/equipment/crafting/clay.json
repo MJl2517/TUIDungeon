@@ -11,5 +11,6 @@
   "tags": [
     "clay"
   ],
-  "symbol": "base:visual_equipment_clay"
+  "symbol": "base:visual_equipment_clay",
+  "size": "small"
 }

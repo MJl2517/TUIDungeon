@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "metal_fence_251",
+  "name": "Металлический забор с верхними прутьями",
+  "description": "Разбор требует наличия исправного инструмента, но не владения им.",
+  "state_symbols": {},
+  "variants": [],
+  "glyph": "H",
+  "foreground": 153,
+  "background": null,
+  "art": null,
+  "map_category": "destructible",
+  "group": "Ограды: металлические",
+  "tags": [
+    "fence",
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "loot_tier": null,
+  "size": "large",
+  "attackable": false,
+  "poisonous": false,
+  "rarity": "common",
+  "on_enter": [],
+  "light_fixture": null,
+  "campfire": null,
+  "water_source": null,
+  "door_remains": [],
+  "destruction": {
+    "regrow_as": null,
+    "regrow_minutes": null,
+    "max_hp": 20,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "dismantle",
+      "tools": [
+        "tinker_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:metal",
+          "quantity": 2
+        }
+      ],
+      "bonus_tools": [],
+      "bonus_loot": []
+    },
+    "remains": [
+      {
+        "item": "base:metal",
+        "quantity": 1
+      }
+    ]
+  },
+  "movable": false,
+  "weight": 0.0,
+  "storage": null,
+  "symbol": "tiles:cell_0251"
+}

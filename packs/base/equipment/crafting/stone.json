@@ -11,5 +11,6 @@
   "tags": [
     "stone"
   ],
-  "symbol": "base:visual_equipment_stone"
+  "symbol": "base:visual_equipment_stone",
+  "size": "small"
 }

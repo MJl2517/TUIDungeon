@@ -20,5 +20,6 @@
       "amount": 2
     }
   ],
-  "symbol": "base:visual_equipment_mithril_shield"
+  "symbol": "base:visual_equipment_mithril_shield",
+  "size": "medium"
 }

@@ -1117,7 +1117,13 @@
       "x": 7,
       "y": 3,
       "id": "chest_1",
-      "ref": "base:chest"
+      "ref": "base:chest",
+      "overrides": {
+        "storage": {
+          "lock": null
+        },
+        "challenge": "base:locked_chest"
+      }
     },
     {
       "x": 4,

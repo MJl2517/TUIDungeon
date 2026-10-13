@@ -9,6 +9,7 @@ from ..domain.doors import Material, LockQuality, LockComplexity, MATERIALS, doo
 from ..domain.tags import TAGS_DESCRIPTION, TAG_SCHEMA
 from ..domain.liquids import LiquidKind
 from ..domain.damage import DamageType, DamageSelector
+from ..domain.item_sizes import ItemSize
 
 LocalId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*$")]
 Ref = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$")]
@@ -217,6 +218,8 @@ class TileLight(StrictModel):
 
 
 class VisualVariant(StrictModel):
+    mirror_x: bool | None = None
+    loot_tier: Literal["white", "bronze", "iron", "gold"] | None = None
     name: str
     glyph: str = "?"
     symbol: Ref | None = Field(
@@ -229,12 +232,16 @@ class VisualVariant(StrictModel):
 
 
 class Visual(Document):
+    mirror_x: bool = Field(
+        default=False,
+        description="Отразить изображение по горизонтали; механики не меняются",
+    )
     symbol: Ref | None = Field(
         default=None, json_schema_extra={"ref_category": "symbols"}
     )
     state_symbols: dict[str, Ref] = Field(
         default_factory=dict,
-        description="Графика состояний двери: closed, locked, open, bent",
+        description="Графика состояний: closed/open у контейнера; closed/locked/open/bent у двери",
     )
     variants: list[VisualVariant] = Field(
         default_factory=list,
@@ -423,6 +430,13 @@ class RecipeVariant(StrictModel):
 
 
 class RecipeDocument(Document):
+    @model_validator(mode="before")
+    @classmethod
+    def legacy_materials(cls, value):
+        from .migrations import migrate_document
+
+        return migrate_document(value, "recipes")
+
     learn_recipes: list[Ref] = Field(
         default_factory=list,
         max_length=32,
@@ -489,6 +503,11 @@ class ReadingText(StrictModel):
 
 
 class EquipmentDocument(Visual):
+    size: ItemSize = Field(
+        default="medium",
+        description="Физический размер предмета, независимый от веса и типа снаряжения",
+    )
+
     @model_validator(mode="before")
     @classmethod
     def legacy_liquids(cls, value):
@@ -530,7 +549,9 @@ class EquipmentDocument(Visual):
 
     @model_validator(mode="after")
     def light_hand(self):
-        if "tool" in self.tags:
+        if "lockpicks" in self.tags and self.durability is None:
+            object.__setattr__(self, "durability", 10)
+        elif "tool" in self.tags and "lockpicks" not in self.tags:
             object.__setattr__(self, "durability", None)
         if self.cast_spell and (
             self.charges is None
@@ -873,7 +894,25 @@ class StorageItem(StrictModel):
     quantity: Annotated[int, Field(ge=1, le=999)] = 1
 
 
+class LockSpec(StrictModel):
+    locked: bool = True
+    lock_quality: LockQuality = "normal"
+    lock_complexity: LockComplexity = "simple"
+    key_tag: LocalId | None = Field(
+        default=None, description="Тег подходящего ключа; ключ не расходуется"
+    )
+
+
 class StorageSpec(StrictModel):
+    state: Literal["closed", "open"] = "closed"
+    lock: LockSpec | None = Field(
+        default=None,
+        description="Общий замок: качество определяет СЛ, сложность — 1 или 10 ходов",
+    )
+    max_item_size: ItemSize = Field(
+        default="large",
+        description="Максимальный размер одной вещи. Меньшие размеры также разрешены; вес ограничен отдельно.",
+    )
     open_tool: LocalId | None = None
     search_contents: bool = False
     capacity: Annotated[float, Field(gt=0, le=1000000, allow_inf_nan=False)] = 1000
@@ -890,6 +929,9 @@ def configure_storage(document):
 
 
 class PointDocument(Visual):
+    size: ItemSize = Field(
+        default="large", description="Размер при переносе как мебели"
+    )
     water_source: WaterSourceSpec | None = None
 
     destruction: DestructionSpec | None = None
@@ -929,16 +971,38 @@ class PointDocument(Visual):
         return self
 
 
-class DoorSpec(StrictModel):
+class DoorSpec(LockSpec):
     material: Material = "wood"
     state: Literal["open", "closed"] = "closed"
     locked: bool = False
     lock_quality: LockQuality = "normal"
     lock_complexity: LockComplexity = "simple"
     hit_points: Positive | None = None
+    transmits_light: bool = Field(
+        default=False, description="Пропускает свет даже в закрытом состоянии"
+    )
+    openable: bool = Field(
+        default=True,
+        description="Есть створка: можно открыть и закрыть. Выключите для неподвижной решётки.",
+    )
+    force_allowed: bool = Field(
+        default=True, description="Разрешена попытка выламывания, в том числе ломиком"
+    )
+    bend_difficulty: Annotated[int, Field(ge=1, le=40)] = 20
+    bent: bool = Field(
+        default=False,
+        description="Начальное состояние прутьев: погнуты, проход свободен",
+    )
+    foreground: Color | None = Field(
+        default=None, description="Собственный цвет двери; пусто — цвет материала"
+    )
 
     @model_validator(mode="after")
     def stone_slab(self):
+        if self.bent and self.material != "bars":
+            raise ValueError("Погнутыми могут быть только прутья")
+        if not self.openable and (self.state == "open" or self.locked):
+            raise ValueError("Неподвижная преграда не имеет створки и замка")
         if self.material == "stone":
             object.__setattr__(self, "state", "closed")
             object.__setattr__(self, "locked", False)
@@ -987,12 +1051,27 @@ class TileDocument(Visual):
             object.__setattr__(
                 self,
                 "glyph",
-                door_glyph(spec.state == "open", spec.locked, material=spec.material),
+                door_glyph(
+                    spec.state == "open",
+                    spec.locked,
+                    bent=spec.bent,
+                    material=spec.material,
+                ),
             )
-            object.__setattr__(self, "foreground", MATERIALS[spec.material].color)
-            object.__setattr__(self, "walkable", spec.state == "open")
             object.__setattr__(
-                self, "blocks_sight", spec.state != "open" and spec.material != "bars"
+                self,
+                "foreground",
+                spec.foreground
+                if spec.foreground is not None
+                else MATERIALS[spec.material].color,
+            )
+            object.__setattr__(self, "walkable", spec.state == "open" or spec.bent)
+            object.__setattr__(
+                self,
+                "blocks_sight",
+                not self.walkable
+                and spec.material != "bars"
+                and not spec.transmits_light,
             )
         if (
             not self.brush.door
@@ -1018,6 +1097,17 @@ class LightFixtureSpec(StrictModel):
 
 
 class WorldObjectDocument(TileDocument):
+    loot_tier: Literal["white", "bronze", "iron", "gold"] | None = Field(
+        default=None,
+        description="Маркер будущей генерации добычи. Сейчас содержимое задаётся вручную.",
+    )
+    size: ItemSize = Field(
+        default="large", description="Размер при переносе как мебели"
+    )
+    attackable: bool = Field(
+        default=True,
+        description="Доступно разрушение прямыми атаками. Эффекты окружения и разбор задаются отдельно.",
+    )
     poisonous: bool = Field(
         default=False,
         description="При сборе даёт ядовитое растение вместо обычных ингредиентов. Внешний вид не меняется.",
@@ -1066,6 +1156,7 @@ class WorldObjectDocument(TileDocument):
 
 
 class Cell(StrictModel):
+    mirror_x: bool = False
     char: str = " "
     symbol: Ref | None = Field(
         default=None, json_schema_extra={"ref_category": "symbols"}
@@ -1186,6 +1277,12 @@ class MapDocument(Document):
     tiles: list[list[Ref | None]]
     walkability: list[list[bool]]
     blocks_sight: list[list[bool]]
+    tile_mirrors: list[list[bool]] = Field(
+        default_factory=lambda data: [
+            [False] * data["width"] for _ in range(data["height"])
+        ],
+        description="Горизонтальное отражение отдельных клеток поверхностей относительно шаблона",
+    )
     roof: list[list[bool]] = Field(
         default_factory=lambda data: [
             [False] * data["width"] for _ in range(data["height"])
@@ -1212,7 +1309,7 @@ class MapDocument(Document):
 
     @model_validator(mode="after")
     def map_valid(self):
-        for name in ("tiles", "walkability", "blocks_sight", "roof"):
+        for name in ("tiles", "walkability", "blocks_sight", "roof", "tile_mirrors"):
             grid = getattr(self, name)
             if len(grid) != self.height or any(len(row) != self.width for row in grid):
                 raise ValueError(f"Размер {name} не совпадает с картой")

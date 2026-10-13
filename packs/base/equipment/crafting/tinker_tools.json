@@ -13,5 +13,6 @@
     "tinker_tools",
     "tool"
   ],
-  "symbol": "base:visual_equipment_tinker_tools"
+  "symbol": "base:visual_equipment_tinker_tools",
+  "size": "medium"
 }

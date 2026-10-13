@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "stone_bridge_flat",
+  "name": "Каменный плоский мост",
+  "description": "Проходимая поверхность моста. Не разбирается.",
+  "glyph": "=",
+  "symbol": "tiles:cell_0204",
+  "foreground": 244,
+  "group": "Поверхности: мосты",
+  "map_category": "floor",
+  "tags": [
+    "bridge",
+    "stone"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

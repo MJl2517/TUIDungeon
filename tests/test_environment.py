@@ -28,6 +28,9 @@ class EnvironmentTests(unittest.TestCase):
             raw
         )
         self.e = SessionFactory(self.store).session("dev:crafting_lab", seed=42)
+        self.e.state.hero.inventory.append(
+            Equipment.create(self.e.catalog.equipment["carpenter_tools"])
+        )
 
     def near(self, identifier):
         o = self.e.world_object(identifier)
@@ -103,7 +106,7 @@ class EnvironmentTests(unittest.TestCase):
         self.assertEqual(e.state.level.definition.tiles[p.y][p.x], floor)
         self.assertEqual(
             Counter(i.id for q, i in e.state.items if (q.x, q.y) == (p.x, p.y)),
-            {"wood": 3},
+            {"wood": 3, "furniture_hardware": 1},
         )
         self.assertFalse(e.start_dismantle("lab_table").performed)
         self.reload()
@@ -160,7 +163,12 @@ class EnvironmentTests(unittest.TestCase):
         self.assertIsNotNone(e.world_object("lab_table"))
         e.state.hero.inventory.clear()
         crowbar = next(d for d in e.catalog.equipment.values() if "lever" in d.tags)
-        e.state.hero.inventory.append(Equipment.create(crowbar))
+        e.state.hero.inventory.extend(
+            [
+                Equipment.create(crowbar),
+                Equipment.create(e.catalog.equipment["carpenter_tools"]),
+            ]
+        )
         self.assertTrue(e.start_dismantle("lab_table").performed)
         self.assertEqual(target.state.total, 1)
         self.assertTrue(e.advance_craft().performed)

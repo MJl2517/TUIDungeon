@@ -27,5 +27,6 @@
   "light": null,
   "group": "Декорации: оружие",
   "damage_type": "piercing",
-  "symbol": "base:visual_equipment_terrain_decor_rapier"
+  "symbol": "base:visual_equipment_terrain_decor_rapier",
+  "size": "medium"
 }

@@ -30,5 +30,6 @@
     "fuel_tag": null
   },
   "group": "Снаряжение",
-  "symbol": "base:visual_equipment_candle"
+  "symbol": "base:visual_equipment_candle",
+  "size": "small"
 }

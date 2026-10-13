@@ -19,5 +19,6 @@
     "bright_radius": 3,
     "burn_minutes": 60
   },
-  "durability": null
+  "durability": null,
+  "size": "medium"
 }

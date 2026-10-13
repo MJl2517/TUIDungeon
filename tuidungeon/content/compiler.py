@@ -56,6 +56,7 @@ def compile_definition(category, ref, doc):
     raw["id"] = runtime_key(ref)
     for name in (
         "glyph",
+        "mirror_x",
         "symbol",
         "state_symbols",
         "foreground",
@@ -134,6 +135,26 @@ class ContentSnapshot:
 
     def snapshot(self):
         return self
+
+    @cached_property
+    def lock_indicators(self):
+        result = {"simple": {}, "complex": {}}
+        for (category, ref), doc in self.documents.items():
+            if category != "tiles" or "lock_indicator" not in doc.tags:
+                continue
+            for kind in result:
+                if "lock_" + kind in doc.tags:
+                    result[kind][ref.split(":")[0]] = (ref, doc)
+        return result
+
+    def lock_indicator(self, complexity, pack):
+        choices = self.lock_indicators[complexity]
+        custom = [value for key, value in choices.items() if key != "base"]
+        return (
+            (choices.get(pack) if pack != "base" else None)
+            or (custom[0] if len(custom) == 1 else None)
+            or choices.get("base")
+        )
 
     def resolve(self, category, placement):
         from .placements import resolve_placement

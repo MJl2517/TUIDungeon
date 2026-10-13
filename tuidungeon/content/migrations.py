@@ -170,6 +170,7 @@ def migrate_document(raw, category):
         "starting_items": "equipment",
         "inventory": "equipment",
         "item": "equipment",
+        "items": "equipment",
     }
 
     def visit(value):
@@ -182,10 +183,10 @@ def migrate_document(raw, category):
             if key in references:
                 result[key] = (
                     [canonical_ref(references[key], r) for r in val]
-                    if isinstance(val, list)
+                    if isinstance(val, list) and all(isinstance(r, str) for r in val)
                     else canonical_ref(references[key], val)
                     if isinstance(val, str)
-                    else val
+                    else visit(val)
                 )
             else:
                 result[key] = val if key == "params" else visit(val)
@@ -288,4 +289,4 @@ def migrate_map(raw):
             if (p["x"], p["y"]) not in fixtures
             or not p["id"].startswith(("tile_lights_", "sample_light_"))
         ]
-    return result
+    return migrate_document(result, "maps")

@@ -329,6 +329,10 @@ class ContentCatalog:
         if "spell_slots" in data:
             data["spell_slots"] = slots(data["spell_slots"])
         if category == "equipment":
+            from ..domain.item_sizes import ITEM_SIZES
+
+            if data.get("size", "medium") not in ITEM_SIZES:
+                raise ContentError("size: нужно small, medium или large")
             from ..domain.damage import validate_damage
 
             validate_damage(

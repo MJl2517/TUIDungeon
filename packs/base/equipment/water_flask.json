@@ -14,5 +14,6 @@
     "glass"
   ],
   "durability": null,
-  "symbol": "base:visual_equipment_water_flask"
+  "symbol": "base:visual_equipment_water_flask",
+  "size": "small"
 }

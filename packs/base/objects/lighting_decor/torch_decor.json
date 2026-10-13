@@ -43,7 +43,8 @@
         "item": "base:torch",
         "quantity": 1
       }
-    ]
+    ],
+    "max_item_size": "large"
   },
   "symbol": "base:visual_objects_torch_decor"
 }

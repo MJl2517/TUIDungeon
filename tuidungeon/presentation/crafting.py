@@ -36,6 +36,8 @@ class CraftBrowser:
     previous_query: str = ""
     selected: int = 0
     category: str | None = None
+    collapsed: set[tuple[str, bool]] = field(default_factory=set)
+    _rows_context: tuple | None = field(default=None, repr=False)
     _available_key: tuple | None = field(default=None, repr=False)
     _available_refs: set[str] = field(default_factory=set, repr=False)
     colors: list[tuple] = field(default_factory=list, repr=False)
@@ -45,7 +47,7 @@ class CraftBrowser:
         self.filter, self.page, self.variant = "all", 0, None
         self.target = self.destination = self.selection_key = None
         self.query, self.editing, self.selected = "", False, 0
-        self.category = self._available_key = None
+        self.category = self._available_key = self._rows_context = None
         self.work_id = item.instance_id if item and item.work else None
         self.recipe_ref = item.work.recipe_ref if item and item.work else None
 
@@ -125,9 +127,47 @@ class CraftBrowser:
         return entries
 
     def rows(self, engine):
-        rows = [(e["category"], e, 1) for e in self.entries(engine)]
+        entries = self.entries(engine)
+        rows = []
+        if (
+            self.query
+            and (self.category, self.filter, self.query) != self._rows_context
+        ):
+            self.collapsed.difference_update(
+                {(self.category, False), (self.category, True)}
+            )
+        for requires in (False, True):
+            group = [e for e in entries if e["requires_proficiency"] == requires]
+            if not group:
+                continue
+            if self.work_id and any(e["ref"] == self.recipe_ref for e in group):
+                self.collapsed.discard((self.category, requires))
+            rows.append((self.category, None, requires))
+            if (self.category, requires) not in self.collapsed:
+                rows.extend((self.category, entry, 1) for entry in group)
+        context = (self.category, self.filter, self.query)
+        if context != self._rows_context:
+            self.selected = next(
+                (
+                    n
+                    for n, (_, e, _) in enumerate(rows)
+                    if e and e["ref"] == self.recipe_ref
+                ),
+                next((n for n, (_, e, _) in enumerate(rows) if e), 0),
+            )
+            self._rows_context = context
         self.selected = max(0, min(self.selected, len(rows) - 1))
         return rows
+
+    def toggle_group(self, engine, rows):
+        category, entry, requires = rows[self.selected]
+        requires = entry["requires_proficiency"] if entry else requires
+        key = (category, requires)
+        self.collapsed.symmetric_difference_update({key})
+        self.selected = next(
+            n for n, (c, e, group) in enumerate(rows) if not e and group == requires
+        )
+        self.recipe_ref = self.work_id = self.variant = None
 
     def filters(self, engine):
         return ["all", "available"]
@@ -143,6 +183,8 @@ class CraftBrowser:
                 else None
             )
         rows = self.rows(engine) if rows is None else rows
+        if rows and rows[self.selected][1] is None:
+            return None
         if not self.recipe_ref and rows and rows[self.selected][1]:
             self.recipe_ref = rows[self.selected][1]["ref"]
         key = (self.recipe_ref, self.variant)
@@ -164,6 +206,26 @@ class CraftBrowser:
         self._detail_colors = {}
         a = self.assessment(engine, rows)
         if not a:
+            options = self.rows(engine) if rows is None else rows
+            if options and options[self.selected][1] is None:
+                category, _, requires = options[self.selected]
+                return (
+                    [
+                        "Требует умения в инструменте: "
+                        + ("да" if requires else "нет"),
+                        "Сложные способы требуют владения указанным инструментом."
+                        if requires
+                        else "Простые способы доступны без владения инструментом.",
+                        "Наличие набора и владение им — разные требования.",
+                        "Enter/Space или G: свернуть/развернуть группу.",
+                    ],
+                    [],
+                    [
+                        "Развернуть группу"
+                        if (category, requires) in self.collapsed
+                        else "Свернуть группу"
+                    ],
+                )
             return ["Выберите рецепт в списке слева."], [], []
         v = a.recipe.variants[a.variant]
         rows = [
@@ -206,6 +268,9 @@ class CraftBrowser:
             f"{method.name}: {craft_turns(method.turns)}"
             + (" · выбран [B]" if n == a.variant else "")
             for n, method in enumerate(a.recipe.variants)
+        )
+        rows.append(
+            "Требует умения в инструменте: " + ("да" if v.proficiencies else "нет")
         )
         rows.append("Условия изготовления:")
         for condition in a.conditions:
@@ -286,6 +351,7 @@ class CraftBrowser:
                 None,
                 0,
             )
+            self._rows_context = None
             return
         if key in ("escape", "backspace", "m", "q"):
             controller.view = controller.craft_return_view
@@ -323,6 +389,15 @@ class CraftBrowser:
             ) = 0, None, None, None, 0
             return
         rows = self.rows(engine)
+        if (key in ("g", "space", " ") and rows) or (
+            key in ("enter", "1")
+            and rows
+            and rows[self.selected][1] is None
+            and not self.work_id
+        ):
+            self.toggle_group(engine, rows)
+            controller.page = 0
+            return
         if key in ("up", "down", "home", "end"):
             self.selected = max(
                 0,
@@ -446,18 +521,20 @@ def craft_layout(controller, width, height):
         label = ""
         if i < len(visible):
             category, recipe, number = visible[i]
-            label = ("V " if recipe["available"] else "X ") + recipe["name"]
+            if recipe:
+                label = ("V " if recipe["available"] else "X ") + recipe["name"]
+                color = 10 if recipe["available"] else 9
+            else:
+                folded = (category, number) in b.collapsed
+                label = (
+                    f"[{'+' if folded else '-'}] Умение: {'да' if number else 'нет'}"
+                )
+                color = 14
             label = ("> " if i + b.page == b.selected else "  ") + label
             b.colors.append(
-                (
-                    3 + i,
-                    0,
-                    label[:left],
-                    10 if recipe["available"] else 9,
-                    60 if i + b.page == b.selected else 4,
-                )
+                (3 + i, 0, label[:left], color, 60 if i + b.page == b.selected else 4)
             )
-            hits.append((3 + i, "select", i + b.page))
+            hits.append((3 + i, "select" if recipe else "group", i + b.page))
         text, color = detail[i] if i < len(detail) else ("", None)
         rows.append(pair(label, text))
         if color:
@@ -465,12 +542,12 @@ def craft_layout(controller, width, height):
     action_row = len(rows)
     rows += [
         pair(
-            "↑↓: выбор · Enter: действие",
+            "↑↓ выбор · Enter действие",
             " | ".join(f"{i + 1}) {a}" for i, a in enumerate(actions)),
         ),
         "←/→: категория · B: способ · F: поиск · Tab: доступность · PgUp/PgDn: текст",
         controller.message,
-        "T: предмет · V: клетка · Esc: карта · Работа идёт под картой",
+        "G/Space: группа · T: предмет · V: клетка · Backspace/Esc: карта",
     ]
     hits.append((action_row, "action", left + 3))
     return "Изготовление", rect, rows, [], hits
@@ -487,7 +564,9 @@ def craft_click(controller, x, y, width, height):
             column = min(34, max(22, (rect.width - 4) // 3))
             if 0 <= local < column:
                 b.handle(controller, "left" if local < column // 2 else "right")
-        elif kind == "select" and 0 <= local < min(34, max(22, (rect.width - 4) // 3)):
+        elif kind in ("select", "group") and 0 <= local < min(
+            34, max(22, (rect.width - 4) // 3)
+        ):
             b.selected, b.recipe_ref, b.work_id, b.variant, controller.page = (
                 value,
                 None,
@@ -495,6 +574,8 @@ def craft_click(controller, x, y, width, height):
                 None,
                 0,
             )
+            if kind == "group":
+                b.handle(controller, "enter")
         elif kind == "action" and local >= value:
             b.handle(controller, "2" if b.work_id and local >= value + 15 else "1")
     return True

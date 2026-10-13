@@ -13,5 +13,6 @@
     "sticky",
     "flammable"
   ],
-  "symbol": "base:visual_equipment_binding_resin"
+  "symbol": "base:visual_equipment_binding_resin",
+  "size": "small"
 }

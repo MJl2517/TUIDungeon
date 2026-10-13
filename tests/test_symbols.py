@@ -237,6 +237,12 @@ class BundledSymbolTests(unittest.TestCase):
         self.store.reload()
         self.assertEqual(self.store.versions, versions)
 
+    def test_hardware_is_not_mistaken_for_an_urn(self):
+        from scripts.migrate_symbols import family
+
+        self.assertIsNone(family("equipment", {"id": "furniture_hardware"}))
+        self.assertEqual(family("objects", {"id": "terrain_urn"}), "pot")
+
 
 if __name__ == "__main__":
     unittest.main()

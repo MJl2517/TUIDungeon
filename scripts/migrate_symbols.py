@@ -556,7 +556,10 @@ def family(category, doc):
     ):
         return "bottle"
     for shape, words in tests:
-        if any(word in name for word in words):
+        # "urn" is a complete ID component, not the letters in "furniture".
+        if any(
+            word in name.split("_") if word == "urn" else word in name for word in words
+        ):
             return shape
     if category == "traps":
         return "spikes"

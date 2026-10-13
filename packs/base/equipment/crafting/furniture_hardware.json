@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "furniture_hardware",
+  "name": "Фурнитура",
+  "description": "Петли, крепления и металлические соединители мебели. При аккуратном разборе деревянной мебели сохраняются; при разрушении извлекаются с вероятностью 50%.",
+  "symbol": "base:glyph_002a",
+  "glyph": "*",
+  "foreground": 7,
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.1,
+  "tags": [
+    "metal"
+  ],
+  "size": "small"
+}

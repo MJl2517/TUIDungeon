@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "build_wood_gate",
+  "name": "Построить: Деревянная калитка",
+  "description": "Построить секцию на соседней свободной клетке.",
+  "category": "carpenter",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Сборка инструментами",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 2
+        },
+        {
+          "items": [
+            "base:furniture_hardware"
+          ],
+          "quantity": 1
+        }
+      ],
+      "tools": [
+        "carpenter_tools"
+      ],
+      "proficiencies": [],
+      "turns": 5
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "place_object",
+    "place_object": "tiles:wood_gate"
+  }
+}

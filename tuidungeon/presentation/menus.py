@@ -105,8 +105,8 @@ def action_lines(controller, menu=None):
     return [
         "1/E: Осмотр | 2: Герой | J: журнал",
         "3: Действия | 4: Отдых | L: логи",
-        ("Enter: окружение" if nearby else "Enter: предмет") + " | G: подобрать",
-        "I: вещи | M: магия | B: строительство",
+        ("Enter: окружение" if nearby else "Enter: предмет") + " | Space: дверь",
+        "I: вещи | M: магия | B: строить | G: подобрать",
         "Z: Скрытность "
         + ("ВКЛ" if controller.engine.state.hero.sneaking else "ВЫКЛ")
         + " | WASD: шаг",

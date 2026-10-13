@@ -210,6 +210,7 @@ def dice_text(expression):
 
 
 def item_details(item, *, preview=False):
+    from ..domain.item_sizes import SIZE_LABELS
     from ..domain.mechanics import mechanics
     from .conditions import CONDITION_LABELS
 
@@ -219,6 +220,17 @@ def item_details(item, *, preview=False):
             item.name,
             cargo.definition.description,
             f"Вес с содержимым: {item.weight:g} кг",
+            "Размер: " + SIZE_LABELS[item.size],
+            *(
+                [
+                    "Макс. размер внутри: "
+                    + SIZE_LABELS[
+                        (cargo.container_spec or cargo.definition.storage).max_item_size
+                    ]
+                ]
+                if (cargo.container_spec or cargo.definition.storage)
+                else []
+            ),
             *(
                 [f"Прочность: {cargo.state.hp}/{cargo.definition.destruction.max_hp}"]
                 if cargo.state.hp is not None
@@ -234,6 +246,7 @@ def item_details(item, *, preview=False):
     lines += [
         "Тип снаряжения: " + CATEGORIES[inventory_category(item)],
         f"Вес: {item.weight:g} кг",
+        "Размер: " + SIZE_LABELS[item.size],
     ]
     if definition.vessel:
         lines.append(

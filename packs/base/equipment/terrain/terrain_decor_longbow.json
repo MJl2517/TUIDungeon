@@ -28,5 +28,6 @@
   "light": null,
   "group": "Декорации: оружие",
   "damage_type": "piercing",
-  "symbol": "base:visual_equipment_terrain_decor_longbow"
+  "symbol": "base:visual_equipment_terrain_decor_longbow",
+  "size": "large"
 }

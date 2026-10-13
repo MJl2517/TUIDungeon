@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "build_wood_fence_cross",
+  "name": "Построить: Деревянный забор с перекладиной",
+  "description": "Построить секцию на соседней свободной клетке.",
+  "category": "carpenter",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Сборка инструментами",
+      "ingredients": [
+        {
+          "items": [
+            "base:wood"
+          ],
+          "quantity": 2
+        }
+      ],
+      "tools": [
+        "carpenter_tools"
+      ],
+      "proficiencies": [],
+      "turns": 3
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "place_object",
+    "place_object": "tiles:wood_fence_cross"
+  }
+}

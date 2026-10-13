@@ -171,7 +171,14 @@ export const mapCategoryNames: Record<string, string> = {
   ...Object.fromEntries(
     Object.entries(paletteSections)
       .filter(([id]) =>
-        ["floor", "wall", "destructible", "furniture", "special", "service"].includes(id),
+        [
+          "floor",
+          "wall",
+          "destructible",
+          "furniture",
+          "special",
+          "service",
+        ].includes(id),
       )
       .map(([id, value]) => [id, value.name]),
   ),
@@ -310,26 +317,34 @@ export function brushDescription(
       steel: 20,
       adamantine: 25,
     };
-    if (d.material !== "stone")
+    if (d.material !== "stone" && d.openable !== false)
       rules.push(
         `Enter: открыть / закрыть / вскрыть / выломать. Взлом: СЛ ${dc[d.lock_quality ?? "normal"]}, ${d.lock_complexity === "complex" ? 10 : 1} ход(ов). Нужны исправные воровские инструменты; провал: −1 прочность.`,
       );
-    if (d.material !== "stone")
+    if (d.material !== "stone" && d.force_allowed !== false)
       rules.push(
         `Выломать: СИЛ, СЛ ${force[d.material ?? "wood"]}. Ломик в руке: преимущество, −1 прочность за попытку.`,
       );
     rules.push(
       d.material === "stone"
         ? "Обозначение: # каменная плита."
-        : "Обозначения: + закрыта, X заперта, / открыта. Цвет задаёт материал.",
+        : "Обозначения: + закрыта, X заперта, / открыта. Цвет — материал или настройка двери.",
     );
     rules.push(
       d.material === "stone"
         ? "Выделение (V) → плита: HP конкретного экземпляра."
         : "Выделение (V) → дверь: состояние, замок и HP конкретного экземпляра.",
     );
-    if (d.material === "bars")
-      rules.push("Прутья пропускают свет; согнуть: СИЛ, СЛ 20.");
+    if (d.material === "bars") {
+      rules.push("Прутья пропускают свет.");
+      if (d.openable === false)
+        rules.push(`Согнуть решётку: СИЛ, СЛ ${d.bend_difficulty ?? 20}.`);
+    }
+    if (d.transmits_light && d.material !== "bars")
+      rules.push("Пропускает свет в закрытом состоянии.");
+    if (d.force_allowed === false) rules.push("Нельзя выломать, даже ломиком.");
+    if (d.openable === false)
+      rules.push("Неподвижная решётка без створки и замка.");
     if (d.material === "wood") rules.push("Можно атаковать и поджечь.");
     if (d.material === "steel")
       rules.push(

@@ -30,5 +30,6 @@
   "hands": 1,
   "light": null,
   "damage_type": "bludgeoning",
-  "symbol": "base:visual_equipment_staff"
+  "symbol": "base:visual_equipment_staff",
+  "size": "large"
 }

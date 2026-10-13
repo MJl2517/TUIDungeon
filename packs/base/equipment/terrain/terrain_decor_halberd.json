@@ -29,5 +29,6 @@
   "light": null,
   "group": "Декорации: оружие",
   "damage_type": "slashing",
-  "symbol": "base:glyph_0050"
+  "symbol": "base:glyph_0050",
+  "size": "large"
 }

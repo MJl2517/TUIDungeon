@@ -12,5 +12,6 @@
   "durability": 30,
   "weapon_damage": "1d4",
   "weapon_ability": "dexterity",
-  "damage_type": "piercing"
+  "damage_type": "piercing",
+  "size": "small"
 }

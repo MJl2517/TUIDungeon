@@ -13,5 +13,6 @@
     "flammable",
     "plants"
   ],
-  "symbol": "base:visual_equipment_bitter_herb"
+  "symbol": "base:visual_equipment_bitter_herb",
+  "size": "small"
 }

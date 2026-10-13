@@ -12,5 +12,6 @@
     "organic",
     "bone"
   ],
-  "symbol": "base:visual_equipment_animal_bone"
+  "symbol": "base:visual_equipment_animal_bone",
+  "size": "small"
 }

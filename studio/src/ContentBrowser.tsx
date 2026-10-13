@@ -232,7 +232,10 @@ export function ContentBrowser({
                       doc={assets["symbols/" + e.ref]}
                     />
                   ) : e.symbol ? (
-                    <SymbolPreview symbol={e.symbol} />
+                    <SymbolPreview
+                      symbol={e.symbol}
+                      mirror_x={!!assets[e.category + "/" + e.ref]?.mirror_x}
+                    />
                   ) : (
                     (e.glyph ?? sections[e.category]?.icon)
                   )}

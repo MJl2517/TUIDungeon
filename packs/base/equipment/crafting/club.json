@@ -17,5 +17,6 @@
   "slot": "weapon",
   "hands": 1,
   "weapon_damage": "1d4",
-  "symbol": "base:visual_equipment_club"
+  "symbol": "base:visual_equipment_club",
+  "size": "medium"
 }

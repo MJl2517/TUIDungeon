@@ -10,11 +10,14 @@ type Props = {
   symbols?: boolean;
   overlays?: { cells: boolean[][]; color: string }[];
   selection?: Point[];
-  onDown?: (p: Point, modifiers?: { altKey: boolean }) => void;
-  onDrag?: (p: Point) => void;
-  onUp?: (p: Point) => void;
-  onHover?: (p: Point) => void;
+  ghost?: { point: Point; cell: Cell }[];
+  onDown?: (p: Point, modifiers?: PointerModifiers) => void;
+  onDrag?: (p: Point, modifiers?: PointerModifiers) => void;
+  onUp?: (p: Point, modifiers?: PointerModifiers) => void;
+  onHover?: (p: Point, modifiers?: PointerModifiers) => void;
+  onLeave?: () => void;
 };
+export type PointerModifiers = { altKey: boolean; shiftKey: boolean };
 export function Grid({
   cells,
   zoom = 1,
@@ -23,13 +26,16 @@ export function Grid({
   symbols = false,
   overlays = [],
   selection = [],
+  ghost = [],
   onDown,
   onDrag,
   onUp,
   onHover,
+  onLeave,
 }: Props) {
   const { assets } = useContext(SymbolContext);
   const ref = useRef<HTMLCanvasElement>(null),
+    ghostRef = useRef<HTMLCanvasElement>(null),
     drag = useRef(false);
   const cw = (square ? 16 : 12) * zoom,
     ch = (square ? 16 : 20) * zoom,
@@ -62,7 +68,16 @@ export function Grid({
           ctx.fillStyle = color(c.foreground);
           const image = c.symbol ? assets["symbols/" + c.symbol] : undefined;
           if (symbols && image)
-            drawSymbol(ctx, image, x * cw, y * ch, cw, ch, color(c.foreground));
+            drawSymbol(
+              ctx,
+              image,
+              x * cw,
+              y * ch,
+              cw,
+              ch,
+              color(c.foreground),
+              !!c.mirror_x,
+            );
           else ctx.fillText(c.char, (x + 0.5) * cw, (y + 0.5) * ch);
         }
       }),
@@ -94,6 +109,71 @@ export function Grid({
     ctx.fillStyle = "#edc87555";
     for (const p of selection) ctx.fillRect(p.x * cw, p.y * ch, cw, ch);
   }, [cells, cw, ch, w, h, grid, overlays, selection, zoom, symbols, assets]);
+  const left = ghost.length ? Math.min(...ghost.map((g) => g.point.x)) : 0;
+  const top = ghost.length ? Math.min(...ghost.map((g) => g.point.y)) : 0;
+  const ghostWidth = ghost.length
+    ? Math.max(...ghost.map((g) => g.point.x)) - left + 1
+    : 1;
+  const ghostHeight = ghost.length
+    ? Math.max(...ghost.map((g) => g.point.y)) - top + 1
+    : 1;
+  useLayoutEffect(() => {
+    const canvas = ghostRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!,
+      dpr = window.devicePixelRatio || 1;
+    const width = Math.round(ghostWidth * cw * dpr),
+      height = Math.round(ghostHeight * ch * dpr);
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, ghostWidth * cw, ghostHeight * ch);
+    ctx.font = `${16 * zoom}px "DejaVu Sans Mono",Consolas,monospace`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (const { point, cell } of ghost) {
+      if (!cell) continue;
+      const x = (point.x - left) * cw,
+        y = (point.y - top) * ch;
+      ctx.globalAlpha = 0.2;
+      ctx.fillStyle =
+        cell.background == null ? "#edc875" : color(cell.background);
+      ctx.fillRect(x, y, cw, ch);
+      ctx.globalAlpha = 0.65;
+      const image = cell.symbol ? assets["symbols/" + cell.symbol] : undefined;
+      if (symbols && image)
+        drawSymbol(
+          ctx,
+          image,
+          x,
+          y,
+          cw,
+          ch,
+          color(cell.foreground),
+          !!cell.mirror_x,
+        );
+      else {
+        ctx.fillStyle = color(cell.foreground);
+        ctx.fillText(cell.char, x + cw / 2, y + ch / 2);
+      }
+      ctx.globalAlpha = 0.9;
+      ctx.strokeStyle = "#edc875";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x + 0.5, y + 0.5, cw - 1, ch - 1);
+    }
+    ctx.globalAlpha = 1;
+  }, [
+    ghost,
+    ghostWidth,
+    ghostHeight,
+    cw,
+    ch,
+    left,
+    top,
+    zoom,
+    symbols,
+    assets,
+  ]);
   const point = (e: React.PointerEvent) => {
     const r = e.currentTarget.getBoundingClientRect();
     return {
@@ -102,30 +182,56 @@ export function Grid({
     };
   };
   return (
-    <canvas
-      aria-label="Символьный холст"
-      ref={ref}
-      style={{ width: w * cw, height: h * ch, touchAction: "none" }}
-      onPointerDown={(e) => {
-        if (e.button !== 0) return;
-        e.currentTarget.setPointerCapture(e.pointerId);
-        drag.current = true;
-        onDown?.(point(e), { altKey: e.altKey });
+    <div
+      style={{
+        position: "relative",
+        display: "inline-block",
+        verticalAlign: "top",
+        width: w * cw,
+        height: h * ch,
       }}
-      onPointerMove={(e) => {
-        onHover?.(point(e));
-        if (drag.current) onDrag?.(point(e));
-      }}
-      onPointerUp={(e) => {
-        if (!drag.current) return;
-        drag.current = false;
-        onUp?.(point(e));
-      }}
-      onPointerCancel={(e) => {
-        if (!drag.current) return;
-        drag.current = false;
-        onUp?.(point(e));
-      }}
-    />
+    >
+      <canvas
+        aria-label="Символьный холст"
+        ref={ref}
+        style={{ width: w * cw, height: h * ch, touchAction: "none" }}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          drag.current = true;
+          onDown?.(point(e), { altKey: e.altKey, shiftKey: e.shiftKey });
+        }}
+        onPointerMove={(e) => {
+          onHover?.(point(e), { altKey: e.altKey, shiftKey: e.shiftKey });
+          if (drag.current)
+            onDrag?.(point(e), { altKey: e.altKey, shiftKey: e.shiftKey });
+        }}
+        onPointerUp={(e) => {
+          if (!drag.current) return;
+          drag.current = false;
+          onUp?.(point(e), { altKey: e.altKey, shiftKey: e.shiftKey });
+        }}
+        onPointerCancel={(e) => {
+          if (!drag.current) return;
+          drag.current = false;
+          onUp?.(point(e), { altKey: e.altKey, shiftKey: e.shiftKey });
+        }}
+        onPointerLeave={onLeave}
+      />
+      {ghost.length > 0 && (
+        <canvas
+          ref={ghostRef}
+          aria-label="Предпросмотр кисти"
+          style={{
+            position: "absolute",
+            pointerEvents: "none",
+            left: left * cw,
+            top: top * ch,
+            width: ghostWidth * cw,
+            height: ghostHeight * ch,
+          }}
+        />
+      )}
+    </div>
   );
 }

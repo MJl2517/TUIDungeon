@@ -13,5 +13,6 @@
     "leatherworker_tools",
     "tool"
   ],
-  "symbol": "base:visual_equipment_leatherworker_tools"
+  "symbol": "base:visual_equipment_leatherworker_tools",
+  "size": "medium"
 }

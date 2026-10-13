@@ -69,10 +69,20 @@ UNKNOWN = {"base:craft_rune_dagger", "base:craft_rune_leather"}
 
 
 def build_documents(store):
+    # A fixture can reference its dependencies, not every installed optional pack.
+    accessible = set()
+
+    def include(identifier):
+        for dependency in store.manifests[identifier].dependencies:
+            if dependency not in accessible:
+                accessible.add(dependency)
+                include(dependency)
+
+    include("dev")
     recipes = sorted(
         (ref, d)
         for (cat, ref), d in store.documents.items()
-        if cat == "recipes" and not ref.startswith("dev:")
+        if cat == "recipes" and ref.split(":")[0] in accessible
     )
     materials = Counter()
     required_tools = {"lockpicks", "blade", "poisoner_kit", "lever", "pickaxe"}

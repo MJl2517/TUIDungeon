@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Grid } from "./Grid";
+import type { PointerModifiers } from "./Grid";
+import { visual } from "./symbolModel";
 import {
   Doc,
   Entry,
@@ -52,6 +54,8 @@ export function MapEditor({
     [applyMechanics, setApplyMechanics] = useState(true),
     [panel, setPanel] = useState("palette"),
     [spaceHeld, setSpaceHeld] = useState(false),
+    [shiftHeld, setShiftHeld] = useState(false),
+    [pointerInside, setPointerInside] = useState(false),
     [panning, setPanning] = useState(false),
     [brushSize, setBrushSize] = useState(1),
     [paletteEmpty, setPaletteEmpty] = useState(false),
@@ -88,6 +92,7 @@ export function MapEditor({
       start: Point;
       last: Point;
       next: Doc;
+      mirrored: boolean;
     } | null>(null),
     category =
       layer === "decorations"
@@ -121,7 +126,12 @@ export function MapEditor({
     pointer: number;
   } | null>(null);
   const shown = preview ?? doc;
-  function paint(base: Doc, points: Point[], erase = false) {
+  function paint(
+    base: Doc,
+    points: Point[],
+    erase = false,
+    mirrored = shiftHeld,
+  ) {
     if (
       [
         "tiles",
@@ -147,6 +157,7 @@ export function MapEditor({
             mechanics: applyMechanics,
             target: transitionTarget,
             erase,
+            mirror: mirrored,
           });
         } else if (
           [
@@ -165,6 +176,7 @@ export function MapEditor({
             p,
             transitionTarget,
             erase,
+            mirrored,
           );
         } else if (["walkability", "blocks_sight", "roof"].includes(layer))
           n[layer][p.y][p.x] = erase ? !maskValue : maskValue;
@@ -183,6 +195,7 @@ export function MapEditor({
             if (layer === "doors") {
               if (
                 assets["objects/" + chosen]?.brush?.door?.state !== "open" &&
+                !assets["objects/" + chosen]?.brush?.door?.bent &&
                 p.x === n.spawn.x &&
                 p.y === n.spawn.y
               )
@@ -205,6 +218,13 @@ export function MapEditor({
             const entry = {
               id: layer + "_" + Date.now() + "_" + p.x + "_" + p.y,
               ...p,
+              ...(mirrored && layer === "monsters"
+                ? {
+                    overrides: {
+                      mirror_x: !assets[category + "/" + chosen]?.mirror_x,
+                    },
+                  }
+                : {}),
               ...(layer === "lights"
                 ? { radius: 6, bright_radius: 3, enabled: true }
                 : { [layer === "transitions" ? "target" : "ref"]: chosen }),
@@ -226,8 +246,17 @@ export function MapEditor({
       w = Math.max(...selection.map((p) => p.x)) - x + 1,
       h = Math.max(...selection.map((p) => p.y)) - y + 1;
     const clip: Doc = { x, y, width: w, height: h };
-    for (const key of ["tiles", "walkability", "blocks_sight", "roof"])
-      clip[key] = doc[key]
+    for (const key of [
+      "tiles",
+      "walkability",
+      "blocks_sight",
+      "roof",
+      "tile_mirrors",
+    ])
+      clip[key] = (
+        doc[key] ??
+        Array.from({ length: doc.height }, () => Array(doc.width).fill(false))
+      )
         .slice(y, y + h)
         .map((r: any[]) => clone(r.slice(x, x + w)));
     for (const key of placements)
@@ -258,9 +287,13 @@ export function MapEditor({
       return;
     }
     const n = clone(doc);
+    n.tile_mirrors ??= Array.from({ length: doc.height }, () =>
+      Array(doc.width).fill(false),
+    );
     if (moving) {
       for (const pt of selection) {
         n.tiles[pt.y][pt.x] = null;
+        n.tile_mirrors[pt.y][pt.x] = false;
         n.walkability[pt.y][pt.x] = true;
         n.blocks_sight[pt.y][pt.x] = false;
         n.roof[pt.y][pt.x] = false;
@@ -270,7 +303,13 @@ export function MapEditor({
           (e: Point) => !selection.some((pt) => pt.x === e.x && pt.y === e.y),
         );
     }
-    for (const key of ["tiles", "walkability", "blocks_sight", "roof"])
+    for (const key of [
+      "tiles",
+      "walkability",
+      "blocks_sight",
+      "roof",
+      "tile_mirrors",
+    ])
       clip[key].forEach((r: any[], y: number) =>
         r.forEach((v: any, x: number) => {
           if (inBounds(n, { x: p.x + x, y: p.y + y }))
@@ -322,7 +361,9 @@ export function MapEditor({
           expanded.push({ x: p.x + x - offset, y: p.y + y - offset });
     return expanded;
   }
-  function down(p: Point) {
+  function down(p: Point, modifiers?: PointerModifiers) {
+    const mirrored = modifiers?.shiftKey ?? shiftHeld;
+    setShiftHeld(mirrored);
     setHover(p);
     if (tool === "picker") {
       pick(p);
@@ -342,6 +383,8 @@ export function MapEditor({
         paint(
           doc,
           flood(doc[layer], p, (a, b) => a === b),
+          false,
+          mirrored,
         ),
       );
       return;
@@ -362,31 +405,39 @@ export function MapEditor({
       setPanel("cell");
     }
     const next = ["brush", "erase"].includes(tool)
-      ? paint(doc, brushPoints([p]), tool === "erase")
+      ? paint(doc, brushPoints([p]), tool === "erase", mirrored)
       : clone(doc);
-    stroke.current = { base: clone(doc), start: p, last: p, next };
+    stroke.current = { base: clone(doc), start: p, last: p, next, mirrored };
     setPreview(next);
   }
-  function drag(p: Point) {
+  function drag(p: Point, modifiers?: PointerModifiers) {
     const s = stroke.current;
     if (!s) return;
+    s.mirrored = modifiers?.shiftKey ?? s.mirrored;
     if (tool === "select") {
       setSelection(rectangle(s.start, p, true));
       return;
     }
-    if (tool === "rect") s.next = paint(s.base, rectangle(s.start, p, true));
-    else if (tool === "line") s.next = paint(s.base, line(s.start, p));
+    if (tool === "rect")
+      s.next = paint(s.base, rectangle(s.start, p, true), false, s.mirrored);
+    else if (tool === "line")
+      s.next = paint(s.base, line(s.start, p), false, s.mirrored);
     else if (["brush", "erase"].includes(tool))
-      s.next = paint(s.next, brushPoints(line(s.last, p)), tool === "erase");
+      s.next = paint(
+        s.next,
+        brushPoints(line(s.last, p)),
+        tool === "erase",
+        s.mirrored,
+      );
     s.last = p;
     setPreview(s.next);
   }
-  function up(p: Point) {
+  function up(p: Point, modifiers?: PointerModifiers) {
     const s = stroke.current;
     if (!s) return;
     if (tool === "select") setSelection(rectangle(s.start, p, true));
     else {
-      drag(p);
+      drag(p, modifiers);
       onChange(s.next);
     }
     stroke.current = null;
@@ -433,6 +484,7 @@ export function MapEditor({
     } else if (selection.length) {
       for (const p of selection) {
         n.tiles[p.y][p.x] = null;
+        if (n.tile_mirrors) n.tile_mirrors[p.y][p.x] = false;
         n.walkability[p.y][p.x] = true;
         n.blocks_sight[p.y][p.x] = false;
         n.roof[p.y][p.x] = false;
@@ -450,11 +502,16 @@ export function MapEditor({
       if (
         !shortcutsEnabled ||
         document.querySelector(".modal-backdrop, dialog[open]") ||
-        (e.target as HTMLElement).closest(
+        ((e.target as HTMLElement).closest(
           "input,textarea,select,[contenteditable=true]",
-        )
+        ) &&
+          !(e.key === "Shift" && pointerInside))
       )
         return;
+      if (e.key === "Shift") {
+        setShiftHeld(true);
+        return;
+      }
       if (e.code === "Space") {
         e.preventDefault();
         setSpaceHeld(true);
@@ -519,11 +576,14 @@ export function MapEditor({
     };
     const reset = () => {
       setSpaceHeld(false);
+      setShiftHeld(false);
+      setPointerInside(false);
       setPanning(false);
       pan.current = null;
     };
     const keyup = (e: KeyboardEvent) => {
       if (e.code === "Space") setSpaceHeld(false);
+      if (e.key === "Shift") setShiftHeld(false);
     };
     window.addEventListener("keydown", keydown);
     window.addEventListener("keyup", keyup);
@@ -581,6 +641,50 @@ export function MapEditor({
       });
     return result;
   }, [masks, visibility, warnings, doc.height, doc.width, shown.roof, layer]);
+  const ghost = useMemo(() => {
+    if (
+      !pointerInside ||
+      panning ||
+      spaceHeld ||
+      paletteEmpty ||
+      !shortcutsEnabled ||
+      !["brush", "rect", "line", "fill"].includes(tool) ||
+      ![
+        "tiles",
+        "objects",
+        "doors",
+        "equipment",
+        "points_of_interest",
+        "traps",
+        "monsters",
+      ].includes(layer)
+    )
+      return [];
+    const definition = assets[category + "/" + chosen];
+    if (!definition) return [];
+    const cell = visual(definition, assets);
+    cell.mirror_x = !!definition.mirror_x !== shiftHeld;
+    return (tool === "brush" ? brushPoints([hover]) : [hover])
+      .filter((p) => inBounds(doc, p))
+      .map((point) => ({ point, cell }));
+  }, [
+    pointerInside,
+    panning,
+    spaceHeld,
+    paletteEmpty,
+    shortcutsEnabled,
+    tool,
+    layer,
+    category,
+    chosen,
+    assets,
+    shiftHeld,
+    hover.x,
+    hover.y,
+    brushSize,
+    doc.width,
+    doc.height,
+  ]);
   return (
     <div className="editor-layout map-editor">
       <div className="workspace">
@@ -691,6 +795,7 @@ export function MapEditor({
             e.preventDefault();
             e.stopPropagation();
             const view = e.currentTarget;
+            setPointerInside(false);
             view.setPointerCapture(e.pointerId);
             pan.current = {
               x: e.clientX,
@@ -720,17 +825,25 @@ export function MapEditor({
             selection={selection}
             zoom={zoom}
             grid={grid}
+            ghost={ghost}
             onDown={(p, modifiers) =>
-              modifiers?.altKey ? pick(p, true) : down(p)
+              modifiers?.altKey ? pick(p, true) : down(p, modifiers)
             }
             onDrag={drag}
             onUp={up}
-            onHover={setHover}
+            onHover={(p, modifiers) => {
+              setHover(p);
+              setPointerInside(true);
+              setShiftHeld(!!modifiers?.shiftKey);
+            }}
+            onLeave={() => setPointerInside(false)}
           />
         </div>
         <div className="map-shortcuts">
           ПКМ / Space + перетаскивание — двигать карту · Alt + клик — пипетка ·
-          Ctrl + колесо — масштаб
+          Ctrl + колесо — масштаб · Shift при рисовании — зеркально по
+          горизонтали
+          {shiftHeld && <strong> · Отражение включено</strong>}
         </div>
         <div className="toolbar">
           <label>
@@ -1039,6 +1152,23 @@ export function MapEditor({
                 <h3>
                   Клетка {hover.x}, {hover.y}
                 </h3>
+                <label>
+                  <input
+                    type="checkbox"
+                    aria-label="Отразить тайл в клетке"
+                    checked={!!doc.tile_mirrors?.[hover.y]?.[hover.x]}
+                    onChange={(e) => {
+                      const n = clone(doc);
+                      n.tile_mirrors ??= Array.from(
+                        { length: doc.height },
+                        () => Array(doc.width).fill(false),
+                      );
+                      n.tile_mirrors[hover.y][hover.x] = e.target.checked;
+                      onChange(n);
+                    }}
+                  />{" "}
+                  Отразить тайл по горизонтали
+                </label>
                 <dl>
                   <dt>Тайл</dt>
                   <dd>{doc.tiles[hover.y]?.[hover.x] ?? "Нет"}</dd>

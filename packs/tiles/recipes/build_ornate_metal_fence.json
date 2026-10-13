@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "build_ornate_metal_fence",
+  "name": "Построить: Украшенный металлический забор",
+  "description": "Построить секцию на соседней свободной клетке.",
+  "category": "tinker",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Сборка инструментами",
+      "ingredients": [
+        {
+          "items": [
+            "base:metal"
+          ],
+          "quantity": 2
+        }
+      ],
+      "tools": [
+        "tinker_tools"
+      ],
+      "proficiencies": [
+        "tinker_tools"
+      ],
+      "turns": 7
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "place_object",
+    "place_object": "tiles:ornate_metal_fence"
+  }
+}

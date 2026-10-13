@@ -14,5 +14,6 @@
   "weapon_damage": "2d6",
   "description": "Кислота наносит 2d6 урона. Сталь и прутья получают двойной урон и затем 2 урона коррозией в минуту. Бросьте флакон в дверь; одна порция.",
   "schema_version": 1,
-  "damage_type": "acid"
+  "damage_type": "acid",
+  "size": "small"
 }

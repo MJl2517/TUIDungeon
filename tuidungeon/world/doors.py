@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from ..content.schemas import Placement, TileDocument
 from ..domain.doors import Door, DoorChoice
-from ..domain.equipment import find_lockpicks
+from ..domain.equipment import lockpicks_hint
 
 
 def door_placements(store, definition):
@@ -53,13 +53,41 @@ class DoorInstance:
         )
 
     def available_choices(self, hero):
+        choices = self._door_choices(hero)
+        destruction = getattr(self.definition, "destruction", None)
+        spec = destruction.dismantle if destruction else None
+        if (
+            spec
+            and not self.door.destroyed
+            and not self.door.burning
+            and not self.brace
+        ):
+            from ..domain.tags import TAG_LABELS
+
+            tools = ", ".join(TAG_LABELS.get(t, t) for t in spec.tools)
+            return (
+                *choices,
+                DoorChoice(
+                    "dismantle",
+                    f"Разобрать ({spec.turns} ходов)"
+                    + (f"; нужны: {tools}" if tools else ""),
+                ),
+            )
+        return choices
+
+    def _door_choices(self, hero):
         door = self.door
         if door.destroyed or door.bent:
             return ()
         if self.brace:
             return (
                 DoorChoice("unbrace", "Убрать подпорку"),
-                DoorChoice("attack", "Разрушить дверь вместе с подпоркой"),
+                *(
+                    [DoorChoice("attack", "Разрушить дверь вместе с подпоркой")]
+                    if door.material != "bars"
+                    and getattr(self.definition, "attackable", True)
+                    else []
+                ),
             )
         brace = any(
             i.usable and not i.equipped and "door_brace" in i.tags
@@ -67,7 +95,7 @@ class DoorInstance:
         )
         brace_choices = (
             (DoorChoice("brace", "Установить подпорку (кол или клин)"),)
-            if brace and door.material != "stone"
+            if brace and door.material != "stone" and door.openable
             else ()
         )
         if door.material == "stone":
@@ -79,14 +107,7 @@ class DoorInstance:
             )
         if door.opened:
             return (DoorChoice("close", "Закрыть дверь"), *brace_choices)
-        tools = find_lockpicks(hero.inventory)
-        tool_hint = (
-            f"инструменты {tools.durability}/{tools.definition.durability}; провал: −1 прочность"
-            if tools and tools.durability is not None
-            else "инструменты в наличии; провал: износ"
-            if tools
-            else "нужны исправные воровские инструменты"
-        )
+        tool_hint = lockpicks_hint(hero.inventory)
         choices = [
             DoorChoice(
                 "pick",
@@ -94,16 +115,25 @@ class DoorInstance:
             )
         ]
         if not door.locked:
-            choices = [DoorChoice("open", "Открыть дверь")]
-        choices.append(
-            DoorChoice(
-                "force",
-                f"Выломать: СИЛ, СЛ {door.force_dc}; ломик в руке даёт преимущество",
+            choices = [DoorChoice("open", "Открыть дверь")] if door.openable else []
+        elif door.key_tag:
+            choices.append(DoorChoice("use_key", "Открыть подходящим ключом"))
+        if door.force_dc is not None:
+            choices.append(
+                DoorChoice(
+                    "force",
+                    f"Выломать: СИЛ, СЛ {door.force_dc}; ломик в руке даёт преимущество",
+                )
             )
-        )
-        if door.material == "bars":
-            choices.append(DoorChoice("bend", "Согнуть прутья и пролезть: СИЛ, СЛ 20"))
-        if door.material not in ("adamantine", "steel"):
+        if door.material == "bars" and not door.openable:
+            choices.append(
+                DoorChoice(
+                    "bend", f"Согнуть прутья и пролезть: СИЛ, СЛ {door.bend_difficulty}"
+                )
+            )
+        if door.material not in ("adamantine", "steel", "bars") and getattr(
+            self.definition, "attackable", True
+        ):
             choices.append(
                 DoorChoice("attack", "Атаковать дверь: оружию −1d4 прочности")
             )

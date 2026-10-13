@@ -22,5 +22,6 @@
       "amount": 2
     }
   ],
-  "symbol": "base:visual_equipment_wooden_shield"
+  "symbol": "base:visual_equipment_wooden_shield",
+  "size": "medium"
 }

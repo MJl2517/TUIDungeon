@@ -24,5 +24,6 @@
   "hands": 1,
   "light": null,
   "group": "Снаряжение",
-  "symbol": "base:visual_equipment_crowbar"
+  "symbol": "base:visual_equipment_crowbar",
+  "size": "medium"
 }

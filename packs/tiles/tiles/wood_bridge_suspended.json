@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "wood_bridge_suspended",
+  "name": "Деревянный навесной мост",
+  "description": "Проходимая поверхность моста. Не разбирается.",
+  "glyph": "=",
+  "symbol": "tiles:cell_0203",
+  "foreground": 130,
+  "group": "Поверхности: мосты",
+  "map_category": "floor",
+  "tags": [
+    "bridge",
+    "wooden"
+  ],
+  "walkable": true,
+  "blocks_sight": false
+}

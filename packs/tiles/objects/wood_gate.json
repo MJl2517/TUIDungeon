@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "wood_gate",
+  "name": "Деревянная калитка",
+  "description": "Разбор требует наличия исправного инструмента, но не владения им.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0151",
+  "foreground": 11,
+  "group": "Ограды: деревянные",
+  "map_category": "special",
+  "tags": [
+    "fence",
+    "wooden",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": false,
+  "destruction": {
+    "max_hp": 15,
+    "dismantle": {
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 2
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 1
+      }
+    ]
+  },
+  "brush": {
+    "door": {
+      "material": "wood",
+      "hit_points": 15,
+      "transmits_light": true,
+      "foreground": 11,
+      "state": "closed"
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:wood",
+      "quantity": 1
+    }
+  ],
+  "state_symbols": {
+    "closed": "tiles:cell_0151",
+    "locked": "tiles:cell_0151",
+    "open": "tiles:cell_0152"
+  }
+}

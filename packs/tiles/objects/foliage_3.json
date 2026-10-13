@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "foliage_3",
   "name": "Листва 3",
-  "description": "Листва 3. Восстанавливается через 3 сут.",
+  "description": "Восстанавливается через 3 сут.",
   "variants": [
     {
       "name": "Зелёная",

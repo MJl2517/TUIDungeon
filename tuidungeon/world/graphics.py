@@ -8,10 +8,19 @@ class MapCell(Cell):
     """Runtime appearance identity; authored art still uses plain Cell."""
 
     visual_ref: str
+    service_indicator: bool = False
 
 
 @lru_cache(maxsize=4096)
-def glyph_cell(char, foreground=7, background=None, visual_ref=None, symbol=None):
+def glyph_cell(
+    char,
+    foreground=7,
+    background=None,
+    visual_ref=None,
+    symbol=None,
+    service_indicator=False,
+    mirror_x=False,
+):
     if visual_ref:
         return MapCell(
             char=char,
@@ -19,8 +28,16 @@ def glyph_cell(char, foreground=7, background=None, visual_ref=None, symbol=None
             background=background,
             visual_ref=visual_ref,
             symbol=symbol,
+            service_indicator=service_indicator,
+            mirror_x=mirror_x,
         )
-    return Cell(char=char, foreground=foreground, background=background, symbol=symbol)
+    return Cell(
+        char=char,
+        foreground=foreground,
+        background=background,
+        symbol=symbol,
+        mirror_x=mirror_x,
+    )
 
 
 def visual_cell(store, definition, visual_ref=None, state=None, background=None):
@@ -38,6 +55,7 @@ def visual_cell(store, definition, visual_ref=None, state=None, background=None)
         get("background") if get("background") is not None else background,
         visual_ref,
         symbol,
+        mirror_x=get("mirror_x", False),
     )
 
 
@@ -109,6 +127,10 @@ def map_cells(store, definition, tiles=None):
                     tile = store.get("tiles", ref)
                     palette[ref] = visual_cell(store, tile, "tiles/" + ref)
                 cells[y][x] = palette[ref]
+                if definition.tile_mirrors[y][x]:
+                    cells[y][x] = cells[y][x].model_copy(
+                        update={"mirror_x": not cells[y][x].mirror_x}
+                    )
     for placement in definition.objects:
         obj = store.resolve("objects", placement)
         cells[placement.y][placement.x] = overlay(

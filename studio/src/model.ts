@@ -3,6 +3,7 @@ export type Doc = Record<string, any>;
 export type Cell = {
   char: string;
   symbol?: string;
+  mirror_x?: boolean;
   foreground: number;
   background: number | null;
 } | null;
@@ -131,14 +132,19 @@ export function instanceDocument(base: Doc, placement: Doc): Doc {
         ? "#"
         : door.state === "open"
           ? "/"
-          : door.locked
-            ? "X"
-            : "+";
-    result.foreground = (
-      { wood: 130, stone: 244, bars: 250, steel: 117, adamantine: 201 } as Doc
-    )[door.material];
-    result.walkable = door.state === "open";
-    result.blocks_sight = !result.walkable && door.material !== "bars";
+          : door.bent
+            ? "%"
+            : door.locked
+              ? "X"
+              : "+";
+    result.foreground =
+      door.foreground ??
+      (
+        { wood: 130, stone: 244, bars: 250, steel: 117, adamantine: 201 } as Doc
+      )[door.material];
+    result.walkable = door.state === "open" || !!door.bent;
+    result.blocks_sight =
+      !result.walkable && door.material !== "bars" && !door.transmits_light;
   }
   return result;
 }
@@ -287,7 +293,13 @@ export function resizeMap(doc: Doc, width: number, height: number): Doc {
   const next = clone(doc);
   next.width = width;
   next.height = height;
-  for (const key of ["tiles", "walkability", "blocks_sight", "roof"])
+  for (const key of [
+    "tiles",
+    "walkability",
+    "blocks_sight",
+    "roof",
+    "tile_mirrors",
+  ])
     next[key] = Array.from({ length: height }, (_, y) =>
       Array.from(
         { length: width },
@@ -341,10 +353,16 @@ export function mapGrid(
   assets: Record<string, Doc>,
   visible: Record<string, boolean> = {},
 ): Cell[][] {
-  const grid: Cell[][] = doc.tiles.map((row: (string | null)[]) =>
-    row.map((ref) => {
+  const grid: Cell[][] = doc.tiles.map((row: (string | null)[], y: number) =>
+    row.map((ref, x) => {
       const t = ref ? assets["tiles/" + ref] : null;
-      return t ? visual(t, assets) : null;
+      const cell = t ? visual(t, assets) : null;
+      return cell
+        ? {
+            ...cell,
+            mirror_x: !!cell.mirror_x !== !!doc.tile_mirrors?.[y]?.[x],
+          }
+        : null;
     }),
   );
   for (const key of placements) {
