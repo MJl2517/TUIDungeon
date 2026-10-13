@@ -851,6 +851,7 @@ class SaveRepository:
                     )
                     for p in getattr(state.level.definition, category)
                 }
+                sprout_ids = set()
                 for pending in saved.regrowing_objects:
                     p = pending.placement
                     if p.id in used_ids or not (
@@ -867,6 +868,23 @@ class SaveRepository:
                         or not definition.destruction.regrow_minutes
                     ):
                         raise ValueError("Объект не поддерживает восстановление")
+                    if pending.sprout_id:
+                        sprout = next(
+                            (
+                                s
+                                for s in state.level.definition.objects
+                                if s.id == pending.sprout_id
+                            ),
+                            None,
+                        )
+                        if (
+                            pending.sprout_id in sprout_ids
+                            or sprout is None
+                            or sprout.ref != definition.destruction.regrow_as
+                            or (sprout.x, sprout.y) != (p.x, p.y)
+                        ):
+                            raise ValueError("Недопустимое молодое растение")
+                        sprout_ids.add(pending.sprout_id)
                     for transition in pending.transitions:
                         if (
                             transition.id != p.id + "_transition"

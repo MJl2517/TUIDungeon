@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "flower_5_red",
   "name": "Красный цветок",
-  "description": "Красный цветок. Восстанавливается через 3 сут.",
+  "description": "Красный цветок. После сбора остаётся зелёный росток; вырастает за 3 суток.",
   "variants": [],
   "glyph": "*",
   "foreground": 9,
@@ -50,11 +50,13 @@
         }
       ]
     },
-    "remains": []
+    "remains": [],
+    "regrow_as": "tiles:flower_4_green"
   },
   "movable": false,
   "weight": 0.0,
   "storage": null,
   "symbol": "tiles:cell_0005",
-  "rarity": "common"
+  "rarity": "common",
+  "poisonous": false
 }

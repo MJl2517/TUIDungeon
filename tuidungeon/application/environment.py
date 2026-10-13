@@ -1,5 +1,6 @@
 """World work uses the same turn, light and pause controls as crafting."""
 
+from collections import Counter
 from dataclasses import replace
 from types import SimpleNamespace
 from uuid import uuid4
@@ -302,15 +303,21 @@ class EnvironmentCommands:
         if not target or not target.dismantle or target.state.burning:
             return False
         tools = target.dismantle.tools
-        return (not tools or self.has_work_tool(tools)) and not (
+        return (
+            not tools
+            or self.has_work_tool(
+                tools, held=target.dismantle.verb in {"harvest", "chop"}
+            )
+        ) and not (
             target.category == "traps"
             and target.definition.disarm
             and not target.original.disabled
         )
 
-    def has_work_tool(self, requirements):
+    def has_work_tool(self, requirements, *, held=False):
         return any(
             item.usable
+            and (not held or item.equipped and item.definition.hands > 0)
             and (
                 set(requirements).intersection(item.tags)
                 or item.definition.weapon_damage
@@ -375,6 +382,16 @@ class EnvironmentCommands:
         ):
             return denial
         if (
+            self._world_ready(target)
+            and target.dismantle
+            and target.dismantle.verb in {"harvest", "chop"}
+            and target.dismantle.tools
+            and not self.has_work_tool(target.dismantle.tools, held=True)
+        ):
+            return self._craft_result(
+                False, "Для сбора или рубки возьмите в руки подходящий инструмент."
+            )
+        if (
             self.active_craft
             or not self._world_ready(target)
             or not self.dismantle_ready(target)
@@ -422,7 +439,8 @@ class EnvironmentCommands:
         ):
             self.active_craft = None
             return self._craft_result(
-                False, "Работа приостановлена: изменились условия."
+                False,
+                "Работа приостановлена: проверьте инструмент в руках и остальные условия.",
             )
         self._advance(1)
         if self.world_object(target.placement.id) is None:
@@ -433,7 +451,9 @@ class EnvironmentCommands:
             loot = list(target.dismantle.loot)
             if self.has_work_tool(target.dismantle.bonus_tools):
                 loot.extend(target.dismantle.bonus_loot)
-            self._remove_world_object(target, loot)
+            self._remove_world_object(
+                target, loot, harvested=target.dismantle.verb == "harvest"
+            )
             self.active_craft = None
             return self._craft_result(
                 True,
@@ -494,19 +514,37 @@ class EnvironmentCommands:
             container.items
         ) if container else [], container.spec if container else None
 
-    def _remove_world_object(self, target, loot):
+    def _remove_world_object(self, target, loot, *, harvested=False):
         level = self.state.level
+        # Destroying a young plant cancels its adult's recovery.
+        level.regrowing_objects[:] = [
+            pending
+            for pending in level.regrowing_objects
+            if pending.sprout_id != target.placement.id
+        ]
         recovery = (
             target.definition.destruction.regrow_minutes
             if target.category != "traps" and target.definition.destruction
             else None
         )
         if recovery:
+            sprout_ref = target.definition.destruction.regrow_as if harvested else None
+            sprout = (
+                Placement(
+                    id="sprout_" + uuid4().hex,
+                    ref=sprout_ref,
+                    x=target.placement.x,
+                    y=target.placement.y,
+                )
+                if sprout_ref
+                else None
+            )
             level.regrowing_objects.append(
                 RegrowingObject(
                     category=target.category,
                     placement=target.placement,
                     ready_at=self.state.clock.elapsed_minutes + recovery,
+                    sprout_id=sprout.id if sprout else None,
                     completed=target.completed,
                     transitions=[
                         p
@@ -516,7 +554,44 @@ class EnvironmentCommands:
                 )
             )
         contents, _ = self._detach_world(target)
-        self._ground([*contents, *self._loot(loot)], target.placement)
+        if recovery and sprout:
+            definition = level.store.resolve("objects", sprout)
+            self._attach_world_object(
+                level,
+                "objects",
+                sprout,
+                definition,
+                ObjectState(
+                    hp=definition.destruction.max_hp if definition.destruction else None
+                ),
+            )
+        items = self._loot(loot)
+        if harvested and getattr(target.definition, "poisonous", False):
+            from ..content.compiler import compile_definition
+            from ..content.schemas import EquipmentDocument
+
+            raw = level.store.get("equipment", "base:poison_herb").model_dump(
+                mode="json"
+            )
+            raw.update(
+                name=target.definition.name,
+                description="Собранный цветок.",
+                glyph=target.definition.glyph,
+                symbol=target.definition.symbol,
+                foreground=target.definition.foreground,
+                category="consumables",
+                charges=1,
+                properties=[
+                    {"kind": "condition", "condition": "poisoned", "duration": 5}
+                ],
+            )
+            definition = compile_definition(
+                "equipment", "base:poison_herb", EquipmentDocument.model_validate(raw)
+            )
+            items = [Equipment.create(definition) for _ in items]
+            for item in items:
+                item.template = raw
+        self._ground([*contents, *items], target.placement)
         if self.active_craft == "world:" + target.placement.id:
             self.active_craft = None
 
@@ -526,24 +601,34 @@ class EnvironmentCommands:
             level = state.level
             if not level or not level.regrowing_objects:
                 continue
-            occupied = {
+            occupied = Counter(
                 (p.x, p.y)
                 for category in ("objects", "points_of_interest", "traps", "doors")
                 for p in getattr(level.definition, category)
-            }
+            )
             occupied.update(
                 (m.position.x, m.position.y) for m in state.monsters if m.monster.hp > 0
             )
             if state is self.state:
-                occupied.add((state.position.x, state.position.y))
+                occupied[(state.position.x, state.position.y)] += 1
             for pending in list(level.regrowing_objects):
                 p = pending.placement
+                sprout = next(
+                    (s for s in level.definition.objects if s.id == pending.sprout_id),
+                    None,
+                )
                 if (
                     now < pending.ready_at
-                    or (p.x, p.y) in occupied
+                    or occupied[p.x, p.y] > (1 if sprout else 0)
                     or not state.walkable(Position(p.x, p.y))
                 ):
                     continue
+                if sprout:
+                    self._detach_world(
+                        SimpleNamespace(category="objects", placement=sprout),
+                        level=level,
+                    )
+                    occupied[p.x, p.y] -= 1
                 definition = level.store.resolve(pending.category, p)
                 self._attach_world_object(
                     level,
@@ -563,7 +648,7 @@ class EnvironmentCommands:
                         }
                     )
                 level.regrowing_objects.remove(pending)
-                occupied.add((p.x, p.y))
+                occupied[p.x, p.y] += 1
 
     def _world_destination(self, p, source=None):
         level, hero = self.state.level, self.state.position

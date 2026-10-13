@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "empty_tester",
+  "name": "Пустой испытатель",
+  "description": "Тестовый персонаж без стартового снаряжения, заклинаний и владений инструментами.",
+  "symbol": "base:glyph_003f",
+  "hit_points": 10,
+  "starting_items": [],
+  "spells": [],
+  "spell_slots": {},
+  "actions": [],
+  "tool_proficiencies": [],
+  "starting_recipes": [],
+  "order": 100
+}

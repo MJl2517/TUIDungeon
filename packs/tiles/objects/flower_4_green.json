@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "id": "flower_4_green",
-  "name": "Зелёный цветок",
-  "description": "Зелёный цветок. Восстанавливается через 3 сут.",
+  "name": "Молодой зелёный цветок",
+  "description": "Молодой цветок с маленькими зелёными лепестками. Ещё не готов к сбору.",
   "variants": [],
   "glyph": "*",
   "foreground": 10,
   "background": null,
   "art": null,
   "map_category": "destructible",
-  "group": "Цветы: обычные",
+  "group": "Цветы: молодые",
   "tags": [
     "plants",
     "organic",
@@ -30,26 +30,8 @@
   "water_source": null,
   "door_remains": [],
   "destruction": {
-    "regrow_minutes": 4320,
-    "max_hp": 3,
-    "damage_profile": {
-      "resistances": [],
-      "vulnerabilities": [],
-      "immunities": []
-    },
-    "dismantle": {
-      "verb": "harvest",
-      "tools": [],
-      "turns": 1,
-      "fast_tool": null,
-      "fast_turns": 1,
-      "loot": [
-        {
-          "item": "base:plant_fiber",
-          "quantity": 1
-        }
-      ]
-    },
+    "max_hp": 1,
+    "dismantle": null,
     "remains": []
   },
   "movable": false,

@@ -540,6 +540,8 @@ def interaction_tags(value, *, category=None, include_contents=True):
         return frozenset(tags)
 
     tags = set(_get(value, "tags", ()))
+    if _get(value, "poisonous", False):
+        tags.add("poison")
     tags.update(ALIASES[t] for t in tuple(tags) if t in ALIASES)
 
     kind = _get(value, "kind")

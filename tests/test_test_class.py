@@ -15,7 +15,7 @@ from tuidungeon.presentation.tui import Controller, View
 class TestClassTests(unittest.TestCase):
     def test_selected_classes_skip_creation_and_wizard_has_all_spells(self):
         catalog = default_catalog()
-        for character_class in ("warrior", "rogue", "wizard"):
+        for character_class in ("warrior", "rogue", "wizard", "dev:empty_tester"):
             controller = Controller(
                 42, catalog=catalog, test_map=True, test_class=character_class
             )
@@ -30,6 +30,12 @@ class TestClassTests(unittest.TestCase):
             if character_class == "wizard":
                 self.assertEqual({s.id for s in hero.known_spells}, set(catalog.spells))
                 self.assertEqual(hero.spell_slots, {1: 10, 3: 10})
+            elif character_class == "dev:empty_tester":
+                self.assertEqual(hero.inventory, [])
+                self.assertEqual(hero.gold, 0)
+                self.assertFalse(hero.known_spells)
+                self.assertFalse(hero.tool_proficiencies)
+                self.assertFalse(hero.available_actions)
 
     def test_custom_class_is_supported_and_unknown_selection_does_not_fall_back(self):
         catalog = default_catalog()

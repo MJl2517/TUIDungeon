@@ -35,6 +35,7 @@ class RegrowingObject(BaseModel):
     category: Literal["objects", "points_of_interest"]
     placement: Placement
     ready_at: int = Field(ge=1)
+    sprout_id: str | None = Field(default=None, min_length=1)
     completed: bool = False
     transitions: list[Transition] = Field(default_factory=list)
 

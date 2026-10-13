@@ -3414,102 +3414,6 @@
       }
     },
     {
-      "id": "flower_4_blue",
-      "ref": "tiles:flower_4_blue",
-      "x": 5,
-      "y": 9
-    },
-    {
-      "id": "flower_4_decoy",
-      "ref": "tiles:flower_4_decoy",
-      "x": 8,
-      "y": 9
-    },
-    {
-      "id": "flower_4_green",
-      "ref": "tiles:flower_4_green",
-      "x": 11,
-      "y": 9
-    },
-    {
-      "id": "flower_4_indigo",
-      "ref": "tiles:flower_4_indigo",
-      "x": 14,
-      "y": 9
-    },
-    {
-      "id": "flower_4_orange",
-      "ref": "tiles:flower_4_orange",
-      "x": 17,
-      "y": 9
-    },
-    {
-      "id": "flower_4_red",
-      "ref": "tiles:flower_4_red",
-      "x": 20,
-      "y": 9
-    },
-    {
-      "id": "flower_4_violet",
-      "ref": "tiles:flower_4_violet",
-      "x": 23,
-      "y": 9
-    },
-    {
-      "id": "flower_4_yellow",
-      "ref": "tiles:flower_4_yellow",
-      "x": 26,
-      "y": 9
-    },
-    {
-      "id": "flower_5_blue",
-      "ref": "tiles:flower_5_blue",
-      "x": 29,
-      "y": 9
-    },
-    {
-      "id": "flower_5_decoy",
-      "ref": "tiles:flower_5_decoy",
-      "x": 32,
-      "y": 9
-    },
-    {
-      "id": "flower_5_green",
-      "ref": "tiles:flower_5_green",
-      "x": 35,
-      "y": 9
-    },
-    {
-      "id": "flower_5_indigo",
-      "ref": "tiles:flower_5_indigo",
-      "x": 38,
-      "y": 9
-    },
-    {
-      "id": "flower_5_orange",
-      "ref": "tiles:flower_5_orange",
-      "x": 41,
-      "y": 9
-    },
-    {
-      "id": "flower_5_red",
-      "ref": "tiles:flower_5_red",
-      "x": 44,
-      "y": 9
-    },
-    {
-      "id": "flower_5_violet",
-      "ref": "tiles:flower_5_violet",
-      "x": 47,
-      "y": 9
-    },
-    {
-      "id": "flower_5_yellow",
-      "ref": "tiles:flower_5_yellow",
-      "x": 50,
-      "y": 9
-    },
-    {
       "id": "grass_6_v0",
       "ref": "tiles:grass_6",
       "x": 5,
@@ -4126,6 +4030,63 @@
       "ref": "base:campfire",
       "x": 3,
       "y": 3
+    },
+    {
+      "id": "flower_4_green",
+      "ref": "tiles:flower_4_green",
+      "x": 5,
+      "y": 9
+    },
+    {
+      "id": "flower_5_red",
+      "ref": "tiles:flower_5_red",
+      "x": 8,
+      "y": 9
+    },
+    {
+      "id": "flower_5_orange",
+      "ref": "tiles:flower_5_orange",
+      "x": 11,
+      "y": 9
+    },
+    {
+      "id": "flower_5_yellow",
+      "ref": "tiles:flower_5_yellow",
+      "x": 14,
+      "y": 9
+    },
+    {
+      "id": "flower_5_green",
+      "ref": "tiles:flower_5_green",
+      "x": 17,
+      "y": 9
+    },
+    {
+      "id": "flower_5_blue",
+      "ref": "tiles:flower_5_blue",
+      "x": 20,
+      "y": 9
+    },
+    {
+      "id": "flower_5_indigo",
+      "ref": "tiles:flower_5_indigo",
+      "x": 23,
+      "y": 9
+    },
+    {
+      "id": "flower_5_violet",
+      "ref": "tiles:flower_5_violet",
+      "x": 26,
+      "y": 9
+    },
+    {
+      "id": "flower_poisonous",
+      "ref": "tiles:flower_5_red",
+      "x": 29,
+      "y": 9,
+      "overrides": {
+        "poisonous": true
+      }
     }
   ],
   "equipment": [

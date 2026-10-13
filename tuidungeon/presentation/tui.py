@@ -382,10 +382,10 @@ class Controller:
                 self.message = f"Не удалось сохранить: {error}"
         elif key == "2":
             self.load_game()
-        elif key in ("3", "5"):
+        elif key in ("3", "4"):
             self.return_view = self.view
             self.view = View.HELP if key == "3" else View.SETTINGS
-        elif key == "4":
+        elif key == "5":
             self.exit_return = ActionMenu.META
             self.action_menu = ActionMenu.EXIT
         elif key in ("backspace", "escape"):
@@ -1590,7 +1590,7 @@ def popup_content(controller):
         return (
             "Игровое меню",
             [controller.message],
-            ["Сохранить", "Загрузить", "Справка", "Выход", "Настройки"],
+            ["Сохранить", "Загрузить", "Справка", "Настройки", "Выход"],
         )
     if menu is ActionMenu.EXIT:
         return (

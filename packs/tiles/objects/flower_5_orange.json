@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "flower_5_orange",
   "name": "Оранжевый цветок",
-  "description": "Оранжевый цветок. Восстанавливается через 3 сут.",
+  "description": "Оранжевый цветок. После сбора остаётся зелёный росток; вырастает за 3 суток.",
   "variants": [],
   "glyph": "*",
   "foreground": 208,
@@ -50,11 +50,13 @@
         }
       ]
     },
-    "remains": []
+    "remains": [],
+    "regrow_as": "tiles:flower_4_green"
   },
   "movable": false,
   "weight": 0.0,
   "storage": null,
   "symbol": "tiles:cell_0005",
-  "rarity": "uncommon"
+  "rarity": "uncommon",
+  "poisonous": false
 }

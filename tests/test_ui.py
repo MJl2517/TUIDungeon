@@ -25,13 +25,17 @@ def gameplay_hero(hero):
 class ControllerTests(unittest.TestCase):
     def test_inventory_menu_magic_and_building_shortcuts_do_not_spend_turns(self):
         from tuidungeon.presentation.menus import ActionMenu
-        from tuidungeon.presentation.tui import popup_layout
+        from tuidungeon.presentation.tui import popup_content, popup_layout
 
         c = Controller(42, test_profile="wizard")
         state = c.engine.state
         before = state.position, state.turns, state.clock.elapsed_minutes
         c.handle("escape")
         self.assertEqual(c.action_menu, ActionMenu.META)
+        self.assertEqual(
+            popup_content(c)[2],
+            ["Сохранить", "Загрузить", "Справка", "Настройки", "Выход"],
+        )
         c.handle("escape")
         self.assertEqual(c.action_menu, ActionMenu.ROOT)
         c.handle("i")
@@ -267,7 +271,7 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(controller.engine.state.turns, 6)
         self.assertEqual(controller.engine.state.clock.elapsed_minutes, 965)
         controller.handle("escape")
-        controller.handle("4")
+        controller.handle("5")
         controller.handle("2")
         self.assertFalse(controller.running)
 

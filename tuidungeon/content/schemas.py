@@ -800,7 +800,7 @@ class DismantleSpec(StrictModel):
     )
     tools: list[LocalId] = Field(
         default_factory=list,
-        description="Нужен хотя бы один исправный инструмент с указанным тегом",
+        description="Нужен исправный инструмент с указанным тегом или типом урона. Для сбора и рубки он должен быть в руках.",
     )
     turns: Annotated[int, Field(ge=1, le=1000)] = 3
     fast_tool: LocalId | None = "lever"
@@ -827,6 +827,11 @@ class DismantleSpec(StrictModel):
 
 
 class DestructionSpec(StrictModel):
+    regrow_as: Ref | None = Field(
+        default=None,
+        json_schema_extra={"ref_category": "objects"},
+        description="Молодое растение, остающееся после сбора до восстановления взрослого. Нужен срок восстановления.",
+    )
     regrow_minutes: Annotated[int, Field(ge=1, le=1000000)] | None = Field(
         default=None,
         description="Восстановление после сбора, рубки или разрушения, в игровых минутах. Пусто — не восстанавливается. На занятой клетке появление откладывается.",
@@ -835,6 +840,12 @@ class DestructionSpec(StrictModel):
     damage_profile: DamageDefenses = Field(default_factory=DamageDefenses)
     dismantle: DismantleSpec | None = None
     remains: list[RecipeOutput] = Field(default_factory=list, max_length=32)
+
+    @model_validator(mode="after")
+    def regrowth_requires_time(self):
+        if self.regrow_as and not self.regrow_minutes:
+            raise ValueError("Для молодого растения нужен срок восстановления")
+        return self
 
 
 class TrapDocument(Visual):
@@ -1007,6 +1018,10 @@ class LightFixtureSpec(StrictModel):
 
 
 class WorldObjectDocument(TileDocument):
+    poisonous: bool = Field(
+        default=False,
+        description="При сборе даёт ядовитое растение вместо обычных ингредиентов. Внешний вид не меняется.",
+    )
     rarity: Literal["common", "uncommon", "rare"] = "common"
     on_enter: list[Effect] = Field(
         default_factory=list,

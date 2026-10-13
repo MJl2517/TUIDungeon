@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "id": "flower_poison",
-  "name": "Яд из красного цветка",
-  "description": "Вариант существующего рецепта из ядовитого цветка-обманки.",
+  "name": "Яд из собранных цветов",
+  "description": "Использует ядовитое сырьё из цветков со свойством «Ядовитое растение».",
   "category": "poisoner",
   "basic_known": false,
   "learn_on_proficiency": [
@@ -14,7 +14,7 @@
       "ingredients": [
         {
           "items": [
-            "tiles:false_red_flower"
+            "base:poison_herb"
           ],
           "quantity": 2
         }

@@ -18,6 +18,7 @@ from .placements import PLACEMENT_CATEGORIES, resolve_placement, resolve_challen
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PACKS = PROJECT_ROOT / "packs"
 REF_FIELDS = {
+    "regrow_as": "objects",
     "symbol": "symbols",
     "cast_spell": "spells",
     "place_object": "objects",
@@ -127,6 +128,16 @@ def validate_storage(document, documents):
     )
     if weight > spec.capacity + 1e-9:
         raise ContentError("Начальное содержимое превышает вместимость контейнера")
+
+
+def validate_regrowth(document, documents):
+    spec = getattr(document, "destruction", None)
+    if spec and spec.regrow_as:
+        sprout = documents["objects", spec.regrow_as]
+        if not sprout.walkable or sprout.blocks_sight or sprout.brush.door:
+            raise ContentError(
+                "Молодое растение должно быть проходимым и не закрывать обзор"
+            )
 
 
 class PackStore:
@@ -303,6 +314,7 @@ class PackStore:
                         "Свиток требует рабочую механику заклинания исследования"
                     )
             validate_storage(doc, documents)
+            validate_regrowth(doc, documents)
             if category == "classes" and any(
                 documents[("spells", ref)].level != 0 for ref in doc.cantrip_choices
             ):
@@ -348,6 +360,7 @@ class PackStore:
                                             f"Пакет ссылки {target} не указан в зависимостях карты"
                                         )
                                 validate_storage(definition, documents)
+                                validate_regrowth(definition, documents)
                         except (ValueError, KeyError) as error:
                             raise ContentError(
                                 f"{ref}.{layer}.{entry.id}: {error}"

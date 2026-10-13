@@ -59,8 +59,8 @@ def action_lines(controller, menu=None):
     if menu is ActionMenu.META:
         return [
             "1) Сохранить | 2) Загрузить",
-            "3) Справка | 4) Выход",
-            "5) Настройки",
+            "3) Справка | 4) Настройки",
+            "5) Выход",
             "Esc: закрыть меню",
             controller.message,
         ]

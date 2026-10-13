@@ -270,7 +270,7 @@ def migrate_map(raw):
                     result["walkability"][y][x] = True
                 if result["blocks_sight"][y][x] == source["blocks_sight"]:
                     result["blocks_sight"][y][x] = False
-    for category in ("equipment", "traps", "points_of_interest"):
+    for category in ("equipment", "traps", "points_of_interest", "objects"):
         for placement in result.get(category, []):
             _placement_alias(category, placement)
     # Old brushes generated a second, permanent light on top of these fixtures.
