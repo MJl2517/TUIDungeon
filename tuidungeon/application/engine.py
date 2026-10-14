@@ -524,12 +524,26 @@ class Engine(
         return max(0, self.state.hero.stats.modifier(Ability.STRENGTH) + 1)
 
     def place_item(
-        self, item: Equipment, target: Position, *, throwing=False
+        self, item: Equipment, target: Position, *, throwing=False, quantity=1
     ) -> ActionResult:
-        """Move one owned instance onto the ground; throwing is not an attack."""
+        """Drop owned stack instances in one turn; throwing moves one item."""
         state, hero = self.state, self.state.hero
+        if type(quantity) is not int or quantity < 1 or throwing and quantity != 1:
+            return ActionResult(False, 0, "Неверное количество предметов.")
         if hero.hp <= 0 or not any(owned is item for owned in hero.inventory):
             return ActionResult(False, 0, "Предмет недоступен.")
+        moved = [item]
+        if quantity > 1:
+            from ..domain.storage import item_stacks
+
+            stack = next(
+                s
+                for s in item_stacks(hero.inventory)
+                if any(i is item for i in s.items)
+            )
+            if quantity > stack.quantity:
+                return ActionResult(False, 0, "В стопке недостаточно предметов.")
+            moved = [item, *(i for i in stack.items if i is not item)][:quantity]
         distance = abs(target.x - state.position.x) + abs(target.y - state.position.y)
         if not throwing and target != state.position:
             return ActionResult(False, 0, "Положить предмет можно только под ноги.")
@@ -557,8 +571,8 @@ class Engine(
             target, allow_target_door=fragile_throw
         ):
             return ActionResult(False, 0, "Бросок преграждает стена.")
-        index = next(i for i, owned in enumerate(hero.inventory) if owned is item)
-        hero.inventory.pop(index)
+        ids = {i.instance_id for i in moved}
+        hero.inventory[:] = [i for i in hero.inventory if i.instance_id not in ids]
         if throwing and item.definition.vessel and item.definition.vessel.fragile:
             from ..domain.liquids import WATER_KINDS
 
@@ -566,14 +580,16 @@ class Engine(
                 self._water_cell(target)
             self._advance(1)
             return ActionResult(True, 1, "Сосуд разбился; содержимое вылилось.")
-        item.equipped = False
-        ref = item.id if ":" in item.id else "base:" + item.id
-        state.items.append(
-            (ItemPlacement(item.instance_id, ref, target.x, target.y), item)
-        )
+        for dropped in moved:
+            dropped.equipped = False
+            ref = dropped.id if ":" in dropped.id else "base:" + dropped.id
+            state.items.append(
+                (ItemPlacement(dropped.instance_id, ref, target.x, target.y), dropped)
+            )
         self._advance(1)
         verb = "Брошено" if throwing else "Положено на землю"
-        return ActionResult(True, 1, f"{verb}: {item.name}.")
+        count = f" x{quantity}" if quantity > 1 else ""
+        return ActionResult(True, 1, f"{verb}: {item.name}{count}.")
 
     def _clear_throw_path(self, target, *, allow_target_door=False):
         """Integer line trace, including corner walls to prevent diagonal clipping."""

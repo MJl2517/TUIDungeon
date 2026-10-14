@@ -27,5 +27,18 @@
   ],
   "carry_per_strength": 5.0,
   "order": 0,
-  "symbol": "base:visual_classes_warrior"
+  "symbol": "base:visual_classes_warrior",
+  "skills_known": 2,
+  "skill_choices": [
+    "acrobatics",
+    "animal_handling",
+    "athletics",
+    "history",
+    "insight",
+    "intimidation",
+    "persuasion",
+    "perception",
+    "survival"
+  ],
+  "expertise_count": 0
 }

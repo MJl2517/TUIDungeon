@@ -3,6 +3,8 @@
 from pathlib import Path
 import json
 import socket
+import shutil
+import subprocess
 from typing import Literal
 from urllib.error import URLError
 from urllib.request import urlopen
@@ -115,6 +117,7 @@ def template(store, category):
                 blocks_sight=[[False] * 20 for _ in range(12)],
                 roof=[[False] * 20 for _ in range(12)],
                 tile_mirrors=[[False] * 20 for _ in range(12)],
+                tile_rotations=[[0] * 20 for _ in range(12)],
             )
         elif category == "art":
             raw.update(
@@ -159,6 +162,7 @@ def template(store, category):
         )
     if category == "maps":
         raw["tile_mirrors"] = [[False] * 20 for _ in range(12)]
+        raw["tile_rotations"] = [[0] * 20 for _ in range(12)]
         raw.update(
             lights=[],
             ambient_light="bright",
@@ -517,6 +521,31 @@ def create_app(root=None, dist=None):
     return app
 
 
+def ensure_studio_build(project_root=PROJECT_ROOT):
+    studio = Path(project_root) / "studio"
+    index = studio / "dist/index.html"
+    inputs = [p for p in (studio / "src").rglob("*") if p.is_file()]
+    inputs.extend(studio.glob("*.json"))
+    inputs.extend(
+        p for p in (studio / "vite.config.ts", studio / "index.html") if p.is_file()
+    )
+    if (
+        index.is_file()
+        and (studio / "dist/assets").is_dir()
+        and all(p.stat().st_mtime_ns <= index.stat().st_mtime_ns for p in inputs)
+    ):
+        return
+    setup = ".\\setup.bat" if sys.platform == "win32" else "./setup.sh"
+    npm = shutil.which("npm.cmd" if sys.platform == "win32" else "npm")
+    if not npm or not (studio / "node_modules").is_dir():
+        raise ValueError(f"Интерфейс нужно собрать. Выполните {setup}")
+    print("Обновляю интерфейс студии…", flush=True)
+    try:
+        subprocess.run([npm, "run", "build"], cwd=studio, check=True)
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise ValueError(f"Не удалось собрать интерфейс. Выполните {setup}") from error
+
+
 def serve(port=8765, open_browser=True, root=None):
     import uvicorn
 
@@ -540,13 +569,8 @@ def serve(port=8765, open_browser=True, root=None):
             webbrowser.open(url)
         return
 
+    ensure_studio_build()
     app = create_app(root)
-    if (
-        not (PROJECT_ROOT / "studio/dist/index.html").is_file()
-        or not (PROJECT_ROOT / "studio/dist/assets").is_dir()
-    ):
-        setup = ".\\setup.bat" if sys.platform == "win32" else "./setup.sh"
-        raise ValueError(f"Интерфейс не собран. Выполните {setup}")
     if open_browser:
         timer = threading.Timer(
             1.0, webbrowser.open, args=(f"http://127.0.0.1:{port}",)

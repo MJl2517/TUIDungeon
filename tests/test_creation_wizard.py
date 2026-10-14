@@ -176,7 +176,9 @@ class CreationWizardTests(unittest.TestCase):
 
 class BackgroundEventsTests(unittest.TestCase):
     def setUp(self):
-        self.store = PackStore()
+        from scripts.testing import fixture_store
+
+        self.store = fixture_store()
         self.factory = SessionFactory(self.store)
 
     def test_event_choices_in_tui_cannot_be_bypassed(

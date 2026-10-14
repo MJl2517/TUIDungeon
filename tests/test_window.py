@@ -8,6 +8,7 @@ import tcod.console
 import tcod.event as events
 
 from scripts.testing import fixture_store
+from tuidungeon.domain.equipment import Equipment
 from tuidungeon.presentation.tui import (
     Controller,
     Layout,
@@ -69,6 +70,38 @@ class WindowTests(unittest.TestCase):
                     (c.view, c.action_menu), (View.EXPLORE, ActionMenu.ROOT)
                 )
         self.assertEqual(c.engine.state.turns, 0)
+
+        c.engine.state.hero.inventory[:] = [
+            Equipment.create(c.engine.catalog.equipment["wood"]) for _ in range(2)
+        ]
+        c.inventory.query = "wood"
+        c.inventory.selected = 1
+        handle_event(
+            c,
+            events.KeyDown(
+                sym=ord("й"), scancode=events.Scancode.Q, mod=events.Modifier.NONE
+            ),
+        )
+        self.assertEqual(c.view, View.DROP)
+        handle_event(
+            c,
+            events.KeyDown(
+                sym=events.KeySym.N2,
+                scancode=events.Scancode.N2,
+                mod=events.Modifier.NONE,
+            ),
+        )
+        handle_event(
+            c,
+            events.KeyDown(
+                sym=events.KeySym.RETURN,
+                scancode=events.Scancode.RETURN,
+                mod=events.Modifier.NONE,
+            ),
+        )
+        self.assertEqual(c.view, View.EXPLORE)
+        self.assertFalse(c.engine.state.hero.inventory)
+        self.assertEqual(c.engine.state.turns, 1)
 
     def test_sneaking_shortcut_recolors_cached_hero_without_spending_a_turn(self):
         store = fixture_store()

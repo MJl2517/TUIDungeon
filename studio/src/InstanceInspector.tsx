@@ -180,6 +180,7 @@ export function InstanceInspector({
                   "foreground",
                   "background",
                   "mirror_x",
+                  "rotation",
                   ...(base.loot_tier !== undefined ? ["loot_tier"] : []),
                 ])
                   delete next[key];
@@ -191,9 +192,14 @@ export function InstanceInspector({
                   "foreground",
                   "background",
                   "mirror_x",
+                  "rotation",
                   ...(base.loot_tier !== undefined ? ["loot_tier"] : []),
                 ]) {
-                  if (key === "mirror_x" && variant[key] == null) continue;
+                  if (
+                    ["mirror_x", "rotation"].includes(key) &&
+                    variant[key] == null
+                  )
+                    continue;
                   next[key] = variant[key] ?? null;
                 }
               }

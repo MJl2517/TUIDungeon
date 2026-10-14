@@ -4,6 +4,26 @@ import { ContentSelect } from "./ContentBrowser";
 import { craftNames, mapCategoryNames } from "./catalog";
 import { Doc, Entry, defaultFor, color } from "./model";
 import { damageLabels } from "./damage";
+const skillLabels: Record<string, string> = {
+  acrobatics: "Акробатика",
+  animal_handling: "Уход за животными",
+  arcana: "Магия",
+  athletics: "Атлетика",
+  deception: "Обман",
+  history: "История",
+  insight: "Проницательность",
+  intimidation: "Запугивание",
+  investigation: "Расследование",
+  medicine: "Медицина",
+  nature: "Природа",
+  perception: "Внимательность",
+  performance: "Выступление",
+  persuasion: "Убеждение",
+  religion: "Религия",
+  sleight_of_hand: "Ловкость рук",
+  stealth: "Скрытность",
+  survival: "Выживание",
+};
 const labels: Record<string, string> = {
   cast_spell: "Заклинание свитка",
   spell_bonus: "Бонус фокуса к магической атаке и СЛ",
@@ -56,6 +76,8 @@ const labels: Record<string, string> = {
   tools: "Теги нужных инструментов",
   proficiencies: "Нужные владения инструментами",
   tool_proficiencies: "Владения инструментами",
+  tool_expertise: "Экспертиза инструментов",
+  tool: "Инструмент проверки (вместо навыка)",
   starting_recipes: "Начальные рецепты",
   stations: "Станции: все группы, один вариант внутри группы",
   turns: "Ходы изготовления",
@@ -67,6 +89,7 @@ const labels: Record<string, string> = {
   symbol: "Символ из библиотеки",
   state_symbols: "Символы состояний",
   mirror_x: "Отразить по горизонтали",
+  rotation: "Направление (поворот по часовой стрелке)",
   loot_tier: "Цветовая категория добычи",
   underlay: "Тайл под предметом",
   door: "Дверь",
@@ -170,7 +193,11 @@ const labels: Record<string, string> = {
   order: "Порядок",
   starting_items: "Стартовые предметы",
   classes: "Доступно классам",
-  skills: "Навыки (плейсхолдеры)",
+  skills: "Владения навыками",
+  skill: "Навык проверки",
+  skill_choices: "Доступные навыки класса",
+  skills_known: "Количество выбираемых навыков",
+  expertise_count: "Количество навыков с экспертизой на старте",
   carry_per_strength: "Нагрузка на единицу силы",
   text: "Текст",
   choices: "Варианты выбора",
@@ -748,13 +775,20 @@ export function FieldForm({
       <select
         aria-label={title}
         value={value ?? s.enum[0]}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) =>
+          onChange(
+            s.type === "integer" || s.type === "number"
+              ? Number(e.target.value)
+              : e.target.value,
+          )
+        }
       >
         {s.enum.map((v: string) => (
           <option key={v} value={v}>
             {(
               {
                 ...damageLabels,
+                ...skillLabels,
                 liquid: "Обработка жидкости",
                 repair_item: "Ремонт предмета",
                 repair_object: "Ремонт объекта",
@@ -954,6 +988,7 @@ export function propertySections(category: string, keys: string[]): Section[] {
       [
         "symbol",
         "mirror_x",
+        "rotation",
         "state_symbols",
         "foreground",
         "background",
@@ -1006,6 +1041,8 @@ export function propertySections(category: string, keys: string[]): Section[] {
         "damage_type",
         "kind",
         "ability",
+        "skill",
+        "tool",
         "bonus",
         "damage",
         "difficulty",
@@ -1034,11 +1071,15 @@ export function propertySections(category: string, keys: string[]): Section[] {
         "racial_spell",
         "racial_uses",
         "tool_proficiencies",
+        "tool_expertise",
         "starting_recipes",
         "learn_recipes",
         "learn_on_proficiency",
         "classes",
         "skills",
+        "skill_choices",
+        "skills_known",
+        "expertise_count",
       ],
     ],
     [

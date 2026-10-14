@@ -195,7 +195,7 @@ def render_inventory(canvas, rect, hero, browser, *, character=False, focused=Tr
     hint = (
         "Enter: фильтр | Esc: отмена"
         if browser.editing
-        else "↑↓: выбор | Enter | F: поиск"
+        else "↑↓ Enter | Q: выброс | F"
     )
     canvas.line(rect, load_row + 2, hint)
     if character:

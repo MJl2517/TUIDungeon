@@ -19,5 +19,9 @@
   "tags": [
     "outdoors"
   ],
-  "symbol": "base:visual_backgrounds_wanderer"
+  "symbol": "base:visual_backgrounds_wanderer",
+  "skills": [
+    "survival",
+    "nature"
+  ]
 }

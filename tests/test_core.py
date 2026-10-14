@@ -152,6 +152,9 @@ class CreationTests(unittest.TestCase):
         creation.select(3)
         creation.select(2)
         creation.select(1)
+        creation.select(1)
+        creation.select(2)
+        creation.select(7)
         creation.select(2)
         return creation
 
@@ -201,6 +204,8 @@ class CreationTests(unittest.TestCase):
         self.assertEqual(creation.assignments, [])
         creation.back()
         self.assertEqual(creation.step, CreationStep.ROLL)
+        creation.back()
+        self.assertEqual(creation.step, CreationStep.SKILLS)
         creation.back()
         self.assertEqual(creation.step, CreationStep.BACKGROUND)
         creation.back()

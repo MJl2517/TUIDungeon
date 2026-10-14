@@ -53,5 +53,16 @@
   ],
   "cantrips_known": 3,
   "spellcasting_ability": "intelligence",
-  "symbol": "base:visual_classes_wizard"
+  "symbol": "base:visual_classes_wizard",
+  "skills_known": 2,
+  "skill_choices": [
+    "arcana",
+    "history",
+    "insight",
+    "investigation",
+    "medicine",
+    "nature",
+    "religion"
+  ],
+  "expertise_count": 0
 }

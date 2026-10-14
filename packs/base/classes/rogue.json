@@ -27,5 +27,22 @@
   ],
   "carry_per_strength": 5.0,
   "order": 2,
-  "symbol": "base:visual_classes_rogue"
+  "symbol": "base:visual_classes_rogue",
+  "skills_known": 4,
+  "skill_choices": [
+    "acrobatics",
+    "athletics",
+    "deception",
+    "insight",
+    "intimidation",
+    "investigation",
+    "perception",
+    "persuasion",
+    "sleight_of_hand",
+    "stealth"
+  ],
+  "expertise_count": 2,
+  "tool_proficiencies": [
+    "lockpicks"
+  ]
 }

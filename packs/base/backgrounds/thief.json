@@ -10,8 +10,8 @@
     "base:rope"
   ],
   "skills": [
-    "Ловкость рук",
-    "Скрытность"
+    "sleight_of_hand",
+    "stealth"
   ],
   "tags": [
     "thief"

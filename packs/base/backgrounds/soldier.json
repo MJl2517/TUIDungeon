@@ -10,8 +10,8 @@
     "base:bedroll"
   ],
   "skills": [
-    "Атлетика",
-    "Запугивание"
+    "athletics",
+    "intimidation"
   ],
   "tags": [
     "soldier"

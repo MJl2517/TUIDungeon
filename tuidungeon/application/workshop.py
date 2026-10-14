@@ -421,15 +421,12 @@ class WorkshopCommands:
         if op.kind in ("place_object", "place_trap"):
             assessment.destinations = self.craft_destinations()
             chosen = work.destination if work else destination
-            if chosen is None and assessment.destinations:
-                chosen = (
-                    assessment.destinations[0]["x"],
-                    assessment.destinations[0]["y"],
-                )
             assessment.destination = chosen
             assessment.require(
                 "Свободная доступная соседняя клетка пола",
-                chosen and self._world_destination(Position(*chosen)),
+                bool(assessment.destinations)
+                if chosen is None
+                else self._world_destination(Position(*chosen)),
                 "Нужна свободная доступная соседняя клетка пола.",
             )
             if not self.state.level or (work and work.map_ref != self.state.level.ref):

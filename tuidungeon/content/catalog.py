@@ -302,9 +302,20 @@ class ContentCatalog:
             data["description"] = text(
                 data["description"], "description", empty=True, multiline=True
             )
+        if category in ("classes", "races", "backgrounds"):
+            from ..domain.skills import skill_list
+
+            for key in ("skills", "skill_choices"):
+                if key in data:
+                    data[key] = tuple(skill_list(data[key]))
+            if category == "classes":
+                for key in ("skills_known", "expertise_count"):
+                    data[key] = integer(data.get(key, 0), key, 0, 18)
+                if data["skills_known"] > len(data.get("skill_choices", ())):
+                    raise ContentError("Количество навыков превышает список выбора")
         if "order" in data:
             data["order"] = integer(data["order"], "order", 0)
-        for key in ("tags", "tool_proficiencies"):
+        for key in ("tags", "tool_proficiencies", "tool_expertise"):
             if key in data:
                 data[key] = frozenset(
                     entry if entry == "поджог" else identifier(entry, key)
@@ -447,10 +458,7 @@ class ContentCatalog:
                 data.get("carry_per_strength", 5), "carry_per_strength", 0.01
             )
         elif category == "backgrounds":
-            data["skills"] = tuple(
-                text(name, "skills")
-                for name in sequence(data.get("skills", []), "skills")
-            )
+            data["skills"] = tuple(skill_list(value.get("skills", [])))
         elif category == "monsters":
             raw_stats = data.get("stats")
             fields(
@@ -508,6 +516,12 @@ class ContentCatalog:
                 choice["minutes"] = integer(choice.get("minutes", 1), "minutes", 0)
                 if "check_tag" in choice:
                     choice["check_tag"] = identifier(choice["check_tag"], "check_tag")
+                if choice.get("tool") is not None:
+                    choice["tool"] = identifier(choice["tool"], "tool")
+                if choice.get("skill") is not None:
+                    from ..domain.skills import skill_id
+
+                    choice["skill"] = skill_id(choice["skill"])
                 for key in (
                     "required_tags",
                     "advantage_tags",

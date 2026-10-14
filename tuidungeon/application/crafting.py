@@ -426,6 +426,14 @@ class CraftCommands:
             a = self.assess_craft(ref, variant, target=target, destination=destination)
         except ValueError as error:
             return self._craft_result(False, str(error))
+        if (
+            a.recipe.operation
+            and a.recipe.operation.kind in ("place_object", "place_trap")
+            and destination is None
+        ):
+            return self._craft_result(
+                False, "Выберите соседнюю клетку для строительства."
+            )
         if not a.available:
             if denial := self.light_denial(1 if a.recipe.category == "basic" else 2):
                 return denial
@@ -553,12 +561,12 @@ class CraftCommands:
         variant = work.recipe.variants[work.variant]
         check = variant.check or work.recipe.check
         if check:
-            roll = self.dice.check(
-                self.state.hero.stats.score(Ability[check.ability.upper()]),
+            roll = self.state.hero.ability_check(
+                self.dice,
+                Ability[check.ability.upper()],
                 check.difficulty,
-                bonus=self.state.hero.proficiency_bonus
-                if work.recipe.variants[work.variant].proficiencies
-                else 0,
+                skill=check.skill,
+                tool=next(iter(variant.proficiencies), None),
             )
             if not roll.success:
                 work.progress = 0

@@ -34,6 +34,7 @@ from ..content.schemas import (
     Effect,
 )
 from ..world.objects import ObjectState, FurnitureCargo, RegrowingObject
+from ..domain.skills import SkillId
 from ..content.schemas import MODELS
 from ..domain.damage import DamageProfile
 from ..content.migrations import migrate_map, equipment_alias, legacy_item_template
@@ -123,7 +124,10 @@ WorkRecord.model_rebuild()
 
 
 class ActorRecord(Record):
+    skill_proficiencies: list[SkillId] | None = None
+    expertise: list[SkillId] | None = None
     tool_proficiencies: list[LocalId] | None = None
+    tool_expertise: list[LocalId] | None = None
     known_recipes: list[Ref] | None = None
     instance_id: str
     name: str
@@ -299,6 +303,11 @@ def item_record(item):
 
 def actor_record(actor):
     return ActorRecord(
+        skill_proficiencies=sorted(actor.skill_proficiencies),
+        expertise=sorted(actor.expertise),
+        tool_expertise=sorted(actor.tool_expertise)
+        if isinstance(actor, Hero)
+        else None,
         tool_proficiencies=sorted(actor.tool_proficiencies)
         if isinstance(actor, Hero)
         else None,
@@ -614,9 +623,21 @@ def restore_actor(actor, record, catalog):
     ):
         setattr(actor, name, getattr(record, name))
     if isinstance(actor, Hero):
+        if record.level > 20:
+            raise ValueError("Уровень героя должен быть от 1 до 20")
         actor.level = record.level
+        if record.skill_proficiencies is not None:
+            actor.skill_proficiencies = set(record.skill_proficiencies)
+        if record.expertise is not None:
+            actor.expertise = set(record.expertise)
+        if not actor.expertise.issubset(actor.skill_proficiencies):
+            raise ValueError("Экспертиза требует владения навыком")
         if record.tool_proficiencies is not None:
             actor.tool_proficiencies = set(record.tool_proficiencies)
+        if record.tool_expertise is not None:
+            actor.tool_expertise = set(record.tool_expertise)
+        if not actor.tool_expertise.issubset(actor.tool_proficiencies):
+            raise ValueError("Экспертиза инструмента требует отдельного владения им")
         if record.known_recipes is not None:
             if not set(record.known_recipes).issubset(catalog.recipes):
                 raise ValueError("Недопустимые сохранённые рецепты")

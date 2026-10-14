@@ -8,12 +8,16 @@ from ..domain.actors import Hero
 from ..domain.definitions import ClassDefinition, RaceDefinition, BackgroundDefinition
 from ..domain.rules import Ability, AbilityRoll, Dice
 from ..domain.stats import Stats
+from ..domain.skills import SKILLS, starting_skills
 
 
 class CreationStep(Enum):
     RACE = auto()
     CLASS = auto()
     BACKGROUND = auto()
+    SKILLS = auto()
+    BONUS_SKILLS = auto()
+    EXPERTISE = auto()
     ROLL = auto()
     DISTRIBUTE = auto()
     CANTRIPS = auto()
@@ -44,15 +48,48 @@ class CharacterCreation:
         # Indices, rather than values, preserve distinct dice results even on ties.
         self.assignments: list[int] = []
         self.cantrips: list[str] = []
+        self.skills: list[str] = []
+        self.extra_skills: list[str] = []
+        self.expertise: list[str] = []
+
+    @property
+    def skill_steps(self):
+        return (CreationStep.SKILLS, CreationStep.BONUS_SKILLS, CreationStep.EXPERTISE)
+
+    def skill_count(self, step):
+        if not self.character_class or not self.race:
+            return 0
+        return {
+            CreationStep.SKILLS: self.character_class.skills_known,
+            CreationStep.BONUS_SKILLS: starting_skills(
+                self.race, self.character_class, self.background
+            )[2],
+            CreationStep.EXPERTISE: self.character_class.expertise_count,
+        }.get(step, 0)
+
+    def selected_skills(self, step):
+        return {
+            CreationStep.SKILLS: self.skills,
+            CreationStep.BONUS_SKILLS: self.extra_skills,
+            CreationStep.EXPERTISE: self.expertise,
+        }[step]
+
+    @property
+    def known_skills(self):
+        fixed = starting_skills(self.race, self.character_class, self.background)[0]
+        return fixed | set(self.skills) | set(self.extra_skills)
 
     @property
     def steps(self):
         return tuple(
             s
             for s in CreationStep
-            if s is not CreationStep.CANTRIPS
-            or self.character_class
-            and self.character_class.cantrips_known
+            if (s not in self.skill_steps or self.skill_count(s))
+            and (
+                s is not CreationStep.CANTRIPS
+                or self.character_class
+                and self.character_class.cantrips_known
+            )
         )
 
     def reroll(self) -> None:
@@ -78,6 +115,9 @@ class CharacterCreation:
             cantrips=tuple(self.cantrips)
             if len(self.cantrips) == self.character_class.cantrips_known
             else None,
+            skills=self.skills,
+            extra_skills=self.extra_skills,
+            expertise=self.expertise,
         )
 
     @property
@@ -92,6 +132,18 @@ class CharacterCreation:
             return tuple(
                 self.catalog.spells[s] for s in self.character_class.cantrip_choices
             )
+        if self.step in self.skill_steps:
+            fixed, choices, _ = starting_skills(
+                self.race, self.character_class, self.background
+            )
+            ids = (
+                choices
+                if self.step is CreationStep.SKILLS
+                else [s for s in SKILLS if s in self.known_skills]
+                if self.step is CreationStep.EXPERTISE
+                else [s for s in SKILLS if s not in fixed | set(self.skills)]
+            )
+            return tuple(SKILLS[s] for s in ids)
         if self.step is CreationStep.BACKGROUND and self.character_class:
             return tuple(
                 background
@@ -120,13 +172,24 @@ class CharacterCreation:
             CreationStep.CLASS,
             CreationStep.BACKGROUND,
             CreationStep.CANTRIPS,
+            *self.skill_steps,
         ):
             buttons = [
                 CreationButton(
                     i,
                     (
-                        ("[*] " if option.id in self.cantrips else "[ ] ")
+                        (
+                            "[*] "
+                            if option.id
+                            in (
+                                self.cantrips
+                                if self.step is CreationStep.CANTRIPS
+                                else self.selected_skills(self.step)
+                            )
+                            else "[ ] "
+                        )
                         if self.step is CreationStep.CANTRIPS
+                        or self.step in self.skill_steps
                         else ""
                     )
                     + option.name,
@@ -140,6 +203,13 @@ class CharacterCreation:
                     CreationButton(
                         7,
                         f"Продолжить ({len(self.cantrips)}/{self.character_class.cantrips_known})",
+                    )
+                )
+            if self.step in self.skill_steps:
+                buttons.append(
+                    CreationButton(
+                        7,
+                        f"Продолжить ({len(self.selected_skills(self.step))}/{self.skill_count(self.step)})",
                     )
                 )
             if self.page_count > 1:
@@ -193,6 +263,7 @@ class CharacterCreation:
             CreationStep.CLASS,
             CreationStep.BACKGROUND,
             CreationStep.CANTRIPS,
+            *self.skill_steps,
         ):
             if number == 8:
                 self.change_page(-1)
@@ -202,6 +273,9 @@ class CharacterCreation:
                 if len(self.cantrips) == self.character_class.cantrips_known:
                     self.step = CreationStep.CONFIRM
                     self.cursor = 0
+            elif number == 7 and self.step in self.skill_steps:
+                if len(self.selected_skills(self.step)) == self.skill_count(self.step):
+                    self.advance_skill_step(self.step)
             elif (
                 self.step is CreationStep.BACKGROUND
                 and not self.options
@@ -211,6 +285,17 @@ class CharacterCreation:
                 self.accept_background()
             elif 1 <= number <= len(self.visible_options):
                 selected = self.visible_options[number - 1]
+                if self.step in self.skill_steps:
+                    chosen = self.selected_skills(self.step)
+                    if selected.id in chosen:
+                        chosen.remove(selected.id)
+                    elif len(chosen) < self.skill_count(self.step):
+                        chosen.append(selected.id)
+                    if self.step is not CreationStep.EXPERTISE:
+                        self.expertise.clear()
+                    if self.step is CreationStep.SKILLS:
+                        self.extra_skills.clear()
+                    return None
                 if self.step is CreationStep.CANTRIPS:
                     if selected.id in self.cantrips:
                         self.cantrips.remove(selected.id)
@@ -257,6 +342,21 @@ class CharacterCreation:
 
     def accept_background(self):
         self.assignments.clear()
+        self.skills.clear()
+        self.extra_skills.clear()
+        self.expertise.clear()
+        self.advance_skill_step(CreationStep.BACKGROUND)
+
+    def advance_skill_step(self, previous):
+        remaining = [
+            s
+            for s in self.skill_steps
+            if self.skill_count(s) and s.value > previous.value
+        ]
+        self.cursor = self.selection_page = 0
+        if remaining:
+            self.step = remaining[0]
+            return
         if not self.rolls:
             self.reroll()
         else:
@@ -269,7 +369,19 @@ class CharacterCreation:
         if self.step is CreationStep.CLASS:
             self.step = CreationStep.RACE
         elif self.step is CreationStep.ROLL:
-            self.step = CreationStep.BACKGROUND
+            self.step = next(
+                (s for s in reversed(self.skill_steps) if self.skill_count(s)),
+                CreationStep.BACKGROUND,
+            )
+        elif self.step in self.skill_steps:
+            self.step = next(
+                (
+                    s
+                    for s in reversed(self.skill_steps)
+                    if s.value < self.step.value and self.skill_count(s)
+                ),
+                CreationStep.BACKGROUND,
+            )
         elif self.step is CreationStep.BACKGROUND:
             self.step = CreationStep.CLASS
         elif self.step is CreationStep.DISTRIBUTE:

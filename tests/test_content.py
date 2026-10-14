@@ -207,7 +207,7 @@ class SymbolTests(unittest.TestCase):
     def test_unicode_rendering_keeps_sizes_and_game_rules(self):
         controller = Controller(42, symbols="unicode")
         controller.handle("enter")
-        for key in "11121234561":
+        for key in "11112721234561":
             controller.handle(key)
         hero = controller.engine.state.hero
         hero.unequip(next(i for i in hero.inventory if i.id == "shield"))

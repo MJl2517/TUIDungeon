@@ -8,11 +8,22 @@ from tuidungeon.models import Position
 from tuidungeon.ui import Controller, Layout, View, render
 
 
+def complete_skill_selection(controller):
+    while (
+        controller.view is View.CREATION
+        and controller.creation.step in controller.creation.skill_steps
+    ):
+        count = controller.creation.skill_count(controller.creation.step)
+        for number in range(1, count + 1):
+            controller.handle(str(number))
+        controller.handle("7")
+
+
 def created_controller(seed=42):
     controller = Controller(seed)
     controller.handle("enter")
     # Human warrior; accept rolls, distribute in order, confirm.
-    for key in ("1", "1", "1", "2", "1", "2", "3", "4", "5", "6", "1"):
+    for key in ("1", "1", "1", "1", "2", "7", "2", "1", "2", "3", "4", "5", "6", "1"):
         controller.handle(key)
     return controller
 
@@ -220,6 +231,7 @@ class ControllerTests(unittest.TestCase):
         for key in ("3", "2", "backspace", "4", "escape", "2", "backspace", "1"):
             controller.handle(key)
         for key in "11121234561":
+            complete_skill_selection(controller)
             controller.handle(key)
         self.assertEqual(
             gameplay_hero(controller.engine.state.hero),
@@ -348,6 +360,7 @@ class ControllerTests(unittest.TestCase):
         controller.handle("2")
         controller.handle("2")
         controller.handle("1")
+        complete_skill_selection(controller)
         controller.handle("2")
         for key in "123456":
             controller.handle(key)
@@ -408,6 +421,7 @@ class RenderingTests(unittest.TestCase):
             "7",
         ):
             if key:
+                complete_skill_selection(controller)
                 controller.handle(key)
             rows = render(controller, 80, 24)
             self.assertEqual(len(rows), 24)
@@ -457,6 +471,7 @@ class RenderingTests(unittest.TestCase):
             "1",
             "tab",
         ):
+            complete_skill_selection(controller)
             controller.handle(key)
         text = "\n".join(render(controller, 80, 24))
         for label in (

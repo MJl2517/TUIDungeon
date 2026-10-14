@@ -46,6 +46,8 @@ class Character(ABC):
     racial_uses: int = 0
     experience: int = 0
     innate_tags: frozenset[str] = frozenset()
+    skill_proficiencies: set[str] = field(default_factory=set)
+    expertise: set[str] = field(default_factory=set)
     conditions: dict[str, int] = field(default_factory=dict)
     sneaking: bool = False
     innate_damage_profile: DamageProfile = DamageProfile()
@@ -197,6 +199,69 @@ class Character(ABC):
     @property
     def proficiency_bonus(self):
         return 2 + (max(1, getattr(self, "level", 1)) - 1) // 4
+
+    def skill_bonus(self, skill, ability=None):
+        from .skills import SKILLS, skill_id
+
+        skill = skill_id(skill)
+        multiplier = (
+            2
+            if skill in self.expertise
+            else 1
+            if skill in self.skill_proficiencies
+            else 0
+        )
+        return (
+            self.stats.modifier(ability or SKILLS[skill].ability)
+            + multiplier * self.proficiency_bonus
+        )
+
+    def ability_check(
+        self,
+        dice,
+        ability,
+        difficulty,
+        *,
+        skill=None,
+        tool=None,
+        bonus=0,
+        advantage=False,
+        disadvantage=False,
+    ):
+        from .skills import skill_id
+
+        skill = skill_id(skill) if skill is not None else None
+        trained = skill in self.skill_proficiencies
+        tool_trained = tool is not None and tool in getattr(
+            self, "tool_proficiencies", ()
+        )
+        multiplier = (
+            (2 if tool in getattr(self, "tool_expertise", ()) else int(tool_trained))
+            if tool is not None
+            else 2
+            if skill in self.expertise
+            else int(trained)
+        )
+        return dice.check(
+            self.stats.score(ability),
+            difficulty,
+            bonus=bonus + multiplier * self.proficiency_bonus,
+            advantage=advantage,
+            disadvantage=disadvantage,
+        )
+
+    def passive_skill(self, skill, *, advantage=False, disadvantage=False):
+        return (
+            10
+            + self.skill_bonus(skill)
+            + (
+                5
+                if advantage and not disadvantage
+                else -5
+                if disadvantage and not advantage
+                else 0
+            )
+        )
 
     @property
     def spell_attack_bonus(self):
@@ -399,6 +464,7 @@ class Hero(Character):
     background: BackgroundDefinition | None = None
     test_profile: str | None = None
     tool_proficiencies: set[str] = field(default_factory=set)
+    tool_expertise: set[str] = field(default_factory=set)
     known_recipes: set[str] = field(default_factory=set)
 
     @classmethod
@@ -411,6 +477,9 @@ class Hero(Character):
         catalog: "ContentCatalog | None" = None,
         background: BackgroundDefinition | str | None = None,
         cantrips: tuple[str, ...] | None = None,
+        skills=None,
+        extra_skills=None,
+        expertise=None,
     ) -> "Hero":
         from ..content.catalog import default_catalog
 
@@ -486,8 +555,13 @@ class Hero(Character):
             ),
             spellcasting_ability=character_class.spellcasting_ability,
         )
-        hero.tool_proficiencies = set(character_class.tool_proficiencies) | (
-            set(background.tool_proficiencies) if background else set()
+        hero.tool_expertise = set(character_class.tool_expertise) | (
+            set(background.tool_expertise) if background else set()
+        )
+        hero.tool_proficiencies = (
+            hero.tool_expertise
+            | set(character_class.tool_proficiencies)
+            | (set(background.tool_proficiencies) if background else set())
         )
         hero.known_recipes = (
             {
@@ -500,6 +574,21 @@ class Hero(Character):
             | (set(background.starting_recipes) if background else set())
         )
         hero.cantrip_uses = hero.max_cantrip_uses
+        from .skills import SKILLS, starting_skills, select_skills
+
+        known, choices, replacements = starting_skills(
+            race, character_class, background
+        )
+        known |= select_skills(choices, character_class.skills_known, skills)
+        known |= select_skills(
+            [s for s in SKILLS if s not in known], replacements, extra_skills
+        )
+        hero.skill_proficiencies = known
+        hero.expertise = select_skills(
+            [s for s in SKILLS if s in known],
+            character_class.expertise_count,
+            expertise,
+        )
         for item in hero.inventory:
             if item.definition.slot and not item.definition.light:
                 hero.equip(item)

@@ -57,6 +57,7 @@ def compile_definition(category, ref, doc):
     for name in (
         "glyph",
         "mirror_x",
+        "rotation",
         "symbol",
         "state_symbols",
         "foreground",

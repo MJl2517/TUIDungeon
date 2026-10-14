@@ -77,6 +77,7 @@ export function Grid({
               ch,
               color(c.foreground),
               !!c.mirror_x,
+              c.rotation ?? 0,
             );
           else ctx.fillText(c.char, (x + 0.5) * cw, (y + 0.5) * ch);
         }
@@ -151,6 +152,7 @@ export function Grid({
           ch,
           color(cell.foreground),
           !!cell.mirror_x,
+          cell.rotation ?? 0,
         );
       else {
         ctx.fillStyle = color(cell.foreground);

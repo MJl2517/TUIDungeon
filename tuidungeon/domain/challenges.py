@@ -84,9 +84,15 @@ class TextChallenge(Challenge):
         advantage = bool(choice.advantage_tags & actor.tags) or "advantage" in aids
         check = None
         if choice.ability is not None and not automatic:
-            check = dice.check(
-                actor.stats.score(choice.ability),
+            from .skills import SKILLS
+
+            check = actor.ability_check(
+                dice,
+                choice.ability,
                 choice.difficulty,
+                skill=choice.skill
+                or (choice.check_tag if choice.check_tag in SKILLS else None),
+                tool=choice.tool,
                 advantage=advantage,
             )
         success = check is None or check.success

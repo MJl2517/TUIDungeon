@@ -380,8 +380,15 @@ class EnvironmentCommands:
                 False, "Нет исправного инструмента: " + " / ".join(tools)
             )
         spec = target.definition.disarm
-        check = self.dice.check(
-            self.state.hero.stats.score(Ability[spec.ability.upper()]), spec.difficulty
+        check = self.state.hero.ability_check(
+            self.dice,
+            Ability[spec.ability.upper()],
+            spec.difficulty,
+            skill=spec.skill or "sleight_of_hand",
+            tool=next(
+                (t for t in tools if t in self.state.hero.tool_proficiencies),
+                next(iter(tools), None),
+            ),
         )
         if check.success:
             target.original.disabled = True
@@ -1128,9 +1135,11 @@ class EnvironmentCommands:
                 and self.lighting.level_at(p)
                 and not trap.discovered
             ):
-                check = self.dice.check(
-                    self.state.hero.stats.score(Ability.WISDOM),
+                check = self.state.hero.ability_check(
+                    self.dice,
+                    Ability.WISDOM,
                     trap.definition.difficulty,
+                    skill="perception",
                 )
                 if check.success:
                     trap.discovered = True

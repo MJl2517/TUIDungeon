@@ -298,7 +298,7 @@ class SessionTests(PackFixture):
             42, catalog=factory.catalog, map_ref="base:crypt", store=self.store
         )
         controller.handle("enter")
-        for key in "11121234561":
+        for key in "11112721234561":
             controller.handle(key)
         before = controller.engine.state.clock.elapsed_minutes
         for key in ["2", "d", "backspace", "right", "left", "tab"]:

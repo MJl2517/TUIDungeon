@@ -299,7 +299,9 @@ class CraftBrowser:
                     + next(t["name"] for t in a.targets if t["id"] == a.target_object)
                 )
             if a.destination:
-                rows.append(f"Клетка [V]: {a.destination[0]}, {a.destination[1]}")
+                rows.append(f"Место работы: {a.destination[0]}, {a.destination[1]}")
+            elif a.destinations:
+                rows.append("Размещение: Enter / V — выбрать клетку на карте")
         rows += [
             reason
             for reason in a.reasons
@@ -433,16 +435,18 @@ class CraftBrowser:
                     if current in ids
                     else ids[0]
                 )
-            elif a and key == "v" and a.destinations:
-                cells = [(p["x"], p["y"]) for p in a.destinations]
-                self.destination = (
-                    cells[(cells.index(a.destination) + 1) % len(cells)]
-                    if a.destination in cells
-                    else cells[0]
-                )
+            elif a and key == "v" and a.destinations and not self.work_id:
+                controller.target_furniture("build", (a.ref, a.variant))
         elif key in ("enter", "1"):
             a = self.assessment(engine)
             if not a:
+                return
+            if (
+                not self.work_id
+                and a.recipe.operation
+                and a.recipe.operation.kind in ("place_object", "place_trap")
+            ):
+                controller.target_furniture("build", (a.ref, a.variant))
                 return
             result = (
                 engine.resume_craft(self.work_id)

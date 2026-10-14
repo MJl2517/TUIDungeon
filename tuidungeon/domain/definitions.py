@@ -152,6 +152,7 @@ class RaceDefinition:
     damage_profile: DamageProfile = DamageProfile()
 
     tags: frozenset[str] = frozenset()
+    skills: tuple[str, ...] = ()
 
     @property
     def value(self) -> str:
@@ -174,9 +175,13 @@ class ClassDefinition:
     spellcasting_ability: Ability = Ability.INTELLIGENCE
     cantrip_choices: tuple[str, ...] = ()
     cantrips_known: int = 0
+    skill_choices: tuple[str, ...] = ()
+    skills_known: int = 0
+    expertise_count: int = 0
 
     tool_proficiencies: frozenset[str] = frozenset()
     starting_recipes: tuple[str, ...] = ()
+    tool_expertise: frozenset[str] = frozenset()
 
     @property
     def value(self) -> str:
@@ -196,6 +201,7 @@ class BackgroundDefinition:
 
     tool_proficiencies: frozenset[str] = frozenset()
     starting_recipes: tuple[str, ...] = ()
+    tool_expertise: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -233,6 +239,8 @@ class ChallengeChoice:
     failure: tuple[EffectSpec, ...] = ()
     minutes: int = 1
     visible_tags: frozenset[str] = frozenset()
+    skill: str | None = None
+    tool: str | None = None
 
 
 @dataclass(frozen=True)

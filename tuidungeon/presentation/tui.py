@@ -69,6 +69,7 @@ class View(Enum):
     READING = auto()
     ITEM = auto()
     ITEM_INSPECT = auto()
+    DROP = auto()
     LIQUID = auto()
     THROW = auto()
     IGNITE = auto()
@@ -111,6 +112,8 @@ class Controller:
         self.inventory = InventoryBrowser()
         self.inventory_focus = False
         self.item_return_view = View.EXPLORE
+        self.drop_quantity = ""
+        self.drop_maximum = 1
         self.spell_index = 0
         self.selected_spell = None
         self.spell_option = None
@@ -431,6 +434,27 @@ class Controller:
         if key == "ctrl_c":
             self.running = False
             return
+        if self.view is View.DROP:
+            if key == "escape":
+                self.view = self.item_return_view
+                self.selected_item = None
+            elif key == "backspace":
+                self.drop_quantity = self.drop_quantity[:-1]
+            elif key in ("left", "down", "right", "up", "home", "end"):
+                amount = int(self.drop_quantity or "1")
+                amount = (
+                    1
+                    if key == "home"
+                    else self.drop_maximum
+                    if key == "end"
+                    else amount + (1 if key in ("right", "up") else -1)
+                )
+                self.drop_quantity = str(max(1, min(self.drop_maximum, amount)))
+            elif len(key) == 1 and key in "0123456789" and len(self.drop_quantity) < 9:
+                self.drop_quantity += key
+            elif key == "enter":
+                self.drop_items(int(self.drop_quantity or "1"))
+            return
         if self.view is View.CRAFT:
             self.craft.handle(self, key)
             return
@@ -540,6 +564,23 @@ class Controller:
             self.inventory.search_key(key)
             return
         if key == "q":
+            if self.engine and self.view in (View.ITEM, View.ITEM_INSPECT):
+                self.begin_drop(self.selected_item)
+                return
+            if self.engine and (
+                self.view is View.CHARACTER
+                and self.sheet_section == 1
+                or self.view is View.EXPLORE
+                and self.action_menu is ActionMenu.ROOT
+                and self.sidebar_tab is SidebarTab.INVENTORY
+            ):
+                rows = self.inventory.rows(self.engine.state.hero)
+                item = rows[self.inventory.selected].item if rows else None
+                if item:
+                    self.begin_drop(item)
+                else:
+                    self.message = "Выберите предмет в инвентаре."
+                return
             if self.engine and self.view not in (View.MAIN_MENU, View.CREATION):
                 if self.view in (View.HELP, View.SETTINGS):
                     self.view = self.return_view
@@ -652,6 +693,7 @@ class Controller:
             View.HAND_TARGET,
         ):
             if key in ("backspace", "escape"):
+                building = self.world_target and self.world_target[0] == "build"
                 self.world_target = None
                 if self.view in (View.SPELL_TARGET, View.HAND_TARGET):
                     self.action_menu = (
@@ -661,12 +703,24 @@ class Controller:
                     )
                     self.view = View.EXPLORE
                 else:
-                    self.view = View.EXPLORE if self.view is View.LOOK else View.ITEM
+                    self.view = (
+                        View.CRAFT
+                        if building
+                        else View.EXPLORE
+                        if self.view is View.LOOK
+                        else View.ITEM
+                    )
             elif key == "enter":
                 if self.world_target and self.view is View.LOOK:
                     kind, identifier = self.world_target
                     result = (
-                        self.engine.water_action(
+                        self.engine.start_craft(
+                            identifier[0],
+                            identifier[1],
+                            destination=(self.look_position.x, self.look_position.y),
+                        )
+                        if kind == "build"
+                        else self.engine.water_action(
                             identifier, "splash", position=self.look_position
                         )
                         if kind == "splash"
@@ -678,6 +732,12 @@ class Controller:
                     )
                     self.message = result.message
                     if result.performed:
+                        if kind == "build":
+                            self.craft.work_id = self.engine.active_craft
+                            self.craft.destination = (
+                                self.look_position.x,
+                                self.look_position.y,
+                            )
                         self.world_target = None
                         self.view = View.EXPLORE
                     return
@@ -908,13 +968,7 @@ class Controller:
                 self.look_position = self.engine.state.position
                 self.view = View.THROW
             elif key == "4":
-                result = self.engine.place_item(
-                    self.selected_item, self.engine.state.position
-                )
-                self.message = result.message
-                if result.performed:
-                    self.view = self.item_return_view
-                    self.selected_item = None
+                self.begin_drop(self.selected_item)
             elif (
                 key == ("6" if self.selected_item.ignition_source else "5")
                 and self.selected_item.definition.light
@@ -965,7 +1019,11 @@ class Controller:
             elif key in ("pageup", "pagedown"):
                 if self.sheet_section == 0:
                     self.page = max(
-                        0, min(1, self.page + (1 if key == "pagedown" else -1))
+                        0,
+                        min(
+                            len(hero_lines(self.engine.state.hero)),
+                            self.page + (1 if key == "pagedown" else -1),
+                        ),
                     )
                 else:
                     self.change_page(
@@ -1131,6 +1189,40 @@ class Controller:
         self.dialog_index = 0
         self.view = View.ITEM
 
+    def begin_drop(self, item):
+        from ..domain.storage import item_stacks
+
+        stack = next(
+            (
+                s
+                for s in item_stacks(self.engine.state.hero.inventory)
+                if any(i is item for i in s.items)
+            ),
+            None,
+        )
+        if stack is None:
+            self.message = "Предмет недоступен."
+            return
+        if self.view not in (View.ITEM, View.ITEM_INSPECT):
+            self.item_return_view = self.view
+        self.selected_item = item
+        self.drop_maximum = stack.quantity
+        self.drop_quantity = ""
+        if stack.quantity > 1:
+            self.view = View.DROP
+            self.message = "Enter — выбросить, Esc — отменить."
+        else:
+            self.drop_items(1)
+
+    def drop_items(self, quantity):
+        result = self.engine.place_item(
+            self.selected_item, self.engine.state.position, quantity=quantity
+        )
+        self.message = result.message
+        if result.performed:
+            self.view = self.item_return_view
+            self.selected_item = None
+
     def inventory_key(self, key):
         hero = self.engine.state.hero
         if key == "f":
@@ -1238,6 +1330,8 @@ class Canvas:
 
 
 def hero_lines(hero: Hero) -> list[str]:
+    from ..domain.skills import SKILLS
+
     lines = [
         f"Раса: {hero.race.value}",
         f"Класс: {hero.character_class.value} | Уровень: {hero.level}",
@@ -1257,10 +1351,30 @@ def hero_lines(hero: Hero) -> list[str]:
     )
     if hero.background:
         lines.append(f"Предыстория: {hero.background.name}")
-        lines.append("Навыки (план): " + (", ".join(hero.background.skills) or "нет"))
+        lines.append(
+            "Навыки предыстории: "
+            + (", ".join(SKILLS[s].name for s in hero.background.skills) or "нет")
+        )
         lines.append(
             "Теги предыстории: " + (", ".join(sorted(hero.background.tags)) or "нет")
         )
+    lines += [
+        "",
+        f"Бонус мастерства: {hero.proficiency_bonus:+d}",
+        "Навыки: В — владение, Э — экспертиза",
+    ]
+    lines += [
+        f"{'Э' if key in hero.expertise else 'В' if key in hero.skill_proficiencies else '·'} {skill.name}: {hero.skill_bonus(key):+d}"
+        for key, skill in SKILLS.items()
+    ]
+    if hero.tool_proficiencies:
+        from ..domain.tags import TAG_LABELS
+
+        lines += ["", "Инструменты (отдельные владения):"]
+        lines += [
+            f"{'Э' if tool in hero.tool_expertise else 'В'} {TAG_LABELS.get(tool, tool)}: +{hero.proficiency_bonus * (2 if tool in hero.tool_expertise else 1)} к характеристике"
+            for tool in sorted(hero.tool_proficiencies)
+        ]
     return lines
 
 
@@ -1362,7 +1476,7 @@ def render_start_screen(canvas: Canvas, controller: Controller) -> None:
             "Esc: сохранение, загрузка, справка и выход",
             "I: инвентарь | M: заклинания | B: строительство",
             "←/→: страницы персонажа | F: поиск | G: подобрать",
-            "Backspace: назад | Q: меню выхода",
+            "Q: выбросить выбранный предмет | Esc: меню",
             "",
             "Успешный шаг и ожидание: один ход и одна минута.",
             "Отдых: восемь часов, восстановление HP и заклинаний.",
@@ -1504,7 +1618,14 @@ def background_view(controller):
         and controller.return_view is not View.MAIN_MENU
     ):
         view = controller.return_view
-    if view in (View.ITEM, View.ITEM_INSPECT, View.LIQUID, View.THROW, View.IGNITE):
+    if view in (
+        View.ITEM,
+        View.ITEM_INSPECT,
+        View.DROP,
+        View.LIQUID,
+        View.THROW,
+        View.IGNITE,
+    ):
         return (
             view if view in (View.THROW, View.IGNITE) else controller.item_return_view
         )
@@ -1528,6 +1649,16 @@ def popup_content(controller):
     if controller.view is View.STORAGE:
         return "Контейнер", [], []
     view, menu = controller.view, controller.action_menu
+    if view is View.DROP:
+        return (
+            "Выбросить предметы",
+            [
+                controller.selected_item.name,
+                f"Количество: {controller.drop_quantity or '1'} / {controller.drop_maximum}",
+                controller.message,
+            ],
+            [],
+        )
     if view is View.CRAFT:
         return controller.craft.content(controller)
     if view is View.BUILD:
@@ -1580,6 +1711,7 @@ def popup_content(controller):
                 "I: инвентарь | M: заклинания | B: строительство",
                 "↑↓: выбор вещи | Enter / щелчок: предмет",
                 "F: поиск | G: подобрать | ←/→: вкладки",
+                "Q: выбросить выбранную вещь; для стопки — количество",
                 "В окне: +/- или колесо мыши — масштаб карты",
                 "В диалоге: ↑↓ и Enter, либо цифра варианта",
                 "Меню и осмотр не расходуют игровое время.",
@@ -1647,7 +1779,7 @@ def popup_content(controller):
                 else use,
                 "Осмотреть",
                 "Бросить",
-                "Положить на землю",
+                "Положить на землю [Q]",
             ]
             + (
                 ["Действия с жидкостью"]
@@ -1878,6 +2010,8 @@ def popup_layout(controller, width, height):
         ]
     if controller.feedback:
         hint = "Enter / Space / Esc: закрыть"
+    elif controller.view is View.DROP:
+        hint = "Цифры / ←→ / ↑↓ | Home/End: 1/всё | Enter / Esc"
     elif controller.view is View.READING:
         hint = f"←/→: страница {page + 1}/{controller.reading_pages} | Esc: назад"
     elif controller.view is View.NOTEBOOK and controller.notebook_section == 1:
@@ -2121,7 +2255,9 @@ def render(controller: Controller, width: int, height: int) -> list[str]:
     elif controller.view is View.LOOK:
         actions = [
             "WASD / стрелки: курсор",
-            "Enter: вылить"
+            "Enter: начать строительство"
+            if controller.world_target and controller.world_target[0] == "build"
+            else "Enter: вылить"
             if controller.world_target and controller.world_target[0] == "splash"
             else "Enter: поставить"
             if controller.world_target

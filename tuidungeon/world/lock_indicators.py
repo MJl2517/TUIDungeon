@@ -58,4 +58,5 @@ def draw_lock_indicators(engine, cells, region, targets):
             symbol,
             True,
             mirror_x=indicator[1].mirror_x if indicator else False,
+            rotation=indicator[1].rotation if indicator else 0,
         )

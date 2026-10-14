@@ -17,6 +17,7 @@ import unittest
 
 from tuidungeon.ui import Controller, render
 from tuidungeon.presentation.tui import menu_entries, View
+from tuidungeon.presentation.menus import ActionMenu
 
 if os.name == "posix":
     import fcntl
@@ -284,6 +285,18 @@ class TerminalSession(unittest.TestCase):
         )
         self.key(key.encode(), key)
 
+    def open_exit_menu(self):
+        # Q drops inventory items; exit through the game's Esc menu.
+        for _ in range(8):
+            if (
+                self.controller.view is View.EXPLORE
+                and self.controller.action_menu is ActionMenu.ROOT
+            ):
+                break
+            self.key(b"\x1b", "escape")
+        self.key(b"\x1b", "escape")
+        self.key(b"5", "5")
+
     def stop_process(self):
         if self.process.poll() is None:
             self.process.terminate()
@@ -343,7 +356,7 @@ class WizardTerminalTests(TerminalSession):
         self.key(b"1", "1")
         saved = json.loads(self.save_path.read_text())
         self.assertEqual(saved["test_profile"], "wizard")
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -354,7 +367,7 @@ class TerminalTests(TerminalSession):
         import json
 
         self.key(b"\r", "enter")
-        for digit in b"121212345612371":
+        for digit in b"121127212345612371":
             self.key(bytes([digit]), chr(digit))
         self.assertEqual(self.controller.view, View.EXPLORE)
         hero = self.controller.engine.state.hero
@@ -381,7 +394,7 @@ class TerminalTests(TerminalSession):
         saved = json.loads(self.save_path.read_text())
         self.assertEqual(saved["hero"]["cantrip_uses"], maximum - 1)
         self.assertEqual(saved["magic_effects"][0]["kind"], "light")
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -414,7 +427,7 @@ class TerminalTests(TerminalSession):
         self.expect_frame()
         self.key(b"\r", "enter")
         self.assertEqual(self.controller.engine.state.hero.background.id, "sage")
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -458,6 +471,8 @@ class TerminalTests(TerminalSession):
         self.key(b"3", "3")
         self.key(b"2", "2")
         self.key(b"1", "1")
+        for digit in b"127":
+            self.key(bytes([digit]), chr(digit))
         self.key(b"2", "2")
         self.key(b"1", "1")
         self.key(b"\x08", "backspace")
@@ -492,7 +507,7 @@ class TerminalTests(TerminalSession):
             self.read_output()
         self.resize(100, 30)
         self.expect_frame()
-        self.key(b"q", "q")
+        self.open_exit_menu()
         os.write(self.master, b"2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -500,7 +515,7 @@ class TerminalTests(TerminalSession):
     def test_q_exits_during_creation_and_restores_terminal(self):
         self.key(b"\r", "enter")
         if self.controller.engine:
-            self.key(b"q", "q")
+            self.open_exit_menu()
             os.write(self.master, b"2")
         else:
             os.write(self.master, b"q")
@@ -518,7 +533,7 @@ class UnicodeTerminalTests(TerminalSession):
 
     def test_unicode_panels_movement_and_arrows(self):
         self.key(b"\r", "enter")
-        for key in b"11121234561":
+        for key in b"11112721234561":
             self.key(bytes([key]), chr(key))
         # Equip a light before checking wall glyphs in the dark dungeon.
         for text in ("shield", "torch"):
@@ -539,7 +554,7 @@ class UnicodeTerminalTests(TerminalSession):
         self.key(b"\x1bOD", "left")
         self.assertEqual(self.controller.engine.state.turns, 3)
         if self.controller.engine:
-            self.key(b"q", "q")
+            self.open_exit_menu()
             os.write(self.master, b"2")
         else:
             os.write(self.master, b"q")
@@ -552,7 +567,7 @@ class MapTerminalTests(TerminalSession):
 
     def test_authored_map_trap_context_choice_backspace_and_exit(self):
         self.key(b"\r", "enter")
-        for digit in b"11121234561":
+        for digit in b"11112721234561":
             self.key(bytes([digit]), chr(digit))
         for _ in range(3):
             self.key(b"d", "d")
@@ -579,7 +594,7 @@ class MapTerminalTests(TerminalSession):
         self.key(b"\x1bOD", "left")
         self.resize(100, 30)
         self.expect_frame()
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.process.wait(timeout=3)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -622,7 +637,7 @@ class CraftingTerminalTests(TerminalSession):
         self.key(b" ", "space")
         self.assertIsNone(self.controller.engine.workpiece(identifier))
         self.assertEqual(self.controller.engine.state.turns, 2)
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -652,7 +667,7 @@ class StorageTerminalTests(TerminalSession):
         self.expect_frame()
         self.assertEqual(self.controller.engine.state.turns, 0)
         self.key(b"\x7f", "backspace")
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -697,7 +712,7 @@ class TestMapTerminalTests(TerminalSession):
             i for i in self.controller.engine.state.hero.inventory if i.id == "lamp"
         )
         self.assertEqual((lamp.fuel_minutes, lamp.lit), (0, False))
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -717,7 +732,7 @@ class TestMapTerminalTests(TerminalSession):
         self.key(b"\t", "tab")
         self.assertIn("Инвентарь", self.screen.lines()[0])
         self.assertEqual(self.controller.engine.state.turns, 0)
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -749,7 +764,7 @@ class TestMapTerminalTests(TerminalSession):
         self.key(b"\x1b", "escape")
         self.resize(100, 30)
         self.expect_frame()
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -800,7 +815,7 @@ class TestMapTerminalTests(TerminalSession):
         self.key(b"1", "1")
         self.key(b"2", "2")
         self.assertEqual(self.controller.engine.state.clock.elapsed_minutes, 480)
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -827,7 +842,7 @@ class TestMapTerminalTests(TerminalSession):
         self.assertEqual(self.controller.view, View.LOOK)
         self.assertEqual(self.controller.engine.state.turns, turns)
         self.key(b"\x1b", "escape")
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)
@@ -838,7 +853,7 @@ class TestMapTerminalTests(TerminalSession):
         for key in b"ddd":
             self.key(bytes([key]), chr(key))
         self.assertTrue(self.controller.engine.state.level.traps[0].triggered)
-        self.key(b"q", "q")
+        self.open_exit_menu()
         self.key(b"2", "2")
         self.assertEqual(self.process.wait(timeout=3), 0)
         self.assertEqual(termios.tcgetattr(self.slave), self.original_attributes)

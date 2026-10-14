@@ -35,6 +35,7 @@ export function SymbolPreview({
   background = "transparent",
   text = false,
   mirror_x = false,
+  rotation = 0,
 }: {
   symbol?: string;
   doc?: Doc;
@@ -43,6 +44,7 @@ export function SymbolPreview({
   background?: string;
   text?: boolean;
   mirror_x?: boolean;
+  rotation?: number;
 }) {
   const { assets } = useContext(SymbolContext),
     canvas = useRef<HTMLCanvasElement>(null);
@@ -51,8 +53,8 @@ export function SymbolPreview({
     const ctx = canvas.current?.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, 16, 16);
-    if (image) drawSymbol(ctx, image, 0, 0, 16, 16, tint, mirror_x);
-  }, [image, tint, mirror_x]);
+    if (image) drawSymbol(ctx, image, 0, 0, 16, 16, tint, mirror_x, rotation);
+  }, [image, tint, mirror_x, rotation]);
   return text ? (
     <span className="symbol-text" style={{ color: tint }}>
       {image?.glyph ?? "?"}

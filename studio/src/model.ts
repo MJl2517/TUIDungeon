@@ -4,6 +4,7 @@ export type Cell = {
   char: string;
   symbol?: string;
   mirror_x?: boolean;
+  rotation?: number;
   foreground: number;
   background: number | null;
 } | null;
@@ -299,13 +300,18 @@ export function resizeMap(doc: Doc, width: number, height: number): Doc {
     "blocks_sight",
     "roof",
     "tile_mirrors",
+    "tile_rotations",
   ])
     next[key] = Array.from({ length: height }, (_, y) =>
       Array.from(
         { length: width },
         (_, x) =>
           doc[key]?.[y]?.[x] ??
-          (key === "tiles" ? null : key === "walkability"),
+          (key === "tiles"
+            ? null
+            : key === "tile_rotations"
+              ? 0
+              : key === "walkability"),
       ),
     );
   for (const key of placements)
@@ -361,6 +367,8 @@ export function mapGrid(
         ? {
             ...cell,
             mirror_x: !!cell.mirror_x !== !!doc.tile_mirrors?.[y]?.[x],
+            rotation:
+              (cell.rotation + (doc.tile_rotations?.[y]?.[x] ?? 0)) % 360,
           }
         : null;
     }),

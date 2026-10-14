@@ -127,8 +127,12 @@ class StealthAction(CharacterAction):
             if context.difficulty is not None
             else definition.difficulty
         )
-        check = context.dice.check(
-            actor.stats.score(definition.ability), difficulty, bonus=definition.bonus
+        check = actor.ability_check(
+            context.dice,
+            definition.ability,
+            difficulty,
+            bonus=definition.bonus,
+            skill="stealth",
         )
         if not check.success:
             return ActionOutcome(True, False, "Не удалось скрыться.", check)
@@ -147,8 +151,12 @@ class InfluenceAction(CharacterAction):
             if context.difficulty is not None
             else definition.difficulty
         )
-        check = context.dice.check(
-            actor.stats.score(definition.ability), difficulty, bonus=definition.bonus
+        check = actor.ability_check(
+            context.dice,
+            definition.ability,
+            difficulty,
+            bonus=definition.bonus,
+            skill="persuasion",
         )
         if not check.success:
             return ActionOutcome(True, False, "Влияние не удалось.", check)

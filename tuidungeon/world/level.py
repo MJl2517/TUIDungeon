@@ -275,6 +275,7 @@ class Level:
                     + ("open" if door.opened else "bent" if door.bent else "closed"),
                     symbol=symbol,
                     mirror_x=definition.mirror_x,
+                    rotation=definition.rotation,
                 )
 
         for placement, item in state.item_index.region(x, y, width, height):

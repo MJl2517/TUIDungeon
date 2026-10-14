@@ -217,9 +217,11 @@ class DoorCommands:
                 else None
             )
             difficulty = door.force_dc if action == "force" else door.bend_difficulty
-            check = self.dice.check(
-                hero.stats.score(Ability.STRENGTH),
+            check = hero.ability_check(
+                self.dice,
+                Ability.STRENGTH,
                 difficulty,
+                skill="athletics",
                 advantage=crowbar is not None
                 or (
                     action == "force"
@@ -378,9 +380,11 @@ class DoorCommands:
             )
         self.lockpick_attempt = None
         hero = self.state.hero
-        check = self.dice.check(
-            hero.stats.score(Ability.DEXTERITY),
+        check = hero.ability_check(
+            self.dice,
+            Ability.DEXTERITY,
             lock.lock_dc,
+            tool="lockpicks",
         )
         if check.success:
             lock.locked = False

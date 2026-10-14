@@ -68,16 +68,19 @@ def load_symbol_tileset(font, documents):
     ]
     for index, (ref, doc) in enumerate(symbols):
         code = SPRITE_START + index
-        mirrored_code = code + len(symbols)
-        if mirrored_code > 0x10FFFD:
+        if code + 7 * len(symbols) > 0x10FFFD:
             raise ValueError("Превышен размер атласа символов")
         pixels = np.zeros((16, 16, 4), dtype=np.uint8)
         pixels[:, :, :3] = 255
         pixels[:, :, 3] = [[255 if c == "1" else 0 for c in row] for row in doc.pixels]
-        tileset[code] = pixels
-        mapping[ref] = chr(code)
-        tileset[mirrored_code] = pixels[:, ::-1].copy()
-        mapping[(ref, "mirror_x")] = chr(mirrored_code)
+        for turn in range(4):
+            rotated = np.rot90(pixels, -turn)
+            for mirrored in (False, True):
+                variant = code + (turn * 2 + int(mirrored)) * len(symbols)
+                tileset[variant] = (rotated[:, ::-1] if mirrored else rotated).copy()
+                mapping[ref, turn * 90, mirrored] = chr(variant)
+        mapping[ref] = mapping[ref, 0, False]
+        mapping[ref, "mirror_x"] = mapping[ref, 0, True]
     for codepoint in font:
         if codepoint != ord(" ") and glyph_ref(chr(codepoint)) in mapping:
             mapping[("glyph", chr(codepoint))] = mapping[glyph_ref(chr(codepoint))]
@@ -86,6 +89,11 @@ def load_symbol_tileset(font, documents):
             target = symbol_ref(documents, doc)
             if target in mapping:
                 mapping[category + "/" + ref] = mapping[target]
+                for rotation in (0, 90, 180, 270):
+                    for mirrored in (False, True):
+                        mapping[category + "/" + ref, rotation, mirrored] = mapping[
+                            target, rotation, mirrored
+                        ]
     if "base:hero" in mapping:
         mapping["hero"] = mapping["base:hero"]
     return tileset, mapping

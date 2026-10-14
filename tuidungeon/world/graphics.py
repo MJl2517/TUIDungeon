@@ -20,6 +20,7 @@ def glyph_cell(
     symbol=None,
     service_indicator=False,
     mirror_x=False,
+    rotation=0,
 ):
     if visual_ref:
         return MapCell(
@@ -30,6 +31,7 @@ def glyph_cell(
             symbol=symbol,
             service_indicator=service_indicator,
             mirror_x=mirror_x,
+            rotation=rotation,
         )
     return Cell(
         char=char,
@@ -37,6 +39,7 @@ def glyph_cell(
         background=background,
         symbol=symbol,
         mirror_x=mirror_x,
+        rotation=rotation,
     )
 
 
@@ -56,6 +59,7 @@ def visual_cell(store, definition, visual_ref=None, state=None, background=None)
         visual_ref,
         symbol,
         mirror_x=get("mirror_x", False),
+        rotation=get("rotation", 0),
     )
 
 
@@ -127,9 +131,16 @@ def map_cells(store, definition, tiles=None):
                     tile = store.get("tiles", ref)
                     palette[ref] = visual_cell(store, tile, "tiles/" + ref)
                 cells[y][x] = palette[ref]
-                if definition.tile_mirrors[y][x]:
+                if definition.tile_mirrors[y][x] or definition.tile_rotations[y][x]:
                     cells[y][x] = cells[y][x].model_copy(
-                        update={"mirror_x": not cells[y][x].mirror_x}
+                        update={
+                            "mirror_x": cells[y][x].mirror_x
+                            != definition.tile_mirrors[y][x],
+                            "rotation": (
+                                cells[y][x].rotation + definition.tile_rotations[y][x]
+                            )
+                            % 360,
+                        }
                     )
     for placement in definition.objects:
         obj = store.resolve("objects", placement)

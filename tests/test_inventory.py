@@ -39,6 +39,39 @@ class InventoryFixture(unittest.TestCase):
 
 
 class GroundItemTests(InventoryFixture):
+    def test_drop_quantity_is_atomic_preserves_selected_instance_and_costs_one_turn(
+        self,
+    ):
+        e, hero = self.engine, self.engine.state.hero
+        items = [
+            Equipment.create(self.factory.catalog.equipment["healing_potion"])
+            for _ in range(4)
+        ]
+        different = Equipment.create(items[0].definition)
+        different.charges = 0
+        hero.inventory = items + [different]
+        before = list(hero.inventory)
+        for quantity in (0, -1, True, 1.5, 5):
+            self.assertFalse(
+                e.place_item(items[2], e.state.position, quantity=quantity).performed
+            )
+            self.assertEqual(hero.inventory, before)
+            self.assertEqual(e.state.turns, 0)
+        self.assertFalse(
+            e.place_item(
+                items[2], e.state.position, throwing=True, quantity=2
+            ).performed
+        )
+        self.assertTrue(e.place_item(items[2], e.state.position, quantity=3).performed)
+        self.assertEqual(e.state.turns, 1)
+        self.assertIs(e.state.items[-3][1], items[2])
+        self.assertEqual(
+            {i.instance_id for _, i in e.state.items[-3:]},
+            {i.instance_id for i in items[:3]},
+        )
+        self.assertEqual(hero.inventory, [items[3], different])
+        self.assertTrue(all(i.charges == 1 for _, i in e.state.items[-3:]))
+
     def test_drop_equipped_item_changes_armor_and_pickup_keeps_instance_resources(self):
         engine, hero = self.engine, self.engine.state.hero
         armor = next(i for i in hero.inventory if i.definition.slot == "armor")
@@ -199,6 +232,94 @@ class GroundItemTests(InventoryFixture):
 
 
 class InventoryNavigationTests(InventoryFixture):
+    def test_q_drop_stack_in_sidebar_and_inventory_quantity_cancel_and_save(self):
+        c = self.controller
+        e, hero = c.engine, c.engine.state.hero
+        wood = [
+            Equipment.create(self.factory.catalog.equipment["wood"]) for _ in range(12)
+        ]
+        different = Equipment.create(wood[0].definition)
+        different.contaminated = True
+        hero.inventory[:] = wood + [different]
+        c.inventory.query = "wood"
+        c.inventory.selected = 1
+        for sheet in (False, True):
+            if sheet:
+                c.handle("i")
+            origin = c.view
+            before = e.state.turns, [i.instance_id for i in hero.inventory]
+            c.handle("Q")
+            self.assertEqual(c.view, View.DROP)
+            self.assertEqual(c.drop_maximum, 12 if not sheet else 9)
+            for width, height in ((80, 24), (120, 36)):
+                self.assertIn("Количество: 1 /", "\n".join(render(c, width, height)))
+            c.handle("end")
+            c.handle("right")
+            self.assertEqual(int(c.drop_quantity), c.drop_maximum)
+            c.handle("home")
+            c.handle("left")
+            self.assertEqual(c.drop_quantity, "1")
+            c.handle("backspace")
+            c.handle("0")
+            c.handle("enter")
+            self.assertEqual(c.view, View.DROP)
+            c.handle("escape")
+            self.assertEqual(c.view, origin)
+            self.assertEqual(
+                before, (e.state.turns, [i.instance_id for i in hero.inventory])
+            )
+            c.handle("q")
+            c.handle("3")
+            c.handle("enter")
+            self.assertEqual(c.view, origin)
+            self.assertEqual(e.state.turns, before[0] + 1)
+            self.assertEqual(len(hero.inventory), len(before[1]) - 3)
+            self.assertTrue(any(i is different for i in hero.inventory))
+            self.assertTrue(c.running)
+        dropped = {i.instance_id for _, i in e.state.items[-6:]}
+        self.saves.save(e)
+        loaded = self.saves.load(store=self.store)
+        self.assertEqual({i.instance_id for _, i in loaded.state.items[-6:]}, dropped)
+        self.assertTrue(
+            all(
+                p.x == e.state.position.x and p.y == e.state.position.y
+                for p, _ in loaded.state.items[-6:]
+            )
+        )
+
+    def test_q_single_item_header_and_item_menu_share_drop_action(self):
+        c = self.controller
+        hero = c.engine.state.hero
+        coin = Equipment.create(self.factory.catalog.equipment["gold"])
+        hero.inventory[:] = [coin]
+        c.inventory.query = "gold"
+        c.inventory.selected = 0
+        c.handle("q")  # Category headings do not drop anything or quit.
+        self.assertEqual(c.view, View.EXPLORE)
+        self.assertEqual(c.engine.state.turns, 0)
+        c.inventory.selected = 1
+        c.handle("q")
+        self.assertEqual(c.view, View.EXPLORE)
+        self.assertIs(c.engine.state.items[-1][1], coin)
+        self.assertEqual(c.engine.state.turns, 1)
+        self.assertTrue(c.running)
+        hero.inventory[:] = [
+            Equipment.create(self.factory.catalog.equipment["wood"]) for _ in range(2)
+        ]
+        c.open_item(hero.inventory[0])
+        c.handle("2")
+        c.handle("q")
+        self.assertEqual(c.view, View.DROP)
+        c.handle("escape")
+        c.open_item(hero.inventory[0])
+        c.handle("4")
+        self.assertEqual(c.view, View.DROP)
+        c.handle("end")
+        c.handle("enter")
+        self.assertEqual(c.view, View.EXPLORE)
+        self.assertFalse(hero.inventory)
+        self.assertEqual(c.engine.state.turns, 2)
+
     def setUp(self):
         super().setUp()
         self.controller = Controller(

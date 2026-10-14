@@ -4,12 +4,16 @@ import textwrap
 
 from ..application.creation import CreationStep
 from ..domain.rules import Ability
+from ..domain.skills import SKILLS
 
 
 STEP_TITLES = {
     CreationStep.RACE: "Раса",
     CreationStep.CLASS: "Класс",
     CreationStep.BACKGROUND: "Предыстория",
+    CreationStep.SKILLS: "Навыки класса",
+    CreationStep.BONUS_SKILLS: "Дополнительные навыки",
+    CreationStep.EXPERTISE: "Экспертиза",
     CreationStep.ROLL: "Броски",
     CreationStep.DISTRIBUTE: "Характеристики",
     CreationStep.CANTRIPS: "Заговоры",
@@ -64,8 +68,8 @@ def background_lines(creation, background):
         "- " + creation.catalog.equipment[item].name
         for item in background.starting_items
     ] or ["Нет."]
-    lines += ["", "Навыки (план):"]
-    lines += ["- " + skill for skill in background.skills] or ["Нет."]
+    lines += ["", "Владения навыками:"]
+    lines += ["- " + SKILLS[skill].name for skill in background.skills] or ["Нет."]
     lines += [
         "Тег: " + (", ".join(sorted(background.tags)) or "нет"),
         "Тег открывает особые варианты в событиях.",
@@ -113,6 +117,17 @@ def creation_help(creation):
         return ["Выберите роль героя.", "Назад: выбор расы."]
     if step is CreationStep.BACKGROUND:
         return background_lines(creation, option)
+    if step in creation.skill_steps:
+        return [
+            f"Выберите {creation.skill_count(step)} разных навыка.",
+            "Экспертиза удваивает бонус владения."
+            if step is CreationStep.EXPERTISE
+            else "Владение добавляет бонус мастерства к проверке навыка.",
+            "Бонус на 1 уровне: +2. Без владения используется только модификатор характеристики.",
+            f"{option.name}: {option.ability.value}" if option else "",
+            "Предыстория и раса уже учтены. Повторные владения не складываются.",
+            "1–6: отметить / снять; 7: продолжить; PgUp/PgDn: страницы.",
+        ]
     if step is CreationStep.CANTRIPS:
         return (
             [
@@ -207,14 +222,24 @@ def render_creation(canvas, layout, controller, hero_lines):
         CreationStep.CLASS,
         CreationStep.BACKGROUND,
         CreationStep.CANTRIPS,
+        *creation.skill_steps,
     ):
         prompt = {
             CreationStep.RACE: "Выберите происхождение героя.",
             CreationStep.CLASS: "Выберите роль в приключении.",
             CreationStep.BACKGROUND: "Кем герой был до приключения?",
             CreationStep.CANTRIPS: "Выберите заговоры, затем 7: продолжить.",
+            CreationStep.SKILLS: "Выберите навыки класса, затем 7: продолжить.",
+            CreationStep.BONUS_SKILLS: "Замените повторные владения, затем 7: продолжить.",
+            CreationStep.EXPERTISE: "Выберите навыки для экспертизы, затем 7: продолжить.",
         }[step]
         canvas.line(layout.main, 0, prompt)
+        if step in creation.skill_steps:
+            canvas.line(
+                layout.main,
+                1,
+                f"Выбрано: {len(creation.selected_skills(step))}/{creation.skill_count(step)}",
+            )
         if step is CreationStep.CANTRIPS:
             canvas.line(
                 layout.main,

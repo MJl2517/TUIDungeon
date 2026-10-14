@@ -388,6 +388,7 @@ export function MapPalette({
                       <SymbolPreview
                         symbol={visual(tile, assets).symbol}
                         mirror_x={!!tile.mirror_x}
+                        rotation={tile.rotation ?? 0}
                         tint={color(tile.foreground ?? 7)}
                       />
                     ) : (

@@ -72,6 +72,11 @@ class MirroringTests(unittest.TestCase):
         self.assertFalse(any(any(row) for row in doc.tile_mirrors))
         self.assertFalse(Cell().mirror_x)
         self.assertFalse(TileDocument(id="plain", name="Тайл").mirror_x)
+        self.assertEqual(Cell().rotation, 0)
+        self.assertFalse(any(any(row) for row in doc.tile_rotations))
+        for angle in (45, -90, 360, True, "90"):
+            with self.subTest(angle=angle), self.assertRaises(ValueError):
+                Cell(rotation=angle)
         with self.assertRaises(ValueError):
             Cell(mirror_x="yes")
         with self.assertRaisesRegex(ValueError, "tile_mirrors"):
@@ -85,6 +90,9 @@ class MirroringTests(unittest.TestCase):
             (len(raw["tile_mirrors"]), len(raw["tile_mirrors"][0])), (12, 20)
         )
         MapDocument.model_validate(raw)
+        self.assertEqual(
+            (len(raw["tile_rotations"]), len(raw["tile_rotations"][0])), (12, 20)
+        )
 
     def test_surfaces_objects_doors_and_oil_keep_visual_flag_without_geometry_change(
         self,
@@ -128,6 +136,15 @@ class MirroringTests(unittest.TestCase):
         normal = atlas[ord(mapping["tiles:cell_0247"])][:, :, 3]
         reflected = atlas[ord(mapping["tiles:cell_0247", "mirror_x"])][:, :, 3]
         np.testing.assert_array_equal(reflected, normal[:, ::-1])
+        for rotation in (0, 90, 180, 270):
+            rotated = np.rot90(normal, -rotation // 90)
+            for mirrored in (False, True):
+                actual = atlas[ord(mapping["tiles:cell_0247", rotation, mirrored])][
+                    :, :, 3
+                ]
+                np.testing.assert_array_equal(
+                    actual, rotated[:, ::-1] if mirrored else rotated
+                )
         c = Controller(
             42,
             store=self.store,
@@ -139,6 +156,41 @@ class MirroringTests(unittest.TestCase):
         self.assertEqual(
             chr(console.ch[2 - origin.y, 4 - origin.x]),
             mapping["tiles:cell_0247", "mirror_x"],
+        )
+
+    def test_rotation_with_mirroring_survives_save_and_matches_window_atlas(self):
+        self.raw["tile_rotations"] = [[0] * 8 for _ in range(5)]
+        self.raw["tile_rotations"][3][3] = 270
+        self.raw["objects"][0]["overrides"]["rotation"] = 90
+        self.raw["doors"][0]["overrides"]["rotation"] = 180
+        self.store.documents["maps", "tiles:mirrors"] = MapDocument.model_validate(
+            self.raw
+        )
+        self.e = SessionFactory(self.store).session("tiles:mirrors", seed=42)
+        self.assertEqual(
+            [self.cell(x, y).rotation for x, y in [(3, 3), (4, 2), (6, 2)]],
+            [270, 90, 180],
+        )
+        with tempfile.TemporaryDirectory() as folder:
+            repo = SaveRepository(Path(folder) / "save.json")
+            repo.save(self.e)
+            loaded = repo.load(store=self.e.state.level.store)
+        self.assertEqual(loaded.render_cells((4, 2, 1, 1))[0][0].rotation, 90)
+        self.assertTrue(loaded.render_cells((4, 2, 1, 1))[0][0].mirror_x)
+        atlas, mapping = load_symbol_tileset(
+            tcod.tileset.Tileset(16, 16), self.store.documents
+        )
+        c = Controller(
+            42,
+            store=self.store,
+            catalog=self.store.runtime_catalog(),
+            map_ref="tiles:mirrors",
+            test_map=True,
+        )
+        console, _, origin = render_map(c, 100, 28, 16, sprites=mapping)
+        self.assertEqual(
+            chr(console.ch[2 - origin.y, 4 - origin.x]),
+            mapping["tiles:cell_0247", 90, True],
         )
 
 

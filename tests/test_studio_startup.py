@@ -4,6 +4,9 @@ from io import BytesIO
 import json
 from pathlib import Path
 import unittest
+import tempfile
+import os
+import subprocess
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
@@ -12,6 +15,53 @@ from tuidungeon.tooling import server
 
 
 class StudioStartupTests(unittest.TestCase):
+    def test_stale_frontend_rebuilds_once_and_missing_tools_explain_setup(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            studio = root / "studio"
+            (studio / "src").mkdir(parents=True)
+            (studio / "dist/assets").mkdir(parents=True)
+            (studio / "node_modules").mkdir()
+            source = studio / "src/MapEditor.tsx"
+            source.write_text("new UI", encoding="utf-8")
+            index = studio / "dist/index.html"
+            index.write_text("old UI", encoding="utf-8")
+            os.utime(index, ns=(1, 1))
+            with patch.object(server.shutil, "which", return_value=None):
+                with self.assertRaisesRegex(ValueError, "setup"):
+                    server.ensure_studio_build(root)
+
+            def built(*args, **kwargs):
+                index.write_text("new UI", encoding="utf-8")
+                os.utime(
+                    index,
+                    ns=(
+                        source.stat().st_mtime_ns + 1000000,
+                        source.stat().st_mtime_ns + 1000000,
+                    ),
+                )
+
+            with (
+                patch.object(server.shutil, "which", return_value="npm"),
+                patch.object(server.subprocess, "run", side_effect=built) as run,
+            ):
+                server.ensure_studio_build(root)
+                server.ensure_studio_build(root)
+                run.assert_called_once_with(
+                    ["npm", "run", "build"], cwd=studio, check=True
+                )
+            os.utime(index, ns=(1, 1))
+            with (
+                patch.object(server.shutil, "which", return_value="npm"),
+                patch.object(
+                    server.subprocess,
+                    "run",
+                    side_effect=subprocess.CalledProcessError(1, "npm"),
+                ),
+            ):
+                with self.assertRaisesRegex(ValueError, "Не удалось собрать"):
+                    server.ensure_studio_build(root)
+
     def test_status_identifies_pack_directory(self):
         client = TestClient(server.create_app(), base_url="http://127.0.0.1")
         self.assertEqual(

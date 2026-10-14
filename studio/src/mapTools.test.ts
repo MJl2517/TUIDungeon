@@ -28,6 +28,36 @@ const blank = () =>
   }) as any;
 const options = { masks: true, mechanics: true, target: "" };
 describe("map brushes", () => {
+  it("rotates surfaces and objects independently, with reflection and undo", () => {
+    const doc = blank(),
+      p = { x: 1, y: 1 };
+    const tile = { rotation: 90, mirror_x: false, walkable: true };
+    paintTile(doc, "test:tile", tile, p, {
+      ...options,
+      rotation: 270,
+      mirror: true,
+    });
+    const assets = { "tiles/test:tile": tile };
+    expect(mapGrid(doc, assets)[1][1]).toMatchObject({
+      rotation: 0,
+      mirror_x: true,
+    });
+    expect(resizeMap(doc, 4, 3).tile_rotations[1][1]).toBe(270);
+    expect(resizeMap(doc, 4, 3).tile_rotations[2][3]).toBe(0);
+    const history = new History(clone(doc));
+    paintTile(doc, "test:tile", tile, p, { ...options, erase: true });
+    history.commit(clone(doc));
+    expect(doc.tile_rotations[1][1]).toBe(0);
+    history.undo();
+    expect(history.present.tile_rotations[1][1]).toBe(270);
+    doc.tiles[1][1] = "test:tile";
+    paintObject(doc, "objects", "test:object", tile, p, "", false, true, 90);
+    expect(doc.objects[0].overrides).toEqual({ rotation: 180, mirror_x: true });
+    expect(
+      mapGrid(doc, { ...assets, "objects/test:object": tile })[1][1],
+    ).toMatchObject({ rotation: 180, mirror_x: true });
+    expect(tile.rotation).toBe(90);
+  });
   it("reflects surfaces per cell and preserves reflection through undo, resize and erase", () => {
     const doc = blank(),
       p = { x: 1, y: 1 },

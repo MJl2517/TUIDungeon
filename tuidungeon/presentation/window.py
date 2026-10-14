@@ -189,9 +189,9 @@ def render_map(controller, width, height, tile_size, *, sprites=None):
                         getattr(cell, "symbol", None) or visual_ref,
                         char if visual_ref else sprites.get(("glyph", cell.char), char),
                     )
-                    if getattr(cell, "mirror_x", False):
+                    if cell.rotation or cell.mirror_x:
                         char = sprites.get(
-                            (getattr(cell, "symbol", None) or visual_ref, "mirror_x"),
+                            (cell.symbol or visual_ref, cell.rotation, cell.mirror_x),
                             char,
                         )
                 attribute = screen.attribute(cell.foreground, cell.background)

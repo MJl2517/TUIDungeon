@@ -10,6 +10,7 @@ from ..domain.tags import TAGS_DESCRIPTION, TAG_SCHEMA
 from ..domain.liquids import LiquidKind
 from ..domain.damage import DamageType, DamageSelector
 from ..domain.item_sizes import ItemSize
+from ..domain.skills import SkillId, skill_list
 
 LocalId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*$")]
 Ref = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$")]
@@ -22,6 +23,10 @@ MapCategory = Literal[
 Color = Annotated[int, Field(ge=0, le=255)]
 Positive = Annotated[int, Field(ge=1)]
 Nonnegative = Annotated[int, Field(ge=0)]
+Rotation = Annotated[
+    int,
+    Field(ge=0, le=270, multiple_of=90, json_schema_extra={"enum": [0, 90, 180, 270]}),
+]
 
 
 def valid_glyph(value: str) -> str:
@@ -218,6 +223,7 @@ class TileLight(StrictModel):
 
 
 class VisualVariant(StrictModel):
+    rotation: Rotation | None = None
     mirror_x: bool | None = None
     loot_tier: Literal["white", "bronze", "iron", "gold"] | None = None
     name: str
@@ -232,6 +238,10 @@ class VisualVariant(StrictModel):
 
 
 class Visual(Document):
+    rotation: Rotation = Field(
+        default=0,
+        description="Поворот рисунка по часовой стрелке, затем горизонтальное отражение. Механики не меняются.",
+    )
     mirror_x: bool = Field(
         default=False,
         description="Отразить изображение по горизонтали; механики не меняются",
@@ -397,6 +407,7 @@ class RecipeOutput(StrictModel):
 
 
 class RecipeCheck(StrictModel):
+    skill: SkillId | None = None
     ability: AbilityName = "intelligence"
     difficulty: Annotated[int, Field(ge=0, le=100)] = 10
 
@@ -645,6 +656,10 @@ class SpellDocument(Visual):
 
 
 class RaceDocument(Visual):
+    skills: list[SkillId] = Field(
+        default_factory=list, description="Владения навыками от расы"
+    )
+    _skills = field_validator("skills", mode="before")(skill_list)
     tags: list[LocalId] = Field(
         default_factory=list, description=TAGS_DESCRIPTION, json_schema_extra=TAG_SCHEMA
     )
@@ -666,6 +681,21 @@ class RaceDocument(Visual):
 
 
 class ClassDocument(Visual):
+    tool_expertise: list[LocalId] = Field(
+        default_factory=list,
+        description="Отдельная экспертиза инструментов: удвоенный БМ; также выдаёт владение ими",
+    )
+    skill_choices: list[SkillId] = Field(default_factory=list)
+    skills_known: Annotated[int, Field(ge=0, le=18)] = 0
+    expertise_count: Annotated[int, Field(ge=0, le=18)] = 0
+    _skills = field_validator("skill_choices", mode="before")(skill_list)
+
+    @model_validator(mode="after")
+    def valid_skill_selection(self):
+        if self.skills_known > len(self.skill_choices):
+            raise ValueError("Количество навыков превышает список выбора")
+        return self
+
     tool_proficiencies: list[LocalId] = Field(default_factory=list)
     starting_recipes: list[Ref] = Field(
         default_factory=list, json_schema_extra={"ref_category": "recipes"}
@@ -714,6 +744,10 @@ class ClassDocument(Visual):
 
 
 class BackgroundDocument(Visual):
+    tool_expertise: list[LocalId] = Field(
+        default_factory=list,
+        description="Отдельная экспертиза инструментов: удвоенный БМ; также выдаёт владение ими",
+    )
     tool_proficiencies: list[LocalId] = Field(default_factory=list)
     starting_recipes: list[Ref] = Field(
         default_factory=list, json_schema_extra={"ref_category": "recipes"}
@@ -721,12 +755,12 @@ class BackgroundDocument(Visual):
     classes: list[Ref] = Field(
         default_factory=list, json_schema_extra={"ref_category": "classes"}
     )
-    skills: list[str] = Field(default_factory=list)
+    skills: list[SkillId] = Field(default_factory=list, max_length=2)
 
-    @field_validator("skills")
+    @field_validator("skills", mode="before")
     @classmethod
     def skill_names(cls, value):
-        return [title_text(name) for name in value]
+        return skill_list(value)
 
     ability_bonuses: Bonuses = Field(default_factory=Bonuses)
     starting_items: list[Ref] = Field(
@@ -776,6 +810,11 @@ class MonsterDocument(Visual):
 
 
 class Choice(StrictModel):
+    tool: LocalId | None = Field(
+        default=None,
+        description="Владение инструментом вместо навыка: характеристика + БМ, с экспертизой + 2×БМ",
+    )
+    skill: SkillId | None = None
     _text = field_validator("text", check_fields=False)(narrative_text)
     _effects = field_validator("success", "failure", check_fields=False)(active_effects)
     id: LocalId = "choice"
@@ -1156,6 +1195,7 @@ class WorldObjectDocument(TileDocument):
 
 
 class Cell(StrictModel):
+    rotation: Rotation = 0
     mirror_x: bool = False
     char: str = " "
     symbol: Ref | None = Field(
@@ -1283,6 +1323,12 @@ class MapDocument(Document):
         ],
         description="Горизонтальное отражение отдельных клеток поверхностей относительно шаблона",
     )
+    tile_rotations: list[list[Rotation]] = Field(
+        default_factory=lambda data: [
+            [0] * data["width"] for _ in range(data["height"])
+        ],
+        description="Поворот отдельных клеток поверхностей относительно шаблона, по часовой стрелке",
+    )
     roof: list[list[bool]] = Field(
         default_factory=lambda data: [
             [False] * data["width"] for _ in range(data["height"])
@@ -1309,7 +1355,14 @@ class MapDocument(Document):
 
     @model_validator(mode="after")
     def map_valid(self):
-        for name in ("tiles", "walkability", "blocks_sight", "roof", "tile_mirrors"):
+        for name in (
+            "tiles",
+            "walkability",
+            "blocks_sight",
+            "roof",
+            "tile_mirrors",
+            "tile_rotations",
+        ):
             grid = getattr(self, name)
             if len(grid) != self.height or any(len(row) != self.width for row in grid):
                 raise ValueError(f"Размер {name} не совпадает с картой")

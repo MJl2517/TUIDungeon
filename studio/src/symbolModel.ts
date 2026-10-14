@@ -27,6 +27,7 @@ export function visual(doc: Doc, assets: Record<string, Doc>, state?: string) {
     foreground: doc.foreground ?? 7,
     background: doc.background ?? null,
     mirror_x: !!doc.mirror_x,
+    rotation: doc.rotation ?? 0,
   };
 }
 export function paintMask(mask: string[], points: Point[], value: string) {
@@ -104,6 +105,7 @@ export function drawSymbol(
   h: number,
   tint: string,
   mirror_x = false,
+  rotation = 0,
 ) {
   // Cache tinted images per immutable asset object, not per map cell.
   let variants = tinted.get(doc);
@@ -123,11 +125,12 @@ export function drawSymbol(
     variants.set(tint, image);
   }
   ctx.imageSmoothingEnabled = false;
-  if (mirror_x) {
+  if (mirror_x || rotation) {
     ctx.save();
-    ctx.translate(x + w, y);
-    ctx.scale(-1, 1);
-    ctx.drawImage(image, 0, 0, w, h);
+    ctx.translate(x + w / 2, y + h / 2);
+    ctx.scale(mirror_x ? -1 : 1, 1);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.drawImage(image, -w / 2, -h / 2, w, h);
     ctx.restore();
   } else ctx.drawImage(image, x, y, w, h);
 }

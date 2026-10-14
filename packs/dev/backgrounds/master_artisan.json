@@ -114,5 +114,9 @@
     "base:painter_tools"
   ],
   "glyph": "?",
-  "symbol": "base:visual_backgrounds_master_artisan"
+  "symbol": "base:visual_backgrounds_master_artisan",
+  "skills": [
+    "investigation",
+    "persuasion"
+  ]
 }
