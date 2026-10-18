@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "name": "Труба 599",
+  "description": "Неподвижная неразбираемая труба. Перекрывает движение, пропускает обзор и свет.",
+  "glyph": "O",
+  "symbol": "tiles:cell_0599",
+  "foreground": 246,
+  "group": "Трубы",
+  "map_category": "special",
+  "tags": [
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "attackable": false,
+  "id": "pipe_599"
+}

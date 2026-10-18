@@ -15,7 +15,11 @@ export function visual(doc: Doc, assets: Record<string, Doc>, state?: string) {
           : door.locked
             ? "locked"
             : "closed"
-      : doc.storage?.state);
+      : doc.mechanism
+        ? doc.mechanism.trigger === "lever" && doc.mechanism.initially_on
+          ? "on"
+          : "off"
+        : doc.storage?.state);
   const ref =
     (key && doc.state_symbols?.[key]) ||
     doc.symbol ||

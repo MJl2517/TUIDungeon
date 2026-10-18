@@ -193,9 +193,7 @@ def render_inventory(canvas, rect, hero, browser, *, character=False, focused=Tr
         "[" + "#" * used + "-" * (size - used) + "]" + ("!" if hero.overloaded else ""),
     )
     hint = (
-        "Enter: фильтр | Esc: отмена"
-        if browser.editing
-        else "↑↓ Enter | Q: выброс | F"
+        "Enter: фильтр | Esc: отмена" if browser.editing else "↑↓ Enter | Q: выброс | F"
     )
     canvas.line(rect, load_row + 2, hint)
     if character:
@@ -255,6 +253,17 @@ def item_details(item, *, preview=False):
         )
         if definition.vessel.fragile:
             lines.append("Разбивается при броске.")
+    if definition.key_kind in ("door", "container"):
+        lines.append(
+            "Уровень находки: "
+            + (item.key_level_name or "будет назначен при размещении")
+        )
+    elif definition.key_kind == "unique":
+        lines.append(
+            "Подходит только к связанному уникальному замку."
+            if definition.key_code
+            else "Этот ключ ещё не связан с замком."
+        )
     if item.contaminated:
         lines.append("Загрязнён; можно промыть чистой водой.")
     if item.equipped and not preview:

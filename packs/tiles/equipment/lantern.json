@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "lantern",
+  "name": "Масляный фонарь",
+  "description": "Многоразовый источник света. Заправляется маслом; гаснет при снятии, сохраняя топливо.",
+  "glyph": "o",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "category": "tools",
+  "weight": 1.0,
+  "tags": [
+    "light_source",
+    "metal"
+  ],
+  "durability": null,
+  "slot": "hand",
+  "properties": [],
+  "check_aids": [],
+  "weapon_damage": null,
+  "weapon_ability": "strength",
+  "charges": null,
+  "hands": 1,
+  "light": {
+    "radius": 8,
+    "bright_radius": 4,
+    "burn_minutes": 60,
+    "fuel_tag": "lamp_oil"
+  },
+  "group": "Переносной свет",
+  "symbol": "tiles:cell_0241",
+  "size": "medium"
+}

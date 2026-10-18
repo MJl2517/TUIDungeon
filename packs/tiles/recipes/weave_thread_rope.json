@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "weave_thread_rope",
+  "name": "Верёвка из нитей",
+  "description": "Сплести верёвку.",
+  "category": "weaver",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "weaver_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:thread"
+          ],
+          "quantity": 3
+        }
+      ],
+      "turns": 3,
+      "tools": [
+        "weaver_tools"
+      ],
+      "proficiencies": [
+        "weaver_tools"
+      ],
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "base:rope",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

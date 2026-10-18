@@ -138,18 +138,27 @@ class ContentSnapshot:
         return self
 
     @cached_property
-    def lock_indicators(self):
-        result = {"simple": {}, "complex": {}}
+    def service_tiles(self):
+        result = {
+            role: {}
+            for role in ("lock_simple", "lock_complex", "coin_small", "coin_large")
+        }
         for (category, ref), doc in self.documents.items():
-            if category != "tiles" or "lock_indicator" not in doc.tags:
+            if category != "tiles" or doc.map_category != "service":
                 continue
-            for kind in result:
-                if "lock_" + kind in doc.tags:
-                    result[kind][ref.split(":")[0]] = (ref, doc)
+            for role in result:
+                marker = (
+                    "lock_indicator" if role.startswith("lock_") else "coin_indicator"
+                )
+                if role in doc.tags and marker in doc.tags:
+                    result[role][ref.split(":")[0]] = (ref, doc)
         return result
 
     def lock_indicator(self, complexity, pack):
-        choices = self.lock_indicators[complexity]
+        return self.service_tile("lock_" + complexity, pack)
+
+    def service_tile(self, role, pack):
+        choices = self.service_tiles[role]
         custom = [value for key, value in choices.items() if key != "base"]
         return (
             (choices.get(pack) if pack != "base" else None)

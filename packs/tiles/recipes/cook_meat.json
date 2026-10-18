@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "cook_meat",
+  "name": "Приготовить: мясо",
+  "description": "Приготовить пищу у источника тепла.",
+  "category": "cook",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "cook_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:meat"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 2,
+      "tools": [
+        "cook_tools"
+      ],
+      "proficiencies": [
+        "cook_tools"
+      ],
+      "stations": [
+        [
+          "heat"
+        ]
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:cooked_meat",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

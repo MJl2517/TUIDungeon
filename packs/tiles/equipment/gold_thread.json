@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "name": "Золотая нить",
+  "description": "Тонкая золотая нить для оправы магического фокуса.",
+  "glyph": "~",
+  "symbol": "tiles:cell_0698",
+  "foreground": 220,
+  "weight": 0.1,
+  "category": "materials",
+  "group": "Нити и ленты",
+  "size": "small",
+  "tags": [
+    "metal",
+    "gold"
+  ],
+  "id": "gold_thread"
+}

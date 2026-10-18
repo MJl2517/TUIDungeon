@@ -11,6 +11,7 @@ def stack_key(item):
     return (
         item.instance_id if item.work or item.furniture else None,
         item.definition,
+        item.key_level,
         item.durability,
         item.charges,
         item.equipped,

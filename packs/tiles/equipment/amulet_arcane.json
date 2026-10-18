@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "name": "Амулет ясной мысли",
+  "description": "Магическое украшение: +1 к атаке заклинанием и СЛ спасброска, пока надето.",
+  "symbol": "tiles:cell_0387",
+  "glyph": "*",
+  "foreground": 220,
+  "category": "tools",
+  "group": "Украшения: амулеты",
+  "weight": 0.2,
+  "size": "small",
+  "slot": "neck",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "gold",
+    "jewelry",
+    "magic"
+  ],
+  "value_gold": 100,
+  "id": "amulet_arcane",
+  "spell_bonus": 1
+}

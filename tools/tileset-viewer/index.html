@@ -22,7 +22,7 @@
   aside { padding: 20px; background: #161e28; border-left: 1px solid #34404e; overflow: auto; }
   h2 { font-size: 16px; margin: 0 0 12px; }
   #preview { width: 96px; height: 96px; image-rendering: pixelated; background: #0b1016; border: 1px solid #46576b; float: left; margin: 0 12px 16px 0; }
-  #hover { min-height: 100px; font-variant-numeric: tabular-nums; }
+  #hover { min-height: 100px; font-variant-numeric: tabular-nums; white-space: pre-line; overflow-wrap: anywhere; }
   #count { clear: both; margin-top: 20px; }
   textarea { width: 100%; height: 210px; resize: vertical; font: 13px/1.6 ui-monospace, monospace; margin: 8px 0; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -68,10 +68,10 @@
     <textarea id="selection" readonly spellcheck="false" placeholder="Здесь появятся номера и координаты выбранных ячеек."></textarea>
     <div class="actions"><button id="copy">Копировать</button><button id="clear">Очистить</button></div>
     <div id="status" role="status"></div>
-    <label class="check"><input id="added" type="checkbox" disabled>Выбранные тайлы добавлены</label>
-    <div class="actions"><button id="save" disabled>Сохранить отметки</button></div>
+    <label class="check"><input id="added" type="checkbox" disabled>Добавлены в пакет tiles (автоматически)</label>
+    <div class="actions"><button id="save" disabled>Сверить с пакетом</button></div>
     <div id="save-state" role="status">Загрузка отметок…</div>
-    <p class="hint">Галочки сохраняются в tools/tileset-viewer/progress.json. Добавьте этот файл в коммит вместе с тайлами.</p>
+    <p class="hint">Галочки определяются по реальным назначениям в packs/tiles и обновляются каждые 5 секунд. Один импорт картинки не считается готовым тайлом. progress.json — автоматически обновляемый снимок для Git.</p>
     <section class="task-panel">
       <h2>Задания на будущее</h2>
       <div id="task-target" class="hint">Выдели тайлы для задания</div>
@@ -106,7 +106,7 @@
   const output = document.getElementById('selection'), status = document.getElementById('status');
   const selected = new Set();
   const added = document.getElementById('added'), save = document.getElementById('save'), saveState = document.getElementById('save-state');
-  let progress = { mono: [], color: [], input: [] }, progressReady = false, dirty = false, saving = false;
+  let progress = { mono: [], color: [], input: [] }, usage = { mono: {}, color: {}, input: {} }, progressReady = false, progressLoading = false;
   let sheet, image, ready = false, hovered = null, drag = null;
   const promptInput = document.getElementById('prompt'), taskState = document.getElementById('tasks-state');
   const addTask = document.getElementById('add-task'), saveTasks = document.getElementById('save-tasks');
@@ -155,6 +155,8 @@
       const { row, col } = position(id);
       if (ready) preview.drawImage(image, col * 16, row * 16, 16, 16, 0, 0, 16, 16);
       document.getElementById('hover').textContent = `№ ${id} · строка ${row + 1} · столбец ${col + 1}`;
+      const owners = usage[sheetSelect.value][id] || [];
+      document.getElementById('hover').textContent += !progressReady ? '\nСтатус ещё не проверен' : owners.length ? '\nДобавлен:\n' + owners.map(owner => `${owner.name} · ${owner.ref}`).join('\n') : '\nНе добавлен в пакет tiles';
     }
     paint();
   }
@@ -166,28 +168,13 @@
   }
   function updateAdded() {
     const marked = [...selected].filter(id => progress[sheetSelect.value].includes(id)).length;
-    added.disabled = !progressReady || !selected.size || saving;
+    added.disabled = true;
     added.checked = selected.size > 0 && marked === selected.size;
     added.indeterminate = marked > 0 && marked < selected.size;
-    save.disabled = !progressReady || !dirty || saving;
+    save.disabled = progressLoading || location.protocol === 'file:';
   }
-  added.addEventListener('change', () => {
-    const ids = new Set(progress[sheetSelect.value]);
-    for (const id of selected) { if (added.checked) ids.add(id); else ids.delete(id); }
-    progress[sheetSelect.value] = [...ids].sort((a, b) => a - b);
-    dirty = true; saveState.textContent = 'Есть несохранённые отметки'; updateAdded(); paint();
-  });
-  save.addEventListener('click', async () => {
-    saving = true; updateAdded();
-    try {
-      const response = await fetch('/progress.json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(progress) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Ошибка сохранения');
-      progress = data; dirty = false; saveState.textContent = 'Сохранено в progress.json · можно коммитить';
-    } catch (error) { saveState.textContent = `Не сохранено: ${error.message}`; }
-    finally { saving = false; updateAdded(); paint(); }
-  });
-  window.addEventListener('beforeunload', event => { if (dirty || tasksDirty || promptInput.value.trim()) { event.preventDefault(); event.returnValue = ''; } });
+  save.addEventListener('click', () => loadProgress());
+  window.addEventListener('beforeunload', event => { if (tasksDirty || promptInput.value.trim()) { event.preventDefault(); event.returnValue = ''; } });
   function tileRanges(ids) {
     const groups = [];
     for (const id of ids) {
@@ -311,17 +298,28 @@
   }
   setInterval(() => { if (tasksReady && !tasksDirty && !tasksSaving && !promptInput.value.trim()) loadTasks(true); }, 5000);
   async function loadProgress() {
-    if (location.protocol === 'file:') { saveState.textContent = 'Для отметок с сохранением запустите tileset-viewer.bat (Linux/macOS: ./tileset-viewer.sh).'; return; }
+    if (progressLoading) return;
+    if (location.protocol === 'file:') { saveState.textContent = 'Для автоматической сверки запустите tileset-viewer.bat (Linux/macOS: ./tileset-viewer.sh).'; return; }
+    progressLoading = true; updateAdded();
     try {
-      const response = await fetch('/progress.json', { cache: 'no-store' });
+      const response = await fetch('/tile-status.json', { cache: 'no-store' });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Ошибка загрузки');
+      if (!response.ok) throw new Error(data.error || 'Ошибка сверки');
       for (const [key, spec] of Object.entries(sheets)) {
-        if (!Array.isArray(data[key]) || data[key].length > spec.columns * spec.rows || data[key].some(id => !Number.isInteger(id) || id < 1 || id > spec.columns * spec.rows)) throw new Error('Некорректный progress.json');
+        const ids = data.progress?.[key];
+        if (!Array.isArray(ids) || ids.length > spec.columns * spec.rows || ids.some(id => !Number.isInteger(id) || id < 1 || id > spec.columns * spec.rows) || !data.usage?.[key]) throw new Error('Некорректный ответ сверки; перезапустите просмотрщик');
       }
-      progress = data; progressReady = true; saveState.textContent = 'Отметки загружены из progress.json'; updateAdded(); paint();
-    } catch (error) { saveState.textContent = `Отметки не загружены: ${error.message}`; }
+      progress = data.progress; usage = data.usage; progressReady = true;
+      saveState.textContent = 'Автосверка packs/tiles · ' + Object.entries(progress).map(([key, ids]) => `${sheets[key].name}: ${ids.length}`).join(' · ');
+      if (hovered !== null) showCell(hovered); else paint();
+    } catch (error) {
+      progressReady = false;
+      progress = { mono: [], color: [], input: [] }; usage = { mono: {}, color: {}, input: {} };
+      saveState.textContent = `Статус не проверен: ${error.message}`;
+      if (hovered !== null) showCell(hovered); else paint();
+    } finally { progressLoading = false; updateAdded(); }
   }
+  setInterval(loadProgress, 5000);
   function hit(event) {
     const bounds = canvas.getBoundingClientRect(), step = size() + gap;
     const x = event.clientX - bounds.left - margin, y = event.clientY - bounds.top - margin;

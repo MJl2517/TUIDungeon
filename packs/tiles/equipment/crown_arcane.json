@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "name": "Корона заклинателя",
+  "description": "Магическое украшение: +1 к атаке заклинанием и СЛ спасброска, пока надето.",
+  "symbol": "tiles:cell_0143",
+  "glyph": "^",
+  "foreground": 220,
+  "category": "tools",
+  "group": "Украшения: короны",
+  "weight": 0.5,
+  "size": "small",
+  "slot": "head",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "gold",
+    "jewelry",
+    "magic"
+  ],
+  "value_gold": 100,
+  "id": "crown_arcane",
+  "spell_bonus": 1
+}

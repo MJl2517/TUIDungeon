@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "bed_398",
+  "name": "Кровать с подушкой",
+  "description": "Место для длительного отдыха рядом с кроватью. Можно перенести или разобрать.",
+  "glyph": "B",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Мебель",
+  "tags": [
+    "flammable",
+    "furniture",
+    "obstacle",
+    "rest_spot",
+    "transparent",
+    "wooden"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "movable": true,
+  "weight": 18,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        },
+        {
+          "item": "base:cloth",
+          "quantity": 2
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ],
+      "tools": [
+        "carpenter_tools"
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      },
+      {
+        "item": "base:cloth",
+        "quantity": 2
+      }
+    ]
+  },
+  "symbol": "tiles:cell_0398",
+  "size": "large",
+  "map_category": "furniture"
+}

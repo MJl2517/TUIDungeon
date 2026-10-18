@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "wood_bridge_261",
+  "name": "Деревянный мост: секция 261",
+  "glyph": "=",
+  "foreground": 130,
+  "description": "Дополнительная проходимая секция моста. Поворот и отражение задаются при размещении.",
+  "group": "Поверхности: мосты",
+  "map_category": "floor",
+  "walkable": true,
+  "blocks_sight": false,
+  "tags": [
+    "bridge",
+    "wooden"
+  ],
+  "symbol": "tiles:cell_0261"
+}

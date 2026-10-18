@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Кирпич: внешняя стена 899",
+  "description": "Внешняя стена. Закрывает движение, обзор и свет.",
+  "symbol": "tiles:cell_0899",
+  "glyph": "#",
+  "foreground": 131,
+  "map_category": "wall",
+  "group": "Внешние стены 2: кирпич",
+  "tags": [
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "id": "exterior_899_brick"
+}

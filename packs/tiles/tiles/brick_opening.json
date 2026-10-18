@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Проём в кирпичной стене",
+  "description": "Свободный проём. Пропускает игрока, обзор и свет.",
+  "symbol": "tiles:cell_0642",
+  "glyph": ".",
+  "foreground": 131,
+  "map_category": "floor",
+  "group": "Проходы в стенах",
+  "tags": [
+    "stone"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "id": "brick_opening"
+}

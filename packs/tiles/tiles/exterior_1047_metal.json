@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Металл: внешняя стена 1047",
+  "description": "Внешняя стена. Закрывает движение, обзор и свет.",
+  "symbol": "tiles:cell_1047",
+  "glyph": "#",
+  "foreground": 153,
+  "map_category": "wall",
+  "group": "Внешние стены 3: металл",
+  "tags": [
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "id": "exterior_1047_metal"
+}

@@ -45,7 +45,6 @@ class SymbolTests(unittest.TestCase):
             {"pixels": ["x" * 16] * 16},
             {"glyph": "界"},
             {"glyph": "ab"},
-            {"group": "Неразобранное"},
         ):
             with self.subTest(update=update), self.assertRaises(ValidationError):
                 SymbolDocument.model_validate({**self.raw, **update})
@@ -74,20 +73,31 @@ class SymbolTests(unittest.TestCase):
             PackStore(self.root).get("symbols", "base:star").pixels, self.mask
         )
 
-    def test_unreviewed_and_dependency_references_cannot_be_assigned(self):
+    def test_unreviewed_symbols_are_allowed_but_dependencies_remain_required(self):
         self.store.save(
             "symbols",
             "base:unreviewed",
-            {**self.raw, "id": "unreviewed", "reviewed": False},
+            {
+                **self.raw,
+                "id": "unreviewed",
+                "reviewed": False,
+                "group": "Неразобранное",
+            },
             None,
         )
-        with self.assertRaises(ContentError):
-            self.store.save(
-                "tiles",
-                "extra:floor",
-                dict(id="floor", name="Пол", symbol="base:unreviewed"),
-                None,
-            )
+        self.store.save(
+            "tiles",
+            "extra:floor",
+            dict(id="floor", name="Пол", symbol="base:unreviewed"),
+            None,
+        )
+        self.assertEqual(
+            self.store.get("tiles", "extra:floor").symbol, "base:unreviewed"
+        )
+        self.assertEqual(
+            visual_cell(self.store, self.store.get("tiles", "extra:floor")).symbol,
+            "base:unreviewed",
+        )
         self.store.save("symbols", "extra:other", {**self.raw, "id": "other"}, None)
         with self.assertRaises(ContentError):
             self.store.save(
@@ -96,6 +106,27 @@ class SymbolTests(unittest.TestCase):
                 dict(id="floor", name="Пол", symbol="extra:other"),
                 None,
             )
+
+    def test_version_probe_survives_a_deleted_reference(self):
+        self.store.save(
+            "tiles",
+            "extra:floor",
+            dict(id="floor", name="Пол", symbol="base:star"),
+            None,
+        )
+        client = TestClient(create_app(self.root), base_url="http://127.0.0.1")
+        version = client.get("/api/documents/symbols/base:star/version").json()[
+            "version"
+        ]
+        self.assertIsNotNone(version)
+        (self.root / "base/symbols/star.json").unlink()
+        self.assertEqual(client.get("/api/library").status_code, 422)
+        self.assertIsNone(
+            client.get("/api/documents/symbols/base:star/version").json()["version"]
+        )
+        self.assertIsNotNone(
+            client.get("/api/documents/tiles/extra:floor/version").json()["version"]
+        )
 
     def test_state_and_override_references_are_tracked(self):
         self.store.save(
@@ -205,7 +236,7 @@ class BundledSymbolTests(unittest.TestCase):
     def setUpClass(cls):
         cls.store = PackStore()
 
-    def test_all_bundled_visuals_and_references_are_reviewed(self):
+    def test_bundled_visuals_and_references_are_renderable(self):
         from tuidungeon.content.schemas import Visual
         from tuidungeon.content.packs import references
 
@@ -218,14 +249,17 @@ class BundledSymbolTests(unittest.TestCase):
         self.assertTrue(all(d.source.license == "CC0" for d in atlas))
         for (cat, ref), doc in self.store.documents.items():
             if isinstance(doc, Visual):
-                self.assertIsNotNone(doc.symbol, ref)
+                glyph, symbol = appearance(self.store.documents, doc)
+                self.assertTrue(glyph, ref)
+                if doc.symbol:
+                    self.assertEqual(symbol, doc.symbol, ref)
             for category, target, field in references(doc.model_dump(mode="json"), cat):
                 if category == "symbols":
-                    self.assertTrue(
-                        self.store.get(category, target).reviewed, (ref, field)
+                    self.assertEqual(
+                        len(self.store.get(category, target).pixels), 16, (ref, field)
                     )
 
-    def test_migration_second_run_is_read_only(self):
+    def test_migration_preview_is_repeatable_and_read_only(self):
         import contextlib
         import io
         from scripts.migrate_symbols import migrate
@@ -233,7 +267,8 @@ class BundledSymbolTests(unittest.TestCase):
         versions = dict(self.store.versions)
         with contextlib.redirect_stdout(io.StringIO()):
             result = migrate(self.store.root)
-        self.assertEqual(result["changed"], 0)
+            again = migrate(self.store.root)
+        self.assertEqual(result, again)
         self.store.reload()
         self.assertEqual(self.store.versions, versions)
 

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "name": "Нарезать кожаные полоски",
+  "description": "Нарезать кожаные полоски. Начальные значения для балансировки.",
+  "category": "leatherworker",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "leatherworker_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:raw_leather"
+          ],
+          "quantity": 1
+        }
+      ],
+      "tools": [
+        "leatherworker_tools"
+      ],
+      "proficiencies": [
+        "leatherworker_tools"
+      ],
+      "turns": 1,
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "tiles:leather_strip",
+      "quantity": 1
+    }
+  ],
+  "id": "cut_leather_strips"
+}

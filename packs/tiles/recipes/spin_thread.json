@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "name": "Сплести нити",
+  "description": "Сплести нити. Начальные значения для балансировки.",
+  "category": "weaver",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "weaver_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:plant_fiber"
+          ],
+          "quantity": 1
+        }
+      ],
+      "tools": [
+        "weaver_tools"
+      ],
+      "proficiencies": [
+        "weaver_tools"
+      ],
+      "turns": 1,
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "tiles:thread",
+      "quantity": 1
+    }
+  ],
+  "id": "spin_thread"
+}

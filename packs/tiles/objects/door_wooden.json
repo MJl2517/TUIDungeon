@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "door_wooden",
+  "name": "Деревянная дверь",
+  "description": "Обычная горючая деревянная дверь. После разрушения остаётся древесина.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0445",
+  "state_symbols": {
+    "open": "tiles:cell_0448"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "wooden",
+    "flammable"
+  ],
+  "brush": {
+    "door": {
+      "material": "wood"
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:wood",
+      "quantity": 2
+    }
+  ]
+}

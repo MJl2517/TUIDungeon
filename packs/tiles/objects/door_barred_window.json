@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "door_barred_window",
+  "name": "Дверь с зарешёченным окном",
+  "description": "Пропускает свет и обзор. Утолщённая решётчатая створка: 30 прочности.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0548",
+  "state_symbols": {
+    "open": "tiles:cell_0552"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal"
+  ],
+  "brush": {
+    "door": {
+      "material": "bars",
+      "hit_points": 30
+    }
+  },
+  "attackable": false,
+  "door_remains": [
+    {
+      "item": "base:metal",
+      "quantity": 2
+    }
+  ]
+}

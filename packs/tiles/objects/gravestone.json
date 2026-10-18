@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Надгробие",
+  "description": "Каменное надгробие.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0688",
+  "foreground": 245,
+  "map_category": "special",
+  "group": "Кладбище",
+  "tags": [
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "id": "gravestone"
+}

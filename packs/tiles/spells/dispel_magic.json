@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "dispel_magic",
+  "name": "Развеивание магии",
+  "description": "Рассеивает магическое поле двери в пределах 6 клеток. Требует видимую цель и ячейку 3 уровня или свиток. Обычные замки и золотые двери не открывает.",
+  "level": 3,
+  "school": "abjuration",
+  "target": "cell",
+  "modes": [
+    "exploration"
+  ],
+  "range": 6,
+  "world_effect": "dispel",
+  "effects": [],
+  "tags": [
+    "magic"
+  ],
+  "symbol": "base:glyph_003f"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "name": "Красный кирпич: стена 743",
+  "description": "Неразбираемая стена. Закрывает движение, обзор и свет.",
+  "glyph": "#",
+  "symbol": "tiles:cell_0743",
+  "foreground": 131,
+  "group": "Стены: кирпич",
+  "map_category": "wall",
+  "tags": [
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "variants": [],
+  "id": "brick_wall_743"
+}

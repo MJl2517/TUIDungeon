@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "Решётчатое окно в булыжниковой стене",
+  "description": "Неподвижная решётка: не пропускает игрока, пропускает свет и обзор.",
+  "glyph": "#",
+  "symbol": "tiles:cell_0639",
+  "foreground": 244,
+  "group": "Стены: булыжник",
+  "map_category": "wall",
+  "tags": [
+    "stone",
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "attackable": false,
+  "id": "cobble_window"
+}

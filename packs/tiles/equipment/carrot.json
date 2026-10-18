@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "carrot",
+  "name": "Морковь",
+  "description": "Морковь. Восстанавливает 2 HP при употреблении.",
+  "glyph": "%",
+  "foreground": 208,
+  "category": "consumables",
+  "group": "Пища",
+  "weight": 0.4,
+  "tags": [
+    "organic",
+    "food",
+    "consumable"
+  ],
+  "charges": 1,
+  "properties": [
+    {
+      "kind": "heal",
+      "amount": 2
+    }
+  ],
+  "symbol": "tiles:cell_1015",
+  "size": "small"
+}

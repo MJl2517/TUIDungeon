@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "Нити",
+  "description": "Прочные нити из растительного волокна. Подходят для плетения верёвки.",
+  "glyph": "~",
+  "symbol": "tiles:cell_0698",
+  "foreground": 255,
+  "weight": 0.1,
+  "category": "materials",
+  "group": "Нити и ленты",
+  "size": "small",
+  "tags": [
+    "fiber",
+    "organic",
+    "flammable"
+  ],
+  "id": "thread"
+}

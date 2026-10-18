@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "hatch_transition",
+  "name": "Решётчатый люк",
+  "description": "При входе переносит на старт выбранной карты. Укажите карту назначения при размещении в студии.",
+  "glyph": "↓",
+  "foreground": 7,
+  "background": null,
+  "art": null,
+  "group": "Люки и переходы",
+  "tags": [
+    "stairs",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": true,
+    "door": null
+  },
+  "symbol": "tiles:cell_0690"
+}

@@ -97,6 +97,8 @@ class SessionFactory:
     def state(self, map_ref, hero, *, definition=None):
         restoring = definition is not None
         definition = definition or self.store.get("maps", map_ref)
+        for item in hero.inventory:
+            item.bind_key(map_ref, definition.name)
         level = Level(map_ref, definition, self.store)
         for p in door_placements(self.store, definition):
             tile = self.store.resolve(door_category(self.store, p.ref), p)
@@ -138,7 +140,11 @@ class SessionFactory:
             )
             level.points.append(PointInstance(p, point, challenge))
         for p in definition.equipment:
-            item = Equipment.create(self.store.placement_definition("equipment", p))
+            item = Equipment.create(
+                self.store.placement_definition("equipment", p),
+                level_ref=map_ref,
+                level_name=definition.name,
+            )
             if p.overrides:
                 item.template = self.store.resolve("equipment", p).model_dump(
                     mode="json"
@@ -159,9 +165,27 @@ class SessionFactory:
                 container = StorageInstance(p, obj, obj.storage)
                 for entry in obj.storage.contents:
                     item_definition = self.catalog.equipment[runtime_key(entry.item)]
-                    container.items.extend(
-                        Equipment.create(item_definition) for _ in range(entry.quantity)
-                    )
+                    template = None
+                    if entry.key_code:
+                        from ..content.placements import override_document
+
+                        doc = override_document(
+                            "equipment",
+                            self.store.get("equipment", entry.item),
+                            {"key_code": entry.key_code},
+                        )
+                        item_definition = compile_definition(
+                            "equipment", entry.item, doc
+                        )
+                        template = doc.model_dump(mode="json")
+                    for _ in range(entry.quantity):
+                        item = Equipment.create(
+                            item_definition,
+                            level_ref=map_ref,
+                            level_name=definition.name,
+                        )
+                        item.template = template
+                        container.items.append(item)
                 if container.weight > container.spec.capacity + 1e-9:
                     raise ValueError(
                         "Начальное содержимое превышает вместимость контейнера"
@@ -194,8 +218,39 @@ class SessionFactory:
                     mode="json"
                 )
             monster.definition_ref = p.ref
+            for item in monster.inventory:
+                item.bind_key(map_ref, definition.name)
             state.monsters.append(MonsterPlacement(monster, Position(p.x, p.y)))
+        from ..world.npcs import NpcInstance
+
+        for p in definition.npcs:
+            if not level.terrain.walkability[p.y][p.x]:
+                raise ValueError("NPC размещён на непроходимой клетке")
+            npc = NpcInstance(p, self.store.resolve("npcs", p))
+            if npc.definition.trade:
+                stock = [(e.item, e.quantity) for e in npc.definition.trade.stock]
+                stock.append(("base:gold", npc.definition.trade.gold))
+                for ref, count in stock:
+                    npc.items.extend(
+                        Equipment.create(
+                            self.catalog.equipment[runtime_key(ref)],
+                            level_ref=map_ref,
+                            level_name=definition.name,
+                        )
+                        for _ in range(count)
+                    )
+            level.npcs.append(npc)
         state.level = level
+        if not restoring:
+            from ..world.objects import schedule_growth
+
+            for p in definition.objects:
+                schedule_growth(
+                    level,
+                    p,
+                    self.store.resolve("objects", p),
+                    state.clock.elapsed_minutes,
+                )
         return state
 
     def session(

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "cabinet_357",
+  "name": "Сейф с замком",
+  "glyph": "C",
+  "foreground": 245,
+  "description": "Хранилище для малых и средних вещей. Вместимость 60 кг.",
+  "map_category": "furniture",
+  "group": "Мебель: шкафы",
+  "tags": [
+    "furniture",
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "movable": true,
+  "size": "large",
+  "weight": 40,
+  "destruction": {
+    "max_hp": 40,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": null,
+      "tools": [
+        "tinker_tools"
+      ],
+      "loot": [
+        {
+          "item": "base:metal",
+          "quantity": 3
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:metal",
+        "quantity": 1
+      }
+    ]
+  },
+  "storage": {
+    "personal": true,
+    "capacity": 60,
+    "max_item_size": "medium",
+    "lock": {
+      "locked": true,
+      "lock_quality": "normal",
+      "lock_complexity": "complex"
+    }
+  },
+  "symbol": "tiles:cell_0357",
+  "state_symbols": {},
+  "loot_tier": "white",
+  "variants": []
+}

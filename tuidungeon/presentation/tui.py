@@ -19,6 +19,7 @@ from .menus import ActionMenu, SidebarTab, SHEET_SECTIONS, PAGE_SIZE, action_lin
 from .crafting import CraftBrowser, craft_layout, craft_click
 from .inventory import InventoryBrowser, render_inventory, item_details
 from .storage import StorageBrowser, storage_layout, storage_click
+from .social import SocialBrowser, social_layout, social_click
 from .conditions import condition_lines
 from .creation import render_creation, creation_button_entries
 from ..domain.actions import SpellSource
@@ -62,6 +63,9 @@ class View(Enum):
     EXPLORE = auto()
     CHARACTER = auto()
     INTERACTION = auto()
+    DIALOGUE = auto()
+    TRADE = auto()
+    QUESTS = auto()
     LOOK = auto()
     INSPECT = auto()
     JOURNAL = auto()
@@ -143,6 +147,7 @@ class Controller:
         self.log_return_view = View.EXPLORE
         self.notebook_return_view = View.EXPLORE
         self.notebook_section = None
+        self.social = SocialBrowser()
         self.records_page = 0
         self.reading = None
         self.craft_return_view = View.EXPLORE
@@ -434,6 +439,9 @@ class Controller:
         if key == "ctrl_c":
             self.running = False
             return
+        if self.view in (View.DIALOGUE, View.TRADE, View.QUESTS):
+            self.social.handle(self, key)
+            return
         if self.view is View.DROP:
             if key == "escape":
                 self.view = self.item_return_view
@@ -494,6 +502,10 @@ class Controller:
             elif self.notebook_section is None:
                 if key in "12345" and len(key) == 1:
                     self.notebook_section = int(key) - 1
+                    if self.notebook_section == 0:
+                        self.engine.refresh_quests()
+                        self.social.selected, self.social.scroll = [0, 0], 0
+                        self.view = View.QUESTS
                     self.records_page = 0
                     if self.notebook_section == 2:
                         self.notebook_section = None
@@ -860,6 +872,9 @@ class Controller:
                     )
                     if index < len(choices):
                         choice_id = choices[index].id
+                        if choice_id == "talk":
+                            self.social.open(self, self.point_id)
+                            return
                         if choice_id == "move":
                             self.target_furniture("move", self.point_id)
                             return
@@ -916,6 +931,9 @@ class Controller:
                 self.view = self.item_return_view
             elif key == "1":
                 item = self.selected_item
+                if item.definition.key_kind:
+                    self.open_interaction()
+                    return
                 if item.furniture:
                     self.target_furniture("place", item.instance_id)
                     return
@@ -1633,7 +1651,16 @@ def background_view(controller):
         return View.LOOK
     return (
         View.EXPLORE
-        if view in (View.INTERACTION, View.STORAGE, View.CRAFT, View.BUILD)
+        if view
+        in (
+            View.INTERACTION,
+            View.STORAGE,
+            View.CRAFT,
+            View.BUILD,
+            View.DIALOGUE,
+            View.TRADE,
+            View.QUESTS,
+        )
         else view
     )
 
@@ -1774,6 +1801,8 @@ def popup_content(controller):
             [
                 "Поставить мебель"
                 if item.furniture
+                else "Выбрать замок рядом"
+                if item.definition.key_kind
                 else "Работа с заготовкой"
                 if item.work
                 else use,
@@ -1917,6 +1946,13 @@ def item_overlay_rect(width, height):
 def popup_layout(controller, width, height):
     if (
         not controller.feedback
+        and controller.view in (View.DIALOGUE, View.TRADE, View.QUESTS)
+        and width >= MIN_WIDTH
+        and height >= MIN_HEIGHT
+    ):
+        return social_layout(controller, width, height)
+    if (
+        not controller.feedback
         and controller.view is View.CRAFT
         and width >= MIN_WIDTH
         and height >= MIN_HEIGHT
@@ -2041,6 +2077,12 @@ def handle_click(controller, x, y, width, height):
         or height < MIN_HEIGHT
     ):
         return False
+    if not controller.feedback and controller.view in (
+        View.DIALOGUE,
+        View.TRADE,
+        View.QUESTS,
+    ):
+        return social_click(controller, x, y, width, height)
     if not controller.feedback and controller.view is View.CRAFT:
         return craft_click(controller, x, y, width, height)
     if not controller.feedback and controller.view is View.STORAGE:

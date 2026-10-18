@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "crate_small",
+  "name": "Малый ящик",
+  "glyph": "C",
+  "foreground": 15,
+  "description": "Закрытый ящик открывается монтировкой. Можно разобрать; содержимое останется на земле.",
+  "map_category": "furniture",
+  "group": "Мебель: ящики",
+  "tags": [
+    "furniture",
+    "wooden",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": true,
+  "size": "small",
+  "weight": 3,
+  "destruction": {
+    "max_hp": 10,
+    "dismantle": {
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 2
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 1
+      }
+    ]
+  },
+  "storage": {
+    "personal": true,
+    "capacity": 15,
+    "max_item_size": "small",
+    "open_tool": "lever"
+  },
+  "symbol": "tiles:cell_0702",
+  "state_symbols": {
+    "closed": "tiles:cell_0702",
+    "open": "tiles:cell_0751"
+  },
+  "loot_tier": "white",
+  "variants": []
+}

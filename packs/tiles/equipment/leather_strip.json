@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "Кожаные полоски",
+  "description": "Полоски кожи для изготовления бурдюка.",
+  "glyph": "~",
+  "symbol": "tiles:cell_0698",
+  "foreground": 130,
+  "weight": 0.1,
+  "category": "materials",
+  "group": "Нити и ленты",
+  "size": "small",
+  "tags": [
+    "leather",
+    "organic",
+    "flammable"
+  ],
+  "id": "leather_strip"
+}

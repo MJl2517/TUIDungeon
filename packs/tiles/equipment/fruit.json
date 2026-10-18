@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "fruit",
+  "name": "Фрукты",
+  "description": "Фрукты. Восстанавливает 2 HP при употреблении.",
+  "glyph": "%",
+  "foreground": 196,
+  "category": "consumables",
+  "group": "Пища",
+  "weight": 0.4,
+  "tags": [
+    "organic",
+    "food",
+    "consumable"
+  ],
+  "charges": 1,
+  "properties": [
+    {
+      "kind": "heal",
+      "amount": 2
+    }
+  ],
+  "symbol": "tiles:cell_0916",
+  "size": "small"
+}

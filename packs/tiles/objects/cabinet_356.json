@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "cabinet_356",
+  "name": "Шкаф 356",
+  "glyph": "C",
+  "foreground": 130,
+  "description": "Хранилище для малых и средних вещей. Вместимость 60 кг.",
+  "map_category": "furniture",
+  "group": "Мебель: шкафы",
+  "tags": [
+    "furniture",
+    "wooden",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "movable": true,
+  "size": "large",
+  "weight": 20,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      }
+    ]
+  },
+  "storage": {
+    "personal": true,
+    "capacity": 60,
+    "max_item_size": "medium"
+  },
+  "symbol": "tiles:cell_0356",
+  "state_symbols": {},
+  "loot_tier": "white",
+  "variants": []
+}

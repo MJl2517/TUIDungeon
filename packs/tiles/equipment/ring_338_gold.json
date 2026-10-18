@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Золотое кольцо 338",
+  "description": "Золотое кольцо с узором.",
+  "symbol": "tiles:cell_0338",
+  "glyph": "O",
+  "foreground": 220,
+  "category": "tools",
+  "group": "Украшения: кольца",
+  "weight": 0.05,
+  "size": "small",
+  "slot": "ring",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "gold",
+    "jewelry"
+  ],
+  "value_gold": 30,
+  "id": "ring_338_gold"
+}

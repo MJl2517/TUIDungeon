@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "key_door",
+  "name": "Ключ для дверей уровня",
+  "description": "Открывает обычные запертые двери только на уровне, где находится изначально. Не подходит к контейнерам и уникальным замкам. Не расходуется.",
+  "glyph": "k",
+  "foreground": 220,
+  "symbol": "tiles:cell_0573",
+  "category": "tools",
+  "group": "Ключи",
+  "weight": 0.05,
+  "size": "small",
+  "tags": [
+    "key",
+    "metal"
+  ],
+  "key_kind": "door",
+  "key_code": null
+}

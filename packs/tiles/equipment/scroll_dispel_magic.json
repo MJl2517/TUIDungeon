@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "scroll_dispel_magic",
+  "name": "Свиток развеивания магии",
+  "description": "Однократно открывает видимый магический барьер, не расходуя ячейку заклинаний.",
+  "category": "consumables",
+  "group": "Свитки",
+  "glyph": "?",
+  "symbol": "base:glyph_003f",
+  "weight": 0.1,
+  "size": "small",
+  "tags": [
+    "magic",
+    "scroll"
+  ],
+  "charges": 1,
+  "cast_spell": "tiles:dispel_magic"
+}

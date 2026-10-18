@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "forge",
+  "name": "Горн",
+  "description": "Нагретая рабочая станция для плавки и кузнечного ремесла.",
+  "glyph": "&",
+  "foreground": 3,
+  "map_category": "furniture",
+  "group": "Станции",
+  "walkable": false,
+  "blocks_sight": false,
+  "tags": [
+    "forge",
+    "heat",
+    "stone"
+  ],
+  "destruction": {
+    "max_hp": 30
+  },
+  "symbol": "tiles:cell_0402"
+}

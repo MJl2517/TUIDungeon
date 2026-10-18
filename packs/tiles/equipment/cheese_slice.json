@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "cheese_slice",
+  "name": "Ломтик сыра",
+  "description": "Ломтик сыра. Восстанавливает 2 HP при употреблении.",
+  "glyph": "%",
+  "foreground": 221,
+  "category": "consumables",
+  "group": "Пища",
+  "weight": 0.4,
+  "tags": [
+    "organic",
+    "food",
+    "consumable"
+  ],
+  "charges": 1,
+  "properties": [
+    {
+      "kind": "heal",
+      "amount": 2
+    }
+  ],
+  "symbol": "tiles:cell_0867",
+  "size": "small"
+}

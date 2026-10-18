@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "fountain",
+  "name": "Фонтан",
+  "description": "Неисчерпаемый источник чистой воды. Вид воды настраивается у экземпляра.",
+  "glyph": "~",
+  "foreground": 6,
+  "map_category": "special",
+  "group": "Источники воды",
+  "walkable": false,
+  "water_source": {
+    "kind": "clean_water"
+  },
+  "symbol": "tiles:cell_0403",
+  "tags": [
+    "stone"
+  ]
+}

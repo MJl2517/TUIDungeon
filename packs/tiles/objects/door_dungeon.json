@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "door_dungeon",
+  "name": "Дверь в подземелье",
+  "description": "Внимание: подтверждённое открытие немедленно переносит в другую локацию. Укажите назначение у экземпляра в студии. Шаг на клетку не является переходом.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0452",
+  "state_symbols": {
+    "open": "tiles:cell_0499"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal"
+  ],
+  "brush": {
+    "door": {
+      "material": "steel",
+      "travel": true,
+      "force_allowed": false
+    }
+  }
+}

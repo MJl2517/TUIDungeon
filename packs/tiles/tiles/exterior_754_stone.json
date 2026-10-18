@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Камень: внешняя стена 754",
+  "description": "Внешняя стена. Закрывает движение, обзор и свет.",
+  "symbol": "tiles:cell_0754",
+  "glyph": "#",
+  "foreground": 245,
+  "map_category": "wall",
+  "group": "Внешние стены 1: камень",
+  "tags": [
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "id": "exterior_754_stone"
+}

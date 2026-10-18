@@ -14,6 +14,7 @@ import {
 } from "./catalog";
 
 export const layerNames: Record<string, string> = {
+  npcs: "NPC",
   tiles: "Поверхности",
   objects: "Окружение",
   doors: "Двери",
@@ -30,6 +31,8 @@ export const layerNames: Record<string, string> = {
   blocks_sight: "Преграды обзору",
 };
 type Props = {
+  state?: Doc;
+  onStateChange?: (value: Doc) => void;
   entries: Entry[];
   assets: Record<string, Doc>;
   layer: string;
@@ -45,6 +48,8 @@ type Props = {
 };
 
 export function MapPalette({
+  state = {},
+  onStateChange,
   entries,
   assets,
   layer,
@@ -58,14 +63,17 @@ export function MapPalette({
   documentRef,
   onEmpty,
 }: Props) {
-  const [searchAcross, setSearchAcross] = useState(true);
-  const [query, setQuery] = useState(""),
-    [family, setFamily] = useState(""),
-    [group, setGroup] = useState(""),
-    [pack, setPack] = useState(""),
-    [filter, setFilter] = useState("all"),
-    [sort, setSort] = useState("group"),
+  const [searchAcross, setSearchAcross] = useState(state.searchAcross ?? true);
+  const [query, setQuery] = useState(state.query ?? ""),
+    [family, setFamily] = useState(state.family ?? ""),
+    [group, setGroup] = useState(state.group ?? ""),
+    [pack, setPack] = useState(state.pack ?? ""),
+    [filter, setFilter] = useState(state.filter ?? "all"),
+    [sort, setSort] = useState(state.sort ?? "group"),
     [hovered, setHovered] = useState<Entry | null>(null);
+  useEffect(() => {
+    onStateChange?.({ searchAcross, query, family, group, pack, filter, sort });
+  }, [searchAcross, query, family, group, pack, filter, sort]);
   const category =
     layer === "decorations"
       ? "art"
@@ -147,36 +155,27 @@ export function MapPalette({
   };
   return (
     <div className="map-palette">
-      <div className="palette-modes" aria-label="Разделы палитры">
-        {Object.entries(paletteSections).map(([id, value], index) => (
-          <button
-            key={id}
-            aria-label={value.name}
-            aria-pressed={section === id}
-            className={section === id ? "selected" : ""}
-            onClick={() => {
-              setQuery("");
-              setGroup("");
-              setFamily("");
-              setFilter("all");
-              setHovered(null);
-              onSection(id);
-            }}
-          >
-            <span>
-              {index + 1}. {value.name}
-            </span>
-            {id !== "service" && (
-              <small>
-                {
-                  entries.filter((e) => paletteCategory(e, assets) === id)
-                    .length
-                }
-              </small>
-            )}
-          </button>
-        ))}
-      </div>
+      <label className="palette-label">
+        Категория палитры
+        <select
+          aria-label="Категория палитры"
+          value={section}
+          onChange={(e) => {
+            setQuery("");
+            setGroup("");
+            setFamily("");
+            setFilter("all");
+            setHovered(null);
+            onSection(e.target.value);
+          }}
+        >
+          {Object.entries(paletteSections).map(([id, value]) => (
+            <option key={id} value={id}>
+              {value.name}
+            </option>
+          ))}
+        </select>
+      </label>
       <p className="palette-explanation">
         {paletteSections[section].description}
       </p>
@@ -232,56 +231,32 @@ export function MapPalette({
               Поиск по всем слоям. Выбранные фильтры продолжают действовать.
             </p>
           )}
-          <div className="palette-filters">
-            <select
-              aria-label="Пакет палитры"
-              value={pack}
-              onChange={(e) => setPack(e.target.value)}
-            >
-              <option value="">Все пакеты</option>
-              {[...new Set(all.map((e) => e.ref.split(":")[0]))].map((id) => (
-                <option key={id}>{id}</option>
-              ))}
-            </select>
-            <select
-              aria-label="Сортировка палитры"
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-            >
-              <option value="group">По группе</option>
-              <option value="name">По имени</option>
-              <option value="id">По ID</option>
-              <option value="mechanics">Сначала механика</option>
-            </select>
-            {layer !== "tiles" && groups.length > 1 && (
+          <details className="palette-filter-options">
+            <summary>Фильтры и сортировка</summary>
+            <div className="palette-filters">
               <select
-                aria-label="Группа объектов"
-                value={group}
-                onChange={(e) => setGroup(e.target.value)}
+                aria-label="Пакет палитры"
+                value={pack}
+                onChange={(e) => setPack(e.target.value)}
               >
-                <option value="">Все группы</option>
-                {groups.map((v) => (
-                  <option key={v}>{v}</option>
+                <option value="">Все пакеты</option>
+                {[...new Set(all.map((e) => e.ref.split(":")[0]))].map((id) => (
+                  <option key={id}>{id}</option>
                 ))}
               </select>
-            )}
-            {layer === "tiles" && (
-              <>
+              <select
+                aria-label="Сортировка палитры"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+              >
+                <option value="group">По группе</option>
+                <option value="name">По имени</option>
+                <option value="id">По ID</option>
+                <option value="mechanics">Сначала механика</option>
+              </select>
+              {layer !== "tiles" && groups.length > 1 && (
                 <select
-                  aria-label="Категория тайлов"
-                  value={family}
-                  onChange={(e) => {
-                    setFamily(e.target.value);
-                    setGroup("");
-                  }}
-                >
-                  <option value="">Все категории</option>
-                  {families.map((v) => (
-                    <option key={v}>{v}</option>
-                  ))}
-                </select>
-                <select
-                  aria-label="Группа тайлов"
+                  aria-label="Группа объектов"
                   value={group}
                   onChange={(e) => setGroup(e.target.value)}
                 >
@@ -290,20 +265,47 @@ export function MapPalette({
                     <option key={v}>{v}</option>
                   ))}
                 </select>
-                <select
-                  aria-label="Свойства тайлов"
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                >
-                  <option value="all">Любые свойства</option>
-                  <option value="mechanics">С событиями / светом</option>
-                  <option value="blocking">Блокируют движение</option>
-                  <option value="opaque">Блокируют обзор</option>
-                  <option value="walkable">Проходимые</option>
-                </select>
-              </>
-            )}
-          </div>
+              )}
+              {layer === "tiles" && (
+                <>
+                  <select
+                    aria-label="Категория тайлов"
+                    value={family}
+                    onChange={(e) => {
+                      setFamily(e.target.value);
+                      setGroup("");
+                    }}
+                  >
+                    <option value="">Все категории</option>
+                    {families.map((v) => (
+                      <option key={v}>{v}</option>
+                    ))}
+                  </select>
+                  <select
+                    aria-label="Группа тайлов"
+                    value={group}
+                    onChange={(e) => setGroup(e.target.value)}
+                  >
+                    <option value="">Все группы</option>
+                    {groups.map((v) => (
+                      <option key={v}>{v}</option>
+                    ))}
+                  </select>
+                  <select
+                    aria-label="Свойства тайлов"
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                  >
+                    <option value="all">Любые свойства</option>
+                    <option value="mechanics">С событиями / светом</option>
+                    <option value="blocking">Блокируют движение</option>
+                    <option value="opaque">Блокируют обзор</option>
+                    <option value="walkable">Проходимые</option>
+                  </select>
+                </>
+              )}
+            </div>
+          </details>
           <button
             className="subtle"
             onClick={() => {

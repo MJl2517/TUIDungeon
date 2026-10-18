@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "cooking_pot",
+  "name": "Походный котелок",
+  "description": "Нагреваемый сосуд на 3 порции.",
+  "category": "tools",
+  "weight": 0.5,
+  "glyph": "!",
+  "vessel": {
+    "heat_safe": true,
+    "capacity_portions": 3
+  },
+  "tags": [
+    "iron",
+    "metal"
+  ],
+  "durability": null,
+  "symbol": "tiles:cell_0692",
+  "size": "medium"
+}

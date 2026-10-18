@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "candelabra",
+  "name": "Канделябр",
+  "description": "Металлический подсвечник. Свечу можно снять и заменить; сам канделябр можно перенести как мебель.",
+  "variants": [],
+  "glyph": "!",
+  "foreground": 220,
+  "background": null,
+  "art": null,
+  "group": "Свет и огонь",
+  "tags": [
+    "metal",
+    "furniture"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": {
+      "radius": 3,
+      "bright_radius": 1
+    },
+    "transition": false,
+    "door": null
+  },
+  "light_fixture": {
+    "item": "tiles:candle",
+    "stays_when_empty": true
+  },
+  "storage": {
+    "capacity": 1000,
+    "personal": false,
+    "contents": [
+      {
+        "item": "tiles:candle",
+        "quantity": 1
+      }
+    ],
+    "max_item_size": "large"
+  },
+  "symbol": "tiles:cell_0741",
+  "movable": true,
+  "weight": 2,
+  "size": "medium"
+}

@@ -18,6 +18,12 @@ from .placements import PLACEMENT_CATEGORIES, resolve_placement, resolve_challen
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PACKS = PROJECT_ROOT / "packs"
 REF_FIELDS = {
+    "quest": "quests",
+    "recipe": "recipes",
+    "map_ref": "maps",
+    "furniture": "objects",
+    "grown_object": "objects",
+    "destination": "maps",
     "regrow_as": "objects",
     "symbol": "symbols",
     "cast_spell": "spells",
@@ -83,6 +89,7 @@ def references(raw, category):
                         "traps",
                         "points_of_interest",
                         "monsters",
+                        "npcs",
                         "equipment",
                     )
                     else placement_category
@@ -112,6 +119,13 @@ def validate_storage(document, documents):
     if spec is None:
         return
     if any(
+        entry.key_code and documents["equipment", entry.item].key_kind != "unique"
+        for entry in spec.contents
+    ):
+        raise ContentError(
+            "Код замка в содержимом можно назначить только уникальному ключу"
+        )
+    if any(
         not fits_size(documents["equipment", entry.item].size, spec.max_item_size)
         for entry in spec.contents
     ):
@@ -139,7 +153,28 @@ def validate_storage(document, documents):
         raise ContentError("Начальное содержимое превышает вместимость контейнера")
 
 
-def validate_regrowth(document, documents):
+def validate_regrowth(document, documents, source_ref=None):
+    growth = getattr(document, "growth", None)
+    if growth:
+        grown = documents["objects", growth.grown_object]
+        spec = grown.destruction
+        if (
+            grown.growth
+            or not spec
+            or not spec.regrow_as
+            or not spec.regrow_minutes
+            or (source_ref is not None and spec.regrow_as != source_ref)
+            or not document.walkable
+            or document.blocks_sight
+            or not document.destruction
+            or grown.storage
+            or grown.brush.door
+            or not grown.walkable
+            or grown.blocks_sight
+        ):
+            raise ContentError(
+                "Рост требует проходимый молодой объект и взрослое растение с обратным восстановлением в этот побег"
+            )
     spec = getattr(document, "destruction", None)
     if spec and spec.regrow_as:
         sprout = documents["objects", spec.regrow_as]
@@ -279,6 +314,22 @@ class PackStore:
     def validate_references(documents, manifests):
         indicators = set()
         for (category, ref), doc in documents.items():
+            if category == "tiles" and "coin_indicator" in doc.tags:
+                roles = set(doc.tags) & {"coin_small", "coin_large"}
+                if (
+                    len(roles) != 1
+                    or doc.map_category != "service"
+                    or not doc.walkable
+                    or doc.blocks_sight
+                    or any(doc.brush.model_dump().values())
+                ):
+                    raise ContentError(
+                        f"{ref}: индикатор монет требует одну роль, служебный раздел и отсутствие механик клетки"
+                    )
+                key = (ref.split(":")[0], next(iter(roles)))
+                if key in indicators:
+                    raise ContentError(f"{ref}: повторный индикатор монет в пакете")
+                indicators.add(key)
             if category == "tiles" and "lock_indicator" in doc.tags:
                 roles = set(doc.tags) & {"lock_simple", "lock_complex"}
                 if (
@@ -316,13 +367,6 @@ class PackStore:
                     raise ContentError(
                         f"{ref}: пакет ссылки {target} не указан в зависимостях"
                     )
-                if (
-                    destination == "symbols"
-                    and not documents[destination, target].reviewed
-                ):
-                    raise ContentError(
-                        f"{ref}.{path}: сначала согласуйте название, категорию и текстовый знак символа {target}"
-                    )
             if (
                 category == "recipes"
                 and doc.operation
@@ -342,7 +386,7 @@ class PackStore:
                         "Свиток требует рабочую механику заклинания исследования"
                     )
             validate_storage(doc, documents)
-            validate_regrowth(doc, documents)
+            validate_regrowth(doc, documents, ref)
             if category == "classes" and any(
                 documents[("spells", ref)].level != 0 for ref in doc.cantrip_choices
             ):
@@ -388,14 +432,37 @@ class PackStore:
                                             f"Пакет ссылки {target} не указан в зависимостях карты"
                                         )
                                 validate_storage(definition, documents)
-                                validate_regrowth(definition, documents)
+                                validate_regrowth(definition, documents, entry.ref)
                         except (ValueError, KeyError) as error:
                             raise ContentError(
                                 f"{ref}.{layer}.{entry.id}: {error}"
                             ) from error
                 blocked_objects = set()
+                door_ids = {p.id for p in doc.doors}
+                from .placements import activation_targets
+
+                targets = activation_targets(documents, doc)
+                for layer in PLACEMENT_CATEGORIES:
+                    for p in getattr(doc, layer):
+                        if p.activation_code and p.id not in targets:
+                            raise ContentError(
+                                f"{ref}.{p.id}: объект не принимает сигнал активации"
+                            )
                 for entry in doc.objects:
                     obj = resolve_placement(documents, "objects", entry)
+                    allowed_targets = targets.keys() if obj.mechanism else door_ids
+                    if set(obj.mechanism_targets) - allowed_targets:
+                        raise ContentError(
+                            f"{ref}.{entry.id}: механизм ссылается на отсутствующую или неподдерживаемую цель"
+                        )
+                    if obj.illusion and (
+                        not doc.tiles[entry.y][entry.x]
+                        or not doc.walkability[entry.y][entry.x]
+                        or doc.blocks_sight[entry.y][entry.x]
+                    ):
+                        raise ContentError(
+                            f"{ref}.{entry.id}: иллюзорная стена размещается поверх свободного пола"
+                        )
                     if obj.brush.door:
                         raise ContentError(
                             f"{ref}: дверь должна находиться в слое doors"
@@ -404,7 +471,9 @@ class PackStore:
                         blocked_objects.add((entry.x, entry.y))
                 if (doc.spawn.x, doc.spawn.y) in blocked_objects:
                     raise ContentError(f"{ref}: старт героя закрыт объектом")
-                if any((p.x, p.y) in blocked_objects for p in doc.monsters):
+                if any(
+                    (p.x, p.y) in blocked_objects for p in [*doc.monsters, *doc.npcs]
+                ):
                     raise ContentError(
                         f"{ref}: существо размещено внутри непроходимого объекта"
                     )
@@ -429,6 +498,12 @@ class PackStore:
                     if (entry.x, entry.y) in occupied_doors:
                         raise ContentError(f"{ref}: две двери занимают одну клетку")
                     occupied_doors.add((entry.x, entry.y))
+                    if (
+                        spec.state != "open"
+                        and not spec.bent
+                        and any((n.x, n.y) == (entry.x, entry.y) for n in doc.npcs)
+                    ):
+                        raise ContentError(f"{ref}: NPC размещён в закрытой двери")
                 for entry in doc.decorations:
                     art = resolve_placement(documents, "art", entry)
                     if (
@@ -438,6 +513,10 @@ class PackStore:
                         raise ContentError(
                             f"{ref}: рисунок {entry.id} выходит за карту"
                         )
+
+        from .social import validate_social
+
+        validate_social(documents)
 
     def get(self, category, ref):
         if category not in MODELS:

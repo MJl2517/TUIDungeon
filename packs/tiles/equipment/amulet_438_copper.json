@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Медный амулет 438",
+  "description": "Медный амулет с узором.",
+  "symbol": "tiles:cell_0438",
+  "glyph": "*",
+  "foreground": 130,
+  "category": "tools",
+  "group": "Украшения: амулеты",
+  "weight": 0.2,
+  "size": "small",
+  "slot": "neck",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "copper",
+    "jewelry"
+  ],
+  "value_gold": 5,
+  "id": "amulet_438_copper"
+}

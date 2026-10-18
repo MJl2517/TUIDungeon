@@ -332,6 +332,7 @@ export const placements = [
   "points_of_interest",
   "monsters",
   "equipment",
+  "npcs",
   "transitions",
   "lights",
 ];
@@ -358,7 +359,30 @@ export function mapGrid(
   doc: Doc,
   assets: Record<string, Doc>,
   visible: Record<string, boolean> = {},
+  pack = "base",
 ): Cell[][] {
+  const coinCounts = new Map<string, number>();
+  for (const p of doc.equipment ?? [])
+    if (p.ref === "base:gold") {
+      const key = `${p.x},${p.y}`;
+      coinCounts.set(key, (coinCounts.get(key) ?? 0) + 1);
+    }
+  const coinVisuals: Record<string, Doc | undefined> = {};
+  for (const role of ["coin_small", "coin_large"]) {
+    const choices = Object.entries(assets).filter(
+      ([key, d]) =>
+        key.startsWith("tiles/") &&
+        d.map_category === "service" &&
+        d.tags?.includes("coin_indicator") &&
+        d.tags.includes(role),
+    );
+    const custom = choices.filter(([key]) => !key.startsWith("tiles/base:"));
+    coinVisuals[role] = ((pack !== "base"
+      ? choices.find(([key]) => key.startsWith(`tiles/${pack}:`))
+      : undefined) ??
+      (custom.length === 1 ? custom[0] : undefined) ??
+      choices.find(([key]) => key.startsWith("tiles/base:")))?.[1];
+  }
   const grid: Cell[][] = doc.tiles.map((row: (string | null)[], y: number) =>
     row.map((ref, x) => {
       const t = ref ? assets["tiles/" + ref] : null;
@@ -400,7 +424,16 @@ export function mapGrid(
         );
       } else {
         const base = assets[(key === "doors" ? "objects" : key) + "/" + p.ref];
-        const d = base ? instanceDocument(base, p) : null;
+        const d =
+          key === "equipment" && p.ref === "base:gold"
+            ? (coinVisuals[
+                (coinCounts.get(`${p.x},${p.y}`) ?? 0) > 10
+                  ? "coin_large"
+                  : "coin_small"
+              ] ?? (base ? instanceDocument(base, p) : null))
+            : base
+              ? instanceDocument(base, p)
+              : null;
         if (d) grid[p.y][p.x] = visual(d, assets);
       }
     }

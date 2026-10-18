@@ -6,7 +6,8 @@ from .damage import DAMAGE_TYPES, DamageProfile, validate_damage
 from .locks import LockRules, LockQuality, LockComplexity
 from .locks import LOCK_DC as LOCK_DC, LOCK_NAMES as LOCK_NAMES
 
-Material = Literal["wood", "bars", "steel", "stone", "adamantine"]
+Material = Literal["wood", "bars", "steel", "stone", "adamantine", "glass"]
+DoorAccess = Literal["normal", "unique_key", "magic"]
 
 
 @dataclass(frozen=True)
@@ -19,6 +20,7 @@ class DoorMaterial:
 
 MATERIALS = {
     "wood": DoorMaterial("Деревянная дверь", 10, 15, 130),
+    "glass": DoorMaterial("Стеклянная дверь", 5, 5, 159),
     "stone": DoorMaterial("Каменная плита", None, 30, 244),
     "bars": DoorMaterial("Дверь из прутьев", 15, 20, 250),
     "steel": DoorMaterial("Стальная дверь", 20, 40, 117),
@@ -27,6 +29,7 @@ MATERIALS = {
 
 DOOR_DAMAGE_PROFILES = {
     "wood": DamageProfile(),
+    "glass": DamageProfile(),
     "bars": DamageProfile(vulnerabilities={"acid"}, immunities={"fire"}),
     "steel": DamageProfile(
         vulnerabilities={"acid"}, immunities=DAMAGE_TYPES - {"acid"}
@@ -71,6 +74,10 @@ class Door(LockRules):
     bend_difficulty: int = 20
     foreground: int | None = None
     key_tag: str | None = None
+    key_code: str | None = None
+    access: DoorAccess = "normal"
+    travel: bool = False
+    destination: str | None = None
 
     @classmethod
     def from_spec(cls, spec):
@@ -90,6 +97,10 @@ class Door(LockRules):
             bend_difficulty=spec.bend_difficulty,
             foreground=spec.foreground,
             key_tag=spec.key_tag,
+            key_code=spec.key_code,
+            access=spec.access,
+            travel=spec.travel,
+            destination=spec.destination,
         )
 
     @property
@@ -132,7 +143,11 @@ class Door(LockRules):
 
     @property
     def force_dc(self):
-        return MATERIALS[self.material].force_dc if self.force_allowed else None
+        return (
+            MATERIALS[self.material].force_dc
+            if self.force_allowed and self.access == "normal"
+            else None
+        )
 
     @property
     def geometry_key(self):
@@ -143,7 +158,7 @@ class Door(LockRules):
         return self.glyph, self.display_color(), self.burning
 
     def force_open(self):
-        if self.material == "stone" or not self.force_allowed:
+        if self.material == "stone" or self.force_dc is None:
             return False
         self.opened, self.locked = True, False
         return True
@@ -161,7 +176,7 @@ class Door(LockRules):
         )
         kind = "bludgeoning" if kind in ("physical", "pickaxe") else kind
         validate_damage(amount, kind, allow_untyped=False)
-        if self.destroyed:
+        if self.destroyed or self.access != "normal":
             return 0
         if self.material == "stone" and legacy_physical and not pickaxe:
             return 0
@@ -177,7 +192,12 @@ class Door(LockRules):
         return actual
 
     def ignite(self):
-        if self.material != "wood" or self.destroyed or self.burning:
+        if (
+            self.material != "wood"
+            or self.access != "normal"
+            or self.destroyed
+            or self.burning
+        ):
             return False
         self.burning = True
         self.burn_turns = 0
@@ -201,7 +221,7 @@ class Door(LockRules):
         return damage
 
     def daylight(self):
-        if self.material != "adamantine" or self.destroyed:
+        if self.material != "adamantine" or self.access != "normal" or self.destroyed:
             return False
         self.material = "stone"
         self.opened = self.locked = False
@@ -222,6 +242,27 @@ class Door(LockRules):
         return [
             f"{MATERIALS[self.material].name}: {state}.",
             f"HP: {self.hp}/{self.max_hp}.",
+            *(
+                [
+                    "Открывается только уникальным ключом. Не поддаётся взлому и разрушению."
+                ]
+                if self.access == "unique_key"
+                else []
+            ),
+            *(
+                [
+                    "Магическое поле: открыть можно механизмом или заклинанием «Развеивание магии»."
+                ]
+                if self.access == "magic"
+                else []
+            ),
+            *(
+                [
+                    "Внимание: открытие перенесёт вас в другую локацию. Требуется подтверждение."
+                ]
+                if self.travel
+                else []
+            ),
             *(
                 ["Заперта." if self.locked else "Не заперта."]
                 if self.openable and self.material != "stone"

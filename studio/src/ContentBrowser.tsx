@@ -10,21 +10,27 @@ export function ContentBrowser({
   category = "all",
   selected,
   onChoose,
+  state = {},
+  onStateChange,
 }: {
   entries: Entry[];
   assets?: Record<string, Doc>;
   category?: string;
   selected?: string;
   onChoose: (entry: Entry) => void;
+  state?: Doc;
+  onStateChange?: (value: Doc) => void;
 }) {
-  const [query, setQuery] = useState(""),
-    [scope, setScope] = useState(category),
-    [pack, setPack] = useState("all"),
-    [group, setGroup] = useState(""),
-    [rank, setRank] = useState(""),
-    [sort, setSort] = useState("group"),
-    [readiness, setReadiness] = useState("all"),
-    [page, setPage] = useState(0);
+  const [query, setQuery] = useState(state.query ?? ""),
+    [scope, setScope] = useState(state.scope ?? category),
+    [pack, setPack] = useState(state.pack ?? "all"),
+    [group, setGroup] = useState(state.group ?? ""),
+    [rank, setRank] = useState(state.rank ?? ""),
+    [sort, setSort] = useState(state.sort ?? "group"),
+    [page, setPage] = useState(state.page ?? 0);
+  useEffect(() => {
+    onStateChange?.({ query, scope, pack, group, rank, sort, page });
+  }, [query, scope, pack, group, rank, sort, page]);
   const categories = [...new Set(entries.map((e) => e.category))];
   const scoped = entries.filter((e) => scope === "all" || e.category === scope);
   const groups = [...new Set(scoped.map((e) => contentGroup(e, assets)))].sort(
@@ -50,8 +56,6 @@ export function ContentBrowser({
   const results = libraryResults(searchable, query, scope, pack, assets).filter(
     (e) =>
       (!group || contentGroup(e, assets) === group) &&
-      (readiness === "all" ||
-        (readiness === "ready") === !!e.details?.reviewed) &&
       (!rank || (e.category === "spells" && String(e.details?.level) === rank)),
   );
   results.sort((a, b) => {
@@ -87,7 +91,6 @@ export function ContentBrowser({
     setGroup("");
     setRank("");
     setSort("group");
-    setReadiness("all");
     setPage(0);
   };
   let previousGroup = "";
@@ -104,20 +107,6 @@ export function ContentBrowser({
         />
       </div>
       <div className="content-filters">
-        {scope === "symbols" && (
-          <label>
-            Готовность
-            <select
-              aria-label="Готовность символов"
-              value={readiness}
-              onChange={(e) => change(setReadiness, e.target.value)}
-            >
-              <option value="all">Все символы</option>
-              <option value="ready">Согласованные</option>
-              <option value="unreviewed">Неразобранные</option>
-            </select>
-          </label>
-        )}
         {categories.length > 1 && (
           <label>
             Раздел
@@ -247,9 +236,7 @@ export function ContentBrowser({
                   </small>
                   {e.category === "symbols" && (
                     <small>
-                      {e.glyph} ·{" "}
-                      {e.details?.reviewed ? "Согласован" : "Неразобранное"} ·{" "}
-                      {e.usage_count ?? 0} использований
+                      {e.glyph} · {e.usage_count ?? 0} использований
                       <br />
                       {e.source_name}
                     </small>

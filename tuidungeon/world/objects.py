@@ -42,6 +42,8 @@ class RegrowingObject(BaseModel):
 
 
 class ObjectState(BaseModel):
+    mechanism_on: bool | None = None
+    activation_on: bool | None = None
     water_portions: int | None = Field(default=None, ge=0, le=1000)
     model_config = ConfigDict(extra="forbid", strict=True, validate_assignment=True)
     instance_id: str = Field(default_factory=lambda: str(uuid4()))
@@ -52,6 +54,26 @@ class ObjectState(BaseModel):
     fuel_minutes: int = Field(default=0, ge=0, le=100000)
     lit: bool = False
     burning: bool = False
+
+
+def schedule_growth(level, placement, definition, now):
+    """Initial growth uses the same saved timer and replacement as harvested plants."""
+    growth = getattr(definition, "growth", None)
+    if not growth or any(p.sprout_id == placement.id for p in level.regrowing_objects):
+        return
+    level.regrowing_objects.append(
+        RegrowingObject(
+            category="objects",
+            placement=Placement(
+                id="grown_" + uuid4().hex,
+                ref=growth.grown_object,
+                x=placement.x,
+                y=placement.y,
+            ),
+            sprout_id=placement.id,
+            ready_at=now + growth.minutes,
+        )
+    )
 
 
 @dataclass
@@ -76,6 +98,10 @@ class WorldObject:
             text += f" Костёр: {'горит' if self.state.lit else 'потушен'}, топливо {self.state.fuel_minutes} мин."
         if self.state.burning:
             text += " Горит: 5 урона огнём за минуту."
+        if getattr(self.definition, "mechanism", None):
+            text += (
+                " Сигнал включён." if self.state.mechanism_on else " Сигнал выключен."
+            )
         if self.container and self.container.locked:
             text += " Контейнер заперт."
         if self.is_furniture and "wooden" in self.definition.tags:
@@ -134,6 +160,19 @@ class WorldObject:
             else []
         )
         fixture = getattr(self.definition, "light_fixture", None)
+        mechanism = getattr(self.definition, "mechanism", None)
+        if (mechanism and mechanism.trigger == "lever") or (
+            not mechanism and getattr(self.definition, "mechanism_targets", None)
+        ):
+            choices.append(
+                ChallengeChoice(
+                    "activate_mechanism",
+                    ("Выключить рычаг" if self.state.mechanism_on else "Включить рычаг")
+                    if mechanism
+                    else "Привести механизм в действие: открыть связанные двери",
+                    minutes=1,
+                )
+            )
         if self.container and self.container.locked:
             choices.extend(self.container.available_choices(hero))
         elif fixture:
@@ -272,6 +311,8 @@ class FurnitureCargo:
 
 
 def validate_object_state(state, definition, category):
+    if state.mechanism_on is not None and not getattr(definition, "mechanism", None):
+        raise ValueError("Состояние источника сигнала допустимо только у механизма")
     source = getattr(definition, "water_source", None)
     if state.water_portions is not None and (
         not source

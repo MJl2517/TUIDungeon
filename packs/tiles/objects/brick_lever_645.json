@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "Кирпичная стена с рычагом",
+  "description": "Открывает связанные двери. Укажите их ID в свойствах размещения. Стена блокирует движение, обзор и свет.",
+  "glyph": "L",
+  "symbol": "tiles:cell_0645",
+  "foreground": 131,
+  "group": "Механизмы: стены",
+  "map_category": "wall",
+  "tags": [
+    "stone",
+    "mechanism"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "variants": [],
+  "id": "brick_lever_645"
+}

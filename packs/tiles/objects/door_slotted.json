@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "door_slotted",
+  "name": "Металлическая дверь с прорезями",
+  "description": "Прорези пропускают свет и обзор даже при закрытой створке.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0449",
+  "state_symbols": {
+    "open": "tiles:cell_0451"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal"
+  ],
+  "brush": {
+    "door": {
+      "material": "steel",
+      "transmits_light": true
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:metal",
+      "quantity": 2
+    }
+  ]
+}

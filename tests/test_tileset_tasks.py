@@ -17,6 +17,124 @@ TaskStore, TaskConflict = VIEWER["TaskStore"], VIEWER["TaskConflict"]
 revision = VIEWER["task_revision"]
 
 
+class ImplementationStatusTests(unittest.TestCase):
+    def fixture(self, root):
+        def write(relative, value):
+            path = root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(value), encoding="utf-8")
+            return path
+
+        source = dict(location="assets/1 bit/License.txt", coordinates=[4, 1])
+        write("packs/tiles/symbols/tree.json", dict(source=source))
+        write(
+            "packs/tiles/symbols/orphan.json",
+            dict(source=dict(source, coordinates=[5, 1])),
+        )
+        write(
+            "packs/base/symbols/color.json",
+            dict(
+                source=dict(
+                    source,
+                    location="assets/1 bit/Tilesheet/colored-transparent_packed.png",
+                    coordinates=[0, 0],
+                )
+            ),
+        )
+        write(
+            "packs/base/symbols/button.json",
+            dict(
+                source=dict(
+                    source,
+                    location="assets/1_bit_input/License.txt",
+                    coordinates=[1, 1],
+                )
+            ),
+        )
+        owner = dict(
+            id="tree",
+            name="Дерево",
+            symbol="tiles:tree",
+            state_symbols={"open": "base:color"},
+            variants=[dict(symbol="base:button")],
+        )
+        owner_path = write("packs/tiles/objects/tree.json", owner)
+        # An unassigned symbol, a recipe or a map alone is not an implemented tile.
+        write("packs/tiles/recipes/unused.json", dict(symbol="tiles:orphan"))
+        write("packs/tiles/maps/unused.json", dict(symbol="tiles:orphan"))
+        write("tasks.json", [])
+        return owner_path
+
+    def test_assignments_drive_portable_progress_and_removals_without_rewriting_unchanged_files(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            owner = self.fixture(root)
+            progress = root / "progress.json"
+            progress.write_text(json.dumps(dict(mono=[1], color=[], input=[])))
+            status = VIEWER["sync_progress"](progress, root)
+            expected = dict(mono=[54], color=[1], input=[36])
+            self.assertEqual(status["progress"], expected)
+            self.assertEqual(status["usage"]["mono"]["54"][0]["ref"], "tiles:tree")
+            self.assertEqual(json.loads(progress.read_text()), expected)
+            modified = progress.stat().st_mtime_ns
+            VIEWER["sync_progress"](progress, root)
+            self.assertEqual(progress.stat().st_mtime_ns, modified)
+            owner.unlink()
+            self.assertEqual(
+                VIEWER["sync_progress"](progress, root)["progress"],
+                dict(mono=[], color=[], input=[]),
+            )
+
+    def test_http_refreshes_actual_assignments_rejects_manual_marks_and_preserves_snapshot_on_errors(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            owner = self.fixture(root)
+            progress = root / "progress.json"
+            server = VIEWER["create_server"](progress, root=root)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            url = f"http://127.0.0.1:{server.server_port}"
+            try:
+                with urllib.request.urlopen(
+                    url + "/tile-status.json", timeout=5
+                ) as response:
+                    self.assertEqual(json.load(response)["progress"]["mono"], [54])
+                snapshot = progress.read_text()
+                req = urllib.request.Request(
+                    url + "/progress.json",
+                    data=b"{}",
+                    headers={"Origin": url, "Content-Type": "application/json"},
+                )
+                with self.assertRaises(urllib.error.HTTPError) as error:
+                    urllib.request.urlopen(req, timeout=5)
+                self.assertEqual(error.exception.code, 405)
+                error.exception.close()
+                symbol = root / "packs/tiles/symbols/tree.json"
+                symbol.write_text(
+                    '{"source":{"location":"assets/1 bit/License.txt","coordinates":[-1,0]}}'
+                )
+                with self.assertRaises(urllib.error.HTTPError) as error:
+                    urllib.request.urlopen(url + "/tile-status.json", timeout=5)
+                self.assertEqual(error.exception.code, 500)
+                error.exception.close()
+                self.assertEqual(progress.read_text(), snapshot)
+                owner.unlink()
+                with urllib.request.urlopen(
+                    url + "/progress.json", timeout=5
+                ) as response:
+                    self.assertEqual(
+                        json.load(response), dict(mono=[], color=[], input=[])
+                    )
+            finally:
+                server.shutdown()
+                server.server_close()
+                thread.join(timeout=5)
+
+
 class TaskQueueTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

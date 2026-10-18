@@ -60,6 +60,8 @@ class SandboxRequest(RequestModel):
 
 
 LABELS = {
+    "npcs": "NPC",
+    "quests": "Квесты",
     "symbols": "Символы",
     "recipes": "Рецепты",
     "art": "Графика",
@@ -79,6 +81,8 @@ LABELS = {
 }
 ASSET_CATEGORIES = frozenset(
     {
+        "npcs",
+        "quests",
         "symbols",
         "spells",
         "classes",
@@ -108,6 +112,31 @@ def template(store, category):
                 (ref for c, ref in store.documents if c == "challenges"),
                 next(iter(store.manifests)) + ":new_challenge",
             )
+        elif category == "quests":
+            pack = next(iter(store.manifests))
+            raw["stages"] = [
+                {
+                    "id": "stage",
+                    "description": "Принести предмет",
+                    "objectives": [
+                        {
+                            "id": "goal",
+                            "kind": "bring",
+                            "item": next(
+                                (ref for c, ref in store.documents if c == "equipment"),
+                                pack + ":new_item",
+                            ),
+                        }
+                    ],
+                    "report_to": {
+                        "map_ref": next(
+                            (ref for c, ref in store.documents if c == "maps"),
+                            pack + ":new_map",
+                        ),
+                        "npc_id": "npc",
+                    },
+                }
+            ]
         elif category == "maps":
             raw.update(
                 width=20,
@@ -179,6 +208,7 @@ def template(store, category):
             traps=[],
             points_of_interest=[],
             monsters=[],
+            npcs=[],
             equipment=[],
             transitions=[],
         )
@@ -320,6 +350,13 @@ def create_app(root=None, dist=None):
     def get_document(category, ref):
         store.reload()
         return store.envelope(category, ref)
+
+    @app.get("/api/documents/{category}/{ref}/version")
+    def document_version(category, ref):
+        # A deleted referenced file can make reload fail; keep conflict detection usable.
+        with store.lock:
+            path = store.paths.get((category, ref))
+            return {"version": store.version(path) if path else None}
 
     @app.put("/api/documents/{category}/{ref}")
     def save_document(category, ref, request: SaveRequest):

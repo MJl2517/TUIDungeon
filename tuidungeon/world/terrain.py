@@ -13,7 +13,7 @@ class Terrain:
     no_occluders: bool
 
     @classmethod
-    def compile(cls, store, definition):
+    def compile(cls, store, definition, object_states=None):
         from .doors import door_placements, door_category
 
         tiles = [list(row) for row in definition.tiles]
@@ -51,12 +51,17 @@ class Terrain:
         # Object geometry is compiled once; authored masks remain independent.
         for p in definition.objects:
             obj = store.resolve("objects", p)
+            state = (object_states or {}).get(p.id)
+            if obj.illusion and state and state.activation_on:
+                continue
             walkability[p.y][p.x] = walkability[p.y][p.x] and obj.walkable
             sight[p.y][p.x] = sight[p.y][p.x] or obj.blocks_sight
         blocks = tuple(bytes(row) for row in sight)
         return cls(
             tuple(tuple(row) for row in tiles),
-            tuple(tuple(row) for row in map_cells(store, definition, tiles)),
+            tuple(
+                tuple(row) for row in map_cells(store, definition, tiles, object_states)
+            ),
             tuple(bytes(row) for row in walkability),
             blocks,
             not any(any(row) for row in blocks),

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "name": "Съедобные ягоды",
+  "description": "Урожай для приготовления рационов.",
+  "glyph": "%",
+  "symbol": "base:glyph_0025",
+  "foreground": 197,
+  "category": "materials",
+  "group": "Урожай",
+  "tags": [
+    "organic",
+    "food"
+  ],
+  "weight": 0.2,
+  "size": "small",
+  "id": "berries"
+}

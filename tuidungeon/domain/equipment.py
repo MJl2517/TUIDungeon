@@ -58,12 +58,21 @@ class Equipment:
     liquid_effects: tuple = ()
     poison_damage: int = 0
     appraised: bool = False
+    key_level: str | None = None
+    key_level_name: str | None = None
 
     @classmethod
     def create(
-        cls, definition: EquipmentDefinition, *, equipped: bool = False
+        cls,
+        definition: EquipmentDefinition,
+        *,
+        equipped: bool = False,
+        level_ref=None,
+        level_name=None,
     ) -> "Equipment":
         item = cls(definition, definition.durability, definition.charges, equipped)
+        if definition.key_kind in ("door", "container"):
+            item.key_level, item.key_level_name = level_ref, level_name
         if definition.light and definition.light.fuel_tag is None:
             item.fuel_minutes = definition.light.burn_minutes
         if definition.vessel:
@@ -76,6 +85,10 @@ class Equipment:
                     if e.kind not in {"armor_class", "armor_bonus"}
                 )
         return item
+
+    def bind_key(self, level_ref, level_name):
+        if self.definition.key_kind in ("door", "container") and self.key_level is None:
+            self.key_level, self.key_level_name = level_ref, level_name
 
     @property
     def hands(self) -> int:

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "pit_841",
+  "name": "Яма-ловушка",
+  "description": "При входе: Ловкость, СЛ 12. Провал — 1d4 + 1 дробящего урона. Срабатывает один раз; отдельного расчёта высоты нет.",
+  "glyph": "O",
+  "foreground": 8,
+  "background": null,
+  "art": null,
+  "hidden": false,
+  "ability": "dexterity",
+  "difficulty": 12,
+  "success": [],
+  "failure": [
+    {
+      "kind": "damage",
+      "dice": "1d4",
+      "amount": 1,
+      "damage_type": "bludgeoning"
+    }
+  ],
+  "repeatable": false,
+  "trigger": "enter",
+  "group": "Ловушки: ямы",
+  "tags": [
+    "pit",
+    "height",
+    "trap"
+  ],
+  "symbol": "tiles:cell_0841"
+}

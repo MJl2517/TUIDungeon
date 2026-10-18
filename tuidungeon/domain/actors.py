@@ -409,6 +409,8 @@ class Character(ABC):
         )
         if item.charges is not None:
             item.charges -= 1
+            if item.charges == 0 and "food" in item.definition.tags:
+                self.inventory.remove(item)
         return ActionOutcome(True, True, f"Использовано: {item.name}.", effects=result)
 
     def perform(

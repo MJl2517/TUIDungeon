@@ -17,28 +17,69 @@ import {
 } from "./model";
 import { api } from "./api";
 type Props = {
+  viewState?: Doc;
+  onViewState?: (state: Doc) => void;
   doc: Doc;
   onChange: (d: Doc) => void;
   notify: (s: string) => void;
   packId?: string;
 };
-export function ArtEditor({ doc, onChange, notify, packId = "base" }: Props) {
+export function ArtEditor({
+  doc,
+  onChange,
+  notify,
+  packId = "base",
+  viewState = {},
+  onViewState,
+}: Props) {
   const context = useContext(SymbolContext);
-  const [symbol, setSymbol] = useState(glyphRef("█"));
-  const [layerIndex, setLayerIndex] = useState(0),
-    [tool, setTool] = useState("brush"),
-    [glyph, setGlyph] = useState("█"),
-    [fg, setFg] = useState(7),
-    [bg, setBg] = useState<number | null>(null),
-    [zoom, setZoom] = useState(1.5),
-    [grid, setGrid] = useState(true),
-    [text, setText] = useState("DUNGEON"),
-    [selection, setSelection] = useState<Point[]>([]),
-    [hover, setHover] = useState<Point>({ x: 0, y: 0 });
+  const [symbol, setSymbol] = useState<string>(
+    viewState.symbol ?? glyphRef("█"),
+  );
+  const [layerIndex, setLayerIndex] = useState(viewState.layerIndex ?? 0),
+    [tool, setTool] = useState<string>(viewState.tool ?? "brush"),
+    [glyph, setGlyph] = useState<string>(viewState.glyph ?? "█"),
+    [fg, setFg] = useState(viewState.fg ?? 7),
+    [bg, setBg] = useState<number | null>(viewState.bg ?? null),
+    [zoom, setZoom] = useState(viewState.zoom ?? 1.5),
+    [grid, setGrid] = useState(viewState.grid ?? true),
+    [text, setText] = useState<string>(viewState.text ?? "DUNGEON"),
+    [selection, setSelection] = useState<Point[]>(viewState.selection ?? []),
+    [hover, setHover] = useState<Point>(viewState.hover ?? { x: 0, y: 0 });
   const [width, setWidth] = useState(doc.width),
     [height, setHeight] = useState(doc.height),
-    [clipboard, setClipboard] = useState<Cell[][] | null>(null),
+    [clipboard, setClipboard] = useState<Cell[][] | null>(
+      viewState.clipboard ?? null,
+    ),
     [preview, setPreview] = useState<Doc | null>(null);
+  useEffect(() => {
+    onViewState?.({
+      symbol,
+      layerIndex,
+      tool,
+      glyph,
+      fg,
+      bg,
+      zoom,
+      grid,
+      text,
+      selection,
+      hover,
+      clipboard,
+    });
+  }, [
+    symbol,
+    layerIndex,
+    tool,
+    glyph,
+    fg,
+    bg,
+    zoom,
+    grid,
+    text,
+    selection,
+    clipboard,
+  ]);
   const [issues, setIssues] = useState<Doc[]>([]);
   useEffect(() => {
     setWidth(doc.width);

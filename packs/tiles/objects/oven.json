@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "oven",
+  "name": "Печь",
+  "description": "Нагретая рабочая станция для приготовления пищи и обжига.",
+  "glyph": "O",
+  "foreground": 3,
+  "map_category": "furniture",
+  "group": "Станции",
+  "walkable": false,
+  "blocks_sight": false,
+  "tags": [
+    "oven",
+    "heat",
+    "ceramic"
+  ],
+  "destruction": {
+    "max_hp": 30
+  },
+  "symbol": "tiles:cell_0401"
+}

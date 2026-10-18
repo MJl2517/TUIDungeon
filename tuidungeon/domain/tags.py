@@ -629,6 +629,9 @@ def interaction_tags(value, *, category=None, include_contents=True):
         ("water_source", "water_source"),
         ("light", "light_source"),
         ("map_light", "light_source"),
+        ("mechanism_targets", "mechanism"),
+        ("mechanism", "mechanism"),
+        ("illusion", "illusion"),
     ]:
         if _get(value, field):
             tags.add(tag)
@@ -661,8 +664,12 @@ def interaction_tags(value, *, category=None, include_contents=True):
                 "steel": {"metal", "iron"},
                 "bars": {"metal", "iron"},
                 "adamantine": {"metal", "adamantine"},
+                "glass": {"glass"},
             }.get(material, ())
         )
+        if _get(door, "access", "normal") != "normal":
+            tags.difference_update({"destructible", "dismantlable", "flammable"})
+            tags.add("magic")
         if door is value:
             tags.add("state_open" if _get(value, "passable", False) else "state_closed")
             if _get(value, "locked") and not _get(value, "destroyed"):

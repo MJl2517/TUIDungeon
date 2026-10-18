@@ -1,0 +1,24 @@
+{
+  "id": "pressure_plate",
+  "name": "Нажимная плита",
+  "description": "Держит сигнал, пока герой стоит на плите.",
+  "glyph": "^",
+  "symbol": "tiles:cell_0493",
+  "state_symbols": {
+    "off": "tiles:cell_0493",
+    "on": "tiles:cell_0492"
+  },
+  "foreground": 180,
+  "map_category": "special",
+  "group": "Механизмы",
+  "tags": [
+    "mechanism",
+    "stone"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "attackable": false,
+  "mechanism": {
+    "trigger": "pressure_plate"
+  }
+}

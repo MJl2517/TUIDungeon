@@ -1,0 +1,42 @@
+{
+  "id": "quest_giver",
+  "name": "Смотритель полигона",
+  "glyph": "N",
+  "foreground": 11,
+  "greeting": "Поможете проверить ремёсла?",
+  "quests": [
+    {
+      "quest": "dev:npc_trial",
+      "offer": "Взять испытание",
+      "accept_answer": "Поговорите с моим соседом и прочтите записку.",
+      "discuss": "Как проходит испытание?",
+      "discuss_answer": "Цели текущего этапа указаны в журнале.",
+      "report": "Сдать испытание",
+      "report_answer": "Спасибо. Награда ваша."
+    }
+  ],
+  "topics": [
+    {
+      "id": "active",
+      "question": "Почему вам нужны материалы?",
+      "answer": "Для ремонта полигона.",
+      "conditions": [
+        {
+          "quest": "dev:npc_trial",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "question": "Испытание завершено?",
+      "answer": "Да, всё проверено.",
+      "conditions": [
+        {
+          "quest": "dev:npc_trial",
+          "status": "completed"
+        }
+      ]
+    }
+  ]
+}

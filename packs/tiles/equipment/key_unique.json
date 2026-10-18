@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "key_unique",
+  "name": "Уникальный фиолетовый ключ",
+  "description": "Открывает только замок с назначенным этому ключу кодом. Работает в любой локации и не расходуется.",
+  "glyph": "k",
+  "foreground": 135,
+  "symbol": "tiles:cell_0574",
+  "category": "tools",
+  "group": "Ключи",
+  "weight": 0.05,
+  "size": "small",
+  "tags": [
+    "key",
+    "metal"
+  ],
+  "key_kind": "unique",
+  "key_code": null
+}

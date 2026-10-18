@@ -109,10 +109,6 @@ export function SymbolPicker({
     setBusy(true);
     setError("");
     try {
-      if (!editing.reviewed)
-        throw Error(
-          "Укажите название, категорию и текстовый знак, затем подтвердите готовность символа.",
-        );
       const ref = pack + ":" + editing.id;
       await api(
         "/documents/symbols/" + ref,
@@ -202,8 +198,8 @@ export function SymbolPicker({
       ) : (
         <>
           <p className="hint">
-            Один символ — рисунок 16×16 и знак для терминала. Неразобранные
-            изображения нужно согласовать перед назначением.
+            Один символ — рисунок 16×16 и знак для терминала. Выберите
+            изображение или нарисуйте новое.
           </p>
           <div className="toolbar">
             <button
@@ -257,13 +253,9 @@ export function SymbolPicker({
             selected={value}
             onChoose={(e) => {
               const d = context.assets["symbols/" + e.ref];
-              if (d?.reviewed) {
+              if (d) {
                 onChoose(e.ref);
                 onClose();
-              } else if (d) {
-                setOriginal(e);
-                setPack(e.ref.split(":")[0]);
-                edit(d);
               }
             }}
           />
@@ -332,7 +324,11 @@ export function SymbolEditor({
   onRedo,
   notify,
   usages = [],
+  viewState = {},
+  onViewState,
 }: {
+  viewState?: Doc;
+  onViewState?: (state: Doc) => void;
   usages?: Doc[];
   doc: Doc;
   onChange: (d: Doc) => void;
@@ -341,16 +337,19 @@ export function SymbolEditor({
   notify: (s: string) => void;
 }) {
   const { packs, refresh, open } = useContext(SymbolContext);
-  const [tool, setTool] = useState("brush"),
-    [zoom, setZoom] = useState(20),
-    [grid, setGrid] = useState(true),
-    [selection, setSelection] = useState<Point[]>([]),
+  const [tool, setTool] = useState(viewState.tool ?? "brush"),
+    [zoom, setZoom] = useState(viewState.zoom ?? 20),
+    [grid, setGrid] = useState(viewState.grid ?? true),
+    [selection, setSelection] = useState<Point[]>(viewState.selection ?? []),
     [clipboard, setClipboard] = useState<{
       rows: string[];
       w: number;
       h: number;
-    } | null>(null),
+    } | null>(viewState.clipboard ?? null),
     [preview, setPreview] = useState<string[] | null>(null);
+  useEffect(() => {
+    onViewState?.({ tool, zoom, grid, selection, clipboard });
+  }, [tool, zoom, grid, selection, clipboard]);
   const canvas = useRef<HTMLCanvasElement>(null),
     stroke = useRef<{
       start: Point;
@@ -572,7 +571,7 @@ export function SymbolEditor({
               pixels: importedMask(n),
               source: {
                 name: "Импорт PNG",
-                license: "Указать при согласовании",
+                license: "Указать лицензию",
               },
             },
           },
@@ -581,9 +580,7 @@ export function SymbolEditor({
       }
       await refresh();
       setImage(null);
-      notify(
-        "Изображения добавлены в «Неразобранное»; согласуйте названия и текстовые знаки.",
-      );
+      notify("Изображения добавлены в библиотеку и доступны для назначения.");
     } catch (e) {
       notify(String(e));
     } finally {
@@ -633,14 +630,6 @@ export function SymbolEditor({
               })
             }
           />
-        </label>
-        <label className="toggle">
-          <input
-            type="checkbox"
-            checked={doc.reviewed}
-            onChange={(e) => onChange({ ...doc, reviewed: e.target.checked })}
-          />
-          Название и текстовый знак согласованы
         </label>
       </div>
       <div className="toolbar">
@@ -915,329 +904,5 @@ export function SymbolEditor({
         </section>
       )}
     </div>
-  );
-}
-
-export function SymbolAssignments({ notify }: { notify: (s: string) => void }) {
-  const context = useContext(SymbolContext),
-    [query, setQuery] = useState(""),
-    [category, setCategory] = useState("all"),
-    [pack, setPack] = useState("all"),
-    [status, setStatus] = useState("all"),
-    [selected, setSelected] = useState<string[]>([]),
-    [choosing, setChoosing] = useState(false),
-    [pending, setPending] = useState<string | null>(null),
-    [busy, setBusy] = useState(false),
-    [errors, setErrors] = useState<string[]>([]),
-    [page, setPage] = useState(0);
-  const rows: {
-    key: string;
-    entry: Entry;
-    doc: Doc;
-    path: string;
-    label: string;
-    symbol?: string;
-    state?: string;
-  }[] = [];
-  context.entries.forEach((entry) => {
-    const doc = context.assets[entry.category + "/" + entry.ref];
-    if (
-      !doc ||
-      entry.category === "symbols" ||
-      entry.category === "art" ||
-      !("glyph" in doc)
-    )
-      return;
-    rows.push({
-      key: entry.category + "/" + entry.ref,
-      entry,
-      doc,
-      path: "symbol",
-      label: entry.name,
-      symbol: doc.symbol,
-    });
-    (doc.variants ?? []).forEach((v: Doc, n: number) =>
-      rows.push({
-        key: entry.category + "/" + entry.ref + "/variants/" + n,
-        entry,
-        doc: v,
-        path: "variants." + n + ".symbol",
-        label: entry.name + " · " + v.name,
-        symbol: v.symbol,
-      }),
-    );
-    const door = doc.brush?.door;
-    if (door) {
-      const states =
-        door.material === "stone"
-          ? ["closed"]
-          : [
-              "closed",
-              "locked",
-              "open",
-              ...(door.material === "bars" ? ["bent"] : []),
-            ];
-      states.forEach((state) =>
-        rows.push({
-          key: entry.category + "/" + entry.ref + "/" + state,
-          entry,
-          doc,
-          path: "state_symbols." + state,
-          label:
-            entry.name +
-            " · " +
-            (
-              {
-                closed: "Закрыта",
-                locked: "Заперта",
-                open: "Открыта",
-                bent: "Прутья погнуты",
-              } as Doc
-            )[state],
-          symbol: doc.state_symbols?.[state],
-          state,
-        }),
-      );
-    }
-  });
-  const stateOf = (r: (typeof rows)[number]) =>
-    !r.symbol
-      ? "missing"
-      : context.assets["symbols/" + r.symbol]?.reviewed
-        ? "ready"
-        : "unreviewed";
-  const filtered = rows.filter(
-    (r) =>
-      (category === "all" || r.entry.category === category) &&
-      (pack === "all" || r.entry.ref.startsWith(pack + ":")) &&
-      (status === "all" || stateOf(r) === status) &&
-      [r.label, r.entry.ref, r.symbol, r.doc.glyph]
-        .join(" ")
-        .toLowerCase()
-        .includes(query.trim().toLowerCase()),
-  );
-  const chosen = rows.filter((r) => selected.includes(r.key)),
-    current = Math.min(page, Math.max(0, Math.ceil(filtered.length / 40) - 1));
-  async function save() {
-    if (!pending || busy) return;
-    setBusy(true);
-    const failed: string[] = [],
-      done: string[] = [];
-    const grouped = new Map<string, typeof rows>();
-    chosen.forEach((r) => {
-      const k = r.entry.category + "/" + r.entry.ref;
-      grouped.set(k, [...(grouped.get(k) ?? []), r]);
-    });
-    for (const [key, items] of grouped) {
-      const entry = items[0].entry;
-      try {
-        const doc = structuredClone(context.assets[key]);
-        for (const r of items) {
-          const bits = r.path.split(".");
-          let target = doc;
-          for (const bit of bits.slice(0, -1)) {
-            target[bit] ??= {};
-            target = target[bit];
-          }
-          target[bits.at(-1)!] = pending;
-        }
-        await api(
-          "/documents/" + key,
-          { document: doc, version: entry.version },
-          "PUT",
-        );
-        done.push(...items.map((r) => r.key));
-      } catch (e) {
-        failed.push(entry.ref + ": " + String(e));
-      }
-    }
-    try {
-      await context.refresh();
-    } catch (e) {
-      failed.push("Обновление библиотеки: " + String(e));
-    }
-    setSelected((s) => s.filter((k) => !done.includes(k)));
-    setErrors(failed);
-    setPending(null);
-    setBusy(false);
-    notify(`Назначено: ${done.length}; конфликтов/ошибок: ${failed.length}`);
-  }
-  return (
-    <section className="symbol-assignments">
-      <h1>Согласование графики</h1>
-      <p className="hint">
-        Выберите изображения для определений, вариантов и состояний дверей.
-        Изменение общего символа влияет на все его использования.
-      </p>
-      <div className="content-filters">
-        <input
-          type="search"
-          aria-label="Поиск назначений"
-          placeholder="Название, ID, символ…"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setPage(0);
-          }}
-        />
-        <select
-          aria-label="Раздел назначений"
-          value={category}
-          onChange={(e) => {
-            setCategory(e.target.value);
-            setPage(0);
-          }}
-        >
-          <option value="all">Все разделы</option>
-          {[...new Set(rows.map((r) => r.entry.category))].map((c) => (
-            <option key={c}>{c}</option>
-          ))}
-        </select>
-        <select
-          aria-label="Пакет назначений"
-          value={pack}
-          onChange={(e) => {
-            setPack(e.target.value);
-            setPage(0);
-          }}
-        >
-          <option value="all">Все пакеты</option>
-          {context.packs.map((p) => (
-            <option key={p}>{p}</option>
-          ))}
-        </select>
-        <select
-          aria-label="Статус назначения"
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
-            setPage(0);
-          }}
-        >
-          <option value="all">Все назначения</option>
-          <option value="missing">Отсутствующие</option>
-          <option value="unreviewed">Непроверенные</option>
-          <option value="ready">Согласованные</option>
-        </select>
-      </div>
-      <div className="toolbar">
-        <button onClick={() => setSelected(filtered.map((r) => r.key))}>
-          Выбрать найденные
-        </button>
-        <button onClick={() => setSelected([])}>Снять выбор</button>
-        <button
-          disabled={!chosen.length || busy}
-          onClick={() => setChoosing(true)}
-        >
-          Назначить выбранным ({chosen.length})
-        </button>
-        <span>{filtered.length} записей</span>
-      </div>
-      {errors.map((e) => (
-        <p className="error" role="alert" key={e}>
-          {e}
-        </p>
-      ))}
-      {pending && (
-        <div className="assignment-confirm">
-          <h3>Предпросмотр назначения</h3>
-          <SymbolPreview symbol={pending} />
-          <p>
-            {chosen.length} записей → {pending}
-          </p>
-          <div className="assignment-preview-list">
-            {chosen.map((r) => (
-              <div key={r.key}>
-                <SymbolPreview symbol={r.symbol} />
-                <span>{r.label} → </span>
-                <SymbolPreview symbol={pending} />
-              </div>
-            ))}
-          </div>
-          <button
-            className="primary"
-            disabled={busy}
-            onClick={() => void save()}
-          >
-            Сохранить назначения
-          </button>
-          <button disabled={busy} onClick={() => setPending(null)}>
-            Отмена
-          </button>
-        </div>
-      )}
-      <div className="assignment-list">
-        {filtered.slice(current * 40, (current + 1) * 40).map((r) => (
-          <div key={r.key} className="assignment-row">
-            <input
-              type="checkbox"
-              aria-label={"Выбрать " + r.label}
-              checked={selected.includes(r.key)}
-              onChange={(e) =>
-                setSelected((s) =>
-                  e.target.checked
-                    ? [...s, r.key]
-                    : s.filter((k) => k !== r.key),
-                )
-              }
-            />
-            <button
-              aria-label={"Назначить " + r.label}
-              onClick={() => {
-                setSelected([r.key]);
-                setChoosing(true);
-              }}
-            >
-              <SymbolPreview
-                symbol={
-                  r.symbol ?? visual(r.doc, context.assets, r.state).symbol
-                }
-              />
-            </button>
-            <span>
-              <strong>{r.label}</strong>
-              <small>
-                {r.entry.ref} · {r.path}
-              </small>
-            </span>
-            <code>{visual(r.doc, context.assets, r.state).char}</code>
-            <span>
-              {
-                (
-                  {
-                    missing: "Нет назначения",
-                    ready: "Согласовано",
-                    unreviewed: "Не проверено",
-                  } as Doc
-                )[stateOf(r)]
-              }
-            </span>
-            <button onClick={() => context.open(r.entry.category, r.entry.ref)}>
-              Открыть
-            </button>
-          </div>
-        ))}
-      </div>
-      <nav className="content-pagination">
-        <button disabled={!current} onClick={() => setPage(current - 1)}>
-          ← Назад
-        </button>
-        <span>
-          {current + 1} / {Math.max(1, Math.ceil(filtered.length / 40))}
-        </span>
-        <button
-          disabled={(current + 1) * 40 >= filtered.length}
-          onClick={() => setPage(current + 1)}
-        >
-          Далее →
-        </button>
-      </nav>
-      {choosing && (
-        <SymbolPicker
-          onChoose={(ref) => setPending(ref)}
-          onClose={() => setChoosing(false)}
-        />
-      )}
-    </section>
   );
 }

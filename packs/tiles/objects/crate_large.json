@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "crate_large",
+  "name": "Большой ящик",
+  "glyph": "C",
+  "foreground": 15,
+  "description": "Закрытый ящик открывается монтировкой. Можно разобрать; содержимое останется на земле.",
+  "map_category": "furniture",
+  "group": "Мебель: ящики",
+  "tags": [
+    "furniture",
+    "wooden",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "movable": true,
+  "size": "large",
+  "weight": 10,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 2
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 1
+      }
+    ]
+  },
+  "storage": {
+    "personal": true,
+    "capacity": 100,
+    "max_item_size": "large",
+    "open_tool": "lever"
+  },
+  "symbol": "tiles:cell_0701",
+  "state_symbols": {
+    "closed": "tiles:cell_0701",
+    "open": "tiles:cell_0750"
+  },
+  "loot_tier": "white",
+  "variants": []
+}

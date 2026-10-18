@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "name": "Безопасный магический огонь",
+  "description": "Магическое пламя светит, не обжигает и не поджигает. Не является источником тепла для крафта. Цвет можно выбрать в палитре или у экземпляра.",
+  "glyph": "*",
+  "symbol": "tiles:cell_0506",
+  "foreground": 135,
+  "map_category": "special",
+  "group": "Свет и огонь",
+  "tags": [
+    "magic",
+    "light_source"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "light": {
+      "radius": 5,
+      "bright_radius": 2
+    }
+  },
+  "variants": [
+    {
+      "name": "Фиолетовое пламя",
+      "glyph": "*",
+      "symbol": "tiles:cell_0506",
+      "foreground": 135
+    },
+    {
+      "name": "Синее пламя",
+      "glyph": "*",
+      "symbol": "tiles:cell_0506",
+      "foreground": 39
+    },
+    {
+      "name": "Зелёное пламя",
+      "glyph": "*",
+      "symbol": "tiles:cell_0506",
+      "foreground": 46
+    },
+    {
+      "name": "Красное пламя",
+      "glyph": "*",
+      "symbol": "tiles:cell_0506",
+      "foreground": 196
+    },
+    {
+      "name": "Золотое пламя",
+      "glyph": "*",
+      "symbol": "tiles:cell_0506",
+      "foreground": 220
+    }
+  ],
+  "id": "magic_fire"
+}

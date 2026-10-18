@@ -1,0 +1,749 @@
+{
+  "schema_version": 1,
+  "id": "keys_annex",
+  "name": "Ключи: второй уровень",
+  "width": 16,
+  "height": 11,
+  "tiles": [
+    [
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:floor",
+      "base:wall"
+    ],
+    [
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall",
+      "base:wall"
+    ]
+  ],
+  "walkability": [
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  ],
+  "blocks_sight": [
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  ],
+  "ambient_light": "bright",
+  "spawn": {
+    "x": 2,
+    "y": 3
+  },
+  "doors": [
+    {
+      "id": "ordinary_door",
+      "ref": "base:door_wood",
+      "x": 6,
+      "y": 3,
+      "overrides": {
+        "brush": {
+          "door": {
+            "locked": true
+          }
+        }
+      }
+    },
+    {
+      "id": "unique_door",
+      "ref": "base:door_wood",
+      "x": 6,
+      "y": 6,
+      "overrides": {
+        "brush": {
+          "door": {
+            "locked": true,
+            "key_code": "KEYS2026"
+          }
+        }
+      }
+    }
+  ],
+  "objects": [
+    {
+      "id": "ordinary_chest",
+      "ref": "base:cabinet",
+      "x": 9,
+      "y": 3,
+      "overrides": {
+        "name": "Обычный шкаф",
+        "storage": {
+          "lock": {
+            "locked": true
+          },
+          "contents": [
+            {
+              "item": "base:gold",
+              "quantity": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "unique_chest",
+      "ref": "base:cabinet",
+      "x": 9,
+      "y": 6,
+      "overrides": {
+        "name": "Уникальный шкаф",
+        "storage": {
+          "lock": {
+            "locked": true,
+            "key_code": "KEYS2026"
+          },
+          "contents": [
+            {
+              "item": "base:gold",
+              "quantity": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "key_stash",
+      "ref": "base:cabinet",
+      "x": 3,
+      "y": 6,
+      "overrides": {
+        "name": "Набор ключей",
+        "storage": {
+          "personal": true,
+          "lock": null,
+          "contents": [
+            {
+              "item": "tiles:key_unique",
+              "quantity": 1,
+              "key_code": "KEYS2026"
+            },
+            {
+              "item": "tiles:key_container",
+              "quantity": 1
+            },
+            {
+              "item": "tiles:key_door",
+              "quantity": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "exit_portal",
+      "ref": "base:portal_small",
+      "x": 13,
+      "y": 8
+    }
+  ],
+  "equipment": [
+    {
+      "id": "key_container",
+      "ref": "tiles:key_container",
+      "x": 2,
+      "y": 3
+    },
+    {
+      "id": "key_door",
+      "ref": "tiles:key_door",
+      "x": 3,
+      "y": 3
+    },
+    {
+      "id": "key_unique",
+      "ref": "tiles:key_unique",
+      "x": 4,
+      "y": 3,
+      "overrides": {
+        "key_code": "KEYS2026"
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "x": 13,
+      "y": 8,
+      "target": "tiles:keys_lab",
+      "id": "exit"
+    }
+  ]
+}

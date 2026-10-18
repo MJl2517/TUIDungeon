@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "name": "Решётка в стенном лазе",
+  "description": "Снимите решётку инструментами жестянщика за 3 хода, чтобы освободить лаз. Пропускает свет и обзор.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0846",
+  "foreground": 131,
+  "group": "Проходы в стенах",
+  "map_category": "destructible",
+  "tags": [
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": null,
+      "tools": [
+        "tinker_tools"
+      ],
+      "loot": [
+        {
+          "item": "base:metal",
+          "quantity": 2
+        }
+      ]
+    }
+  },
+  "id": "wall_grate"
+}

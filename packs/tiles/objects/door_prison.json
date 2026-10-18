@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "door_prison",
+  "name": "Особо прочная тюремная дверь",
+  "description": "Сплошная тюремная дверь: 100 прочности, дорогой сложный замок. Не выламывается ломиком; металл уязвим к кислоте.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0551",
+  "state_symbols": {
+    "open": "tiles:cell_0552"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal"
+  ],
+  "brush": {
+    "door": {
+      "material": "steel",
+      "hit_points": 100,
+      "locked": true,
+      "lock_quality": "expensive",
+      "lock_complexity": "complex",
+      "force_allowed": false
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:metal",
+      "quantity": 2
+    }
+  ]
+}

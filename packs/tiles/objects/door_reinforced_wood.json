@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "door_reinforced_wood",
+  "name": "Укреплённая деревянная дверь",
+  "description": "Утолщённая створка: 30 прочности вместо 15. Древесина всё ещё горит.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0450",
+  "state_symbols": {
+    "open": "tiles:cell_0451"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "wooden",
+    "flammable"
+  ],
+  "brush": {
+    "door": {
+      "material": "wood",
+      "hit_points": 30
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:wood",
+      "quantity": 2
+    }
+  ]
+}

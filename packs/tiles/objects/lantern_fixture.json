@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "lantern_fixture",
+  "name": "Масляный фонарь",
+  "description": "Источник света можно снять; состояние и остаток топлива сохраняются.",
+  "glyph": "○",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "group": "Свет и огонь",
+  "tags": [
+    "lighting_decor",
+    "storage",
+    "transparent",
+    "walkable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": {
+      "radius": 6,
+      "bright_radius": 3
+    },
+    "transition": false,
+    "door": null
+  },
+  "light_fixture": {
+    "item": "tiles:lantern",
+    "stays_when_empty": false
+  },
+  "storage": {
+    "capacity": 1000,
+    "personal": false,
+    "contents": [
+      {
+        "item": "tiles:lantern",
+        "quantity": 1
+      }
+    ],
+    "max_item_size": "large"
+  },
+  "symbol": "tiles:cell_0241"
+}

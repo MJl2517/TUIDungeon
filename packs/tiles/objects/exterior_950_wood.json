@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "name": "Дерево: внешняя стена 950",
+  "description": "Внешняя стена. Закрывает движение, обзор и свет. Древесину можно сжечь; разбор отключён.",
+  "symbol": "tiles:cell_0950",
+  "glyph": "#",
+  "foreground": 130,
+  "map_category": "wall",
+  "group": "Внешние стены 3: дерево",
+  "tags": [
+    "wooden",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "destruction": {
+    "max_hp": 30,
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 1
+      }
+    ]
+  },
+  "id": "exterior_950_wood"
+}

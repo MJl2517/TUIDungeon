@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "door_vault",
+  "name": "Стальная дверь хранилища",
+  "description": "80 прочности. Ломиком не выламывается, но дешёвый простой замок можно вскрыть: СЛ 10, один ход.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0550",
+  "state_symbols": {
+    "open": "tiles:cell_0552"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal"
+  ],
+  "brush": {
+    "door": {
+      "material": "steel",
+      "hit_points": 80,
+      "locked": true,
+      "lock_quality": "cheap",
+      "force_allowed": false
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:metal",
+      "quantity": 2
+    }
+  ]
+}

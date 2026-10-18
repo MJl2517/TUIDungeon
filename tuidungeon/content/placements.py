@@ -5,6 +5,7 @@ from copy import deepcopy
 from .schemas import MODELS
 
 PLACEMENT_CATEGORIES = {
+    "npcs": "npcs",
     "doors": "objects",
     "objects": "objects",
     "decorations": "art",
@@ -13,6 +14,30 @@ PLACEMENT_CATEGORIES = {
     "monsters": "monsters",
     "equipment": "equipment",
 }
+
+
+def activation_targets(documents, document):
+    """Supported map-local signal receivers, keyed by placement ID."""
+    targets = {}
+    for layer in ("doors", "traps", "lights", "objects"):
+        for p in getattr(document, layer):
+            if layer == "doors":
+                category = "objects" if ("objects", p.ref) in documents else "tiles"
+                door = resolve_placement(documents, category, p).brush.door
+                if (
+                    not door
+                    or door.access == "unique_key"
+                    or door.travel
+                    or not door.openable
+                    or door.material == "stone"
+                ):
+                    continue
+            if layer == "objects":
+                obj = resolve_placement(documents, "objects", p)
+                if not (obj.illusion or (obj.brush.light and not obj.light_fixture)):
+                    continue
+            targets[p.id] = (layer, p)
+    return targets
 
 
 def merge_properties(base, patch):

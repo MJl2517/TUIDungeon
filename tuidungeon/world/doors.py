@@ -48,8 +48,11 @@ class DoorInstance:
 
     @property
     def text(self):
-        return "\n".join(self.door.inspection()) + (
-            "\nПодпорка: " + self.brace.name if self.brace else ""
+        return (
+            self.definition.description
+            + "\n"
+            + "\n".join(self.door.inspection())
+            + ("\nПодпорка: " + self.brace.name if self.brace else "")
         )
 
     def available_choices(self, hero):
@@ -61,6 +64,8 @@ class DoorInstance:
             and not self.door.destroyed
             and not self.door.burning
             and not self.brace
+            and self.door.access == "normal"
+            and not self.door.travel
         ):
             from ..domain.tags import TAG_LABELS
 
@@ -79,6 +84,39 @@ class DoorInstance:
         door = self.door
         if door.destroyed or door.bent:
             return ()
+        if door.access == "magic":
+            return (
+                ()
+                if door.opened
+                else (
+                    DoorChoice(
+                        "dispel", "Развеивание магии (ячейка 3 уровня или свиток)"
+                    ),
+                )
+            )
+        if door.travel:
+            if door.opened:
+                return ()
+            if door.locked:
+                return (
+                    DoorChoice("use_key", "Открыть замок ключом (пока без перехода)"),
+                    DoorChoice("pick", "Вскрыть замок (пока без перехода)"),
+                )
+            return (
+                DoorChoice(
+                    "open_transition",
+                    "Открыть и перейти в другую локацию — подтвердить переход",
+                ),
+            )
+        if door.access == "unique_key":
+            if door.locked:
+                return (DoorChoice("use_key", "Открыть уникальным ключом"),)
+            return (
+                DoorChoice(
+                    "close" if door.opened else "open",
+                    "Закрыть дверь" if door.opened else "Открыть дверь",
+                ),
+            )
         if self.brace:
             return (
                 DoorChoice("unbrace", "Убрать подпорку"),
@@ -116,7 +154,7 @@ class DoorInstance:
         ]
         if not door.locked:
             choices = [DoorChoice("open", "Открыть дверь")] if door.openable else []
-        elif door.key_tag:
+        else:
             choices.append(DoorChoice("use_key", "Открыть подходящим ключом"))
         if door.force_dc is not None:
             choices.append(

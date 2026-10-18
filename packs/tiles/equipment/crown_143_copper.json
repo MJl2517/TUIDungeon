@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Медная корона 143",
+  "description": "Медная корона с узором.",
+  "symbol": "tiles:cell_0143",
+  "glyph": "^",
+  "foreground": 130,
+  "category": "tools",
+  "group": "Украшения: короны",
+  "weight": 0.5,
+  "size": "small",
+  "slot": "head",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "copper",
+    "jewelry"
+  ],
+  "value_gold": 10,
+  "id": "crown_143_copper"
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "door_studded",
+  "name": "Окованная деревянная дверь",
+  "description": "Укреплена заклёпками: 30 прочности. Дорогой сложный замок — СЛ 20, 10 ходов взлома.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0497",
+  "state_symbols": {
+    "open": "tiles:cell_0499"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "wooden",
+    "flammable"
+  ],
+  "brush": {
+    "door": {
+      "material": "wood",
+      "hit_points": 30,
+      "locked": true,
+      "lock_quality": "expensive",
+      "lock_complexity": "complex"
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:wood",
+      "quantity": 2
+    }
+  ]
+}

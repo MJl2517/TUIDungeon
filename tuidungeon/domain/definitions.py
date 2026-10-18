@@ -9,6 +9,7 @@ from .stats import Stats
 from .value_types import freeze
 from .damage import DamageProfile, DamageType, validate_damage
 from .item_sizes import ItemSize, ITEM_SIZES
+from .keys import KeyKind, key_code
 
 
 @dataclass(frozen=True)
@@ -102,8 +103,15 @@ class EquipmentDefinition:
     spell_bonus: int = 0
     reading: object | None = None
     size: ItemSize = "medium"
+    key_kind: KeyKind | None = None
+    key_code: str | None = None
 
     def __post_init__(self):
+        if self.key_kind not in (None, "door", "container", "unique"):
+            raise ValueError("Неизвестный вид ключа")
+        object.__setattr__(self, "key_code", key_code(self.key_code))
+        if self.key_code and self.key_kind != "unique":
+            raise ValueError("Код назначается только уникальному ключу")
         if self.size not in ITEM_SIZES:
             raise ValueError("Размер предмета: small, medium или large")
         if "lockpicks" in self.tags and self.durability is None:

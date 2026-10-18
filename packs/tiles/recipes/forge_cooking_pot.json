@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "name": "Выковать походный котелок",
+  "description": "Выковать походный котелок. Начальные значения для балансировки.",
+  "category": "smith",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "smith_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:metal"
+          ],
+          "quantity": 2
+        }
+      ],
+      "tools": [
+        "smith_tools"
+      ],
+      "proficiencies": [
+        "smith_tools"
+      ],
+      "turns": 3,
+      "stations": [
+        [
+          "heat"
+        ]
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "tiles:cooking_pot",
+      "quantity": 1
+    }
+  ],
+  "id": "forge_cooking_pot"
+}

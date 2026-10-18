@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "workbench",
+  "name": "Верстак",
+  "description": "Станция плотника. Можно передвинуть, поднять или разобрать инструментами плотника.",
+  "glyph": "T",
+  "foreground": 3,
+  "map_category": "furniture",
+  "group": "Станции",
+  "walkable": false,
+  "blocks_sight": false,
+  "tags": [
+    "workbench",
+    "flammable",
+    "wooden"
+  ],
+  "destruction": {
+    "regrow_as": null,
+    "regrow_minutes": null,
+    "max_hp": 20,
+    "damage_profile": {
+      "resistances": [],
+      "vulnerabilities": [],
+      "immunities": []
+    },
+    "dismantle": {
+      "verb": "dismantle",
+      "tools": [
+        "carpenter_tools"
+      ],
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ],
+      "bonus_tools": [],
+      "bonus_loot": []
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      }
+    ]
+  },
+  "symbol": "tiles:cell_0593",
+  "movable": true,
+  "weight": 15,
+  "size": "large"
+}

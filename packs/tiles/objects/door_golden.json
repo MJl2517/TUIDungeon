@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "door_golden",
+  "name": "Золотая дверь с уникальным замком",
+  "description": "Открывается только уникальным ключом с кодом этого замка. Обычный ключ, взлом, разрушение и механизм не помогут.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0442",
+  "state_symbols": {
+    "open": "tiles:cell_0444"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal",
+    "magic"
+  ],
+  "brush": {
+    "door": {
+      "material": "adamantine",
+      "access": "unique_key",
+      "locked": true,
+      "key_code": "GOLD0442",
+      "force_allowed": false,
+      "foreground": 220
+    }
+  },
+  "attackable": false
+}

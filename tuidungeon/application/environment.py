@@ -191,6 +191,8 @@ class EnvironmentCommands:
                         or getattr(d, "light_fixture", None)
                         or getattr(d, "water_source", None)
                         or getattr(d, "campfire", None)
+                        or getattr(d, "mechanism_targets", None)
+                        or getattr(d, "mechanism", None)
                     ):
                         continue
                     maximum = d.destruction.max_hp if d.destruction else None
@@ -328,7 +330,10 @@ class EnvironmentCommands:
         if not target or not target.dismantle or target.state.burning:
             return False
         if target.category == "doors" and (
-            target.original.door.burning or target.original.brace
+            target.original.door.burning
+            or target.original.brace
+            or target.original.door.access != "normal"
+            or target.original.door.travel
         ):
             return False
         if not all(self.has_work_tool([tag]) for tag in target.furniture_tools):
@@ -392,6 +397,7 @@ class EnvironmentCommands:
         )
         if check.success:
             target.original.disabled = True
+            self.quest_event("disarm", target_id=identifier)
         else:
             from ..content.catalog import effect
             from ..domain.mechanics import mechanics
@@ -503,6 +509,7 @@ class EnvironmentCommands:
             if self.has_work_tool(target.dismantle.bonus_tools):
                 loot.extend(target.dismantle.bonus_loot)
             loot = self.furniture_hardware_loot(target, loot)
+            self.quest_event(target.dismantle.verb, target_id=target.placement.id)
             self._remove_world_object(
                 target, loot, harvested=target.dismantle.verb == "harvest"
             )
@@ -525,6 +532,7 @@ class EnvironmentCommands:
 
     def _ground(self, items, p):
         for item in items:
+            item.bind_key(self.state.level.ref, self.state.level.definition.name)
             self.state.items.append(
                 (ItemPlacement(item.instance_id, self.item_ref(item), p.x, p.y), item)
             )
@@ -664,6 +672,7 @@ class EnvironmentCommands:
             occupied.update(
                 (m.position.x, m.position.y) for m in state.monsters if m.monster.hp > 0
             )
+            occupied.update((n.placement.x, n.placement.y) for n in level.npcs)
             if state is self.state:
                 occupied[(state.position.x, state.position.y)] += 1
             for pending in list(level.regrowing_objects):
@@ -817,6 +826,8 @@ class EnvironmentCommands:
             )
         target.state.lit = False
         contents, spec = self._detach_world(target)
+        for stored in contents:
+            stored.equipped = stored.lit = False
         item = Equipment.create(self.catalog.equipment["packed_furniture"])
         item.furniture = FurnitureCargo(
             target.category,
@@ -860,6 +871,7 @@ class EnvironmentCommands:
                 "lights",
                 "equipment",
                 "monsters",
+                "npcs",
                 "decorations",
             )
             for e in getattr(level.definition, key)
@@ -950,6 +962,12 @@ class EnvironmentCommands:
                     items=list(items),
                 )
             )
+        if category == "objects":
+            from ..world.objects import schedule_growth
+
+            schedule_growth(
+                level, placement, definition, self.state.clock.elapsed_minutes
+            )
 
     def furniture_hardware_loot(self, target, loot, *, destroyed=False):
         """Fittings survive careful dismantling; destruction recovers them half the time."""
@@ -1021,6 +1039,7 @@ class EnvironmentCommands:
                     target,
                     self.furniture_hardware_loot(target, remains, destroyed=True),
                 )
+                self.quest_event("break_object", target_id=target.placement.id)
         return actual
 
     def replace_surface(self, p, ref):
@@ -1102,7 +1121,13 @@ class EnvironmentCommands:
                     )
                 remains = getattr(door.definition, "door_remains", [])
                 if remains:
-                    for item in self._loot(remains):
+                    for item in self._loot(
+                        [
+                            r
+                            for r in remains
+                            if r.chance == 100 or self.dice.roll(1, 100)[0] <= r.chance
+                        ]
+                    ):
                         state.items.append(
                             (
                                 ItemPlacement(
@@ -1150,6 +1175,46 @@ class EnvironmentCommands:
         )
 
     def interact_world(self, identifier, choice):
+        if choice == "activate_mechanism":
+            target = self.world_object(identifier)
+            if target and target.definition.mechanism:
+                return self.toggle_mechanism(identifier)
+            if (
+                not self._world_ready(target)
+                or self.active_craft
+                or self.lockpick_attempt
+                or not getattr(target.definition, "mechanism_targets", None)
+            ):
+                return self._craft_result(False, "Механизм недоступен.")
+            doors = [self._door(i) for i in target.definition.mechanism_targets]
+            if any(
+                d is None or d.door.access == "unique_key" or d.door.travel or d.brace
+                for d in doors
+            ):
+                return self._craft_result(
+                    False,
+                    "Механизм не может открыть эти двери: проверьте связи и подпорки.",
+                )
+            closed = [
+                d
+                for d in doors
+                if not d.door.passable
+                and d.door.openable
+                and d.door.material != "stone"
+            ]
+            if not closed:
+                return self._craft_result(False, "Все связанные проходы уже открыты.")
+            for d in closed:
+                d.door.opened, d.door.locked = True, False
+            self.quest_event("activate_mechanism", target_id=identifier)
+            self._advance(1)
+            return self._craft_result(
+                True,
+                "Механизм открывает: "
+                + ", ".join(d.definition.name for d in closed)
+                + ".",
+                1,
+            )
         if choice in ("take_light", "mount_light"):
             return self.fixture_action(identifier, choice)
         if choice == "ignite_object":

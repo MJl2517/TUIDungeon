@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "name": "Густая паутина",
+  "description": "Закрывает проход, обзор и свет. Перерубить рубящим оружием в руках: 3 хода. Можно поджечь.",
+  "glyph": "W",
+  "symbol": "tiles:cell_0738",
+  "foreground": 250,
+  "map_category": "destructible",
+  "group": "Паутина",
+  "tags": [
+    "fiber",
+    "organic",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "destruction": {
+    "max_hp": 10,
+    "dismantle": {
+      "verb": "chop",
+      "turns": 3,
+      "fast_tool": null,
+      "tools": [
+        "slashing"
+      ],
+      "loot": [
+        {
+          "item": "base:spider_silk",
+          "quantity": 2
+        }
+      ]
+    }
+  },
+  "id": "web_dense"
+}

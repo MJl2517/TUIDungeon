@@ -5,14 +5,23 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from wcwidth import wcwidth
 from ..domain.definitions import DiceExpression
 from ..domain.value_types import freeze
-from ..domain.doors import Material, LockQuality, LockComplexity, MATERIALS, door_glyph
+from ..domain.doors import (
+    Material,
+    DoorAccess,
+    LockQuality,
+    LockComplexity,
+    MATERIALS,
+    door_glyph,
+)
 from ..domain.tags import TAGS_DESCRIPTION, TAG_SCHEMA
 from ..domain.liquids import LiquidKind
 from ..domain.damage import DamageType, DamageSelector
 from ..domain.item_sizes import ItemSize
 from ..domain.skills import SkillId, skill_list
+from ..domain.keys import KeyKind, key_code as normalize_key_code
 
 LocalId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*$")]
+KeyCode = Annotated[str, Field(pattern=r"^[A-Z0-9]{4,16}$")]
 Ref = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$")]
 AbilityName = Literal[
     "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"
@@ -106,16 +115,6 @@ class SymbolDocument(Document):
         ):
             raise ValueError("Маска должна содержать 16 строк по 16 пикселей 0/1")
         return value
-
-    @model_validator(mode="after")
-    def reviewed_name(self):
-        if self.reviewed and (
-            self.group == "Неразобранное"
-            or self.name.startswith(("Kenney [", "Импорт ["))
-            or self.name == "Новый символ"
-        ):
-            raise ValueError("Перед назначением укажите название и категорию символа")
-        return self
 
 
 class Scores(StrictModel):
@@ -251,7 +250,7 @@ class Visual(Document):
     )
     state_symbols: dict[str, Ref] = Field(
         default_factory=dict,
-        description="Графика состояний: closed/open у контейнера; closed/locked/open/bent у двери",
+        description="Состояния: closed/open у контейнера; closed/locked/open/bent у двери; off/on у механизма",
     )
     variants: list[VisualVariant] = Field(
         default_factory=list,
@@ -266,8 +265,8 @@ class Visual(Document):
     @field_validator("state_symbols")
     @classmethod
     def known_states(cls, value):
-        if set(value) - {"closed", "locked", "open", "bent"}:
-            raise ValueError("Неизвестное состояние графики двери")
+        if set(value) - {"closed", "locked", "open", "bent", "off", "on"}:
+            raise ValueError("Неизвестное состояние графики")
         return value
 
 
@@ -406,6 +405,10 @@ class RecipeOutput(StrictModel):
     quantity: Annotated[int, Field(ge=1, le=1000)] = 1
 
 
+class DoorLoot(RecipeOutput):
+    chance: Annotated[int, Field(ge=1, le=100)] = 100
+
+
 class RecipeCheck(StrictModel):
     skill: SkillId | None = None
     ability: AbilityName = "intelligence"
@@ -514,6 +517,15 @@ class ReadingText(StrictModel):
 
 
 class EquipmentDocument(Visual):
+    key_kind: KeyKind | None = Field(
+        default=None,
+        description="Ключи дверей и контейнеров привязываются к уровню размещения. Уникальные работают по коду между уровнями.",
+    )
+    key_code: KeyCode | None = Field(
+        default=None,
+        description="Код уникального замка. Можно переопределить у предмета на карте или в содержимом контейнера.",
+    )
+    _key_code = field_validator("key_code", mode="before")(normalize_key_code)
     size: ItemSize = Field(
         default="medium",
         description="Физический размер предмета, независимый от веса и типа снаряжения",
@@ -560,6 +572,8 @@ class EquipmentDocument(Visual):
 
     @model_validator(mode="after")
     def light_hand(self):
+        if self.key_code and self.key_kind != "unique":
+            raise ValueError("Код назначается только уникальному ключу")
         if "lockpicks" in self.tags and self.durability is None:
             object.__setattr__(self, "durability", 10)
         elif "tool" in self.tags and "lockpicks" not in self.tags:
@@ -929,11 +943,19 @@ class TrapDocument(Visual):
 
 
 class StorageItem(StrictModel):
+    key_code: KeyCode | None = None
+    _key_code = field_validator("key_code", mode="before")(normalize_key_code)
     item: Ref = Field(json_schema_extra={"ref_category": "equipment"})
     quantity: Annotated[int, Field(ge=1, le=999)] = 1
 
 
 class LockSpec(StrictModel):
+    key_code: KeyCode | None = Field(
+        default=None,
+        description="Уникальный замок: при открытии ключом требуется совпадение кода, даже из другой локации. Без кода доступны обычные ключи уровня. Взлом и разрушение настраиваются отдельно.",
+        json_schema_extra={"generate_key_code": True},
+    )
+    _key_code = field_validator("key_code", mode="before")(normalize_key_code)
     locked: bool = True
     lock_quality: LockQuality = "normal"
     lock_complexity: LockComplexity = "simple"
@@ -1011,6 +1033,19 @@ class PointDocument(Visual):
 
 
 class DoorSpec(LockSpec):
+    access: DoorAccess = Field(
+        default="normal",
+        description="Обычная дверь; только уникальный ключ; только механизм или развеивание магии. Особые двери нельзя разрушить или разобрать.",
+    )
+    travel: bool = Field(
+        default=False,
+        description="При подтверждённом открытии сразу перейти в другую локацию; вход на клетку не переносит.",
+    )
+    destination: Ref | None = Field(
+        default=None,
+        json_schema_extra={"ref_category": "maps"},
+        description="Локация назначения двери-перехода. Без назначения открыть её нельзя.",
+    )
     material: Material = "wood"
     state: Literal["open", "closed"] = "closed"
     locked: bool = False
@@ -1038,6 +1073,20 @@ class DoorSpec(LockSpec):
 
     @model_validator(mode="after")
     def stone_slab(self):
+        if self.access != "normal" and (
+            not self.openable or self.material == "stone" or self.bent
+        ):
+            raise ValueError("Особой двери нужна обычная подвижная створка")
+        if self.access == "unique_key" and not self.key_code:
+            raise ValueError("Двери только для уникального ключа нужен код замка")
+        if self.access == "magic" and self.locked:
+            raise ValueError("Магическое поле не использует обычный замок")
+        if self.destination and not self.travel:
+            raise ValueError("Назначение требует дверь-переход")
+        if self.travel and (
+            not self.openable or self.material == "stone" or self.access != "normal"
+        ):
+            raise ValueError("Дверь-переход требует обычную открываемую створку")
         if self.bent and self.material != "bars":
             raise ValueError("Погнутыми могут быть только прутья")
         if not self.openable and (self.state == "open" or self.locked):
@@ -1135,7 +1184,29 @@ class LightFixtureSpec(StrictModel):
     stays_when_empty: bool = True
 
 
+class GrowthSpec(StrictModel):
+    grown_object: Ref = Field(json_schema_extra={"ref_category": "objects"})
+    minutes: Annotated[int, Field(ge=1, le=1000000)] = 1440
+
+
+class MechanismSpec(StrictModel):
+    trigger: Literal["lever", "pressure_plate"] = "lever"
+    initially_on: bool = False
+    code: LocalId | None = None
+
+
 class WorldObjectDocument(TileDocument):
+    mechanism: MechanismSpec | None = None
+    illusion: bool = False
+    growth: GrowthSpec | None = Field(
+        default=None,
+        description="Рост молодого растения: взрослый объект и срок в игровых минутах. Продолжает существовать в сохранении.",
+    )
+    mechanism_targets: list[LocalId] = Field(
+        default_factory=list,
+        max_length=64,
+        description="ID целей на этой карте: двери, ловушки, свет и иллюзорные стены.",
+    )
     loot_tier: Literal["white", "bronze", "iron", "gold"] | None = Field(
         default=None,
         description="Маркер будущей генерации добычи. Сейчас содержимое задаётся вручную.",
@@ -1162,7 +1233,7 @@ class WorldObjectDocument(TileDocument):
     campfire: CampfireSpec | None = None
     water_source: WaterSourceSpec | None = None
 
-    door_remains: list[RecipeOutput] = Field(default_factory=list, max_length=32)
+    door_remains: list[DoorLoot] = Field(default_factory=list, max_length=32)
     destruction: DestructionSpec | None = None
     movable: bool = False
     weight: Annotated[float, Field(ge=0, le=1000000, allow_inf_nan=False)] = 0
@@ -1173,6 +1244,15 @@ class WorldObjectDocument(TileDocument):
 
     @model_validator(mode="after")
     def no_duplicate_mechanics(self):
+        if self.mechanism:
+            if self.movable or self.destruction or self.illusion or self.brush.door:
+                raise ValueError(
+                    "Активирующий механизм должен быть отдельным неподвижным объектом"
+                )
+            if self.mechanism.trigger == "pressure_plate" and (
+                not self.walkable or self.blocks_sight
+            ):
+                raise ValueError("Нажимная плита должна пропускать героя и свет")
         if self.light_fixture:
             if self.storage is None:
                 object.__setattr__(
@@ -1244,6 +1324,8 @@ class InitialItemState(StrictModel):
 
 
 class Placement(Coordinate):
+    activation_code: LocalId | None = None
+
     @model_validator(mode="before")
     @classmethod
     def legacy_liquids(cls, value):
@@ -1291,6 +1373,7 @@ class Transition(Coordinate):
 
 
 class MapLight(Coordinate):
+    activation_code: LocalId | None = None
     id: LocalId
     radius: Annotated[int, Field(ge=1, le=32)] = 6
     bright_radius: Annotated[int, Field(ge=0, le=32)] = 3
@@ -1304,6 +1387,9 @@ class MapLight(Coordinate):
 
 
 class MapDocument(Document):
+    npcs: list[Placement] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "npcs"}
+    )
     objects: list[Placement] = Field(
         default_factory=list, json_schema_extra={"ref_category": "objects"}
     )
@@ -1381,6 +1467,7 @@ class MapDocument(Document):
             "traps",
             "points_of_interest",
             "monsters",
+            "npcs",
             "equipment",
             "transitions",
             "lights",
@@ -1403,14 +1490,224 @@ class MapDocument(Document):
                     and not self.walkability[entry.y][entry.x]
                 ):
                     raise ValueError(f"{entry.id}: непроходимая клетка")
-                if category == "monsters":
+                if category in ("monsters", "npcs"):
                     if (entry.x, entry.y) in occupied:
                         raise ValueError("Существа занимают одну клетку")
                     occupied.add((entry.x, entry.y))
         return self
 
 
+class NpcTarget(StrictModel):
+    map_ref: Ref = Field(json_schema_extra={"ref_category": "maps"})
+    npc_id: LocalId
+
+
+class SocialReward(StrictModel):
+    items: list[RecipeOutput] = Field(default_factory=list)
+    gold: Nonnegative = 0
+    experience: Nonnegative = 0
+    learn_recipes: list[Ref] = Field(
+        default_factory=list, json_schema_extra={"ref_category": "recipes"}
+    )
+
+
+class DialogueCondition(StrictModel):
+    quest: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "quests"}
+    )
+    status: Literal["available", "active", "completed"] | None = None
+    stage: LocalId | None = None
+    item: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "equipment"}
+    )
+    quantity: Positive = 1
+    topic: LocalId | None = None
+    outcome: Literal["seen", "success", "failure"] = "seen"
+
+    @model_validator(mode="after")
+    def valid_condition(self):
+        if (self.status or self.stage) and not self.quest:
+            raise ValueError("Для состояния или этапа нужна ссылка на квест")
+        if not any((self.quest, self.item, self.topic)):
+            raise ValueError("Выберите квест, предмет или вопрос для условия")
+        return self
+
+
+class DialogueCheck(StrictModel):
+    skill: SkillId = "persuasion"
+    difficulty: Nonnegative = 15
+
+
+class DialogueTopic(StrictModel):
+    id: LocalId = "question"
+    question: str = "Кто вы?"
+    answer: str = "Приветствую, путник."
+    failure_answer: str = "Я не стану об этом говорить."
+    once: bool = False
+    conditions: list[DialogueCondition] = Field(default_factory=list)
+    check: DialogueCheck | None = None
+    reward: SocialReward = Field(default_factory=SocialReward)
+    failure_reward: SocialReward = Field(default_factory=SocialReward)
+    _text = field_validator("question", "answer", "failure_answer")(narrative_text)
+
+
+class TradeRule(StrictModel):
+    item: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "equipment"}
+    )
+    furniture: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "objects"}
+    )
+    tag: LocalId | None = None
+    buy: Nonnegative = 1
+    sell: Positive = 2
+
+    @model_validator(mode="after")
+    def valid_rule(self):
+        if (
+            sum(x is not None for x in (self.item, self.furniture, self.tag)) != 1
+            or self.buy > self.sell
+        ):
+            raise ValueError(
+                "Нужен один вид товара; выкуп не должен превышать цену продажи"
+            )
+        return self
+
+
+class TradeSpec(StrictModel):
+    gold: Nonnegative = 100
+    stock: list[RecipeOutput] = Field(default_factory=list)
+    rules: list[TradeRule] = Field(default_factory=list)
+    difficulty: Nonnegative = 15
+    percent: Annotated[int, Field(ge=0, le=50)] = 10
+
+
+class QuestLink(StrictModel):
+    _text = field_validator(
+        "offer",
+        "accept_answer",
+        "discuss",
+        "discuss_answer",
+        "report",
+        "report_answer",
+        check_fields=False,
+    )(narrative_text)
+    quest: Ref = Field(json_schema_extra={"ref_category": "quests"})
+    offer: str = "Есть ли работа?"
+    accept_answer: str = "Договорились."
+    discuss: str = "О задании"
+    discuss_answer: str = "Как идут дела?"
+    report: str = "Доложить о выполнении"
+    report_answer: str = "Отличная работа."
+
+
+class NpcDocument(Visual):
+    _greeting = field_validator("greeting", check_fields=False)(narrative_text)
+    greeting: str = "Приветствую."
+    topics: list[DialogueTopic] = Field(default_factory=list)
+    trade: TradeSpec | None = None
+    quests: list[QuestLink] = Field(default_factory=list)
+    tags: list[LocalId] = Field(default_factory=list, json_schema_extra=TAG_SCHEMA)
+
+    @model_validator(mode="after")
+    def unique_topics(self):
+        if len({t.id for t in self.topics}) != len(self.topics):
+            raise ValueError("Повторный ID вопроса")
+        if len({q.quest for q in self.quests}) != len(self.quests):
+            raise ValueError("Повторная ссылка на квест")
+        ids = {t.id for t in self.topics}
+        if any(
+            c.topic and c.topic not in ids for t in self.topics for c in t.conditions
+        ):
+            raise ValueError("Условие ссылается на отсутствующий вопрос")
+        return self
+
+
+class QuestObjective(StrictModel):
+    _description = field_validator("description", check_fields=False)(narrative_text)
+    id: LocalId = "goal"
+    description: str = "Выполнить задание"
+    kind: Literal[
+        "bring",
+        "visit",
+        "talk",
+        "read",
+        "craft",
+        "harvest",
+        "chop",
+        "dismantle",
+        "break_object",
+        "disarm",
+        "activate_mechanism",
+    ] = "bring"
+    quantity: Positive = 1
+    item: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "equipment"}
+    )
+    recipe: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "recipes"}
+    )
+    map_ref: Ref | None = Field(
+        default=None, json_schema_extra={"ref_category": "maps"}
+    )
+    target_id: LocalId | None = None
+    x: Nonnegative = 0
+    y: Nonnegative = 0
+    width: Positive = 1
+    height: Positive = 1
+    consume: bool = False
+
+    @model_validator(mode="after")
+    def required_target(self):
+        if (
+            self.kind == "bring"
+            and not self.item
+            or self.kind == "craft"
+            and not self.recipe
+        ):
+            raise ValueError("Нужен предмет или рецепт цели")
+        if self.kind not in ("bring", "craft") and not self.map_ref:
+            raise ValueError("Нужна карта цели")
+        if self.kind not in ("bring", "craft", "visit") and not self.target_id:
+            raise ValueError("Нужен ID экземпляра цели")
+        if self.consume and self.kind != "bring":
+            raise ValueError("Передавать можно только цель «Принести»")
+        return self
+
+
+class QuestStage(StrictModel):
+    _description = field_validator("description", check_fields=False)(narrative_text)
+    id: LocalId = "stage"
+    description: str = "Задание"
+    objectives: list[QuestObjective] = Field(min_length=1)
+    report_to: NpcTarget | None = None
+
+    @model_validator(mode="after")
+    def unique_goals(self):
+        if len({o.id for o in self.objectives}) != len(self.objectives):
+            raise ValueError("Повторный ID цели")
+        return self
+
+
+class QuestDocument(Document):
+    stages: list[QuestStage] = Field(min_length=1)
+    reward: SocialReward = Field(default_factory=SocialReward)
+
+    @model_validator(mode="after")
+    def valid_stages(self):
+        if (
+            len({s.id for s in self.stages}) != len(self.stages)
+            or self.stages[-1].report_to is None
+        ):
+            raise ValueError(
+                "Этапы должны иметь уникальные ID; последний этап сдаётся NPC"
+            )
+        return self
+
+
 MODELS = {
+    "npcs": NpcDocument,
+    "quests": QuestDocument,
     "symbols": SymbolDocument,
     "recipes": RecipeDocument,
     "art": ArtDocument,

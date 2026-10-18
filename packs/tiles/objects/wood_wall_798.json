@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "name": "Деревянная стена",
+  "description": "Закрывает движение, обзор и свет. Не разбирается; древесину можно поджечь или разрушить.",
+  "glyph": "#",
+  "symbol": "tiles:cell_0798",
+  "foreground": 130,
+  "group": "Стены: дерево",
+  "map_category": "wall",
+  "tags": [
+    "wooden",
+    "flammable"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "destruction": {
+    "max_hp": 30,
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 1
+      }
+    ]
+  },
+  "id": "wood_wall_798"
+}

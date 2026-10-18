@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Золотой амулет 437",
+  "description": "Золотой амулет с узором.",
+  "symbol": "tiles:cell_0437",
+  "glyph": "*",
+  "foreground": 220,
+  "category": "tools",
+  "group": "Украшения: амулеты",
+  "weight": 0.2,
+  "size": "small",
+  "slot": "neck",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "gold",
+    "jewelry"
+  ],
+  "value_gold": 30,
+  "id": "amulet_437_gold"
+}

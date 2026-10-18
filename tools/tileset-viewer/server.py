@@ -188,6 +188,77 @@ def validate_progress(data):
     return result
 
 
+def implementation_status(root=ROOT):
+    """Only visuals assigned to content in packs/tiles count as implemented."""
+    root = Path(root)
+    if not (root / "packs/tiles").is_dir():
+        raise FileNotFoundError("Не найден пакет packs/tiles для сверки атласа")
+    usage = {sheet: {} for sheet in LIMITS}
+    symbols = {}
+
+    def visual_refs(value):
+        if isinstance(value, dict):
+            for key, nested in value.items():
+                if key == "symbol" and isinstance(nested, str):
+                    yield nested
+                elif key == "state_symbols" and isinstance(nested, dict):
+                    yield from nested.values()
+                else:
+                    yield from visual_refs(nested)
+        elif isinstance(value, list):
+            for nested in value:
+                yield from visual_refs(nested)
+
+    for path in sorted((root / "packs/tiles").glob("*/*.json")):
+        if path.parent.name in {"symbols", "maps", "recipes", "art"}:
+            continue
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        owner = dict(
+            ref=f"tiles:{doc['id']}", name=doc["name"], category=path.parent.name
+        )
+        for ref in sorted(set(visual_refs(doc))):
+            if not isinstance(ref, str) or not re.fullmatch(
+                r"[a-z][a-z0-9_]*:[a-z][a-z0-9_]*", ref
+            ):
+                raise ValueError(f"{path}: некорректная ссылка на символ {ref}")
+            if ref not in symbols:
+                pack, identifier = ref.split(":")
+                symbol_path = root / "packs" / pack / "symbols" / (identifier + ".json")
+                symbols[ref] = json.loads(symbol_path.read_text(encoding="utf-8"))
+            source = symbols[ref].get("source") or {}
+            location = source.get("location", "").replace("\\", "/")
+            if "assets/1_bit_input/" in location:
+                sheet, columns = "input", 34
+            elif "assets/1 bit/" in location:
+                sheet, columns = ("color" if "colored-" in location else "mono"), 49
+            else:
+                continue
+            xy = source.get("coordinates")
+            if (
+                not isinstance(xy, list)
+                or len(xy) != 2
+                or any(type(v) is not int for v in xy)
+                or not (0 <= xy[0] < columns and 0 <= xy[1] < LIMITS[sheet] // columns)
+            ):
+                raise ValueError(f"{ref}: некорректные координаты исходного атласа")
+            owners = usage[sheet].setdefault(str(xy[1] * columns + xy[0] + 1), [])
+            if owner not in owners:
+                owners.append(owner)
+    return dict(
+        progress={sheet: sorted(map(int, cells)) for sheet, cells in usage.items()},
+        usage=usage,
+    )
+
+
+def sync_progress(path, root=ROOT):
+    status = implementation_status(root)
+    text = json.dumps(status["progress"], ensure_ascii=False, indent=2) + "\n"
+    path = Path(path)
+    if not path.exists() or path.read_text(encoding="utf-8") != text:
+        write_atomic(path, text)
+    return status
+
+
 class TaskConflict(ValueError):
     pass
 
@@ -323,15 +394,15 @@ class Handler(SimpleHTTPRequestHandler):
         pass
 
     def do_GET(self):
-        if self.path in ("/progress.json", "/tasks.json"):
+        if self.path in ("/progress.json", "/tile-status.json", "/tasks.json"):
             try:
                 tasks = self.path == "/tasks.json"
                 if tasks:
                     data, version = self.tasks.snapshot()
                 else:
-                    data = validate_progress(
-                        json.loads(self.progress.read_text(encoding="utf-8"))
-                    )
+                    data = sync_progress(self.progress, self.root)
+                    if self.path == "/progress.json":
+                        data = data["progress"]
                     version = None
                 self.reply(200, data, version)
             except (OSError, ValueError) as error:
@@ -371,10 +442,17 @@ class Handler(SimpleHTTPRequestHandler):
         if self.headers.get("Content-Type") != "application/json":
             self.reply(400, {"error": "Нужен JSON"})
             return
+        if self.path == "/progress.json":
+            self.reply(
+                405,
+                {
+                    "error": "Отметки определяются автоматически по пакету tiles. Обновите страницу просмотрщика."
+                },
+            )
+            return
         try:
             length = int(self.headers.get("Content-Length", "0"))
-            tasks = self.path != "/progress.json"
-            if not 0 < length <= (20000000 if tasks else 30000):
+            if not 0 < length <= 20000000:
                 raise ValueError("Некорректный размер данных")
             raw = json.loads(self.rfile.read(length))
             if self.path == "/tasks.json":
@@ -387,11 +465,6 @@ class Handler(SimpleHTTPRequestHandler):
                     self.headers.get("If-Match"),
                     note=raw.get("note", ""),
                 )
-            else:
-                data, version = validate_progress(raw), None
-                write_atomic(
-                    self.progress, json.dumps(data, ensure_ascii=False, indent=2) + "\n"
-                )
             self.reply(200, data, version)
         except TaskConflict as error:
             self.reply(409, {"error": str(error)})
@@ -399,12 +472,13 @@ class Handler(SimpleHTTPRequestHandler):
             self.reply(400, {"error": str(error)})
 
 
-def create_server(progress=ROOT / "tools/tileset-viewer/progress.json"):
+def create_server(progress=ROOT / "tools/tileset-viewer/progress.json", *, root=ROOT):
     progress = Path(progress)
     tasks = TaskStore(progress.with_name("tasks.json"))
     tasks.snapshot()
     return ThreadingHTTPServer(
-        ("127.0.0.1", 0), partial(Handler, root=ROOT, progress=progress, tasks=tasks)
+        ("127.0.0.1", 0),
+        partial(Handler, root=Path(root), progress=progress, tasks=tasks),
     )
 
 
@@ -422,9 +496,23 @@ def main():
         help="Завершить проверенные задания из рабочего MD",
     )
     parser.add_argument("--note", default="", help="Краткий результат выполнения")
+    parser.add_argument(
+        "--sync-progress",
+        action="store_true",
+        help="Сверить отметки атласа с назначениями в packs/tiles",
+    )
     args = parser.parse_args()
     store = TaskStore(ROOT / "tools/tileset-viewer/tasks.json")
     try:
+        if args.sync_progress:
+            status = sync_progress(ROOT / "tools/tileset-viewer/progress.json")
+            print(
+                "Пакет tiles: "
+                + ", ".join(
+                    f"{sheet}: {len(ids)}" for sheet, ids in status["progress"].items()
+                )
+            )
+            return
         if args.complete:
             tokens = [token.rsplit("@", 1) for token in args.complete]
             if any(len(token) != 2 for token in tokens):
@@ -433,6 +521,7 @@ def main():
             store.complete(
                 [token[0] for token in tokens], revisions=revisions, note=args.note
             )
+            sync_progress(ROOT / "tools/tileset-viewer/progress.json")
             print("В архив перенесены: " + ", ".join(revisions))
             return
         if args.list_pending:

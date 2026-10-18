@@ -4,6 +4,18 @@ export const sections: Record<
   string,
   { icon: string; name: string; description: string; family: string }
 > = {
+  npcs: {
+    icon: "☷",
+    name: "NPC",
+    description: "Мирные персонажи, вопросы, магазины и задания.",
+    family: "Объекты",
+  },
+  quests: {
+    icon: "!",
+    name: "Квесты",
+    description: "Этапы, цели, адресаты отчёта и награды.",
+    family: "Правила",
+  },
   symbols: {
     icon: "▧",
     name: "Символы",
@@ -188,6 +200,7 @@ export function paletteCategory(
   entry: Entry,
   assets: Record<string, Doc> = {},
 ): string | null {
+  if (entry.category === "npcs") return "monsters";
   const doc: Doc = {
     ...entry,
     ...(entry.details ?? {}),
@@ -313,17 +326,36 @@ export function brushDescription(
     };
     const force: Record<string, number> = {
       wood: 10,
+      glass: 5,
       bars: 15,
       steel: 20,
       adamantine: 25,
     };
-    if (d.material !== "stone" && d.openable !== false)
+    const normal = !d.access || d.access === "normal";
+    if (d.access === "unique_key")
+      rules.push(
+        "Открывается только уникальным ключом с совпадающим кодом. Взлом, разрушение и механизмы не действуют.",
+      );
+    if (d.access === "magic")
+      rules.push(
+        "Магическое поле: только связанный механизм или «Развеивание магии» (ячейка 3 уровня / свиток).",
+      );
+    if (d.travel)
+      rules.push(
+        "Открытие с подтверждением немедленно переносит в локацию назначения. Укажите назначение у экземпляра двери.",
+      );
+    if (normal && !d.travel && d.material !== "stone" && d.openable !== false)
       rules.push(
         `Enter: открыть / закрыть / вскрыть / выломать. Взлом: СЛ ${dc[d.lock_quality ?? "normal"]}, ${d.lock_complexity === "complex" ? 10 : 1} ход(ов). Нужны исправные воровские инструменты; провал: −1 прочность.`,
       );
-    if (d.material !== "stone" && d.force_allowed !== false)
+    if (
+      normal &&
+      !d.travel &&
+      d.material !== "stone" &&
+      d.force_allowed !== false
+    )
       rules.push(
-        `Выломать: СИЛ, СЛ ${force[d.material ?? "wood"]}. Ломик в руке: преимущество, −1 прочность за попытку.`,
+        `Выломать: СИЛ, СЛ ${force[d.material ?? "wood"]}. Ломик в руке даёт преимущество.`,
       );
     rules.push(
       d.material === "stone"
@@ -354,7 +386,11 @@ export function brushDescription(
       rules.push(
         "Каменная плита: нельзя открыть, вскрыть или выломать; только разрушение киркой или дробящими атаками.",
       );
-    if (d.material === "adamantine")
+    if (d.material === "glass")
+      rules.push(
+        `Стекло: ${d.hit_points ?? 5} прочности. Разрушение даёт осколки; разбор — целые листы.`,
+      );
+    if (d.material === "adamantine" && normal)
       rules.push(
         "Неуничтожима; «Дневной свет» волшебника превращает её в каменную.",
       );
@@ -452,6 +488,7 @@ export function paletteLayer(
     "traps",
     "points_of_interest",
     "monsters",
+    "npcs",
   ].includes(entry.category)
     ? entry.category
     : null;

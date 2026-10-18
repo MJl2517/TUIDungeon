@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "meat",
+  "name": "Мясо",
+  "description": "Сырое мясо. Можно приготовить у источника тепла.",
+  "glyph": "%",
+  "foreground": 174,
+  "category": "materials",
+  "group": "Пища",
+  "weight": 0.5,
+  "tags": [
+    "organic",
+    "food"
+  ],
+  "symbol": "tiles:cell_0966",
+  "size": "small"
+}

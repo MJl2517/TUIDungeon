@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "name": "Посадить: прядильное растение",
+  "description": "Посадка побегов на выбранной свободной соседней клетке. Рост занимает игровые сутки.",
+  "category": "basic",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "Вручную",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:seedlings_fiber"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 1
+    }
+  ],
+  "result": [],
+  "operation": {
+    "kind": "place_object",
+    "place_object": "tiles:crop_sprout_fiber"
+  },
+  "id": "plant_fiber"
+}

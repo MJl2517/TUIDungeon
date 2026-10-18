@@ -1,0 +1,22 @@
+{
+  "id": "furniture_buyer",
+  "name": "Скупщик мебели",
+  "glyph": "M",
+  "foreground": 130,
+  "greeting": "Покупаю мебель из подземелий. Только без чужих вещей внутри.",
+  "trade": {
+    "gold": 200,
+    "rules": [
+      {
+        "furniture": "base:chair",
+        "buy": 20,
+        "sell": 40
+      },
+      {
+        "tag": "furniture",
+        "buy": 15,
+        "sell": 35
+      }
+    ]
+  }
+}

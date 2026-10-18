@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "door_planked",
+  "name": "Дощатая разборная дверь",
+  "description": "Не выламывается силой. Доски можно аккуратно разобрать за 3 хода, ломиком — за 1; получится 3 древесины.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0498",
+  "state_symbols": {
+    "open": "tiles:cell_0499"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "wooden",
+    "flammable"
+  ],
+  "brush": {
+    "door": {
+      "material": "wood",
+      "hit_points": 20,
+      "force_allowed": false
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:wood",
+      "quantity": 2
+    }
+  ],
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        }
+      ]
+    }
+  }
+}

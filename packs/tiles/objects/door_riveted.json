@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "door_riveted",
+  "name": "Клёпаная металлическая дверь",
+  "description": "60 прочности и дорогой простой замок: СЛ 20, один ход взлома.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0549",
+  "state_symbols": {
+    "open": "tiles:cell_0552"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal"
+  ],
+  "brush": {
+    "door": {
+      "material": "steel",
+      "hit_points": 60,
+      "locked": true,
+      "lock_quality": "expensive"
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:metal",
+      "quantity": 2
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "well",
+  "name": "Колодец",
+  "description": "Вид воды задан в свойствах источника.",
+  "glyph": "~",
+  "foreground": 6,
+  "map_category": "special",
+  "group": "Источники воды",
+  "walkable": false,
+  "water_source": {
+    "kind": "clean_water"
+  },
+  "symbol": "tiles:cell_0691"
+}

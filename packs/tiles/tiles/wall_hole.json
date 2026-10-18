@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Дыра в стене",
+  "description": "Свободный лаз. Пропускает движение, обзор и свет.",
+  "glyph": ".",
+  "symbol": "tiles:cell_0847",
+  "foreground": 131,
+  "group": "Проходы в стенах",
+  "map_category": "floor",
+  "walkable": true,
+  "blocks_sight": false,
+  "tags": [
+    "stone"
+  ],
+  "id": "wall_hole"
+}

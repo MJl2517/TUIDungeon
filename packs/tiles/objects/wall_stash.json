@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Тайник в кирпичной стене",
+  "description": "Небольшая ниша для малых вещей. Вместимость 5 кг.",
+  "glyph": "C",
+  "symbol": "tiles:cell_0848",
+  "foreground": 131,
+  "group": "Контейнеры: стены",
+  "map_category": "special",
+  "tags": [
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "storage": {
+    "personal": true,
+    "capacity": 5,
+    "max_item_size": "small"
+  },
+  "id": "wall_stash"
+}

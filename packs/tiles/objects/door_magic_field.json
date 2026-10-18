@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "door_magic_field",
+  "name": "Дверь с магическим полем",
+  "description": "Фиолетовое магическое поле. Открывается только связанным механизмом или заклинанием «Развеивание магии».",
+  "glyph": "+",
+  "symbol": "tiles:cell_0443",
+  "state_symbols": {
+    "open": "tiles:cell_0444"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal",
+    "magic"
+  ],
+  "brush": {
+    "door": {
+      "material": "adamantine",
+      "access": "magic",
+      "force_allowed": false,
+      "foreground": 135
+    }
+  },
+  "attackable": false
+}

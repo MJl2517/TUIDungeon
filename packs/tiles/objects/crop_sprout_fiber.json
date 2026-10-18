@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "name": "Побеги: прядильное растение",
+  "description": "Молодое растение. Вырастет за игровые сутки. При уничтожении рост прекратится.",
+  "glyph": "\"",
+  "symbol": "tiles:cell_0308",
+  "foreground": 46,
+  "group": "Фермерство: побеги",
+  "map_category": "destructible",
+  "tags": [
+    "plant",
+    "organic",
+    "flammable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "growth": {
+    "grown_object": "tiles:crop_fiber",
+    "minutes": 1440
+  },
+  "destruction": {
+    "max_hp": 3
+  },
+  "id": "crop_sprout_fiber"
+}

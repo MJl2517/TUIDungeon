@@ -585,6 +585,9 @@ class CraftCommands:
             for _ in range(r.quantity)
         ]
         outputs.extend(self.finish_operation(work))
+        if self.state.level:
+            for output in outputs:
+                output.bind_key(self.state.level.ref, self.state.level.definition.name)
         learned = self.learn_recipes(work.recipe.learn_recipes)
         self.state.hero.inventory.remove(item)
         self.active_craft = None
@@ -605,6 +608,7 @@ class CraftCommands:
                 )
             else:
                 self.state.hero.inventory.append(output)
+        self.quest_event("craft", recipe=work.recipe_ref, quantity=max(1, len(outputs)))
         return self._craft_result(
             True,
             "Изготовлено: "

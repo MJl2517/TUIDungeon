@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "door_window",
+  "name": "Деревянная дверь с окном",
+  "description": "Окно позволяет видеть свет и происходящее за закрытой дверью.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0496",
+  "state_symbols": {
+    "open": "tiles:cell_0499"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "wooden",
+    "flammable"
+  ],
+  "brush": {
+    "door": {
+      "material": "wood",
+      "transmits_light": true
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:wood",
+      "quantity": 2
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "name": "Побеги: лекарственные растения",
+  "description": "Посадочный материал. Посадите на выбранной соседней клетке через меню крафта.",
+  "glyph": "\"",
+  "symbol": "tiles:cell_0308",
+  "foreground": 82,
+  "weight": 0.1,
+  "size": "small",
+  "category": "materials",
+  "group": "Посадочный материал",
+  "tags": [
+    "organic",
+    "flammable"
+  ],
+  "id": "seedlings_herb"
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "name": "Корнеплоды",
+  "description": "Соберите урожай за 1 ход. Оставшиеся побеги вырастут за игровые сутки.",
+  "glyph": "\"",
+  "symbol": "tiles:cell_0312",
+  "foreground": 208,
+  "group": "Фермерство: урожай",
+  "map_category": "destructible",
+  "tags": [
+    "plant",
+    "organic",
+    "flammable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "destruction": {
+    "max_hp": 5,
+    "regrow_as": "tiles:crop_sprout_root",
+    "regrow_minutes": 1440,
+    "dismantle": {
+      "verb": "harvest",
+      "turns": 1,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "tiles:root_vegetables",
+          "quantity": 2
+        },
+        {
+          "item": "tiles:seedlings_root",
+          "quantity": 1
+        }
+      ]
+    }
+  },
+  "id": "crop_root"
+}

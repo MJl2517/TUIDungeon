@@ -54,6 +54,8 @@ class GameState:
 
     def walkable(self, position):
         if self.level:
+            if self.level.index("npcs").at(position.x, position.y):
+                return False
             return bool(
                 0 <= position.x < self.dungeon.width
                 and 0 <= position.y < self.dungeon.height

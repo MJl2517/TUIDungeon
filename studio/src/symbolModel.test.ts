@@ -9,6 +9,29 @@ import {
 import { History } from "./model";
 
 describe("symbol documents", () => {
+  it("previews the initial lever state while plates start released", () => {
+    const assets = {
+      "symbols/test:on": { glyph: "/" },
+      "symbols/test:off": { glyph: "L" },
+    };
+    const doc = {
+      state_symbols: { on: "test:on", off: "test:off" },
+      mechanism: { trigger: "lever", initially_on: true },
+    };
+    expect(visual(doc, assets).char).toBe("/");
+    expect(
+      visual(
+        { ...doc, mechanism: { ...doc.mechanism, initially_on: false } },
+        assets,
+      ).char,
+    ).toBe("L");
+    expect(
+      visual(
+        { ...doc, mechanism: { ...doc.mechanism, trigger: "pressure_plate" } },
+        assets,
+      ).char,
+    ).toBe("L");
+  });
   it("container states share one template and keep the loot color", () => {
     const chest = {
       symbol: "tiles:closed",

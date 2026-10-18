@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Камни руин на полу 216",
+  "description": "Проходимый каменный пол с обломками. Не закрывает обзор и свет.",
+  "symbol": "tiles:cell_0216",
+  "glyph": ".",
+  "foreground": 108,
+  "map_category": "floor",
+  "group": "Руины",
+  "tags": [
+    "stone"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "id": "ruins_stones_216"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Камень: колонна 704",
+  "description": "Колонна.",
+  "symbol": "tiles:cell_0704",
+  "glyph": "#",
+  "foreground": 245,
+  "map_category": "wall",
+  "group": "Внешние стены 1: камень",
+  "tags": [
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "id": "exterior_704_stone"
+}

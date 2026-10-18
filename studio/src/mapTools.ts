@@ -209,10 +209,18 @@ export function paintObject(
   if (!erase && !definition) throw new Error("Сначала выберите объект.");
   if (
     !erase &&
-    (definition?.movable || definition?.destruction) &&
+    (definition?.movable || definition?.destruction || definition?.illusion) &&
     !doc.tiles[p.y][p.x]
   )
     throw new Error("Сначала нарисуйте пол под разбираемым объектом.");
+  if (
+    !erase &&
+    definition?.illusion &&
+    (!doc.walkability[p.y][p.x] || doc.blocks_sight[p.y][p.x])
+  )
+    throw new Error(
+      "Иллюзорная стена размещается поверх свободного пола, без маски стены.",
+    );
   if (!erase && layer === "objects" && definition?.brush?.door)
     throw new Error("Дверь размещается в слое дверей.");
   if (

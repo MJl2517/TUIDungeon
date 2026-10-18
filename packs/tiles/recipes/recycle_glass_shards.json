@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "recycle_glass_shards",
+  "name": "Стекольное сырьё: осколки",
+  "description": "Переплавить стекло у источника тепла.",
+  "category": "glassblower",
+  "variants": [
+    {
+      "name": "У источника тепла",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:glass_shards"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 2,
+      "stations": [
+        [
+          "heat"
+        ]
+      ],
+      "tools": [
+        "glassblower_tools"
+      ],
+      "proficiencies": [
+        "glassblower_tools"
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:glass_material",
+      "quantity": 1
+    }
+  ],
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "glassblower_tools"
+  ]
+}

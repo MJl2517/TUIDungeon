@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Золотая корона 142",
+  "description": "Золотая корона с узором.",
+  "symbol": "tiles:cell_0142",
+  "glyph": "^",
+  "foreground": 220,
+  "category": "tools",
+  "group": "Украшения: короны",
+  "weight": 0.5,
+  "size": "small",
+  "slot": "head",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "gold",
+    "jewelry"
+  ],
+  "value_gold": 60,
+  "id": "crown_142_gold"
+}

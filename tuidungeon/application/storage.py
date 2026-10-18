@@ -1,6 +1,7 @@
 """Atomic item ownership changes shared by the terminal and browser clients."""
 
 from ..domain.storage import item_stacks
+from ..domain.keys import key_matches
 
 
 class StorageCommands:
@@ -114,11 +115,17 @@ class StorageCommands:
         ):
             return self._door_result(False, 0, "Замок контейнера недоступен.")
         if action == "unlock_container_key":
-            tag = container.lock.key_tag
-            if not tag or not any(
-                i.usable and tag in i.tags for i in self.state.hero.inventory
+            if not any(
+                key_matches(i, container.lock, "container", self.state.level.ref)
+                for i in self.state.hero.inventory
             ):
-                return self._door_result(False, 0, "Нет подходящего ключа.")
+                return self._door_result(
+                    False,
+                    0,
+                    "Нужен уникальный ключ именно от этого контейнера."
+                    if container.lock.key_code
+                    else "Нужен подходящий ключ контейнера или ключ для контейнеров с этого уровня.",
+                )
             container.lock.locked = False
             return self._finish_door(
                 container, "use_key", "Ключ открывает замок контейнера."
@@ -210,10 +217,12 @@ class StorageCommands:
         ids = {item.instance_id for item in moved}
         source[:] = [item for item in source if item.instance_id not in ids]
         for item in moved:
+            item.bind_key(self.state.level.ref, self.state.level.definition.name)
             if deposit:
                 item.equipped = item.lit = False
             target.append(item)
         verb = "Положено" if deposit else "Взято"
+        self.refresh_quests()
         message = f"{verb}: {moved[0].name} x{quantity}."
         self.events.append(
             dict(

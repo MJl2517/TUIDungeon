@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "door_metal",
+  "name": "Металлическая дверь",
+  "description": "Стальная створка: физические атаки не повреждают; кислота разъедает металл.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0446",
+  "state_symbols": {
+    "open": "tiles:cell_0448"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal"
+  ],
+  "brush": {
+    "door": {
+      "material": "steel"
+    }
+  },
+  "door_remains": [
+    {
+      "item": "base:metal",
+      "quantity": 2
+    }
+  ]
+}

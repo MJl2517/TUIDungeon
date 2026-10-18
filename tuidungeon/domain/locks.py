@@ -35,6 +35,7 @@ class Lock(LockRules):
     lock_quality: LockQuality = "normal"
     lock_complexity: LockComplexity = "simple"
     key_tag: str | None = None
+    key_code: str | None = None
 
     @classmethod
     def from_spec(cls, spec):

@@ -1,0 +1,57 @@
+{
+  "id": "merchant",
+  "name": "Торговец",
+  "glyph": "m",
+  "foreground": 220,
+  "greeting": "Товары конечны. О цене договоримся раз в сутки.",
+  "trade": {
+    "gold": 150,
+    "difficulty": 15,
+    "percent": 10,
+    "stock": [
+      {
+        "item": "base:wood",
+        "quantity": 12
+      },
+      {
+        "item": "base:cloth",
+        "quantity": 8
+      },
+      {
+        "item": "base:torch",
+        "quantity": 3
+      },
+      {
+        "item": "base:dagger",
+        "quantity": 2
+      }
+    ],
+    "rules": [
+      {
+        "item": "base:wood",
+        "buy": 3,
+        "sell": 6
+      },
+      {
+        "item": "base:cloth",
+        "buy": 2,
+        "sell": 5
+      },
+      {
+        "item": "base:torch",
+        "buy": 5,
+        "sell": 10
+      },
+      {
+        "item": "base:medicinal_herb",
+        "buy": 4,
+        "sell": 9
+      },
+      {
+        "item": "base:dagger",
+        "buy": 10,
+        "sell": 20
+      }
+    ]
+  }
+}

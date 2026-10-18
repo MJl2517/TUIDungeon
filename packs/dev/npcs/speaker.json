@@ -1,0 +1,38 @@
+{
+  "id": "speaker",
+  "name": "Собеседник",
+  "glyph": "n",
+  "foreground": 14,
+  "greeting": "Приветствую на полигоне NPC. Здесь можно говорить даже без света.",
+  "topics": [
+    {
+      "id": "rumor",
+      "question": "Что здесь происходит?",
+      "answer": "Рядом торговец, квестодатель и скупщик мебели. Все стоят на своих местах."
+    },
+    {
+      "id": "secret",
+      "question": "[Убеждение] Поделитесь секретом?",
+      "answer": "Под стулом иногда находят монеты.",
+      "failure_answer": "Пока не доверяю вам.",
+      "check": {
+        "skill": "persuasion",
+        "difficulty": 15
+      },
+      "reward": {
+        "gold": 3
+      }
+    },
+    {
+      "id": "lesson",
+      "question": "Научите делать факел.",
+      "answer": "Обмотайте древесину тканью.",
+      "once": true,
+      "reward": {
+        "learn_recipes": [
+          "base:craft_torch"
+        ]
+      }
+    }
+  ]
+}

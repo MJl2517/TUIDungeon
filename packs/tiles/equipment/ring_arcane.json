@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "name": "Кольцо чародея",
+  "description": "Магическое украшение: +1 к атаке заклинанием и СЛ спасброска, пока надето.",
+  "symbol": "tiles:cell_0338",
+  "glyph": "O",
+  "foreground": 220,
+  "category": "tools",
+  "group": "Украшения: кольца",
+  "weight": 0.05,
+  "size": "small",
+  "slot": "ring",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "gold",
+    "jewelry",
+    "magic"
+  ],
+  "value_gold": 100,
+  "id": "ring_arcane",
+  "spell_bonus": 1
+}

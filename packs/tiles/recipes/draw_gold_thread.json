@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "name": "Вытянуть золотую нить",
+  "description": "Вытянуть золотую нить. Начальные значения для балансировки.",
+  "category": "jeweler",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "jeweler_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "base:gold"
+          ],
+          "quantity": 10
+        }
+      ],
+      "tools": [
+        "jeweler_tools"
+      ],
+      "proficiencies": [
+        "jeweler_tools"
+      ],
+      "turns": 2,
+      "stations": []
+    }
+  ],
+  "result": [
+    {
+      "item": "tiles:gold_thread",
+      "quantity": 1
+    }
+  ],
+  "id": "draw_gold_thread"
+}

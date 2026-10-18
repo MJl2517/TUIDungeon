@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "Деревянная табличка",
+  "description": "Можно подойти и прочесть текст.",
+  "glyph": "!",
+  "symbol": "tiles:cell_0344",
+  "foreground": 130,
+  "group": "Таблички и объявления",
+  "tags": [
+    "wooden",
+    "flammable"
+  ],
+  "reading": {
+    "title": "Указатель",
+    "pages": [
+      "Текст этой таблички задаётся автором карты."
+    ]
+  },
+  "id": "sign_344"
+}

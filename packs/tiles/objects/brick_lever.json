@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "name": "Рычаг на кирпичной стене",
+  "description": "Рычаг открывает связанные двери. Укажите ID размещений дверей у экземпляра.",
+  "glyph": "L",
+  "symbol": "tiles:cell_0845",
+  "foreground": 131,
+  "group": "Механизмы: стены",
+  "map_category": "wall",
+  "tags": [
+    "stone",
+    "mechanism"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "variants": [
+    {
+      "name": "Красный кирпич",
+      "symbol": "tiles:cell_0845",
+      "glyph": "#",
+      "foreground": 131
+    },
+    {
+      "name": "Песочный кирпич",
+      "symbol": "tiles:cell_0845",
+      "glyph": "#",
+      "foreground": 180
+    },
+    {
+      "name": "Серый кирпич",
+      "symbol": "tiles:cell_0845",
+      "glyph": "#",
+      "foreground": 245
+    },
+    {
+      "name": "Тёмный кирпич",
+      "symbol": "tiles:cell_0845",
+      "glyph": "#",
+      "foreground": 240
+    }
+  ],
+  "id": "brick_lever"
+}

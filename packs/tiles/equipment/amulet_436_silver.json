@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Серебряный амулет 436",
+  "description": "Серебряный амулет с узором.",
+  "symbol": "tiles:cell_0436",
+  "glyph": "*",
+  "foreground": 252,
+  "category": "tools",
+  "group": "Украшения: амулеты",
+  "weight": 0.2,
+  "size": "small",
+  "slot": "neck",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "silver",
+    "jewelry"
+  ],
+  "value_gold": 15,
+  "id": "amulet_436_silver"
+}

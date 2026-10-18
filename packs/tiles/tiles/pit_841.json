@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "pit_841",
+  "name": "Открытая яма",
+  "glyph": "O",
+  "foreground": 8,
+  "description": "Непроходимая яма. Для проверки падения используйте отдельный шаблон «Яма-ловушка».",
+  "group": "Пропасти и рельеф",
+  "map_category": "special",
+  "tags": [
+    "pit",
+    "height"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "symbol": "tiles:cell_0841"
+}

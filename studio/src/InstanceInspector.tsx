@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Doc,
   Entry,
@@ -7,9 +7,11 @@ import {
   instanceDocument,
   mergeProperties,
 } from "./model";
-import { FieldForm, fieldLabel } from "./Form";
+import { FieldForm, fieldLabel, propertySections } from "./Form";
 
 type Props = {
+  viewState?: Doc;
+  onViewState?: (state: Doc) => void;
   placement: Doc;
   layer: string;
   assets: Record<string, Doc>;
@@ -27,6 +29,9 @@ function Properties({
   mechanics,
   onChange,
   door = false,
+  category,
+  viewState = {},
+  onViewState,
 }: {
   base: Doc;
   patch: Doc;
@@ -35,11 +40,25 @@ function Properties({
   mechanics: Doc[];
   onChange: (patch: Doc) => void;
   door?: boolean;
+  category: string;
+  viewState?: Doc;
+  onViewState?: (state: Doc) => void;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(viewState.query ?? "");
+  const [section, setSection] = useState(viewState.section ?? "section-0");
+  useEffect(() => {
+    onViewState?.({ query, section });
+  }, [query, section]);
   const effective = mergeProperties(base, patch);
   const fields = door ? schema.$defs.DoorSpec.properties : schema.properties;
   const values = door ? effective.brush.door : effective;
+  const groups = propertySections(
+    category,
+    Object.keys(fields).filter(
+      (k) => !["id", "schema_version", "glyph", "char"].includes(k),
+    ),
+  );
+  const current = groups.find((g) => g.id === section) ?? groups[0];
   return (
     <div className="instance-properties">
       <input
@@ -49,16 +68,51 @@ function Properties({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
+      <select
+        aria-label="Раздел свойств экземпляра"
+        value={current?.id ?? ""}
+        onChange={(e) => setSection(e.target.value)}
+      >
+        {groups.map((g) => (
+          <option key={g.id} value={g.id}>
+            {g.title}
+          </option>
+        ))}
+      </select>
+      {query.trim() && (
+        <div className="property-search-results">
+          {groups.flatMap((g) =>
+            g.fields
+              .filter((k) =>
+                (fieldLabel(k) + " " + k)
+                  .toLowerCase()
+                  .includes(query.toLowerCase()),
+              )
+              .map((k) => (
+                <button
+                  key={k}
+                  onClick={() => {
+                    setSection(g.id);
+                    setQuery("");
+                  }}
+                >
+                  {g.title} → {fieldLabel(k)}
+                </button>
+              )),
+          )}
+        </div>
+      )}
       {Object.entries(fields)
+        .filter(([key]) => current?.fields.includes(key))
         .filter(
           ([key]) =>
             !["id", "schema_version", "glyph", "char"].includes(key) &&
-            (key !== "state_symbols" || !!effective.brush?.door),
-        )
-        .filter(([key]) =>
-          (fieldLabel(key) + " " + key)
-            .toLowerCase()
-            .includes(query.trim().toLowerCase()),
+            (key !== "key_code" ||
+              !fields.key_kind ||
+              effective.key_kind === "unique") &&
+            (key !== "state_symbols" ||
+              !!effective.brush?.door ||
+              !!effective.mechanism),
         )
         .filter(
           ([key]) =>
@@ -96,8 +150,9 @@ function Properties({
                   key === "state_symbols"
                     ? {
                         ...(field as Doc),
-                        state_options:
-                          effective.brush?.door?.material === "stone"
+                        state_options: effective.mechanism
+                          ? ["off", "on"]
+                          : effective.brush?.door?.material === "stone"
                             ? ["closed"]
                             : effective.brush?.door?.material === "bars"
                               ? ["closed", "locked", "open", "bent"]
@@ -136,6 +191,8 @@ function Properties({
 }
 
 export function InstanceInspector({
+  viewState = {},
+  onViewState,
   placement,
   layer,
   assets,
@@ -272,6 +329,9 @@ export function InstanceInspector({
         </details>
       )}
       <Properties
+        category={layer === "doors" ? "doors" : category}
+        viewState={viewState}
+        onViewState={onViewState}
         base={base}
         patch={placement.overrides ?? {}}
         schema={schema}
@@ -284,6 +344,7 @@ export function InstanceInspector({
         <details className="instance-challenge">
           <summary>Испытание: текст, варианты и последствия</summary>
           <Properties
+            category="challenges"
             base={challenge}
             patch={placement.challenge_overrides ?? {}}
             schema={schemas.challenges}

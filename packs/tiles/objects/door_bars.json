@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "door_bars",
+  "name": "Решётчатая дверь",
+  "description": "Подвижная решётка: пропускает свет и обзор. Можно открыть, запертый замок — вскрыть или открыть ключом; дверь — выломать или разъесть кислотой.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0553",
+  "state_symbols": {
+    "open": "tiles:cell_0552"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal"
+  ],
+  "brush": {
+    "door": {
+      "material": "bars"
+    }
+  },
+  "attackable": false,
+  "door_remains": [
+    {
+      "item": "base:metal",
+      "quantity": 2
+    }
+  ]
+}

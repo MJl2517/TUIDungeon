@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Стена руин 117",
+  "description": "Каменная стена руин. Закрывает движение, обзор и свет.",
+  "symbol": "tiles:cell_0117",
+  "glyph": "#",
+  "foreground": 108,
+  "map_category": "wall",
+  "group": "Руины",
+  "tags": [
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "id": "ruins_117"
+}

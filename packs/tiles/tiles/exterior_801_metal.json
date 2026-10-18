@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Металл: внешняя стена 801",
+  "description": "Внешняя стена. Закрывает движение, обзор и свет.",
+  "symbol": "tiles:cell_0801",
+  "glyph": "#",
+  "foreground": 153,
+  "map_category": "wall",
+  "group": "Внешние стены 2: металл",
+  "tags": [
+    "metal"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "id": "exterior_801_metal"
+}

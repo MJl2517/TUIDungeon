@@ -3,6 +3,7 @@
 from ..domain.doors import LockpickAttempt
 from ..domain.equipment import find_lockpicks
 from ..domain.rules import Ability
+from ..domain.keys import key_matches
 from ..world.maps import Position
 
 
@@ -86,6 +87,77 @@ class DoorCommands:
         if not self._door_available(instance):
             return self._door_result(False, 0, "Подойдите к двери.")
         door, hero = instance.door, self.state.hero
+        if door.access == "magic":
+            if action != "dispel":
+                return self._door_result(
+                    False,
+                    0,
+                    "Магическое поле открывается только механизмом или заклинанием «Развеивание магии».",
+                )
+            candidates = [
+                (s, source)
+                for s, source in self.spell_options()
+                if s.world_effect == "dispel"
+            ]
+            spell = next(
+                (
+                    pair
+                    for pair in candidates
+                    if self.scroll_item(pair[1])
+                    or hero.spell_slots.get(pair[0].level, 0) > 0
+                ),
+                next(iter(candidates), None),
+            )
+            if not spell:
+                return self._door_result(
+                    False,
+                    0,
+                    "Нужно известное заклинание «Развеивание магии» или его свиток.",
+                )
+            return self.cast_world_spell(
+                *spell, Position(instance.placement.x, instance.placement.y)
+            )
+        if door.access == "unique_key" and action not in ("use_key", "open", "close"):
+            return self._door_result(
+                False,
+                0,
+                "Дверь открывается только уникальным ключом. Взлом и разрушение невозможны.",
+            )
+        if door.travel and action not in ("use_key", "pick"):
+            if action != "open_transition":
+                return self._door_result(
+                    False,
+                    0,
+                    "Внимание: открытие перенесёт вас в другую локацию. Подтвердите переход в меню двери (Enter).",
+                )
+            if door.opened or door.locked:
+                return self._door_result(
+                    False,
+                    0,
+                    "Дверь уже открыта."
+                    if door.opened
+                    else "Сначала откройте замок двери.",
+                )
+            if not door.destination:
+                return self._door_result(
+                    False, 0, "У двери не настроена локация назначения."
+                )
+            # Validate/build the destination before mutating the door or spending a turn.
+            from .factories import SessionFactory
+
+            if door.destination not in self.levels:
+                self.levels[door.destination] = SessionFactory(
+                    self.state.level.store
+                ).state(door.destination, hero)
+            door.opened = True
+            result = self._finish_door(instance, action, "Вы открываете дверь.")
+            if hero.hp > 0:
+                return self._door_result(
+                    True,
+                    result.minutes,
+                    result.message + " " + self._travel_to(door.destination),
+                )
+            return result
         if action == "attack" and (
             door.material == "bars"
             or not getattr(instance.definition, "attackable", True)
@@ -106,13 +178,16 @@ class DoorCommands:
         if door.destroyed or door.bent:
             return self._door_result(False, 0, "Проход уже свободен.")
         if action == "use_key":
-            if (
-                not door.locked
-                or not door.key_tag
-                or not any(i.usable and door.key_tag in i.tags for i in hero.inventory)
+            if not door.locked or not any(
+                key_matches(i, door, "door", self.state.level.ref)
+                for i in hero.inventory
             ):
                 return self._door_result(
-                    False, 0, "Нет запертого замка или подходящего ключа."
+                    False,
+                    0,
+                    "Нужен уникальный ключ именно от этой двери."
+                    if door.key_code
+                    else "Нужен подходящий ключ двери или ключ для дверей с этого уровня.",
                 )
             door.locked = False
             return self._finish_door(instance, action, "Ключ открывает замок двери.")

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "flag_361",
+  "name": "Флаг на стойке",
+  "symbol": "tiles:cell_0361",
+  "glyph": "f",
+  "foreground": 160,
+  "group": "Декорации: флаги",
+  "map_category": "special",
+  "walkable": true,
+  "blocks_sight": false,
+  "attackable": false,
+  "tags": [
+    "cloth"
+  ],
+  "description": "Декоративный флаг. Не перекрывает движение, обзор и свет."
+}

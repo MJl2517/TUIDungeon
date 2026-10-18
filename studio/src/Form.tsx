@@ -1,5 +1,5 @@
 import { SymbolSelect } from "./Symbols";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ContentSelect } from "./ContentBrowser";
 import { craftNames, mapCategoryNames } from "./catalog";
 import { Doc, Entry, defaultFor, color } from "./model";
@@ -25,6 +25,45 @@ const skillLabels: Record<string, string> = {
   survival: "Выживание",
 };
 const labels: Record<string, string> = {
+  greeting: "Приветствие",
+  topics: "Вопросы",
+  question: "Вопрос",
+  answer: "Ответ",
+  failure_answer: "Ответ при провале",
+  once: "Скрыть после получения ответа",
+  conditions: "Условия видимости",
+  reward: "Награда",
+  failure_reward: "Последствия провала",
+  trade: "Магазин",
+  stock: "Начальный ассортимент",
+  rules: "Правила цен (первое совпадение)",
+  buy: "Выкуп у игрока, зол.",
+  sell: "Продажа игроку, зол.",
+  percent: "Поправка Убеждения, %",
+  quests: "Задания NPC",
+  quest: "Квест",
+  stages: "Этапы",
+  objectives: "Цели",
+  report_to: "Отчёт NPC (пусто — автоматически)",
+  map_ref: "Карта",
+  npc_id: "ID размещения NPC",
+  target_id: "ID размещения цели",
+  consume: "Передать предметы при сдаче",
+  offer: "Предложить задание",
+  accept_answer: "Ответ при принятии",
+  discuss: "Обсудить задание",
+  discuss_answer: "Ответ о ходе задания",
+  report: "Доложить",
+  report_answer: "Ответ при отчёте",
+  stage: "ID этапа",
+  topic: "ID вопроса",
+  outcome: "Результат вопроса",
+  status: "Статус задания",
+  furniture: "Шаблон мебели",
+  tag: "Группа по тегу",
+  recipe: "Рецепт",
+  gold: "Золото",
+  experience: "Опыт",
   cast_spell: "Заклинание свитка",
   spell_bonus: "Бонус фокуса к магической атаке и СЛ",
   operation: "Операция с предметом или миром",
@@ -94,6 +133,18 @@ const labels: Record<string, string> = {
   underlay: "Тайл под предметом",
   door: "Дверь",
   material: "Материал двери",
+  access: "Правило открытия двери",
+  travel: "Переход при подтверждённом открытии",
+  destination: "Локация назначения двери",
+  mechanism_targets: "ID связанных целей на карте",
+  mechanism: "Активирующий механизм",
+  initially_on: "Рычаг включён изначально",
+  code: "Код сигнала",
+  activation_code: "Код активации",
+  illusion: "Иллюзорная стена: исчезает при сигнале",
+  growth: "Рост растения",
+  grown_object: "Взрослое растение",
+  chance: "Шанс добычи, %",
   state: "Начальное состояние",
   locked: "Заперта",
   lock_quality: "Качество замка (СЛ)",
@@ -130,6 +181,8 @@ const labels: Record<string, string> = {
   capacity: "Вместимость, кг",
   lock: "Замок",
   key_tag: "Тег подходящего ключа",
+  key_kind: "Вид ключа",
+  key_code: "Код уникального замка / ключа",
   size: "Размер предмета",
   max_item_size: "Максимальный размер предмета",
   personal: "Личный (можно класть вещи; не обновляется)",
@@ -355,6 +408,46 @@ export function FieldForm({
     );
   const title = label ? fieldLabel(label, root) : "";
   const category = refCategory ?? original.ref_category ?? s.ref_category;
+  if (label === "key_code")
+    return (
+      <div className="field">
+        <label>{title}</label>
+        {original.generate_key_code && (
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={!!value}
+              onChange={(e) =>
+                onChange(
+                  e.target.checked
+                    ? crypto
+                        .randomUUID()
+                        .replaceAll("-", "")
+                        .slice(0, 8)
+                        .toUpperCase()
+                    : null,
+                )
+              }
+            />
+            Уникальный замок
+          </label>
+        )}
+        {(!original.generate_key_code || value) && (
+          <input
+            aria-label={title}
+            type="text"
+            maxLength={16}
+            value={value ?? ""}
+            placeholder="Вставьте код замка"
+            onFocus={(e) => e.currentTarget.select()}
+            onChange={(e) =>
+              onChange(e.target.value.trim().toUpperCase() || null)
+            }
+          />
+        )}
+        <small>{original.description}</small>
+      </div>
+    );
   if (label === "symbol")
     return (
       <div className="field">
@@ -400,6 +493,8 @@ export function FieldForm({
                 {(
                   {
                     closed: "Закрыта",
+                    on: "Включён / нажата",
+                    off: "Выключен / отпущена",
                     locked: "Заперта",
                     open: "Открыта",
                     bent: "Прутья погнуты",
@@ -511,9 +606,26 @@ export function FieldForm({
     }
     const children = Object.entries(s.properties).filter(
       ([key]) =>
+        (key !== "key_code" ||
+          !s.properties.key_kind ||
+          value?.key_kind === "unique") &&
         key !== "schema_version" &&
         key !== "glyph" &&
         key !== "char" &&
+        (s.title !== "QuestObjective" ||
+          [
+            "id",
+            "description",
+            "kind",
+            "quantity",
+            ...(value?.kind === "bring"
+              ? ["item", "consume"]
+              : value?.kind === "craft"
+                ? ["recipe"]
+                : value?.kind === "visit"
+                  ? ["map_ref", "x", "y", "width", "height"]
+                  : ["map_ref", "target_id"]),
+          ].includes(key)) &&
         (s.title !== "RecipeOperation" ||
           (
             {
@@ -681,7 +793,8 @@ export function FieldForm({
                 (e) => e.category === "equipment" && e.ref === v.item,
               )?.name ?? v.item)
             : "";
-          const detail = v?.name || materials || output;
+          const detail =
+            v?.name || v?.question || v?.description || materials || output;
           const caption = `${itemName} ${i + 1}${detail ? " · " + detail : ""}${v?.quantity ? " ×" + v.quantity : ""}`;
           const control = (
             <FieldForm
@@ -717,6 +830,34 @@ export function FieldForm({
                 <div className="array-card-body">{control}</div>
               </details>
               {remove}
+              {["topics", "stages", "objectives", "rules"].includes(label) && (
+                <div className="array-order">
+                  <button
+                    type="button"
+                    disabled={i === 0}
+                    aria-label={`Выше: ${caption}`}
+                    onClick={() => {
+                      const next = [...items];
+                      [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                      onChange(next);
+                    }}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    disabled={i === items.length - 1}
+                    aria-label={`Ниже: ${caption}`}
+                    onClick={() => {
+                      const next = [...items];
+                      [next[i + 1], next[i]] = [next[i], next[i + 1]];
+                      onChange(next);
+                    }}
+                  >
+                    ↓
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="array-row" key={i}>
@@ -732,7 +873,21 @@ export function FieldForm({
               ...items,
               category
                 ? (entries.find((e) => e.category === category)?.ref ?? "")
-                : defaultFor(s.items, root),
+                : (() => {
+                    const fresh = defaultFor(s.items, root);
+                    if (["topics", "stages", "objectives"].includes(label)) {
+                      let n = 1;
+                      const prefix = fresh.id || "entry";
+                      while (
+                        items.some(
+                          (entry: Doc) => entry.id === `${prefix}_${n}`,
+                        )
+                      )
+                        n++;
+                      fresh.id = `${prefix}_${n}`;
+                    }
+                    return fresh;
+                  })(),
             ])
           }
         >
@@ -789,6 +944,9 @@ export function FieldForm({
               {
                 ...damageLabels,
                 ...skillLabels,
+                door: "Ключ для дверей уровня",
+                container: "Ключ для контейнеров уровня",
+                unique: "Уникальный ключ",
                 liquid: "Обработка жидкости",
                 repair_item: "Ремонт предмета",
                 repair_object: "Ремонт объекта",
@@ -819,6 +977,8 @@ export function FieldForm({
                 steel: "Стальная",
                 stone: "Каменная плита",
                 adamantine: "Адамантиевая",
+                glass: "Стеклянная",
+                unique_key: "Только уникальный ключ",
                 open: "Открыта",
                 closed: "Закрыта",
                 cheap: "Лёгкий, бронзовый — СЛ 10",
@@ -851,6 +1011,22 @@ export function FieldForm({
                 magic: "Магия",
                 influence: "Влияние",
                 special: "Особое действие",
+                available: "Не принято",
+                active: "Активно",
+                completed: "Выполнено",
+                seen: "Прочитано",
+                success: "Успех",
+                failure: "Провал",
+                bring: "Принести предметы",
+                visit: "Посетить область",
+                talk: "Поговорить с NPC",
+                read: "Прочитать записку",
+                craft: "Изготовить по рецепту",
+                break_object: "Разрушить",
+                disarm: "Обезвредить",
+                activate_mechanism: "Активировать механизм",
+                lever: "Рычаг: переключение",
+                pressure_plate: "Плита: пока герой стоит на ней",
                 self: "На себя",
                 other: "На другого",
                 any: "Любая цель",
@@ -877,8 +1053,15 @@ export function FieldForm({
                 dancing_lights: "Пляшущие огоньки",
                 elementalism: "Элементализм",
                 noise: "Шум",
+                dispel: "Развеивание магического поля",
                 enter: "Вход на клетку",
                 ...(label === "map_category" ? mapCategoryNames : {}),
+                ...(label === "access"
+                  ? {
+                      normal: "Обычные взаимодействия",
+                      magic: "Механизм / развеивание магии",
+                    }
+                  : {}),
               } as Record<string, string>
             )[v] ?? v}
           </option>
@@ -963,6 +1146,31 @@ export function propertySections(category: string, keys: string[]): Section[] {
       "Название, назначение и поиск в библиотеке",
       ["id", "name", "description", "category", "group", "tags", "basic_known"],
     ],
+    ...(category === "npcs"
+      ? ([
+          [
+            "Разговор",
+            "Плоский список вопросов и ответов; условия выполняются совместно",
+            ["greeting", "topics"],
+          ],
+          [
+            "Магазин",
+            "Конечный запас, правила цен и один бросок Убеждения раз в 1440 минут",
+            ["trade"],
+          ],
+          ["Задания", "Предложения и тексты отчётов", ["quests"]],
+        ] as [string, string, string[]][])
+      : []),
+    ...(category === "quests"
+      ? ([
+          [
+            "Этапы задания",
+            "Выполняются по порядку; последний сдаётся NPC",
+            ["stages"],
+          ],
+          ["Награда", "Выдаётся однократно при финальной сдаче", ["reward"]],
+        ] as [string, string, string[]][])
+      : []),
     ...(category === "recipes"
       ? ([
           [
@@ -983,7 +1191,7 @@ export function propertySections(category: string, keys: string[]): Section[] {
         ] as [string, string, string[]][])
       : []),
     [
-      "Внешний вид",
+      "Графика",
       "Отображение на карте и варианты оформления",
       [
         "symbol",
@@ -1098,6 +1306,10 @@ export function propertySections(category: string, keys: string[]): Section[] {
         "poisonous",
         "water_source",
         "campfire",
+        "growth",
+        "mechanism_targets",
+        "mechanism",
+        "illusion",
         "dismantle",
         "door_remains",
         "movable",
@@ -1157,15 +1369,44 @@ export function propertySearchText(
 }
 export function DocumentForm({
   category,
+  viewState = {},
+  onViewState,
+  diagnostic,
   ...props
-}: Props & { category: string }) {
-  const [query, setQuery] = useState("");
+}: Props & {
+  category: string;
+  diagnostic?: Doc;
+  viewState?: Doc;
+  onViewState?: (state: Doc) => void;
+}) {
+  const [query, setQuery] = useState(viewState.query ?? "");
+  const [selectedSection, setSelectedSection] = useState(
+    viewState.section ?? "section-0",
+  );
+  const [focusedField, setFocusedField] = useState("");
+  const [conditionPercent, setConditionPercent] = useState(
+    viewState.conditionPercent ?? 100,
+  );
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scrollRef.current)
+      scrollRef.current.scrollTop = viewState.scrollTop ?? 0;
+  }, []);
+  useEffect(() => {
+    onViewState?.({
+      query,
+      section: selectedSection,
+      conditionPercent,
+      scrollTop: scrollRef.current?.scrollTop ?? 0,
+    });
+  }, [query, selectedSection, conditionPercent]);
   const groups = propertySections(
     category,
     Object.keys(props.schema.properties).filter(
       (k) =>
         !["glyph", "char"].includes(k) &&
         (k !== "state_symbols" ||
+          !!props.value.mechanism ||
           !!props.value.brush?.door ||
           !!props.value.storage),
     ),
@@ -1188,11 +1429,38 @@ export function DocumentForm({
         .includes(query.trim().toLocaleLowerCase("ru"))
     );
   };
-  const shown = groups
-    .map((g) => ({ ...g, fields: g.fields.filter(matches) }))
-    .filter((g) => g.fields.length);
+  const current = groups.find((g) => g.id === selectedSection) ?? groups[0];
+  const shown = current ? [current] : [];
+  function focusField(groupId: string, key: string) {
+    setSelectedSection(groupId);
+    setFocusedField(key);
+    requestAnimationFrame(() =>
+      scrollRef.current
+        ?.querySelector<HTMLElement>(`[data-field="${key}"]`)
+        ?.scrollIntoView({ block: "center", behavior: "smooth" }),
+    );
+  }
+  useEffect(() => {
+    if (!diagnostic) return;
+    const key = String(diagnostic.field ?? diagnostic.path ?? "symbol").split(
+      /[.[]/,
+    )[0];
+    const g = groups.find((g) => g.fields.includes(key));
+    if (g) focusField(g.id, key);
+  }, [diagnostic]);
   return (
-    <div className="document-form">
+    <div
+      className="document-form"
+      ref={scrollRef}
+      onScroll={(e) =>
+        onViewState?.({
+          query,
+          section: selectedSection,
+          conditionPercent,
+          scrollTop: e.currentTarget.scrollTop,
+        })
+      }
+    >
       <div className="property-toolbar">
         <label>
           Найти свойство
@@ -1209,12 +1477,30 @@ export function DocumentForm({
           {groups.length} разделов
         </span>
       </div>
+      {query.trim() && (
+        <div
+          className="property-search-results"
+          aria-label="Результаты поиска свойств"
+        >
+          {groups.flatMap((g) =>
+            g.fields.filter(matches).map((key) => (
+              <button key={g.id + key} onClick={() => focusField(g.id, key)}>
+                {g.title} → {fieldLabel(key, props.root)}
+              </button>
+            )),
+          )}
+        </div>
+      )}
       <nav className="property-nav" aria-label="Разделы свойств">
-        {shown.map((g) => (
-          <a href={`#${g.id}`} key={g.id}>
+        {groups.map((g) => (
+          <button
+            type="button"
+            key={g.id}
+            className={current?.id === g.id ? "selected" : ""}
+            onClick={() => setSelectedSection(g.id)}
+          >
             {g.title}
-            <span>{g.fields.length}</span>
-          </a>
+          </button>
         ))}
       </nav>
       {shown.map((g) => (
@@ -1252,8 +1538,10 @@ export function DocumentForm({
               return (
                 <div
                   key={key}
+                  data-field={key}
                   className={
                     "property-control " +
+                    (focusedField === key ? "field-highlight " : "") +
                     (["array", "object"].includes(type) ||
                     ["description", "text"].includes(key)
                       ? "wide"
@@ -1266,8 +1554,9 @@ export function DocumentForm({
                       key === "state_symbols"
                         ? {
                             ...field,
-                            state_options:
-                              props.value.storage && !props.value.brush?.door
+                            state_options: props.value.mechanism
+                              ? ["off", "on"]
+                              : props.value.storage && !props.value.brush?.door
                                 ? ["closed", "open"]
                                 : props.value.brush?.door?.material === "stone"
                                   ? ["closed"]
@@ -1300,6 +1589,62 @@ export function DocumentForm({
               );
             })}
           </div>
+          {category === "npcs" &&
+            g.fields.includes("trade") &&
+            props.value.trade && (
+              <div className="trade-preview">
+                <h3>Предпросмотр цен</h3>
+                <label>
+                  Состояние, %{" "}
+                  <input
+                    aria-label="Состояние для предпросмотра цен"
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={conditionPercent}
+                    onChange={(e) =>
+                      setConditionPercent(
+                        Math.max(0, Math.min(100, Number(e.target.value))),
+                      )
+                    }
+                  />
+                </label>
+                <p>
+                  Покупка / продажа игроком, золото. Реальная цена зависит от
+                  состояния экземпляра.
+                </p>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Товар / группа</th>
+                      <th>Без торга</th>
+                      <th>Успех</th>
+                      <th>Провал</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(props.value.trade.rules ?? []).map(
+                      (r: Doc, i: number) => (
+                        <tr key={i}>
+                          <td>
+                            {r.item || r.furniture || r.tag || "Выберите товар"}
+                          </td>
+                          {[
+                            0,
+                            props.value.trade.percent ?? 10,
+                            -(props.value.trade.percent ?? 10),
+                          ].map((p) => (
+                            <td key={p}>
+                              {tradePreview(r, conditionPercent, p).join(" / ")}
+                            </td>
+                          ))}
+                        </tr>
+                      ),
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
         </section>
       ))}
       {!shown.length && (
@@ -1317,4 +1662,19 @@ export function DocumentForm({
       </datalist>
     </div>
   );
+}
+
+export function tradePreview(
+  rule: Doc,
+  condition: number,
+  percent: number,
+): number[] {
+  const buy = Math.max(
+    1,
+    Math.ceil((rule.sell * condition * (100 - percent)) / 10000),
+  );
+  return [
+    buy,
+    Math.min(buy, Math.floor((rule.buy * condition * (100 + percent)) / 10000)),
+  ];
 }

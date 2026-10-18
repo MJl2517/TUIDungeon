@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "name": "Свисающая паутина",
+  "description": "Можно собрать паутинное волокно. Восстанавливается через 10 игровых дней после сбора.",
+  "glyph": "w",
+  "symbol": "tiles:cell_0603",
+  "foreground": 250,
+  "map_category": "destructible",
+  "group": "Паутина",
+  "tags": [
+    "fiber",
+    "organic",
+    "flammable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "destruction": {
+    "max_hp": 5,
+    "regrow_minutes": 14400,
+    "dismantle": {
+      "verb": "harvest",
+      "turns": 1,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:spider_silk",
+          "quantity": 1
+        }
+      ]
+    }
+  },
+  "id": "web_hanging"
+}

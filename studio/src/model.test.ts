@@ -15,6 +15,66 @@ import {
   diffProperties,
   instanceDocument,
 } from "./model";
+describe("coin pile graphics", () => {
+  it("switches at 10/11, follows layer visibility and falls back without markers", () => {
+    const doc = {
+      width: 3,
+      height: 1,
+      tiles: [[null, null, null]],
+      spawn: { x: 0, y: 0 },
+      equipment: [
+        ...Array.from({ length: 10 }, (_, i) => ({
+          id: `small_${i}`,
+          ref: "base:gold",
+          x: 1,
+          y: 0,
+        })),
+        ...Array.from({ length: 11 }, (_, i) => ({
+          id: `large_${i}`,
+          ref: "base:gold",
+          x: 2,
+          y: 0,
+        })),
+      ],
+    };
+    const assets = {
+      "equipment/base:gold": { glyph: "$", symbol: "base:gold" },
+      "symbols/base:gold": { glyph: "$" },
+      "symbols/tiles:small": { glyph: "$" },
+      "symbols/tiles:large": { glyph: "$" },
+      "tiles/tiles:small": {
+        map_category: "service",
+        tags: ["coin_indicator", "coin_small"],
+        symbol: "tiles:small",
+      },
+      "tiles/tiles:large": {
+        map_category: "service",
+        tags: ["coin_indicator", "coin_large"],
+        symbol: "tiles:large",
+      },
+    };
+    expect(mapGrid(doc, assets)[0][1]?.symbol).toBe("tiles:small");
+    expect(mapGrid(doc, assets)[0][2]?.symbol).toBe("tiles:large");
+    expect(
+      mapGrid(doc, {
+        ...assets,
+        "tiles/base:small": {
+          ...assets["tiles/tiles:small"],
+          symbol: "base:gold",
+        },
+      })[0][1]?.symbol,
+    ).toBe("tiles:small");
+    doc.equipment.pop();
+    expect(mapGrid(doc, assets)[0][2]?.symbol).toBe("tiles:small");
+    expect(mapGrid(doc, assets, { equipment: false })[0][2]).toBeNull();
+    expect(
+      mapGrid(doc, {
+        "equipment/base:gold": assets["equipment/base:gold"],
+        "symbols/base:gold": assets["symbols/base:gold"],
+      })[0][2]?.symbol,
+    ).toBe("base:gold");
+  });
+});
 describe("instance properties", () => {
   it("transparent gates and bent grilles share geometry and selected colors", () => {
     const gate = {

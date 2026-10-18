@@ -73,6 +73,7 @@ class Level:
     store: ContentSnapshot
     traps: list[TrapInstance] = field(default_factory=list)
     points: list[PointInstance] = field(default_factory=list)
+    npcs: list = field(default_factory=list)
     doors: list[DoorInstance] = field(default_factory=list)
     containers: list[StorageInstance] = field(default_factory=list)
     items: list[tuple[Placement | ItemPlacement, Equipment]] = field(
@@ -91,6 +92,7 @@ class Level:
         if name in (
             "traps",
             "points",
+            "npcs",
             "items",
             "doors",
             "containers",
@@ -106,12 +108,22 @@ class Level:
 
     @property
     def terrain(self):
-        if getattr(self, "_terrain_definition", None) is not self.definition:
+        signal_key = tuple(
+            (key, s.mechanism_on, s.activation_on)
+            for key, s in self.object_states.items()
+            if s.mechanism_on is not None or s.activation_on is not None
+        )
+        if (
+            getattr(self, "_terrain_definition", None) is not self.definition
+            or getattr(self, "_signal_key", None) != signal_key
+        ):
             self._base_terrain = (
                 self.store.terrain(self.ref)
-                if self.store.get("maps", self.ref) is self.definition
-                else Terrain.compile(self.store, self.definition)
+                if not signal_key
+                and self.store.get("maps", self.ref) is self.definition
+                else Terrain.compile(self.store, self.definition, self.object_states)
             )
+            self._signal_key = signal_key
             self._terrain_definition = self.definition
             self._door_geometry_key = None
         key = (
@@ -147,10 +159,17 @@ class Level:
                         and not getattr(doc, "light_fixture", None)
                         and (p.x, p.y) not in explicit
                     ):
-                        sources.append((Position(p.x, p.y), light))
+                        sources.append((p.id, Position(p.x, p.y), light))
             self._static_lights = tuple(sources)
             self._lights_definition = self.definition
-        return self._static_lights
+        return tuple(
+            (position, light)
+            for identifier, position, light in self._static_lights
+            if not (
+                self.object_states.get(identifier)
+                and self.object_states[identifier].activation_on is False
+            )
+        )
 
     @property
     def cells(self):
@@ -278,12 +297,30 @@ class Level:
                     rotation=definition.rotation,
                 )
 
-        for placement, item in state.item_index.region(x, y, width, height):
+        from collections import Counter
+
+        ground_items = list(state.item_index.region(x, y, width, height))
+        coins = Counter(
+            (p.x, p.y) for p, i in ground_items if i.id in {"gold", "base:gold"}
+        )
+        for placement, item in ground_items:
+            definition = item.template or self.store.get("equipment", placement.ref)
+            if item.id in {"gold", "base:gold"}:
+                indicator = self.store.service_tile(
+                    "coin_large"
+                    if coins[placement.x, placement.y] > 10
+                    else "coin_small",
+                    self.ref.split(":")[0],
+                )
+                if indicator:
+                    definition = indicator[1]
             draw(
-                item.template or self.store.get("equipment", placement.ref),
+                definition,
                 placement,
                 "equipment",
             )
+        for npc in self.index("npcs").region(x, y, width, height):
+            draw(npc.definition, npc.placement, "npcs")
         for monster in state.actor_index.region(x, y, width, height):
             if monster.monster.hp > 0:
                 ref = getattr(monster.monster, "definition_ref", None)

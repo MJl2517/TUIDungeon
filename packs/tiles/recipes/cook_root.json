@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "name": "Рацион из корнеплодов",
+  "description": "Приготовить урожай у источника тепла.",
+  "category": "cook",
+  "basic_known": true,
+  "variants": [
+    {
+      "name": "У огня",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:root_vegetables"
+          ],
+          "quantity": 2
+        }
+      ],
+      "turns": 3,
+      "stations": [
+        [
+          "heat"
+        ]
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:rations",
+      "quantity": 1
+    }
+  ],
+  "id": "cook_root"
+}

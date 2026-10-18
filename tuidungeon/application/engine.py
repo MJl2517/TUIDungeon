@@ -23,6 +23,8 @@ from .environment import EnvironmentCommands
 from .crafting import CraftCommands
 from .workshop import WorkshopCommands
 from .magic import MagicCommands
+from .social import SocialCommands
+from .mechanisms import MechanismCommands
 from ..world.doors import DoorInstance
 
 
@@ -67,6 +69,8 @@ def test_dungeon() -> DungeonMap:
 
 
 class Engine(
+    MechanismCommands,
+    SocialCommands,
     WorkshopCommands,
     CraftCommands,
     EnvironmentCommands,
@@ -101,6 +105,7 @@ class Engine(
         self.challenges: dict[str, Challenge] = {}
         self.events: list[dict] = EventLog()
         self.read_notes: dict[tuple[str, str], ReadNote] = {}
+        self.quests = {}
         self.lockpick_attempt = None
         self.active_craft = None
         self.magic_effects = []
@@ -108,6 +113,7 @@ class Engine(
         level = getattr(state, "level", None)
         self.levels = {level.ref: state} if level else {}
         self.discard_consumed_lights()
+        self.sync_mechanisms()
 
     @classmethod
     def new_game(
@@ -175,6 +181,7 @@ class Engine(
         return ActionResult(True, minutes, message)
 
     def _advance(self, minutes: int, refreshed: set[str] | None = None) -> list[str]:
+        self.sync_mechanisms()
         preserved = {
             name: turns
             for name, turns in self.state.hero.conditions.items()
@@ -212,6 +219,7 @@ class Engine(
         self.advance_magic()
         self.prune_magic_items()
         self.collect_door_remains()
+        self.refresh_quests()
         return expired
 
     def discard_consumed_lights(self) -> None:
@@ -636,6 +644,8 @@ class Engine(
             placement, item = entries[0]
             state.items.remove(entries[0])
             item.lit = False
+            if state.level:
+                item.bind_key(state.level.ref, state.level.definition.name)
             state.hero.inventory.append(item)
             self._advance(1)
             return ActionResult(True, 1, f"Подобрано: {item.name}.")
@@ -913,6 +923,12 @@ class Engine(
                 ]
         level = state.level
         if level:
+            for npc in level.index("npcs").at(position.x, position.y):
+                lines += [
+                    npc.definition.name,
+                    npc.definition.description,
+                    "Мирный собеседник. Enter рядом: поговорить.",
+                ]
             for container in level.index("containers").at(position.x, position.y):
                 if container.locked:
                     lines.append("Контейнер заперт.")
@@ -936,6 +952,9 @@ class Engine(
             for p in level.definition.objects:
                 if (p.x, p.y) == (position.x, position.y):
                     obj = level.store.resolve("objects", p)
+                    signal = level.object_states.get(p.id)
+                    if signal and obj.illusion and signal.activation_on:
+                        continue
                     lines += [*description(obj), *material_details(obj.tags)]
             for target in self.world_objects():
                 if (target.placement.x, target.placement.y) == (position.x, position.y):
@@ -954,7 +973,10 @@ class Engine(
                             f"{WORK_NAMES[target.dismantle.verb]}: {target.state.progress}/{target.state.total}"
                         )
             for instance in level.index("doors").at(position.x, position.y):
-                lines += instance.door.inspection()
+                lines += [
+                    *description(instance.definition),
+                    *instance.door.inspection(),
+                ]
             for p in level.points:
                 if (p.placement.x, p.placement.y) == (position.x, position.y):
                     lines += [
@@ -1103,28 +1125,27 @@ class Engine(
                     self.state.position.x,
                     self.state.position.y,
                 ):
-                    from .factories import SessionFactory
-
-                    target = transition.target
-                    previous = self.state
-                    if target not in self.levels:
-                        self.levels[target] = SessionFactory(level.store).state(
-                            target, previous.hero
-                        )
-                    self.state = self.levels[target]
-                    self.state.position = Position(
-                        self.state.level.definition.spawn.x,
-                        self.state.level.definition.spawn.y,
-                    )
-                    self.state.clock = previous.clock
-                    self.state.turns = previous.turns
-                    message = f"Переход: {self.state.level.definition.name}."
-                    messages.append(message)
-                    self.events.append(
-                        {"kind": "transition", "message": message, "target": target}
-                    )
+                    messages.append(self._travel_to(transition.target))
                     break
         return messages
+
+    def _travel_to(self, target):
+        from .factories import SessionFactory
+
+        previous = self.state
+        if target not in self.levels:
+            self.levels[target] = SessionFactory(previous.level.store).state(
+                target, previous.hero
+            )
+        self.state = self.levels[target]
+        spawn = self.state.level.definition.spawn
+        self.state.position = Position(spawn.x, spawn.y)
+        self.state.clock, self.state.turns = previous.clock, previous.turns
+        self.sync_mechanisms()
+        self.refresh_quests()
+        message = f"Переход: {self.state.level.definition.name}."
+        self.events.append({"kind": "transition", "message": message, "target": target})
+        return message
 
     def nearby_points(self):
         level = getattr(self.state, "level", None)
@@ -1152,9 +1173,11 @@ class Engine(
             for p in points
         ]
         present = {p.placement.id for p in points}
-        return points + [
-            c for c in self.nearby_containers() if c.placement.id not in present
-        ]
+        return (
+            self.nearby_npcs()
+            + points
+            + [c for c in self.nearby_containers() if c.placement.id not in present]
+        )
 
     def learn_recipes(self, refs):
         learned = self.state.hero.learn_recipes(refs)
@@ -1187,6 +1210,7 @@ class Engine(
             "lift",
             "move",
             "break_object",
+            "activate_mechanism",
         ):
             return self.interact_world(placement_id, choice_id)
         if self._door(placement_id):
@@ -1237,6 +1261,7 @@ class Engine(
                     self.events.append(
                         {"kind": "read", "placement": placement_id, "message": message}
                     )
+                    self.quest_event("read", target_id=placement_id)
                     return ChallengeResult(True, True, 0, message)
                 if point.challenge is None:
                     return ChallengeResult(False, False, 0, "Нет такого действия.")

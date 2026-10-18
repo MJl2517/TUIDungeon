@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "flag_410",
+  "name": "Флаг с полотнищем",
+  "symbol": "tiles:cell_0410",
+  "glyph": "f",
+  "foreground": 160,
+  "group": "Декорации: флаги",
+  "map_category": "special",
+  "walkable": true,
+  "blocks_sight": false,
+  "attackable": false,
+  "tags": [
+    "cloth"
+  ],
+  "description": "Декоративный флаг. Не перекрывает движение, обзор и свет."
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "chair_454",
+  "name": "Деревянный стул 454",
+  "description": "Деревянная мебель: можно передвинуть, поднять или разобрать инструментами плотника.",
+  "glyph": "C",
+  "foreground": 130,
+  "background": null,
+  "art": null,
+  "group": "Мебель",
+  "tags": [
+    "furniture",
+    "obstacle",
+    "transparent",
+    "flammable",
+    "wooden"
+  ],
+  "walkable": false,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": null,
+    "transition": false,
+    "door": null
+  },
+  "movable": true,
+  "weight": 4,
+  "destruction": {
+    "max_hp": 20,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": "lever",
+      "fast_turns": 1,
+      "loot": [
+        {
+          "item": "base:wood",
+          "quantity": 3
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ],
+      "tools": [
+        "carpenter_tools"
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:wood",
+        "quantity": 3
+      }
+    ]
+  },
+  "symbol": "tiles:cell_0454",
+  "size": "large",
+  "map_category": "furniture"
+}

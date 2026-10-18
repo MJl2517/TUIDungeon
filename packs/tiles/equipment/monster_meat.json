@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "monster_meat",
+  "name": "Мясо монстра",
+  "description": "Сырое мясо монстра. Можно приготовить у источника тепла.",
+  "glyph": "%",
+  "foreground": 135,
+  "category": "materials",
+  "group": "Пища",
+  "weight": 0.5,
+  "tags": [
+    "organic",
+    "food"
+  ],
+  "symbol": "tiles:cell_0818",
+  "size": "small"
+}

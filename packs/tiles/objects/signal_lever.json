@@ -1,0 +1,24 @@
+{
+  "id": "signal_lever",
+  "name": "Переключаемый рычаг",
+  "description": "Переключает связанные цели.",
+  "glyph": "L",
+  "symbol": "tiles:cell_0495",
+  "state_symbols": {
+    "off": "tiles:cell_0495",
+    "on": "tiles:cell_0494"
+  },
+  "foreground": 180,
+  "map_category": "special",
+  "group": "Механизмы",
+  "tags": [
+    "mechanism",
+    "stone"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "attackable": false,
+  "mechanism": {
+    "trigger": "lever"
+  }
+}

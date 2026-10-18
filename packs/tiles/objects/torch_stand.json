@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "torch_stand",
+  "name": "Факел на стойке",
+  "description": "Источник света можно снять; состояние и остаток топлива сохраняются. В пустую подставку можно установить факел.",
+  "variants": [],
+  "glyph": "!",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "group": "Свет и огонь",
+  "tags": [
+    "flammable",
+    "lighting_decor",
+    "storage",
+    "transparent",
+    "walkable",
+    "wooden"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": {
+      "radius": 6,
+      "bright_radius": 3
+    },
+    "transition": false,
+    "door": null
+  },
+  "light_fixture": {
+    "item": "base:torch",
+    "stays_when_empty": true
+  },
+  "storage": {
+    "capacity": 1000,
+    "personal": false,
+    "contents": [
+      {
+        "item": "base:torch",
+        "quantity": 1
+      }
+    ],
+    "max_item_size": "large"
+  },
+  "symbol": "tiles:cell_0740"
+}

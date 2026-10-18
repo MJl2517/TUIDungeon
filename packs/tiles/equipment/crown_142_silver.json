@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Серебряная корона 142",
+  "description": "Серебряная корона с узором.",
+  "symbol": "tiles:cell_0142",
+  "glyph": "^",
+  "foreground": 252,
+  "category": "tools",
+  "group": "Украшения: короны",
+  "weight": 0.5,
+  "size": "small",
+  "slot": "head",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "silver",
+    "jewelry"
+  ],
+  "value_gold": 30,
+  "id": "crown_142_silver"
+}

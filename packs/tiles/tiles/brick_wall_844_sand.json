@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "name": "Песочный кирпич: стена 844",
+  "description": "Неразбираемая стена. Закрывает движение, обзор и свет.",
+  "glyph": "#",
+  "symbol": "tiles:cell_0844",
+  "foreground": 180,
+  "group": "Стены: кирпич",
+  "map_category": "wall",
+  "tags": [
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "variants": [],
+  "id": "brick_wall_844_sand"
+}

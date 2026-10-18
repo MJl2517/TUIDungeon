@@ -218,7 +218,12 @@ class LightField:
             for position, source in level.static_lights:
                 illuminate(position, source.radius, source.bright_radius)
             for source in level.definition.lights:
-                if source.enabled:
+                signal = level.object_states.get(source.id)
+                if (
+                    signal.activation_on
+                    if signal and signal.activation_on is not None
+                    else source.enabled
+                ):
                     illuminate(
                         Position(source.x, source.y),
                         source.radius,

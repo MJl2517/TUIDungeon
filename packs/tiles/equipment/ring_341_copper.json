@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Медное кольцо 341",
+  "description": "Медное кольцо с узором.",
+  "symbol": "tiles:cell_0341",
+  "glyph": "O",
+  "foreground": 130,
+  "category": "tools",
+  "group": "Украшения: кольца",
+  "weight": 0.05,
+  "size": "small",
+  "slot": "ring",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "copper",
+    "jewelry"
+  ],
+  "value_gold": 5,
+  "id": "ring_341_copper"
+}

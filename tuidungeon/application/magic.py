@@ -256,6 +256,23 @@ class Noise(WorldSpell):
         return ActionOutcome(True, True, "Раздался громовой шум.")
 
 
+class Dispel(WorldSpell):
+    def validate(self, e, s, target, option, params):
+        if error := e.spell_cell_error(target, s.range):
+            return error
+        if not any(
+            d.door.access == "magic" and not d.door.passable
+            for d in e.spell_doors(target)
+        ):
+            return "На клетке нет закрытого магического поля."
+
+    def apply(self, e, s, target, option, params):
+        for d in e.spell_doors(target):
+            if d.door.access == "magic":
+                d.door.opened, d.door.locked = True, False
+        return ActionOutcome(True, True, "Магическое поле развеяно. Проход открыт.")
+
+
 class WorldSpellRegistry:
     def __init__(self):
         self.handlers = {}
@@ -277,6 +294,7 @@ for _kind, _handler in (
     ("tricks", Tricks()),
     ("elementalism", Tricks()),
     ("noise", Noise()),
+    ("dispel", Dispel()),
 ):
     world_spells.register(_kind, _handler)
 

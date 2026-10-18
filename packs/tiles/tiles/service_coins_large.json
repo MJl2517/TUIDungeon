@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "name": "Монеты: больше 10",
+  "description": "Служебный рисунок золота на клетке. Количество определяет изображение автоматически; сам по себе не создаёт деньги.",
+  "symbol": "tiles:cell_0239",
+  "glyph": "$",
+  "foreground": 220,
+  "map_category": "service",
+  "group": "Служебные: монеты",
+  "tags": [
+    "coin_indicator",
+    "coin_large"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "id": "service_coins_large"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "Доска объявлений",
+  "description": "Можно подойти и прочесть текст.",
+  "glyph": "!",
+  "symbol": "tiles:cell_0346",
+  "foreground": 130,
+  "group": "Таблички и объявления",
+  "tags": [
+    "wooden",
+    "flammable"
+  ],
+  "reading": {
+    "title": "Доска объявлений",
+    "pages": [
+      "Свежих объявлений пока нет."
+    ]
+  },
+  "id": "sign_346"
+}

@@ -77,6 +77,9 @@ class FurnitureRecord(Record):
 
 
 class ItemRecord(Record):
+    key_level: str | None = Field(default=None, min_length=1, max_length=200)
+    key_level_name: str | None = Field(default=None, min_length=1, max_length=200)
+
     @model_validator(mode="before")
     @classmethod
     def legacy_liquids(cls, value):
@@ -199,7 +202,36 @@ class ContainerRecord(Record):
     capacity: float = Field(gt=0, le=1000000, allow_inf_nan=False)
 
 
+class TopicRecord(Record):
+    success: bool
+    claimed: bool
+    answer: str
+
+
+class BargainRecord(Record):
+    at: int = Field(ge=0)
+    roll: int = Field(ge=1, le=20)
+    modifier: int
+    difficulty: int = Field(ge=0)
+    success: bool
+
+
+class NpcRecord(Record):
+    items: list[ItemRecord] = Field(default_factory=list)
+    topics: dict[LocalId, TopicRecord] = Field(default_factory=dict)
+    bargain: BargainRecord | None = None
+
+
+class QuestRecord(Record):
+    status: Literal["active", "completed"]
+    stage: int = Field(ge=0)
+    counts: dict[LocalId, int] = Field(default_factory=dict)
+    giver_map: Ref
+    giver_id: LocalId
+
+
 class LevelRecord(Record):
+    npcs: dict[LocalId, NpcRecord] = Field(default_factory=dict)
     regrowing_objects: list[RegrowingObject] = Field(default_factory=list)
     world: MapDocument | None = None
     object_states: dict[str, ObjectState] = Field(default_factory=dict)
@@ -237,6 +269,7 @@ class MagicRecord(Record):
 
 
 class SaveRecord(Record):
+    quests: dict[Ref, QuestRecord] = Field(default_factory=dict)
     active_craft: str | None = None
     read_notes: list[ReadNote] = Field(default_factory=list)
     test_profile: Literal["wizard"] | None = None
@@ -259,6 +292,8 @@ def item_record(item):
     from ..domain.liquids import liquid_effect_records
 
     return ItemRecord(
+        key_level=item.key_level,
+        key_level_name=item.key_level_name,
         furniture=FurnitureRecord(
             category=item.furniture.category,
             placement=item.furniture.placement,
@@ -356,6 +391,12 @@ def restore_item(record, catalog):
     ):
         raise ValueError("Неизвестный рецепт в тексте предмета")
     item = Equipment.create(definition)
+    if (record.key_level or record.key_level_name) and definition.key_kind not in (
+        "door",
+        "container",
+    ):
+        raise ValueError("Уровень привязки допустим только для ключа уровня")
+    item.key_level, item.key_level_name = record.key_level, record.key_level_name
     item.template = record.template
     for name in ("durability", "charges"):
         value, maximum = getattr(record, name), getattr(item.definition, name)
@@ -674,6 +715,16 @@ class SaveRepository:
             level = entry.level
             levels.append(
                 LevelRecord(
+                    npcs={
+                        n.placement.id: NpcRecord(
+                            items=[item_record(i) for i in n.items],
+                            topics=n.topics,
+                            bargain=n.bargain,
+                        )
+                        for n in level.npcs
+                    }
+                    if level
+                    else {},
                     world=level.definition
                     if level and level.definition is not level.authored_definition
                     else None,
@@ -762,6 +813,7 @@ class SaveRepository:
                 )
             )
         record = SaveRecord(
+            quests=engine.quests,
             active_craft=engine.active_craft,
             read_notes=list(engine.read_notes.values()),
             test_profile=hero.test_profile,
@@ -970,6 +1022,10 @@ class SaveRepository:
                         bend_difficulty=original.bend_difficulty,
                         foreground=original.foreground,
                         key_tag=original.key_tag,
+                        key_code=original.key_code,
+                        access=original.access,
+                        travel=original.travel,
+                        destination=original.destination,
                     )
                     if instance.door.material == "stone":
                         instance.door.opened = instance.door.locked = False
@@ -1195,7 +1251,34 @@ class SaveRepository:
                     state.level.door_loot.update(
                         d.placement.id for d in state.level.doors if d.door.destroyed
                     )
+            if state.level:
+                for identifier, data in saved.npcs.items():
+                    npc = next(
+                        (n for n in state.level.npcs if n.placement.id == identifier),
+                        None,
+                    )
+                    if npc is None or set(data.topics) - {
+                        t.id for t in npc.definition.topics
+                    }:
+                        raise ValueError("Неизвестный NPC или вопрос в сохранении")
+                    if data.bargain and (
+                        not npc.definition.trade
+                        or data.bargain.at > record.elapsed_minutes
+                        or data.bargain.success
+                        != (
+                            data.bargain.roll + data.bargain.modifier
+                            >= data.bargain.difficulty
+                        )
+                    ):
+                        raise ValueError("Некорректный результат торга")
+                    npc.items = [restore_item(i, catalog) for i in data.items]
+                    npc.topics = {k: v.model_dump() for k, v in data.topics.items()}
+                    npc.bargain = data.bargain.model_dump() if data.bargain else None
             occupied = {state.position}
+            if state.level:
+                occupied.update(
+                    Position(n.placement.x, n.placement.y) for n in state.level.npcs
+                )
             for placement in state.monsters:
                 if placement.corpse_created and (
                     placement.monster.hp > 0 or placement.monster.inventory
@@ -1210,6 +1293,13 @@ class SaveRepository:
             states.append(state)
 
         all_items = [
+            *(
+                i
+                for state in states
+                if state.level
+                for n in state.level.npcs
+                for i in n.items
+            ),
             *hero.inventory,
             *(
                 d.brace
@@ -1279,6 +1369,19 @@ class SaveRepository:
         rng = random.Random()
         rng.setstate(tuples(record.rng))
         engine = Engine(states[record.current], rng)
+        for ref, progress in record.quests.items():
+            quest = engine.quest_def(ref)
+            if (
+                progress.stage >= len(quest.stages)
+                or any(v < 0 for v in progress.counts.values())
+                or set(progress.counts)
+                - {o.id for o in quest.stages[progress.stage].objectives}
+            ):
+                raise ValueError("Некорректный этап или прогресс квеста")
+            giver = engine.state.level.store.get("maps", progress.giver_map)
+            if not any(n.id == progress.giver_id for n in giver.npcs):
+                raise ValueError("Неизвестный квестодатель")
+            engine.quests[ref] = progress.model_dump()
         for note in record.read_notes:
             key = note.map_ref, note.placement_id
             if key in engine.read_notes:
@@ -1356,6 +1459,7 @@ class SaveRepository:
         ):
             raise ValueError("Концентрация не соответствует эффекту")
         engine.sync_magic()
+        engine.sync_mechanisms()
         if not engine.state.walkable(engine.state.position):
             raise ValueError("Герой находится в закрытой двери")
         if record.lockpick:

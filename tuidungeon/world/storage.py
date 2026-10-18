@@ -83,8 +83,5 @@ class StorageInstance:
                 f"Вскрыть замок: ЛОВ, СЛ {self.lock.lock_dc}, {self.lock.lock_turns} ход(ов); {lockpicks_hint(hero.inventory)}",
             )
         ]
-        if self.lock.key_tag:
-            choices.append(
-                DoorChoice("unlock_container_key", "Открыть подходящим ключом")
-            )
+        choices.append(DoorChoice("unlock_container_key", "Открыть подходящим ключом"))
         return tuple(choices)

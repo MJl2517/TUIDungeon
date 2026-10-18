@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "cook_fruit",
+  "name": "Приготовить: фрукты",
+  "description": "Приготовить пищу у источника тепла.",
+  "category": "cook",
+  "basic_known": false,
+  "learn_on_proficiency": [
+    "cook_tools"
+  ],
+  "variants": [
+    {
+      "name": "Обычный способ",
+      "ingredients": [
+        {
+          "items": [
+            "tiles:fruit"
+          ],
+          "quantity": 1
+        }
+      ],
+      "turns": 2,
+      "tools": [
+        "cook_tools"
+      ],
+      "proficiencies": [
+        "cook_tools"
+      ],
+      "stations": [
+        [
+          "heat"
+        ]
+      ]
+    }
+  ],
+  "result": [
+    {
+      "item": "base:rations",
+      "quantity": 1
+    }
+  ],
+  "operation": null
+}

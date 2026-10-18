@@ -1,0 +1,93 @@
+{
+  "id": "npc_trial",
+  "name": "Испытание помощника",
+  "description": "Разговор, записка, сбор, крафт и передача предметов.",
+  "stages": [
+    {
+      "id": "learn",
+      "description": "Узнать о полигоне",
+      "objectives": [
+        {
+          "id": "talk",
+          "kind": "talk",
+          "description": "Поговорить с собеседником",
+          "map_ref": "dev:npc_lab",
+          "target_id": "speaker"
+        },
+        {
+          "id": "read",
+          "kind": "read",
+          "description": "Прочитать записку",
+          "map_ref": "dev:npc_lab",
+          "target_id": "instructions"
+        }
+      ]
+    },
+    {
+      "id": "harvest",
+      "description": "Собрать траву",
+      "objectives": [
+        {
+          "id": "herb",
+          "kind": "harvest",
+          "description": "Собрать лекарственный цветок",
+          "map_ref": "dev:npc_lab",
+          "target_id": "flower"
+        }
+      ]
+    },
+    {
+      "id": "craft",
+      "description": "Проверить ремесло",
+      "objectives": [
+        {
+          "id": "torch",
+          "kind": "craft",
+          "description": "Изготовить факел",
+          "recipe": "base:craft_torch"
+        },
+        {
+          "id": "visit",
+          "kind": "visit",
+          "description": "Посетить южный участок",
+          "map_ref": "dev:npc_lab",
+          "x": 2,
+          "y": 8,
+          "width": 4,
+          "height": 2
+        }
+      ]
+    },
+    {
+      "id": "report",
+      "description": "Принести древесину смотрителю",
+      "objectives": [
+        {
+          "id": "wood",
+          "kind": "bring",
+          "description": "Передать древесину",
+          "item": "base:wood",
+          "quantity": 2,
+          "consume": true
+        }
+      ],
+      "report_to": {
+        "map_ref": "dev:npc_lab",
+        "npc_id": "quest_giver"
+      }
+    }
+  ],
+  "reward": {
+    "gold": 25,
+    "experience": 50,
+    "items": [
+      {
+        "item": "base:cloth",
+        "quantity": 2
+      }
+    ],
+    "learn_recipes": [
+      "base:craft_bandage"
+    ]
+  }
+}

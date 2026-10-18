@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "door_bars_unique",
+  "name": "Решётчатая дверь с особым замком",
+  "description": "Нужен уникальный ключ с кодом этого замка. Как обычную решётчатую дверь, её можно выломать или разъесть кислотой. Свет и обзор проходят.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0544",
+  "state_symbols": {
+    "open": "tiles:cell_0552"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "metal"
+  ],
+  "brush": {
+    "door": {
+      "material": "bars",
+      "locked": true,
+      "key_code": "BARS0544"
+    }
+  },
+  "attackable": false,
+  "door_remains": [
+    {
+      "item": "base:metal",
+      "quantity": 2
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "door_glass",
+  "name": "Стеклянная дверь",
+  "description": "Пропускает свет и обзор. Разбивается от 5 урона: остаются осколки и с вероятностью 50% фурнитура. Аккуратный разбор сохраняет стеклянные листы.",
+  "glyph": "+",
+  "symbol": "tiles:cell_0447",
+  "state_symbols": {
+    "open": "tiles:cell_0448"
+  },
+  "group": "Двери",
+  "map_category": "auto",
+  "tags": [
+    "door",
+    "glass"
+  ],
+  "brush": {
+    "door": {
+      "material": "glass",
+      "hit_points": 5,
+      "transmits_light": true,
+      "foreground": 159
+    }
+  },
+  "door_remains": [
+    {
+      "item": "tiles:glass_shards",
+      "quantity": 2
+    },
+    {
+      "item": "base:furniture_hardware",
+      "quantity": 1,
+      "chance": 50
+    }
+  ],
+  "destruction": {
+    "max_hp": 5,
+    "dismantle": {
+      "turns": 3,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "tiles:glass_sheet",
+          "quantity": 2
+        },
+        {
+          "item": "base:furniture_hardware",
+          "quantity": 1
+        }
+      ]
+    }
+  }
+}

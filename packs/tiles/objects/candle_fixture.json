@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "candle_fixture",
+  "name": "Свеча",
+  "description": "Свечу можно подобрать; остаток топлива сохраняется.",
+  "glyph": "i",
+  "foreground": 11,
+  "background": null,
+  "art": null,
+  "group": "Свет и огонь",
+  "tags": [
+    "lighting_decor",
+    "transparent",
+    "walkable",
+    "flammable"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "brush": {
+    "underlay": null,
+    "trap": null,
+    "interaction": null,
+    "item": null,
+    "light": {
+      "radius": 3,
+      "bright_radius": 1
+    },
+    "transition": false,
+    "door": null
+  },
+  "light_fixture": {
+    "item": "tiles:candle",
+    "stays_when_empty": false
+  },
+  "storage": {
+    "contents": [
+      {
+        "item": "tiles:candle",
+        "quantity": 1
+      }
+    ],
+    "max_item_size": "large"
+  },
+  "symbol": "tiles:cell_0739"
+}

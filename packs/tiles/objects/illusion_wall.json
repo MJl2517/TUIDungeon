@@ -1,0 +1,18 @@
+{
+  "id": "illusion_wall",
+  "name": "Иллюзорная стена",
+  "description": "Исчезает при сигнале, открывая проход и обзор. Возвращается после выключения.",
+  "glyph": "#",
+  "symbol": "tiles:cell_0119",
+  "foreground": 135,
+  "map_category": "special",
+  "group": "Механизмы",
+  "tags": [
+    "magic",
+    "stone"
+  ],
+  "walkable": false,
+  "blocks_sight": true,
+  "attackable": false,
+  "illusion": true
+}

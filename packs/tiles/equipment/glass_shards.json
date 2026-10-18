@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "glass_shards",
+  "name": "Осколки стекла",
+  "description": "Битое стекло после разрушения. Можно переплавить в стекольное сырьё.",
+  "glyph": "*",
+  "foreground": 159,
+  "symbol": "base:visual_equipment_glass_material",
+  "category": "materials",
+  "group": "Материалы",
+  "weight": 0.25,
+  "size": "small",
+  "tags": [
+    "glass"
+  ]
+}

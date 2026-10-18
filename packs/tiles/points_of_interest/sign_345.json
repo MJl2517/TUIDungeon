@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "Табличка на ножках",
+  "description": "Можно подойти и прочесть текст.",
+  "glyph": "!",
+  "symbol": "tiles:cell_0345",
+  "foreground": 130,
+  "group": "Таблички и объявления",
+  "tags": [
+    "wooden",
+    "flammable"
+  ],
+  "reading": {
+    "title": "Табличка",
+    "pages": [
+      "Текст этой таблички задаётся автором карты."
+    ]
+  },
+  "id": "sign_345"
+}

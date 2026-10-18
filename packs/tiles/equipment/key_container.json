@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "key_container",
+  "name": "Ключ для контейнеров уровня",
+  "description": "Открывает обычные запертые контейнеры только на уровне, где находится изначально. Не подходит к дверям и уникальным замкам. Не расходуется.",
+  "glyph": "k",
+  "foreground": 130,
+  "symbol": "tiles:cell_0572",
+  "category": "tools",
+  "group": "Ключи",
+  "weight": 0.05,
+  "size": "small",
+  "tags": [
+    "key",
+    "metal"
+  ],
+  "key_kind": "container",
+  "key_code": null
+}

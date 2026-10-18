@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Серебряное кольцо 339",
+  "description": "Серебряное кольцо с узором.",
+  "symbol": "tiles:cell_0339",
+  "glyph": "O",
+  "foreground": 252,
+  "category": "tools",
+  "group": "Украшения: кольца",
+  "weight": 0.05,
+  "size": "small",
+  "slot": "ring",
+  "hands": 0,
+  "tags": [
+    "metal",
+    "silver",
+    "jewelry"
+  ],
+  "value_gold": 15,
+  "id": "ring_339_silver"
+}

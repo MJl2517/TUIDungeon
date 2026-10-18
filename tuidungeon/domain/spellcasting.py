@@ -75,6 +75,7 @@ for kind, model in (
     ("dancing_lights", LightParameters),
     ("elementalism", MarkerParameters),
     ("noise", EmptyParameters),
+    ("dispel", EmptyParameters),
 ):
     world_spell_parameters.register(kind, model)
 

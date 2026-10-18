@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Пол руин",
+  "description": "Каменный пол среди руин.",
+  "symbol": "tiles:cell_0069",
+  "glyph": ".",
+  "foreground": 108,
+  "map_category": "floor",
+  "group": "Руины",
+  "tags": [
+    "stone"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "id": "ruins_69"
+}

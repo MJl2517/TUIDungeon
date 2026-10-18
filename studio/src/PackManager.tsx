@@ -9,7 +9,15 @@ export function PackManager({
   unsavedPack,
   onChanged,
   onClose,
+  inline = false,
+  unsavedPacks = [],
+  state = {},
+  onStateChange,
 }: {
+  inline?: boolean;
+  unsavedPacks?: string[];
+  state?: Doc;
+  onStateChange?: (value: Doc) => void;
   packs: Doc[];
   entries: Entry[];
   initialPack?: string;
@@ -18,14 +26,16 @@ export function PackManager({
   onClose: () => void;
 }) {
   const [selected, setSelected] = useState<string | null>(
-    packs.some((p) => p.id === initialPack)
-      ? initialPack!
-      : (packs[0]?.id ?? null),
+    state.selected !== undefined
+      ? state.selected
+      : packs.some((p) => p.id === initialPack)
+        ? initialPack!
+        : (packs[0]?.id ?? null),
   );
-  const [draft, setDraft] = useState<Doc | null>(null);
-  const [version, setVersion] = useState<string | null>(null);
-  const [baseline, setBaseline] = useState("");
-  const [query, setQuery] = useState("");
+  const [draft, setDraft] = useState<Doc | null>(state.draft ?? null);
+  const [version, setVersion] = useState<string | null>(state.version ?? null);
+  const [baseline, setBaseline] = useState(state.baseline ?? "");
+  const [query, setQuery] = useState(state.query ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -35,7 +45,7 @@ export function PackManager({
   const deleteReason =
     selected === "base"
       ? "Базовый пакет необходим для работы студии и игры."
-      : selected === unsavedPack
+      : selected === unsavedPack || unsavedPacks.includes(selected ?? "")
         ? "Сначала сохраните или закройте черновик этого пакета."
         : dependents.length
           ? "От пакета зависят: " +
@@ -43,6 +53,7 @@ export function PackManager({
           : "";
 
   useEffect(() => {
+    if (inline) return;
     const previous = document.activeElement as HTMLElement | null;
     dialog.current?.showModal();
     dialog.current
@@ -54,7 +65,17 @@ export function PackManager({
     };
   }, []);
 
+  const restored = useRef(state);
   useEffect(() => {
+    if (draft && !busy)
+      onStateChange?.({ selected, draft, version, baseline, query, dirty });
+  }, [selected, draft, version, baseline, query, busy]);
+  useEffect(() => {
+    if (restored.current?.draft && restored.current.selected === selected) {
+      restored.current = {};
+      return;
+    }
+    restored.current = {};
     let cancelled = false;
     setError("");
     setDraft(null);
@@ -117,6 +138,14 @@ export function PackManager({
         await api("/packs/" + selected, { document: draft, version }, "PUT");
       else await api("/packs", draft);
       const result = await api("/packs/" + draft.id);
+      onStateChange?.({
+        selected: draft.id,
+        draft: result.document,
+        version: result.version,
+        baseline: JSON.stringify(result.document),
+        query,
+        dirty: false,
+      });
       setDraft(result.document);
       setVersion(result.version);
       setBaseline(JSON.stringify(result.document));
@@ -155,16 +184,30 @@ export function PackManager({
     }
   }
 
+  useEffect(() => {
+    if (!inline) return;
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        void save();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  });
+  const Root: any = inline ? "section" : "dialog";
   return (
-    <dialog
+    <Root
       ref={dialog}
-      className="modal pack-manager"
+      className={
+        inline ? "pack-manager pack-manager-page" : "modal pack-manager"
+      }
       aria-label="Пакеты контента"
-      onCancel={(e) => {
+      onCancel={(e: React.SyntheticEvent) => {
         e.preventDefault();
         close();
       }}
-      onKeyDown={(e) => {
+      onKeyDown={(e: React.KeyboardEvent) => {
         e.stopPropagation();
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
           e.preventDefault();
@@ -336,6 +379,6 @@ export function PackManager({
           )}
         </form>
       </div>
-    </dialog>
+    </Root>
   );
 }

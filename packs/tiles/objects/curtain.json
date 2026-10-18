@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "curtain",
+  "name": "Тканевая перегородка",
+  "description": "Можно пройти насквозь. Плотная ткань закрывает обзор и свет; горюча, разбирается на ткань.",
+  "glyph": "|",
+  "symbol": "tiles:cell_0545",
+  "group": "Перегородки",
+  "map_category": "furniture",
+  "walkable": true,
+  "blocks_sight": true,
+  "tags": [
+    "cloth",
+    "flammable"
+  ],
+  "destruction": {
+    "max_hp": 5,
+    "dismantle": {
+      "turns": 1,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:cloth",
+          "quantity": 2
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:cloth",
+        "quantity": 1
+      }
+    ]
+  }
+}

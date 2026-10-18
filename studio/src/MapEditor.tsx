@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Grid } from "./Grid";
 import type { PointerModifiers } from "./Grid";
 import { visual } from "./symbolModel";
@@ -21,7 +21,18 @@ import { paletteCategory, paletteLayer } from "./catalog";
 import { paintTile, paintObject, sampleMap } from "./mapTools";
 import { InstanceInspector } from "./InstanceInspector";
 import { instanceDocument } from "./model";
+import {
+  MechanismLinks,
+  signalTargets,
+  signalHighlights,
+  toggleSignalTarget,
+  copiedSignalPlacement,
+} from "./MechanismLinks";
 type Props = {
+  diagnostic?: Doc;
+  viewState?: Doc;
+  onViewState?: (value: Doc) => void;
+  onOpenDocument?: (category: string, ref: string) => void;
   doc: Doc;
   onChange: (d: Doc) => void;
   entries: Entry[];
@@ -36,7 +47,7 @@ type Props = {
 const names = layerNames;
 export function MapEditor({
   doc,
-  onChange,
+  onChange: onDocumentChange,
   entries,
   assets,
   notify,
@@ -45,44 +56,107 @@ export function MapEditor({
   documentRef,
   schemas,
   mechanics,
+  viewState = {},
+  diagnostic,
+  onViewState,
+  onOpenDocument,
 }: Props) {
-  const [section, setSection] = useState("floor"),
-    [layer, setLayer] = useState("tiles"),
-    [tool, setTool] = useState("brush"),
-    [ref, setRef] = useState("base:floor"),
-    [transitionTarget, setTransitionTarget] = useState(""),
-    [applyMechanics, setApplyMechanics] = useState(true),
-    [panel, setPanel] = useState("palette"),
+  function onChange(next: Doc) {
+    const remaining = new Set(
+      placements.flatMap((c) => (next[c] ?? []).map((p: Doc) => p.id)),
+    );
+    const removed = new Set(
+      placements.flatMap((c) =>
+        (doc[c] ?? [])
+          .filter((p: Doc) => !remaining.has(p.id))
+          .map((p: Doc) => p.id),
+      ),
+    );
+    if (removed.size)
+      next = {
+        ...next,
+        objects: (next.objects ?? []).map((p: Doc) => {
+          const d = instanceDocument(assets["objects/" + p.ref] ?? {}, p);
+          const targets: string[] = d.mechanism_targets ?? [];
+          return targets.some((id) => removed.has(id))
+            ? {
+                ...p,
+                overrides: {
+                  ...p.overrides,
+                  mechanism_targets: targets.filter((id) => !removed.has(id)),
+                },
+              }
+            : p;
+        }),
+      };
+    onDocumentChange(next);
+  }
+  const [section, setSection] = useState(viewState.section ?? "floor"),
+    [layer, setLayer] = useState(viewState.layer ?? "tiles"),
+    [tool, setTool] = useState(viewState.tool ?? "brush"),
+    [ref, setRef] = useState(viewState.ref ?? "base:floor"),
+    [transitionTarget, setTransitionTarget] = useState(
+      viewState.transitionTarget ?? "",
+    ),
+    [applyMechanics, setApplyMechanics] = useState(
+      viewState.applyMechanics ?? true,
+    ),
+    [panel, setPanel] = useState(viewState.panel ?? "palette"),
     [spaceHeld, setSpaceHeld] = useState(false),
     [shiftHeld, setShiftHeld] = useState(false),
-    [rotation, setRotation] = useState(0),
+    [rotation, setRotation] = useState(viewState.rotation ?? 0),
     [pointerInside, setPointerInside] = useState(false),
     [panning, setPanning] = useState(false),
-    [brushSize, setBrushSize] = useState(1),
+    [brushSize, setBrushSize] = useState(viewState.brushSize ?? 1),
     [paletteEmpty, setPaletteEmpty] = useState(false),
-    [maskValue, setMaskValue] = useState(true),
-    [initTile, setInitTile] = useState(true),
-    [zoom, setZoom] = useState(2),
+    [maskValue, setMaskValue] = useState(viewState.maskValue ?? true),
+    [initTile, setInitTile] = useState(viewState.initTile ?? true),
+    [zoom, setZoom] = useState(viewState.zoom ?? 2),
     [symbolMode, setSymbolMode] = useState(
-      () => localStorage.getItem("map-render-mode") !== "text",
+      () =>
+        viewState.symbolMode ??
+        (() => {
+          try {
+            return localStorage.getItem("map-render-mode") !== "text";
+          } catch {
+            return true;
+          }
+        })(),
     ),
-    [grid, setGrid] = useState(true),
+    [grid, setGrid] = useState(viewState.grid ?? true),
     [width, setWidth] = useState(doc.width),
     [height, setHeight] = useState(doc.height),
-    [hover, setHover] = useState<Point>(doc.spawn),
-    [selection, setSelection] = useState<Point[]>([]),
+    [hover, setHover] = useState<Point>(viewState.hover ?? doc.spawn),
+    [selection, setSelection] = useState<Point[]>(viewState.selection ?? []),
     [selected, setSelected] = useState<{ category: string; id: string } | null>(
-      null,
+      viewState.selected ?? null,
     ),
-    [clipboard, setClipboard] = useState<Doc | null>(null),
-    [visibility, setVisibility] = useState<Record<string, boolean>>({
-      walkability: true,
-      blocks_sight: false,
-      roof: false,
-    }),
+    [clipboard, setClipboard] = useState<Doc | null>(
+      viewState.clipboard ?? null,
+    ),
+    [visibility, setVisibility] = useState<Record<string, boolean>>(
+      viewState.visibility ?? {
+        walkability: true,
+        blocks_sight: false,
+        roof: false,
+      },
+    ),
     [preview, setPreview] = useState<Doc | null>(null);
+  const [mapPage, setMapPage] = useState(viewState.mapPage ?? "canvas");
+  const [paletteOpen, setPaletteOpen] = useState(viewState.paletteOpen ?? true);
+  const [paletteState, setPaletteState] = useState<Doc>(
+    viewState.palette ?? {},
+  );
+  const [optionsOpen, setOptionsOpen] = useState(
+    viewState.optionsOpen ?? false,
+  );
+  const [inspectorState, setInspectorState] = useState<Doc>(
+    viewState.inspector ?? {},
+  );
   useEffect(() => {
-    localStorage.setItem("map-render-mode", symbolMode ? "symbols" : "text");
+    try {
+      localStorage.setItem("map-render-mode", symbolMode ? "symbols" : "text");
+    } catch {}
   }, [symbolMode]);
   useEffect(() => {
     setWidth(doc.width);
@@ -120,6 +194,119 @@ export function MapEditor({
           options[0]?.ref ??
           "");
   const viewport = useRef<HTMLDivElement>(null);
+  const viewSnapshot = useRef<Doc>({});
+  const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const snapshot = () => ({
+    ...viewState,
+    section,
+    layer,
+    tool,
+    ref,
+    transitionTarget,
+    applyMechanics,
+    panel,
+    rotation,
+    brushSize,
+    maskValue,
+    initTile,
+    zoom,
+    symbolMode,
+    grid,
+    hover,
+    selection,
+    selected,
+    clipboard,
+    visibility,
+    mapPage,
+    paletteOpen,
+    optionsOpen,
+    palette: paletteState,
+    inspector: inspectorState,
+    scrollLeft:
+      viewport.current?.scrollLeft ??
+      viewSnapshot.current.scrollLeft ??
+      viewState.scrollLeft ??
+      0,
+    scrollTop:
+      viewport.current?.scrollTop ??
+      viewSnapshot.current.scrollTop ??
+      viewState.scrollTop ??
+      0,
+  });
+  useEffect(() => {
+    viewSnapshot.current = snapshot();
+    onViewState?.(viewSnapshot.current);
+  }, [
+    section,
+    layer,
+    tool,
+    ref,
+    transitionTarget,
+    applyMechanics,
+    panel,
+    rotation,
+    brushSize,
+    maskValue,
+    initTile,
+    zoom,
+    symbolMode,
+    grid,
+    selection,
+    selected,
+    clipboard,
+    visibility,
+    mapPage,
+    paletteOpen,
+    paletteState,
+    optionsOpen,
+    inspectorState,
+  ]);
+  useLayoutEffect(() => {
+    if (viewport.current) {
+      viewport.current.scrollLeft = viewState.scrollLeft ?? 0;
+      viewport.current.scrollTop = viewState.scrollTop ?? 0;
+    }
+  }, [mapPage]);
+  useEffect(
+    () => () => {
+      if (scrollTimer.current) {
+        clearTimeout(scrollTimer.current);
+        onViewState?.(viewSnapshot.current);
+      }
+    },
+    [],
+  );
+  useEffect(() => {
+    if (!diagnostic) return;
+    const match = String(diagnostic.field ?? diagnostic.path ?? "").match(
+      /^(\w+)\.(\d+)/,
+    );
+    const object = match ? doc[match[1]]?.[Number(match[2])] : null;
+    const point = diagnostic.cells?.[0] ?? object;
+    if (point && Number.isFinite(point.x) && Number.isFinite(point.y)) {
+      setMapPage("canvas");
+      setPanel("cell");
+      setHover({ x: point.x, y: point.y });
+      setSelection(diagnostic.cells ?? [point]);
+      if (object?.id && match)
+        setSelected({ category: match[1], id: object.id });
+      requestAnimationFrame(() => {
+        if (viewport.current) {
+          viewport.current.scrollLeft = Math.max(
+            0,
+            point.x * 16 * zoom - viewport.current.clientWidth / 2,
+          );
+          viewport.current.scrollTop = Math.max(
+            0,
+            point.y * 16 * zoom - viewport.current.clientHeight / 2,
+          );
+        }
+      });
+    } else {
+      setMapPage("settings");
+      setPanel("settings");
+    }
+  }, [diagnostic]);
   const pan = useRef<{
     x: number;
     y: number;
@@ -128,6 +315,11 @@ export function MapEditor({
     pointer: number;
   } | null>(null);
   const shown = preview ?? doc;
+  const linkedCells = new Set(
+    tool === "link" && selected
+      ? signalHighlights(doc, assets, selected.id).map((p) => `${p.x},${p.y}`)
+      : [],
+  );
   function paint(
     base: Doc,
     points: Point[],
@@ -188,7 +380,9 @@ export function MapEditor({
         else if (layer === "spawn") {
           if (
             !mapMasks(n, assets).walkability[p.y][p.x] ||
-            (n.monsters ?? []).some((m: Point) => m.x === p.x && m.y === p.y)
+            [...(n.monsters ?? []), ...(n.npcs ?? [])].some(
+              (m: Point) => m.x === p.x && m.y === p.y,
+            )
           )
             throw new Error("Выберите свободную проходимую клетку для старта.");
           n.spawn = p;
@@ -218,12 +412,18 @@ export function MapEditor({
               throw new Error(
                 "Объект можно разместить только на проходимой клетке.",
               );
-            if (layer === "monsters" && p.x === n.spawn.x && p.y === n.spawn.y)
+            if (
+              ["monsters", "npcs"].includes(layer) &&
+              ((p.x === n.spawn.x && p.y === n.spawn.y) ||
+                [...(n.monsters ?? []), ...(n.npcs ?? [])].some(
+                  (m: Point) => m.x === p.x && m.y === p.y,
+                ))
+            )
               throw new Error("Существо не может занимать старт героя.");
             const entry = {
               id: layer + "_" + Date.now() + "_" + p.x + "_" + p.y,
               ...p,
-              ...((mirrored || turned) && layer === "monsters"
+              ...((mirrored || turned) && ["monsters", "npcs"].includes(layer)
                 ? {
                     overrides: {
                       ...(mirrored
@@ -344,11 +544,25 @@ export function MapEditor({
         }),
       );
     const copyPrefix = "copy_" + Date.now() + "_";
+    const copiedIds = new Map<string, string>(
+      placements.flatMap((key) =>
+        (clip[key] ?? [])
+          .filter((e: Doc) => inBounds(n, { x: p.x + e.x, y: p.y + e.y }))
+          .map(
+            (e: Doc) =>
+              [e.id, moving ? e.id : copyPrefix + e.id] as [string, string],
+          ),
+      ),
+    );
     for (const key of placements)
       for (const e of clip[key])
         if (inBounds(n, { x: p.x + e.x, y: p.y + e.y }))
           (n[key] ??= []).push({
-            ...clone(e),
+            ...clone(
+              key === "objects"
+                ? copiedSignalPlacement(e, assets, copiedIds)
+                : e,
+            ),
             id: moving ? e.id : copyPrefix + e.id,
             x: p.x + e.x,
             y: p.y + e.y,
@@ -401,6 +615,25 @@ export function MapEditor({
     return expanded;
   }
   function down(p: Point, modifiers?: PointerModifiers) {
+    if (tool === "link" && selected?.category === "objects") {
+      setHover(p);
+      const found = signalTargets(doc, assets).filter(
+        (t) => t.placement.x === p.x && t.placement.y === p.y,
+      );
+      if (!found.length) {
+        notify("Выберите дверь, ловушку, свет или иллюзорную стену.");
+        return;
+      }
+      if (found.length > 1) {
+        notify("На клетке несколько целей — выберите нужную в панели связей.");
+        return;
+      }
+      const target = found.find((t) => t.layer === layer) ?? found[0];
+      onChange(
+        toggleSignalTarget(doc, assets, selected.id, target.placement.id),
+      );
+      return;
+    }
     const mirrored = modifiers?.shiftKey ?? shiftHeld;
     setShiftHeld(mirrored);
     setHover(p);
@@ -609,7 +842,7 @@ export function MapEditor({
         ["Equal", "NumpadAdd", "Minus", "NumpadSubtract"].includes(e.code)
       ) {
         e.preventDefault();
-        setZoom((z) =>
+        setZoom((z: number) =>
           Math.max(
             0.2,
             Math.min(
@@ -619,6 +852,10 @@ export function MapEditor({
           ),
         );
       } else if (e.code === "Escape") {
+        if (tool === "link") {
+          setTool("select");
+          return;
+        }
         stroke.current = null;
         setPreview(null);
         setSelection([]);
@@ -669,7 +906,9 @@ export function MapEditor({
         )
           return;
         e.preventDefault();
-        setRotation((angle) => (angle + (e.deltaY > 0 ? 90 : 270)) % 360);
+        setRotation(
+          (angle: number) => (angle + (e.deltaY > 0 ? 90 : 270)) % 360,
+        );
         setShiftHeld(e.shiftKey);
         return;
       }
@@ -688,8 +927,8 @@ export function MapEditor({
   });
   const masks = useMemo(() => mapMasks(shown, assets), [shown, assets]);
   const cells = useMemo(
-    () => mapGrid(shown, assets, visibility),
-    [shown, assets, visibility],
+    () => mapGrid(shown, assets, visibility, documentRef.split(":")[0]),
+    [shown, assets, visibility, documentRef],
   );
   const overlays = useMemo(() => {
     const result = [];
@@ -731,6 +970,7 @@ export function MapEditor({
         "points_of_interest",
         "traps",
         "monsters",
+        "npcs",
       ].includes(layer)
     )
       return [];
@@ -761,579 +1001,732 @@ export function MapEditor({
     doc.width,
     doc.height,
   ]);
+  const paletteElement = (
+    <MapPalette
+      state={paletteState}
+      onStateChange={setPaletteState}
+      entries={entries}
+      assets={assets}
+      layer={layer}
+      section={section}
+      onSection={(next) => {
+        setSection(next);
+        const candidates = entries.filter(
+          (e) => paletteCategory(e, assets) === next,
+        );
+        const first =
+          candidates.find(
+            (e) =>
+              e.ref ===
+              (
+                { floor: "base:floor", wall: "base:wall" } as Record<
+                  string,
+                  string
+                >
+              )[next],
+          ) ?? candidates[0];
+        setLayer(
+          next === "service"
+            ? "spawn"
+            : first
+              ? paletteLayer(first, assets)!
+              : "objects",
+        );
+        setRef(first?.ref ?? "");
+        setTool("brush");
+      }}
+      onLayer={(next) => {
+        setLayer(next);
+        setRef("");
+        setTool("brush");
+        if (next === "roof") setMaskValue(true);
+      }}
+      chosen={chosen}
+      onChoose={(next, nextLayer) => {
+        if (nextLayer) setLayer(nextLayer);
+        const selectedEntry = entries.find(
+          (e) =>
+            e.ref === next && paletteLayer(e, assets) === (nextLayer ?? layer),
+        );
+        if (selectedEntry)
+          setSection(paletteCategory(selectedEntry, assets) ?? "service");
+        if ((nextLayer ?? layer) === "transitions") setTransitionTarget(next);
+        else setRef(next);
+        setTool("brush");
+      }}
+      target={transitionTarget}
+      onTarget={setTransitionTarget}
+      documentRef={documentRef}
+      onEmpty={setPaletteEmpty}
+    />
+  );
   return (
-    <div className="editor-layout map-editor">
-      <div className="workspace">
-        <div className="toolbar">
-          {[
-            ["brush", "Кисть", "B"],
-            ["picker", "Пипетка", "I"],
-            ["pan", "Рука", "H / ПКМ"],
-            ["erase", "Удалить", "E"],
-            ["rect", "Прямоугольник", "R"],
-            ["line", "Линия", "L"],
-            ["fill", "Заливка", "G"],
-            ["select", "Выбрать", "V"],
-            ["move", "Перенести", "M"],
-            ["paste", "Вставить", "Ctrl+V"],
-          ].map(([id, name, shortcut]) => (
-            <button
-              key={id}
-              title={name + " · " + shortcut}
-              className={tool === id ? "active" : ""}
-              onClick={() => setTool(id)}
-            >
-              {name}
-              <kbd>{shortcut}</kbd>
-            </button>
+    <div
+      className={
+        "editor-layout map-editor map-workbench " +
+        (mapPage !== "canvas" ? "map-page " : "") +
+        (paletteOpen ? "palette-open " : "") +
+        (panel === "cell" && mapPage === "canvas" ? "inspector-open" : "")
+      }
+    >
+      <nav className="map-page-nav" aria-label="Страницы карты">
+        <button
+          className={mapPage === "canvas" ? "selected" : ""}
+          onClick={() => {
+            setMapPage("canvas");
+            if (panel === "settings") setPanel("palette");
+          }}
+        >
+          Холст
+        </button>
+        <button
+          className={mapPage === "settings" ? "selected" : ""}
+          onClick={() => {
+            setMapPage("settings");
+            setPanel("settings");
+          }}
+        >
+          Параметры
+        </button>
+        <button
+          className={mapPage === "transitions" ? "selected" : ""}
+          onClick={() => setMapPage("transitions")}
+        >
+          Переходы
+        </button>
+        <span />
+        <button onClick={() => setPaletteOpen(!paletteOpen)}>
+          {paletteOpen ? "Скрыть палитру" : "Показать палитру"}
+        </button>
+        {panel === "cell" && (
+          <button onClick={() => setPanel("palette")}>Скрыть инспектор</button>
+        )}
+      </nav>
+      {mapPage === "canvas" && paletteOpen && (
+        <aside className="map-palette-panel">{paletteElement}</aside>
+      )}
+      {mapPage === "transitions" && (
+        <section className="map-transitions-page">
+          <h2>Переходы между картами</h2>
+          {(doc.transitions ?? []).map((t: Doc) => (
+            <div className="transition-row" key={t.id}>
+              <span>
+                {t.id} · ({t.x}, {t.y}) →{" "}
+                {assets["maps/" + t.target]?.name ??
+                  entries.find(
+                    (e) => e.ref === t.target && e.category === "maps",
+                  )?.name ??
+                  t.target}
+              </span>
+              <button onClick={() => onOpenDocument?.("maps", t.target)}>
+                Открыть карту
+              </button>
+              <button
+                onClick={() => {
+                  setHover({ x: t.x, y: t.y });
+                  setMapPage("canvas");
+                  setPanel("cell");
+                }}
+              >
+                Показать клетку
+              </button>
+            </div>
           ))}
-          <button
-            onClick={() => {
-              const c = copyArea();
-              if (c) {
-                setClipboard(c);
-                notify("Скопированы графика, маски и объекты области");
-              }
-            }}
-          >
-            Копировать<kbd>Ctrl+C</kbd>
-          </button>
-        </div>
-        <div className="toolbar map-options">
-          <span className="layer-badge">{names[layer]}</span>
-          {["walkability", "blocks_sight", "roof"].includes(layer) && (
-            <label>
-              <input
-                type="checkbox"
-                checked={maskValue}
-                onChange={(e) => setMaskValue(e.target.checked)}
-              />
-              {layer === "walkability"
-                ? "Разрешить проход"
-                : layer === "roof"
-                  ? "Крыша над клеткой"
-                  : "Преграждать обзор"}
-            </label>
+          {!doc.transitions?.length && (
+            <p>Переходов нет. Разместите переход в служебном слое палитры.</p>
           )}
-          {layer === "tiles" && (
-            <>
+        </section>
+      )}
+      {mapPage === "canvas" && (
+        <div className="workspace">
+          <div className="toolbar">
+            {[
+              ["brush", "Кисть", "B"],
+              ["picker", "Пипетка", "I"],
+              ["pan", "Рука", "H / ПКМ"],
+              ["erase", "Удалить", "E"],
+              ["rect", "Прямоугольник", "R"],
+              ["line", "Линия", "L"],
+              ["fill", "Заливка", "G"],
+              ["select", "Выбрать", "V"],
+              ["move", "Перенести", "M"],
+              ["paste", "Вставить", "Ctrl+V"],
+            ].map(([id, name, shortcut]) => (
+              <button
+                key={id}
+                title={name + " · " + shortcut}
+                className={tool === id ? "active" : ""}
+                onClick={() => setTool(id)}
+              >
+                {name}
+                <kbd>{shortcut}</kbd>
+              </button>
+            ))}
+            <button
+              onClick={() => {
+                const c = copyArea();
+                if (c) {
+                  setClipboard(c);
+                  notify("Скопированы графика, маски и объекты области");
+                }
+              }}
+            >
+              Копировать<kbd>Ctrl+C</kbd>
+            </button>
+            <button
+              className="map-brush-options-toggle"
+              onClick={() => setOptionsOpen(!optionsOpen)}
+            >
+              Настройки кисти
+            </button>
+          </div>
+
+          <div
+            className={
+              "toolbar map-options " + (!optionsOpen ? "collapsed-options" : "")
+            }
+          >
+            <span className="layer-badge">{names[layer]}</span>
+            {["walkability", "blocks_sight", "roof"].includes(layer) && (
               <label>
                 <input
                   type="checkbox"
-                  checked={initTile}
-                  onChange={(e) => setInitTile(e.target.checked)}
+                  checked={maskValue}
+                  onChange={(e) => setMaskValue(e.target.checked)}
                 />
-                Начальные маски тайла
+                {layer === "walkability"
+                  ? "Разрешить проход"
+                  : layer === "roof"
+                    ? "Крыша над клеткой"
+                    : "Преграждать обзор"}
               </label>
-              <label title="Добавлять привязанные ловушки, свет, взаимодействия и предметы">
-                <input
-                  aria-label="Механика кисти"
-                  type="checkbox"
-                  checked={applyMechanics}
-                  onChange={(e) => setApplyMechanics(e.target.checked)}
-                />
-                Механика кисти
-              </label>
-            </>
-          )}
-          <label>
-            Кисть{" "}
-            <select
-              aria-label="Размер кисти"
-              value={brushSize}
-              onChange={(e) => setBrushSize(Number(e.target.value))}
-            >
-              {[1, 2, 3, 5, 8].map((size) => (
-                <option key={size} value={size}>
-                  {size} × {size}
-                </option>
-              ))}
-            </select>
-          </label>
-          <span className="coordinate">
-            {hover.x}, {hover.y}
-          </span>
-          <label>
-            Направление{" "}
-            <select
-              aria-label="Направление кисти"
-              value={rotation}
-              onChange={(e) => setRotation(Number(e.target.value))}
-            >
-              {[0, 90, 180, 270].map((angle) => (
-                <option key={angle} value={angle}>
-                  {angle}°
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <div
-          className={
-            "canvas-scroll map-viewport " +
-            (panning || spaceHeld || tool === "pan" ? "is-panning" : "")
-          }
-          ref={viewport}
-          onContextMenu={(e) => e.preventDefault()}
-          onPointerDownCapture={(e) => {
-            if (
-              e.button !== 2 &&
-              e.button !== 1 &&
-              !(e.button === 0 && (spaceHeld || tool === "pan"))
-            )
-              return;
-            e.preventDefault();
-            e.stopPropagation();
-            const view = e.currentTarget;
-            setPointerInside(false);
-            view.setPointerCapture(e.pointerId);
-            pan.current = {
-              x: e.clientX,
-              y: e.clientY,
-              left: view.scrollLeft,
-              top: view.scrollTop,
-              pointer: e.pointerId,
-            };
-            setPanning(true);
-          }}
-          onPointerMoveCapture={(e) => {
-            const start = pan.current;
-            if (!start) return;
-            e.preventDefault();
-            e.stopPropagation();
-            e.currentTarget.scrollLeft = start.left - (e.clientX - start.x);
-            e.currentTarget.scrollTop = start.top - (e.clientY - start.y);
-          }}
-          onPointerUpCapture={finishPan}
-          onPointerCancelCapture={finishPan}
-        >
-          <Grid
-            cells={cells}
-            square={true}
-            symbols={symbolMode}
-            overlays={overlays}
-            selection={selection}
-            zoom={zoom}
-            grid={grid}
-            ghost={ghost}
-            onDown={(p, modifiers) =>
-              modifiers?.altKey ? pick(p, true) : down(p, modifiers)
-            }
-            onDrag={drag}
-            onUp={up}
-            onHover={(p, modifiers) => {
-              setHover(p);
-              setPointerInside(true);
-              setShiftHeld(!!modifiers?.shiftKey);
-            }}
-            onLeave={() => setPointerInside(false)}
-          />
-        </div>
-        <div className="map-shortcuts">
-          ПКМ / Space + перетаскивание — двигать карту · Alt + клик — пипетка ·
-          Колесо — поворот на 90° · Ctrl + колесо — масштаб · Shift при
-          рисовании — зеркально по горизонтали
-          {shiftHeld && <strong> · Отражение включено</strong>}
-        </div>
-        <div className="toolbar">
-          <label>
-            Клетка {zoom * 16}×{zoom * 16}{" "}
-            <input
-              type="range"
-              aria-label="Масштаб карты"
-              min="1"
-              max="6"
-              step="1"
-              value={zoom}
-              onChange={(e) => setZoom(Number(e.target.value))}
-            />
-          </label>
-          <button onClick={() => setSymbolMode((v) => !v)}>
-            {symbolMode ? "Символы" : "Текст"}
-          </button>
-          <button title="Вписать карту (0)" onClick={fit}>
-            Вписать
-          </button>
-          <label>
-            <input
-              type="checkbox"
-              checked={grid}
-              onChange={(e) => setGrid(e.target.checked)}
-            />{" "}
-            Сетка
-          </label>
-          <label>
-            Размер{" "}
-            <input
-              className="short"
-              type="number"
-              aria-label="Ширина карты"
-              min="1"
-              max="256"
-              value={width}
-              onChange={(e) => setWidth(Number(e.target.value))}
-            />{" "}
-            ×{" "}
-            <input
-              className="short"
-              type="number"
-              aria-label="Высота карты"
-              min="1"
-              max="256"
-              value={height}
-              onChange={(e) => setHeight(Number(e.target.value))}
-            />
-          </label>
-          <button
-            onClick={() => {
-              if (width >= 1 && width <= 256 && height >= 1 && height <= 256)
-                onChange(resizeMap(doc, width, height));
-            }}
-          >
-            Изменить
-          </button>
-        </div>
-      </div>
-      <aside className="inspector map-sidebar">
-        <div className="map-side-tabs">
-          <button
-            className={panel === "palette" ? "selected" : ""}
-            onClick={() => setPanel("palette")}
-          >
-            Палитра
-          </button>
-          <button
-            className={panel === "cell" ? "selected" : ""}
-            onClick={() => setPanel("cell")}
-          >
-            Клетка
-          </button>
-          <button
-            className={panel === "settings" ? "selected" : ""}
-            onClick={() => setPanel("settings")}
-          >
-            Карта
-          </button>
-        </div>
-        {panel === "palette" ? (
-          <MapPalette
-            entries={entries}
-            assets={assets}
-            layer={layer}
-            section={section}
-            onSection={(next) => {
-              setSection(next);
-              const candidates = entries.filter(
-                (e) => paletteCategory(e, assets) === next,
-              );
-              const first =
-                candidates.find(
-                  (e) =>
-                    e.ref ===
-                    (
-                      { floor: "base:floor", wall: "base:wall" } as Record<
-                        string,
-                        string
-                      >
-                    )[next],
-                ) ?? candidates[0];
-              setLayer(
-                next === "service"
-                  ? "spawn"
-                  : first
-                    ? paletteLayer(first, assets)!
-                    : "objects",
-              );
-              setRef(first?.ref ?? "");
-              setTool("brush");
-            }}
-            onLayer={(next) => {
-              setLayer(next);
-              setRef("");
-              setTool("brush");
-              if (next === "roof") setMaskValue(true);
-            }}
-            chosen={chosen}
-            onChoose={(next, nextLayer) => {
-              if (nextLayer) setLayer(nextLayer);
-              const selectedEntry = entries.find(
-                (e) =>
-                  e.ref === next &&
-                  paletteLayer(e, assets) === (nextLayer ?? layer),
-              );
-              if (selectedEntry)
-                setSection(paletteCategory(selectedEntry, assets) ?? "service");
-              if ((nextLayer ?? layer) === "transitions")
-                setTransitionTarget(next);
-              else setRef(next);
-              setTool("brush");
-            }}
-            target={transitionTarget}
-            onTarget={setTransitionTarget}
-            documentRef={documentRef}
-            onEmpty={setPaletteEmpty}
-          />
-        ) : (
-          <div className="map-inspector-content">
-            {panel === "settings" && (
+            )}
+            {layer === "tiles" && (
               <>
-                <h3>Освещение</h3>
-                <select
-                  aria-label="Освещение карты"
-                  value={doc.ambient_light ?? "bright"}
-                  onChange={(e) =>
-                    onChange({ ...doc, ambient_light: e.target.value })
-                  }
-                >
-                  <option value="dark">Темнота</option>
-                  <option value="dim">Полумрак</option>
-                  <option value="bright">Яркий свет</option>
-                </select>
-                <p className="hint">
-                  Слой «Источники света»: рисуйте стационарные огни. Маска
-                  преград обзору перекрывает свет; в тесте свет также дают
-                  факелы и лампы в руках. Слой «Крыша» убирает общий свет на
-                  закрытых клетках, не перекрывая свет от источников.
-                </p>
-                <h3>Оверлеи</h3>
-                {Object.entries(names)
-                  .filter(([k]) => k !== "tiles" && k !== "spawn")
-                  .map(([key, name]) => (
-                    <label className="toggle" key={key}>
-                      <input
-                        type="checkbox"
-                        checked={visibility[key] ?? key !== "blocks_sight"}
-                        onChange={(e) =>
-                          setVisibility({
-                            ...visibility,
-                            [key]: e.target.checked,
-                          })
-                        }
-                      />
-                      {name}
-                    </label>
-                  ))}
-                <p className="hint">
-                  Красный — нет прохода. Синий — преграда обзору. Жёлтый —
-                  недостижимые участки. Фиолетовый — крыша (при рисовании крыши
-                  виден всегда). Графика не определяет эти маски.
-                </p>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={initTile}
+                    onChange={(e) => setInitTile(e.target.checked)}
+                  />
+                  Начальные маски тайла
+                </label>
+                <label title="Добавлять привязанные ловушки, свет, взаимодействия и предметы">
+                  <input
+                    aria-label="Механика кисти"
+                    type="checkbox"
+                    checked={applyMechanics}
+                    onChange={(e) => setApplyMechanics(e.target.checked)}
+                  />
+                  Механика кисти
+                </label>
               </>
             )}
-            {panel === "cell" && (
-              <>
-                {selected &&
-                  (() => {
-                    const placement = (doc[selected.category] ?? []).find(
-                      (p: Doc) => p.id === selected.id,
-                    );
-                    if (!placement || !placement.ref) return null;
-                    return (
-                      <InstanceInspector
-                        placement={placement}
-                        layer={selected.category}
-                        schemas={schemas}
-                        mechanics={mechanics}
-                        assets={assets}
-                        entries={entries}
-                        onChange={(changes) => {
-                          const category =
-                            selected.category === "doors"
-                              ? "objects"
-                              : selected.category;
-                          const base = assets[category + "/" + placement.ref];
-                          if (
-                            selected.category === "doors" &&
-                            placement.x === doc.spawn.x &&
-                            placement.y === doc.spawn.y &&
-                            instanceDocument(base, { ...placement, ...changes })
-                              .brush.door.state !== "open"
-                          ) {
-                            notify(
-                              "Закрытая дверь не может занимать старт героя.",
-                            );
-                            return;
-                          }
-                          onChange({
-                            ...doc,
-                            [selected.category]: doc[selected.category].map(
-                              (p: Doc) =>
-                                p.id === placement.id
-                                  ? { ...p, ...changes }
-                                  : p,
-                            ),
-                          });
-                        }}
-                      />
-                    );
-                  })()}
-                {selected?.category === "lights" &&
-                  (() => {
-                    const source = (doc.lights ?? []).find(
-                      (p: Doc) => p.id === selected.id,
-                    );
-                    if (!source) return null;
-                    const update = (changes: Doc) =>
-                      onChange({
-                        ...doc,
-                        lights: doc.lights.map((p: Doc) =>
-                          p.id === source.id ? { ...p, ...changes } : p,
+            <label>
+              Кисть{" "}
+              <select
+                aria-label="Размер кисти"
+                value={brushSize}
+                onChange={(e) => setBrushSize(Number(e.target.value))}
+              >
+                {[1, 2, 3, 5, 8].map((size) => (
+                  <option key={size} value={size}>
+                    {size} × {size}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <span className="coordinate">
+              {hover.x}, {hover.y}
+            </span>
+            <label>
+              Направление{" "}
+              <select
+                aria-label="Направление кисти"
+                value={rotation}
+                onChange={(e) => setRotation(Number(e.target.value))}
+              >
+                {[0, 90, 180, 270].map((angle) => (
+                  <option key={angle} value={angle}>
+                    {angle}°
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div
+            className={
+              "canvas-scroll map-viewport " +
+              (panning || spaceHeld || tool === "pan" ? "is-panning" : "")
+            }
+            ref={viewport}
+            onScroll={() => {
+              viewSnapshot.current = snapshot();
+              if (scrollTimer.current) clearTimeout(scrollTimer.current);
+              scrollTimer.current = setTimeout(() => {
+                scrollTimer.current = null;
+                onViewState?.(viewSnapshot.current);
+              }, 180);
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+            onPointerDownCapture={(e) => {
+              if (
+                e.button !== 2 &&
+                e.button !== 1 &&
+                !(e.button === 0 && (spaceHeld || tool === "pan"))
+              )
+                return;
+              e.preventDefault();
+              e.stopPropagation();
+              const view = e.currentTarget;
+              setPointerInside(false);
+              view.setPointerCapture(e.pointerId);
+              pan.current = {
+                x: e.clientX,
+                y: e.clientY,
+                left: view.scrollLeft,
+                top: view.scrollTop,
+                pointer: e.pointerId,
+              };
+              setPanning(true);
+            }}
+            onPointerMoveCapture={(e) => {
+              const start = pan.current;
+              if (!start) return;
+              e.preventDefault();
+              e.stopPropagation();
+              e.currentTarget.scrollLeft = start.left - (e.clientX - start.x);
+              e.currentTarget.scrollTop = start.top - (e.clientY - start.y);
+            }}
+            onPointerUpCapture={finishPan}
+            onPointerCancelCapture={finishPan}
+          >
+            <Grid
+              cells={cells}
+              square={true}
+              symbols={symbolMode}
+              overlays={
+                tool === "link" && selected
+                  ? [
+                      ...overlays,
+                      {
+                        cells: Array.from({ length: doc.height }, (_, y) =>
+                          Array.from({ length: doc.width }, (_, x) =>
+                            linkedCells.has(`${x},${y}`),
+                          ),
                         ),
-                      });
-                    return (
-                      <section>
-                        <label>
-                          Радиус света{" "}
-                          <input
-                            className="short"
-                            type="number"
-                            min="1"
-                            max="32"
-                            value={source.radius}
-                            onChange={(e) => {
-                              const radius = Math.max(
-                                1,
-                                Math.min(32, Number(e.target.value)),
-                              );
-                              update({
-                                radius,
-                                bright_radius: Math.min(
-                                  source.bright_radius,
-                                  radius,
+                        color: "#47d79866",
+                      },
+                    ]
+                  : overlays
+              }
+              selection={selection}
+              zoom={zoom}
+              grid={grid}
+              ghost={ghost}
+              onDown={(p, modifiers) =>
+                modifiers?.altKey ? pick(p, true) : down(p, modifiers)
+              }
+              onDrag={drag}
+              onUp={up}
+              onHover={(p, modifiers) => {
+                setHover(p);
+                setPointerInside(true);
+                setShiftHeld(!!modifiers?.shiftKey);
+              }}
+              onLeave={() => setPointerInside(false)}
+            />
+          </div>
+          <div className="map-shortcuts">
+            ПКМ / Space + перетаскивание — двигать карту · Alt + клик — пипетка
+            · Колесо — поворот на 90° · Ctrl + колесо — масштаб · Shift при
+            рисовании — зеркально по горизонтали
+            {shiftHeld && <strong> · Отражение включено</strong>}
+          </div>
+          <div className="toolbar">
+            <span className="coordinate" title="Координаты клетки">
+              X {hover.x} · Y {hover.y}
+            </span>
+            <label>
+              Клетка {zoom * 16}×{zoom * 16}{" "}
+              <input
+                type="range"
+                aria-label="Масштаб карты"
+                min="1"
+                max="6"
+                step="1"
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+              />
+            </label>
+            <button onClick={() => setSymbolMode((v: boolean) => !v)}>
+              {symbolMode ? "Символы" : "Текст"}
+            </button>
+            <button title="Вписать карту (0)" onClick={fit}>
+              Вписать
+            </button>
+            <label>
+              <input
+                type="checkbox"
+                checked={grid}
+                onChange={(e) => setGrid(e.target.checked)}
+              />{" "}
+              Сетка
+            </label>
+          </div>
+        </div>
+      )}
+      {(mapPage === "settings" ||
+        (mapPage === "canvas" && panel === "cell")) && (
+        <aside
+          className={
+            "inspector map-sidebar " +
+            (mapPage === "settings" ? "map-settings-page" : "")
+          }
+        >
+          {mapPage === "canvas" && (
+            <button
+              className="inspector-close"
+              onClick={() => setPanel("palette")}
+            >
+              × Закрыть инспектор
+            </button>
+          )}
+          {panel === "palette" ? null : (
+            <div className="map-inspector-content">
+              {panel === "settings" && (
+                <>
+                  <h2>Параметры карты</h2>
+                  <div className="toolbar">
+                    {" "}
+                    <label>
+                      Размер{" "}
+                      <input
+                        className="short"
+                        type="number"
+                        aria-label="Ширина карты"
+                        min="1"
+                        max="256"
+                        value={width}
+                        onChange={(e) => setWidth(Number(e.target.value))}
+                      />{" "}
+                      ×{" "}
+                      <input
+                        className="short"
+                        type="number"
+                        aria-label="Высота карты"
+                        min="1"
+                        max="256"
+                        value={height}
+                        onChange={(e) => setHeight(Number(e.target.value))}
+                      />
+                    </label>
+                    <button
+                      onClick={() => {
+                        if (
+                          width >= 1 &&
+                          width <= 256 &&
+                          height >= 1 &&
+                          height <= 256
+                        )
+                          onChange(resizeMap(doc, width, height));
+                      }}
+                    >
+                      Изменить
+                    </button>
+                  </div>
+                  <h3>Освещение</h3>
+                  <select
+                    aria-label="Освещение карты"
+                    value={doc.ambient_light ?? "bright"}
+                    onChange={(e) =>
+                      onChange({ ...doc, ambient_light: e.target.value })
+                    }
+                  >
+                    <option value="dark">Темнота</option>
+                    <option value="dim">Полумрак</option>
+                    <option value="bright">Яркий свет</option>
+                  </select>
+                  <p className="hint">
+                    Слой «Источники света»: рисуйте стационарные огни. Маска
+                    преград обзору перекрывает свет; в тесте свет также дают
+                    факелы и лампы в руках. Слой «Крыша» убирает общий свет на
+                    закрытых клетках, не перекрывая свет от источников.
+                  </p>
+                  <h3>Оверлеи</h3>
+                  {Object.entries(names)
+                    .filter(([k]) => k !== "tiles" && k !== "spawn")
+                    .map(([key, name]) => (
+                      <label className="toggle" key={key}>
+                        <input
+                          type="checkbox"
+                          checked={visibility[key] ?? key !== "blocks_sight"}
+                          onChange={(e) =>
+                            setVisibility({
+                              ...visibility,
+                              [key]: e.target.checked,
+                            })
+                          }
+                        />
+                        {name}
+                      </label>
+                    ))}
+                  <p className="hint">
+                    Красный — нет прохода. Синий — преграда обзору. Жёлтый —
+                    недостижимые участки. Фиолетовый — крыша (при рисовании
+                    крыши виден всегда). Графика не определяет эти маски.
+                  </p>
+                </>
+              )}
+              {panel === "cell" && (
+                <>
+                  {selected && (
+                    <MechanismLinks
+                      doc={doc}
+                      assets={assets}
+                      selected={selected}
+                      linking={tool === "link"}
+                      hover={hover}
+                      onLink={() =>
+                        setTool(tool === "link" ? "select" : "link")
+                      }
+                      onChange={onChange}
+                    />
+                  )}
+                  {selected &&
+                    (() => {
+                      const placement = (doc[selected.category] ?? []).find(
+                        (p: Doc) => p.id === selected.id,
+                      );
+                      if (!placement || !placement.ref) return null;
+                      return (
+                        <>
+                          <button
+                            className="open-template"
+                            onClick={() =>
+                              onOpenDocument?.(
+                                selected.category === "doors"
+                                  ? "objects"
+                                  : selected.category,
+                                placement.ref,
+                              )
+                            }
+                          >
+                            Открыть шаблон ↗
+                          </button>
+                          <InstanceInspector
+                            key={selected.category + "/" + selected.id}
+                            viewState={inspectorState}
+                            onViewState={setInspectorState}
+                            placement={placement}
+                            layer={selected.category}
+                            schemas={schemas}
+                            mechanics={mechanics}
+                            assets={assets}
+                            entries={entries}
+                            onChange={(changes) => {
+                              const category =
+                                selected.category === "doors"
+                                  ? "objects"
+                                  : selected.category;
+                              const base =
+                                assets[category + "/" + placement.ref];
+                              if (
+                                selected.category === "doors" &&
+                                placement.x === doc.spawn.x &&
+                                placement.y === doc.spawn.y &&
+                                instanceDocument(base, {
+                                  ...placement,
+                                  ...changes,
+                                }).brush.door.state !== "open"
+                              ) {
+                                notify(
+                                  "Закрытая дверь не может занимать старт героя.",
+                                );
+                                return;
+                              }
+                              onChange({
+                                ...doc,
+                                [selected.category]: doc[selected.category].map(
+                                  (p: Doc) =>
+                                    p.id === placement.id
+                                      ? { ...p, ...changes }
+                                      : p,
                                 ),
                               });
                             }}
                           />
-                        </label>
-                        <label>
-                          Яркий радиус{" "}
-                          <input
-                            className="short"
-                            type="number"
-                            min="0"
-                            max={source.radius}
-                            value={source.bright_radius}
-                            onChange={(e) =>
-                              update({
-                                bright_radius: Math.max(
-                                  0,
-                                  Math.min(
-                                    source.radius,
-                                    Number(e.target.value),
-                                  ),
-                                ),
-                              })
-                            }
-                          />
-                        </label>
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={source.enabled}
-                            onChange={(e) =>
-                              update({ enabled: e.target.checked })
-                            }
-                          />{" "}
-                          Включён
-                        </label>
-                      </section>
-                    );
-                  })()}
-                <h3>
-                  Клетка {hover.x}, {hover.y}
-                </h3>
-                <label>
-                  <input
-                    type="checkbox"
-                    aria-label="Отразить тайл в клетке"
-                    checked={!!doc.tile_mirrors?.[hover.y]?.[hover.x]}
-                    onChange={(e) => {
-                      const n = clone(doc);
-                      n.tile_mirrors ??= Array.from(
-                        { length: doc.height },
-                        () => Array(doc.width).fill(false),
+                        </>
                       );
-                      n.tile_mirrors[hover.y][hover.x] = e.target.checked;
-                      onChange(n);
-                    }}
-                  />{" "}
-                  Отразить тайл по горизонтали
-                </label>
-                <dl>
-                  <dt>Тайл</dt>
-                  <dd>{doc.tiles[hover.y]?.[hover.x] ?? "Нет"}</dd>
-                  <dt>Крыша</dt>
-                  <dd>{doc.roof[hover.y]?.[hover.x] ? "Да" : "Нет"}</dd>
-                  <dt>Проход</dt>
-                  <dd>
-                    {masks.walkability[hover.y]?.[hover.x] ? "Да" : "Нет"}
-                  </dd>
-                  <dt>Обзор</dt>
-                  <dd>
-                    {masks.blocks_sight[hover.y]?.[hover.x]
-                      ? "Закрыт"
-                      : "Открыт"}
-                  </dd>
-                </dl>
-                {placements.map((key) =>
-                  (doc[key] ?? [])
-                    .filter((p: Point) => p.x === hover.x && p.y === hover.y)
-                    .map((p: Doc) => (
+                    })()}
+                  {selected?.category === "lights" &&
+                    (() => {
+                      const source = (doc.lights ?? []).find(
+                        (p: Doc) => p.id === selected.id,
+                      );
+                      if (!source) return null;
+                      const update = (changes: Doc) =>
+                        onChange({
+                          ...doc,
+                          lights: doc.lights.map((p: Doc) =>
+                            p.id === source.id ? { ...p, ...changes } : p,
+                          ),
+                        });
+                      return (
+                        <section>
+                          <label>
+                            Радиус света{" "}
+                            <input
+                              className="short"
+                              type="number"
+                              min="1"
+                              max="32"
+                              value={source.radius}
+                              onChange={(e) => {
+                                const radius = Math.max(
+                                  1,
+                                  Math.min(32, Number(e.target.value)),
+                                );
+                                update({
+                                  radius,
+                                  bright_radius: Math.min(
+                                    source.bright_radius,
+                                    radius,
+                                  ),
+                                });
+                              }}
+                            />
+                          </label>
+                          <label>
+                            Яркий радиус{" "}
+                            <input
+                              className="short"
+                              type="number"
+                              min="0"
+                              max={source.radius}
+                              value={source.bright_radius}
+                              onChange={(e) =>
+                                update({
+                                  bright_radius: Math.max(
+                                    0,
+                                    Math.min(
+                                      source.radius,
+                                      Number(e.target.value),
+                                    ),
+                                  ),
+                                })
+                              }
+                            />
+                          </label>
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={source.enabled}
+                              onChange={(e) =>
+                                update({ enabled: e.target.checked })
+                              }
+                            />{" "}
+                            Включён
+                          </label>
+                        </section>
+                      );
+                    })()}
+                  <h3>
+                    Клетка {hover.x}, {hover.y}
+                  </h3>
+                  <label>
+                    <input
+                      type="checkbox"
+                      aria-label="Отразить тайл в клетке"
+                      checked={!!doc.tile_mirrors?.[hover.y]?.[hover.x]}
+                      onChange={(e) => {
+                        const n = clone(doc);
+                        n.tile_mirrors ??= Array.from(
+                          { length: doc.height },
+                          () => Array(doc.width).fill(false),
+                        );
+                        n.tile_mirrors[hover.y][hover.x] = e.target.checked;
+                        onChange(n);
+                      }}
+                    />{" "}
+                    Отразить тайл по горизонтали
+                  </label>
+                  <dl>
+                    <dt>Тайл</dt>
+                    <dd>{doc.tiles[hover.y]?.[hover.x] ?? "Нет"}</dd>
+                    <dt>Крыша</dt>
+                    <dd>{doc.roof[hover.y]?.[hover.x] ? "Да" : "Нет"}</dd>
+                    <dt>Проход</dt>
+                    <dd>
+                      {masks.walkability[hover.y]?.[hover.x] ? "Да" : "Нет"}
+                    </dd>
+                    <dt>Обзор</dt>
+                    <dd>
+                      {masks.blocks_sight[hover.y]?.[hover.x]
+                        ? "Закрыт"
+                        : "Открыт"}
+                    </dd>
+                  </dl>
+                  {placements.map((key) =>
+                    (doc[key] ?? [])
+                      .filter((p: Point) => p.x === hover.x && p.y === hover.y)
+                      .map((p: Doc) => (
+                        <button
+                          key={p.id}
+                          className={
+                            "object-card " +
+                            (selected?.id === p.id ? "selected" : "")
+                          }
+                          onClick={() => {
+                            setSelected({ category: key, id: p.id });
+                            setTool("select");
+                          }}
+                        >
+                          <strong>{names[key]}</strong>
+                          <span>
+                            {p.ref ?? p.target ?? `${p.radius} кл. света`}
+                          </span>
+                          <small>{p.id}</small>
+                        </button>
+                      )),
+                  )}
+                  {selected && (
+                    <div className="toolbar">
+                      <button onClick={() => setTool("move")}>
+                        Переместить объект
+                      </button>
                       <button
-                        key={p.id}
-                        className={
-                          "object-card " +
-                          (selected?.id === p.id ? "selected" : "")
-                        }
                         onClick={() => {
-                          setSelected({ category: key, id: p.id });
-                          setTool("select");
+                          deleteSelection();
                         }}
                       >
-                        <strong>{names[key]}</strong>
-                        <span>
-                          {p.ref ?? p.target ?? `${p.radius} кл. света`}
-                        </span>
-                        <small>{p.id}</small>
+                        Удалить объект
                       </button>
-                    )),
-                )}
-                {selected && (
-                  <div className="toolbar">
-                    <button onClick={() => setTool("move")}>
-                      Переместить объект
-                    </button>
-                    <button
-                      onClick={() => {
-                        deleteSelection();
-                      }}
-                    >
-                      Удалить объект
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-            {panel === "settings" && (
-              <>
-                <h3>Проверка карты</h3>
-                {warnings.length ? (
-                  warnings.map((w, i) => (
-                    <p className="warning" key={i}>
-                      {w.message}
+                    </div>
+                  )}
+                </>
+              )}
+              {panel === "settings" && (
+                <>
+                  <h3>Проверка карты</h3>
+                  {warnings.length ? (
+                    warnings.map((w, i) => (
+                      <p className="warning" key={i}>
+                        {w.message}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="hint">
+                      Проверка связности обновляется после сохранения.
+                      Изолированные комнаты разрешены.
                     </p>
-                  ))
-                ) : (
-                  <p className="hint">
-                    Проверка связности обновляется после сохранения.
-                    Изолированные комнаты разрешены.
-                  </p>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </aside>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </aside>
+      )}
     </div>
   );
 }

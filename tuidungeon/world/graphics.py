@@ -120,7 +120,7 @@ def export_txt(art):
     )
 
 
-def map_cells(store, definition, tiles=None):
+def map_cells(store, definition, tiles=None, object_states=None):
     blank = Cell()
     palette = {None: blank}
     cells = [[blank] * definition.width for _ in range(definition.height)]
@@ -144,9 +144,22 @@ def map_cells(store, definition, tiles=None):
                     )
     for placement in definition.objects:
         obj = store.resolve("objects", placement)
+        state = (object_states or {}).get(placement.id)
+        if state and (
+            (obj.illusion and state.activation_on)
+            or (obj.brush.light and state.activation_on is False)
+        ):
+            continue
         cells[placement.y][placement.x] = overlay(
             cells[placement.y][placement.x],
-            visual_cell(store, obj, "objects/" + placement.ref),
+            visual_cell(
+                store,
+                obj,
+                "objects/" + placement.ref,
+                ("on" if state.mechanism_on else "off")
+                if state and obj.mechanism
+                else None,
+            ),
         )
     for placement in definition.decorations:
         from ..content.placements import resolve_placement

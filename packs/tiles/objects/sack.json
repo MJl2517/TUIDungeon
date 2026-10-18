@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "name": "Мешок",
+  "description": "Тканевый мешок для малых и средних вещей. Можно переносить вместе с содержимым.",
+  "symbol": "tiles:cell_0242",
+  "state_symbols": {
+    "closed": "tiles:cell_0242",
+    "open": "tiles:cell_0243"
+  },
+  "glyph": "C",
+  "foreground": 130,
+  "map_category": "furniture",
+  "group": "Мебель: мешки",
+  "tags": [
+    "cloth",
+    "flammable",
+    "furniture"
+  ],
+  "walkable": true,
+  "blocks_sight": false,
+  "movable": true,
+  "weight": 1,
+  "size": "medium",
+  "storage": {
+    "personal": true,
+    "capacity": 20,
+    "max_item_size": "medium"
+  },
+  "destruction": {
+    "max_hp": 5,
+    "dismantle": {
+      "turns": 1,
+      "fast_tool": null,
+      "loot": [
+        {
+          "item": "base:cloth",
+          "quantity": 2
+        }
+      ]
+    },
+    "remains": [
+      {
+        "item": "base:cloth",
+        "quantity": 1
+      }
+    ]
+  },
+  "id": "sack"
+}
